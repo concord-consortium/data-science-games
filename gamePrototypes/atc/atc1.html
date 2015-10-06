@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<head>
+	<title>ATC early days</title>
+    <link rel='stylesheet' type='text/css' href='atc1.css'/>
+	<script type='text/javascript' src='atc1.js'></script>
+</head>
+<body>
+	<h2>ATC1</h2>
+	<canvas id = "airspace" width=400 height=400 mouseup="click()">
+	</canvas>
+	
+	<br/>
+	
+	<button id="L" onclick="turn(-5)">L</button>
+	<button id="R" onclick="turn(5)">R</button>
+	<p id="planeStatus"></p>
+	<p id="debug"></p>
+	<script>
+		setup();
+	</script>
+</body>

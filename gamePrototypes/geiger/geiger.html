@@ -1,0 +1,64 @@
+<!--
+    Here is the URL...
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/geiger/geiger.html
+    -->
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='geiger.css'/>
+
+
+    <!--These two scripts take care of the communication with CODAP-->
+    <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/iframe-phone.js" language="javascript"></script>
+    <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/codap_helper.js" language="javascript"></script>
+
+    <!-- This script is our game source -->
+    <script src="geigerScript.js" language="JavaScript"></script>
+    <script src="TEEGauge.js" language="JavaScript"></script>
+
+    <title>Geiger</title>
+</head>
+
+<body>
+<p>Click to place your detector. Press <strong>measure</strong> to get a reading. Try to find the source!</p>
+<canvas id = "lab" width=400 height=400 onmouseup="clickInLab();">
+</canvas>
+
+<canvas id = "doseGauge" width="400" height="24"></canvas>
+
+<hr/>
+
+<div class="hBox">
+    <div class="vBox" style="width: 160px">
+        <button value="measure" id="takeMeasurement"
+                onclick="geigerManager.doMeasurement();">measure
+        </button>
+        <form id="geigerForm">
+            Detector coordinates: <br>
+            (&nbsp;<input type="text" id="detectorX" value="10" size="6"
+                    onblur="geigerManager.moveDetectorByTyping();"> ,
+            <input type="text" id="detectorY" value="10" size="6"
+                   onblur="geigerManager.moveDetectorByTyping();">&nbsp;)
+        </form>
+    </div>
+    <div class="vBox">
+        <input type="checkbox"
+               id="useRandom"
+               form="geigerForm"> use randomness</br>
+
+        <span id="geigerInfo">original info</span></br>
+        <span id="geigerCount">count: 0</span>
+        </br></br>
+        <button value="new game" id="newGame" onclick="newGame();">new game</button>
+    </div>
+</div>
+
+<script>
+    geigerManager.initializeComponent();
+</script>
+
+</body>
+</html>
