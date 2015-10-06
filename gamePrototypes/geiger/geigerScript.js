@@ -142,8 +142,8 @@ geigerGameModel = {
     /**
      * Current position of the detector
      */
-    detectorX: 0,
-    detectorY: 0,
+    detectorX: 10, // Todo: HTML also sets initial values of the boxes to 10; should only be in one place.
+    detectorY: 10,
     /**
      * Total dose so far
      */
@@ -154,12 +154,13 @@ geigerGameModel = {
     latestCount: 0,
 
     /**
-     * Initialize model varaibles
+     * Initialize model properties for a new game
      */
-    setup: function () {
+    newGame: function () {
         this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
         this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
         this.sourceStrength = 1000000;
+        this.latestCount = 0;
         this.dose = 0;
     },
 
@@ -177,13 +178,12 @@ geigerGameModel = {
 
     /**
      * Perform a measurement. Updates internal positions. Updates this.latestcount.
-     * TODO: figure out if we need to update the positions here. If not, we can even lose the parameters.
      * @param x     X-position of detector.
      * @param y
      */
-    doMeasurement: function( x, y ) {
-        this.detectorX = x;
-        this.detectorY = y;
+    doMeasurement: function(  ) {
+        //  this.detectorX = x;
+        //  this.detectorY = y;
         var tSignal = this.signalStrength();
         this.latestCount = document.forms.geigerForm.useRandom.checked ? randomPoisson(tSignal) : tSignal;
 
@@ -201,6 +201,11 @@ geigerGameModel = {
 geigerManager = {
 
     /**
+     * initial coordinates of the detector
+     */
+    initialX: 10,
+    initialY: 10,
+    /**
      * Initializes various items.
      */
     initializeComponent: function() {
@@ -213,9 +218,11 @@ geigerManager = {
      * Resets Geiger for a new game.
      */
     newGame: function() {
+        geigerGameModel.newGame();
+
         displayInfo("New game. Find the source!");
-        geigerGameModel.setup();
-        this.latestCount = 0;
+
+        this.moveDetectorTo(this.initialX, this.initialY);
         this.updateScreen();
     },
 
@@ -226,6 +233,7 @@ geigerManager = {
     updateScreen: function() {
         geigerLabView.update();
         gauge.update( geigerGameModel.dose);
+        displayGeigerCount( geigerGameModel.latestCount);
     },
 
     /**
@@ -265,13 +273,12 @@ geigerManager = {
     /**
      * User has called for a measurement.
      * Creates a "measurement" case in CODAP.
-     * //TODO: determine if we really need to get the coordinates from the text fields
      */
     doMeasurement: function() {
-        var tX = document.forms.geigerForm.detectorX.value.trim();
-        var tY = document.forms.geigerForm.detectorY.value.trim();
+        //var tX = document.forms.geigerForm.detectorX.value.trim();
+        //var tY = document.forms.geigerForm.detectorY.value.trim();
 
-        geigerGameModel.doMeasurement( tX, tY );
+        geigerGameModel.doMeasurement(  );
 
         codapHelper.createCase(
             'measurements',
