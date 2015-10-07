@@ -6,14 +6,13 @@ var geigerGameModel;
 var geigerLabView;
 var gameCaseID = 0;
 var gameNumber = 0;
-var max_dose = 20000;
 
 /**
  * called from the html when user presses the new game button
  */
 function newGame() {
-    if (gameCaseID > 0) {
-        geigerManager.finishGameCase();
+    if (gameCaseID > 0) {   //  may not be necesary
+        geigerManager.finishGameCase( null );
     }
     gameNumber += 1;
     /**
@@ -21,7 +20,7 @@ function newGame() {
      */
     codapHelper.openCase(
         'games',
-        [this.gameNumber, 0, null, null],
+        [this.gameNumber, null, 0, null, null],
         setUpNewGameData
     );
 
@@ -144,19 +143,22 @@ geigerGameModel = {
     /**
      * radius of the "collector"
      */
-    collectorRadius: 10.0,
+    collectorRadius: 2.0,
+
+    /**
+     * Exceed this and you lose!
+     */
+    maxDose: 20000,
+
     /**
      * Initialize model properties for a new game
      */
     newGame: function () {
-        //this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
-        ///this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
+        this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
+        this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
         this.sourceStrength = 1000000;
         this.latestCount = 0;
         this.dose = 0;
-
-        this.sourceX = 50;
-        this.sourceY = 50;
     },
 
     /**
@@ -216,7 +218,7 @@ geigerManager = {
      */
     initializeComponent: function() {
         geigerLabView.setup();
-        gauge.setup('doseGauge','Dose',0,max_dose);
+        gauge.setup('doseGauge','Dose',0,geigerGameModel.maxDose);
         newGame();
     },
 
@@ -234,11 +236,21 @@ geigerManager = {
     },
 
     /**
+     * called when the user exceeds the maximum dose
+     */
+    doLoss: function() {
+        this.gameState = "lost";
+        console.log("game lost");
+        this.finishGameCase( "lost" );
+    },
+
+    /**
      * Called when the game is over because we've collected the sample.
      */
     doWin: function() {
         this.gameState = "won";
-        this.updateScreen();
+        console.log("game won");
+        this.finishGameCase( "won" );
     },
 
     /**
@@ -260,19 +272,24 @@ geigerManager = {
 
         var winImage = document.getElementById('winImage');
         var lossImage = document.getElementById('lossImage');
+        var playingControls = document.getElementById('playingControls');
+
 
         switch (this.gameState) {
             case "won":
                 winImage.style.visibility = 'visible';
                 lossImage.style.visibility = 'hidden';
+                playingControls.style.visibility = 'hidden';
                 break;
             case "lost":
                 winImage.style.visibility = 'hidden';
                 lossImage.style.visibility = 'visible';
+                playingControls.style.visibility = 'hidden';
                 break;
             case "playing":
                 winImage.style.visibility = 'hidden';
                 lossImage.style.visibility = 'hidden';
+                playingControls.style.visibility = 'visible';
                 break;
 
         }
@@ -332,24 +349,28 @@ geigerManager = {
 
             displayGeigerCount(geigerGameModel.latestCount); // note: only on doMeasurement!
         }
+        if (geigerGameModel.dose > geigerGameModel.maxDose) {
+            this.doLoss();
+        }
         this.updateScreen();
     },
 
     /**
      * finishes the current game case
      */
-    finishGameCase: function() {
+    finishGameCase: function( result ) {
         codapHelper.closeCase(
             'games',
             [
                 gameNumber,
+                result,
                 geigerGameModel.dose,
                 geigerGameModel.sourceX,
                 geigerGameModel.sourceY
             ],
             gameCaseID
         );
-
+        gameCaseID = 0;     //  so we know there is no open case
     }
 };
 
@@ -365,6 +386,7 @@ codapHelper.initSim({
             // The parent collection spec:
             attrs: [
                 {name: "gameNumber", type: 'categorical'},
+                {name: "result", type: 'categorical'},
                 {name: "dose", type: 'numeric', precision: 0},
                 {name: "sourceX", type: 'numeric', precision: 2},
                 {name: "sourceY", type: 'numeric', precision: 2}
