@@ -1,0 +1,47 @@
+<!--
+    Here is the URL...
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/traffic1d/traffic1d.html
+
+    or locally,
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/traffic1d/traffic1d.html
+
+ -->
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='traffic1d.css'/>
+
+
+    <!--These two scripts take care of the communication with CODAP-->
+    <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/iframe-phone.js" language="javascript"></script>
+    <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/codap_helper.js" language="javascript"></script>
+
+    <!-- This script is our game source -->
+    <script src="Car.js" language="JavaScript"></script>
+    <script src="traffic1d.js" language="JavaScript"></script>
+
+    <title>Traffic Lights</title>
+</head>
+
+<body>
+<canvas id = "road" width=800 height=100 onmouseup="trafficManager.click();">
+</canvas>
+
+
+<div class="hBox">
+    <button id="startStop" onclick="trafficManager.startStop()">Start</button>
+    <button id="addCar" onclick="trafficManager.addCar()">add car</button>
+    <button id="update" onclick="trafficManager.update(1)">step</button>
+</div>
+
+
+<script>
+    trafficManager.initializeComponent();
+</script>
+
+</body>
+</html>
