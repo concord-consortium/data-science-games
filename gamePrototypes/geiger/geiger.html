@@ -31,16 +31,18 @@
 </canvas>
 
 <canvas id = "doseGauge" width="400" height="24"></canvas>
+<img id="winImage" src="art/GeigerWin.png" style="position: absolute; top: 80px; left: 80px; "/>
+<img id="lossImage" src="art/GeigerLoss.png" style="position: absolute; top: 80px; left: 80px; "/>
 
 <hr/>
 
 <div class="hBox">
-    <div class="vBox" style="width: 160px">
+    <div class="vBox" style="width: 180px">
         <button value="measure" id="takeMeasurement"
-                onclick="geigerManager.doMeasurement();">measure
+                onclick="geigerManager.doMeasurement();">measure/collect
         </button>
         <form id="geigerForm">
-            Detector coordinates: <br>
+            <br> Detector/collector coordinates: <br>
             (&nbsp;<input type="text" id="detectorX" value="10" size="6"
                     onblur="geigerManager.moveDetectorByTyping();"> ,
             <input type="text" id="detectorY" value="10" size="6"
@@ -58,6 +60,7 @@
         <button value="new game" id="newGame" onclick="newGame();">new game</button>
     </div>
 </div>
+
 
 <script>
     geigerManager.initializeComponent();

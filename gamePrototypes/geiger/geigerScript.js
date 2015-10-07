@@ -13,11 +13,7 @@ var max_dose = 20000;
  */
 function newGame() {
     if (gameCaseID > 0) {
-        codapHelper.closeCase(
-            'games',
-            [this.gameNumber, geigerGameModel.dose, geigerGameModel.sourceX, geigerGameModel.sourceY],
-            gameCaseID
-        );
+        geigerManager.finishGameCase();
     }
     gameNumber += 1;
     /**
@@ -37,7 +33,7 @@ function newGame() {
  * Used to set the game's caseID. Callback from codapHelper.openCase().
  * @param iResult
  */
-function    setUpNewGameData(iResult) {
+function    setUpNewGameData(iResult) { //  todo: figure out howto get this somewhere else. Couldn't get the callback to work.
     gameCaseID = iResult.caseID;
     console.log("got case ID " + (gameCaseID));
 }
@@ -89,13 +85,6 @@ geigerLabView = {
         this.ctx.beginPath();
         this.drawDetector();
         this.ctx.closePath();
-
-        // UI text changes
-
-        var geigerCoordinates = "(" + geigerGameModel.detectorX + ", "
-            + geigerGameModel.detectorY + ")";
-        document.getElementById("takeMeasurement").innerHTML = "measure at " + geigerCoordinates;
-
         // window.requestAnimationFrame(geigerLabView.update);
     },
 
@@ -152,16 +141,22 @@ geigerGameModel = {
      * The radiation count for the last time the detector was used
      */
     latestCount: 0,
-
+    /**
+     * radius of the "collector"
+     */
+    collectorRadius: 10.0,
     /**
      * Initialize model properties for a new game
      */
     newGame: function () {
-        this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
-        this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
+        //this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
+        ///this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
         this.sourceStrength = 1000000;
         this.latestCount = 0;
         this.dose = 0;
+
+        this.sourceX = 50;
+        this.sourceY = 50;
     },
 
     /**
@@ -169,12 +164,11 @@ geigerGameModel = {
      * @returns {number}
      */
     signalStrength: function () {
-        var tDsquared = (this.detectorX - this.sourceX ) * (this.detectorX - this.sourceX )
-            + (this.detectorY - this.sourceY ) * (this.detectorY - this.sourceY );
-        var tCount = (geigerGameModel.sourceStrength / tDsquared);
+        var tCount = (geigerGameModel.sourceStrength / this.dSquared());
         tCount = Math.round(tCount);
         return tCount;
     },
+
 
     /**
      * Perform a measurement. Updates internal positions. Updates this.latestcount.
@@ -182,13 +176,21 @@ geigerGameModel = {
      * @param y
      */
     doMeasurement: function(  ) {
-        //  this.detectorX = x;
-        //  this.detectorY = y;
+
         var tSignal = this.signalStrength();
         this.latestCount = document.forms.geigerForm.useRandom.checked ? randomPoisson(tSignal) : tSignal;
 
         this.dose += this.latestCount;   // TODO: Update game case with current dose.
 
+    },
+    /**
+     * Utility: what's the square of the distance from the detector to the source?
+     * @returns {number}
+     */
+    dSquared: function() {
+        var tDsquared = (this.detectorX - this.sourceX ) * (this.detectorX - this.sourceX )
+        + (this.detectorY - this.sourceY ) * (this.detectorY - this.sourceY );
+        return tDsquared;
     }
 
 };
@@ -200,6 +202,10 @@ geigerGameModel = {
  */
 geigerManager = {
 
+    /**
+     * string about whether the game is "playing", "won" (the previous game) or "lost"
+     */
+    gameState: "playing",
     /**
      * initial coordinates of the detector
      */
@@ -220,9 +226,18 @@ geigerManager = {
     newGame: function() {
         geigerGameModel.newGame();
 
-        displayInfo("New game. Find the source!");
-
         this.moveDetectorTo(this.initialX, this.initialY);
+
+        displayInfo("New game. Find the source!");
+        this.gameState = "playing";
+        this.updateScreen();
+    },
+
+    /**
+     * Called when the game is over because we've collected the sample.
+     */
+    doWin: function() {
+        this.gameState = "won";
         this.updateScreen();
     },
 
@@ -233,7 +248,35 @@ geigerManager = {
     updateScreen: function() {
         geigerLabView.update();
         gauge.update( geigerGameModel.dose);
-        displayGeigerCount( geigerGameModel.latestCount);
+
+        // UI text changes
+
+/*
+        var geigerCoordinates = "(" + geigerGameModel.detectorX + ", "
+            + geigerGameModel.detectorY + ")";
+        document.getElementById("takeMeasurement").innerHTML = "measure/collect at " + geigerCoordinates;
+*/
+        // show and hide images
+
+        var winImage = document.getElementById('winImage');
+        var lossImage = document.getElementById('lossImage');
+
+        switch (this.gameState) {
+            case "won":
+                winImage.style.visibility = 'visible';
+                lossImage.style.visibility = 'hidden';
+                break;
+            case "lost":
+                winImage.style.visibility = 'hidden';
+                lossImage.style.visibility = 'visible';
+                break;
+            case "playing":
+                winImage.style.visibility = 'hidden';
+                lossImage.style.visibility = 'hidden';
+                break;
+
+        }
+
     },
 
     /**
@@ -275,20 +318,38 @@ geigerManager = {
      * Creates a "measurement" case in CODAP.
      */
     doMeasurement: function() {
-        //var tX = document.forms.geigerForm.detectorX.value.trim();
-        //var tY = document.forms.geigerForm.detectorY.value.trim();
+        //first, figure out if we're close enough to collect it!
+        if (geigerGameModel.dSquared() < geigerGameModel.collectorRadius) {
+            geigerManager.doWin()
+        } else {
+            geigerGameModel.doMeasurement();
 
-        geigerGameModel.doMeasurement(  );
+            codapHelper.createCase(
+                'measurements',
+                [geigerGameModel.detectorX, geigerGameModel.detectorY, geigerGameModel.latestCount],
+                gameCaseID
+            ); // no callback?
 
-        codapHelper.createCase(
-            'measurements',
-            [geigerGameModel.detectorX, geigerGameModel.detectorY, geigerGameModel.latestCount],
-            gameCaseID
-        ); // no callback?
-
-        displayGeigerCount( geigerGameModel.latestCount ); // note: only on doMeasurement!
-
+            displayGeigerCount(geigerGameModel.latestCount); // note: only on doMeasurement!
+        }
         this.updateScreen();
+    },
+
+    /**
+     * finishes the current game case
+     */
+    finishGameCase: function() {
+        codapHelper.closeCase(
+            'games',
+            [
+                gameNumber,
+                geigerGameModel.dose,
+                geigerGameModel.sourceX,
+                geigerGameModel.sourceY
+            ],
+            gameCaseID
+        );
+
     }
 };
 
