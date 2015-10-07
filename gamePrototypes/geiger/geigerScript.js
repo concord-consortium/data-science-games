@@ -410,7 +410,7 @@ codapHelper.initSim({
 });
 
 /**
- * Called from HTML whn user clicks in the "Lab"
+ * Called from HTML when user clicks in the "Lab"
  * @param e
  */
 function clickInLab( e ) {
