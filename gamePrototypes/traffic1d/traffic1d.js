@@ -183,6 +183,9 @@ trafficModel = {
 };
 
 trafficManager = {
+    running: Boolean(false),
+    previous: 0,
+
     newGame: function () {
         trafficModel.newGame();
         window.requestAnimationFrame(this.animate);
@@ -195,23 +198,43 @@ trafficManager = {
     },
 
     update: function (dt) {
-        trafficModel.update(dt);
+        trafficModel.update(dt);    //  also updates trafficModel.time
         this.updateScreen();
     },
 
     updateScreen: function () {
         roadView.draw();
+        this.updateUIStuff();
+    },
+
+    updateUIStuff: function() {
         var timeText = document.getElementById("time");
         timeText.innerHTML = parseFloat(trafficModel.time.toFixed(2));
+
+        var startStopButton = document.getElementById("startStop");
+        startStopButton.innerHTML = (this.running) ? "Pause" : "Run";
     },
+
 
     click: function () {
 
     },
 
     startStop: function () {
-        this.newGame();
+        this.running = !(this.running);
 
+        if (this.running) {
+            console.log("Now runnning. Prev = " + this.previous);
+
+            window.requestAnimationFrame(this.animate);
+            console.log("Now runnning (animate called). Prev = " + this.previous);
+        } else {
+            console.log("Now stopped. Prev = " + this.previous);
+            this.previous = 0;  //  so next animate will have a short (zero) dt
+            console.log("Still stopped. Prev = " + this.previous);
+        };
+        this.updateScreen();
+        //this.newGame();
     },
 
     initializeComponent: function () {
@@ -219,16 +242,16 @@ trafficManager = {
         trafficModel.streetLength = roadView.canvas.width;
         trafficModel.lightSystem.lights.push( new Light()); // default location
         this.updateScreen();
+        this.newGame;       //  temp
     },
 
-    previous: 0,
 
     animate: function (timestamp) {
-        if (!this.previous)  this.previous = timestamp;
-        var tDt = (timestamp - this.previous) / 1000.0;
-        this.previous = timestamp;
+        if (!trafficManager.previous)  trafficManager.previous = timestamp;
+        var tDt = (timestamp - trafficManager.previous) / 1000.0;
+        trafficManager.previous = timestamp;
         trafficManager.update(tDt);
-        window.requestAnimationFrame(trafficManager.animate);
+        if (trafficManager.running) window.requestAnimationFrame(trafficManager.animate);
     }
 
 };
