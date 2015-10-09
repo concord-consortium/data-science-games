@@ -7,54 +7,69 @@ var trafficModel;
 var roadView;
 
 var Light = function () {
-    color = "green";
-    phase = 2;
-    yellowDwell = 2;
+    this.color = "green";
+    this.phase = 2;
+    this.yellowDwell = 2;
+    this.location = 400;
+    this.size = 30;
 
-    setColor = function (time, period) {
-        theta = time % period;
-        if (this.phase > period / 2 && theta < period / 2) {
-            theta += period;
-        }
-        if (theta > this.phase && theta < (this.phase + period / 2 - this.yellowDwell)) {
-            this.color = "green";
-        } else if (theta > this.phase + period / 2 - this.yellowDwell && theta < this.phase + period / 2) {
-            this.color = "yellow";
-        } else {
-            this.color = "red";
-        }
+};
+
+Light.prototype.setColor = function (time, period) {
+    var theta = time % period;
+    if (this.phase > period / 2 && theta < period / 2) {
+        theta += period;
+    }
+    if (theta > this.phase && theta < (this.phase + period / 2 - this.yellowDwell)) {
+        this.color = "green";
+    } else if (theta > this.phase + period / 2 - this.yellowDwell && theta < this.phase + period / 2) {
+        this.color = "yellow";
+    } else {
+        this.color = "red";
     }
 };
 
+Light.prototype.draw = function (ctx) {
+    ctx.save();
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.location - this.size/2, 50 - this.size/2, this.size, this.size);    //  TODO: get rid of the 50!
+    ctx.restore();
+
+};
 
 roadView = {
 
-    ctx:    null,
+    ctx: null,
     canvas: null,
 
-    initialize: function() {
+    initialize: function () {
         this.canvas = document.getElementById("road");
-        this.canvas.addEventListener("mouseup",this.clickOnRoad,false);
+        this.canvas.addEventListener("mouseup", this.clickOnRoad, false);
         this.ctx = roadView.canvas.getContext('2d');
 
     },
 
-    draw: function() {
+    draw: function () {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawRoad();
-        for (var i = 0; i < trafficModel.cars.length; i++) {
-            trafficModel.cars[i].draw( this.ctx );
+        var i;
+        for (i = 0; i < trafficModel.lightSystem.lights.length; i++) {
+            trafficModel.lightSystem.lights[i].draw(this.ctx);
         }
+        for (i = 0; i < trafficModel.cars.length; i++) {
+            trafficModel.cars[i].draw(this.ctx);
+        }
+
     },
 
-    drawRoad: function() {
+    drawRoad: function () {
         var tContext = this.ctx;
 
         tContext.save();
-        tContext.fillStyle  = "#eeeeee";
-        tContext.fillRect(0,16, this.canvas.width, 68);
+        tContext.fillStyle = "#eeeeee";
+        tContext.fillRect(0, 16, this.canvas.width, 68);
         tContext.fillStyle = "#888888";
-        tContext.fillRect(0,20, this.canvas.width, 60);
+        tContext.fillRect(0, 20, this.canvas.width, 60);
 
         tContext.strokeStyle = "#eeeeee";
         tContext.setLineDash([6]);
@@ -65,7 +80,7 @@ roadView = {
 
     },
 
-    clickOnRoad: function() {
+    clickOnRoad: function () {
 
     }
 };
@@ -73,65 +88,146 @@ roadView = {
 trafficModel = {
     time: 0,
     cars: [],
-    lightSystem:    {lights: [], period: 10},
+    streetLength: 0,
+    lightSystem: {lights: [], period: 10},
 
-    update: function( dt ) {
+    update: function (dt) {
         this.time += dt;
-        for (var i = 0; i < this.lightSystem.lights.length; i++) {
-            this.lightSystem.lights[i].setColor();
+        var i;
+
+        //  for every car, find its environment (situation) with cars in the current positions
+        for ( i = 0; i < this.cars.length; i++) {
+            this.cars[i].decision = this.cars[i].decide(this.findCarEnvironment(i));
         }
-        for (i = 0; i < this.cars.length; i++) {
+
+        //  now have each car update its position
+        for ( i = 0; i < this.cars.length; i++) {
             this.cars[i].update(dt);
+        }
+
+        // now update the lights
+        for (i = 0; i < trafficModel.lightSystem.lights.length; i++) {
+            trafficModel.lightSystem.lights[i].setColor(this.time, this.lightSystem.period);
         }
     },
 
-    newGame: function() {
+    newGame: function () {
         this.cars = [];
         this.time = 0;
+    },
+
+    /**
+     * Make an object that describes the car's environment
+     * @param thisCar   the INDEX of the car in the this.cars array
+     * @returns {{lightDistance: number, lightColor: (string)}}
+     */
+    findCarEnvironment: function(thisCar) {
+
+        // find the distance to the next light
+        var tMinLightDistance = Number.MAX_VALUE;
+        var tMinLightIndex = 0;
+        var thisLight;
+        var tMe = this.cars[thisCar];
+        var tDistance;
+
+        for (thisLight = 0; thisLight < this.lightSystem.lights.length; thisLight++) {
+            tDistance = (tMe.direction == "east")
+                ? this.lightSystem.lights[thisLight].location - tMe.location
+                : tMe.location - this.lightSystem.lights[thisLight].location;
+            // todo: account for "wrapping" here
+            if (tDistance > 0 && tDistance < tMinLightDistance) {
+                tMinLightDistance = tDistance;
+                tMinLightIndex = thisLight;
+            }
+        }
+
+        //  find the distance and speed of the next car
+
+        var tMinCarDistance = Number.MAX_VALUE;
+        var tMinCarIndex = -1;
+        var tNextCarSpeed = Number.MAX_VALUE;
+        var tNextCarLength = 0;
+        var thatCar;
+
+        for (thatCar = 0; thatCar < this.cars.length; thatCar++) {
+            if (thatCar != thisCar) {
+                var tYou = this.cars[thatCar];
+
+                if (tMe.direction == "east") {
+                    tDistance = (tYou.direction == "east")
+                        ? (tYou.location - tMe.location)
+                        : (2 * this.streetLength - tYou.location - tMe.location);
+                } else {    //   I am headed west
+                    tDistance = (tYou.direction == "west")
+                        ? (tMe.location - tYou.location)
+                        : (tYou.location + tMe.location);
+                }
+                if (tDistance < 0) tDistance += 2 * this.streetLength;
+                if (tDistance >= 0 && tDistance < tMinCarDistance && tMe.lane == tYou.lane) {
+                    tMinCarDistance = tDistance;
+                    tMinCarIndex = thatCar;
+                    tNextCarSpeed = tYou.speed;
+                    tNextCarLength = tYou.carLength;
+                }
+            }
+        }
+
+        return {
+            lightDistance: tMinLightDistance,
+            lightColor: this.lightSystem.lights[tMinLightIndex].color ,
+            nextCarDistance: tMinCarDistance,
+            nextCarSpeed: tNextCarSpeed,
+            nextCarLength: tNextCarLength
+        };
     }
 };
 
 trafficManager = {
-    newGame: function() {
+    newGame: function () {
         trafficModel.newGame();
         window.requestAnimationFrame(this.animate);
     },
 
-    addCar: function() {
+    addCar: function () {
         var c = new Car();
+        if (Math.random() > 0.4) c.lane = 2;
         trafficModel.cars.push(c);
     },
 
-    update: function(dt) {
+    update: function (dt) {
         trafficModel.update(dt);
         this.updateScreen();
     },
 
-    updateScreen: function() {
+    updateScreen: function () {
         roadView.draw();
+        var timeText = document.getElementById("time");
+        timeText.innerHTML = parseFloat(trafficModel.time.toFixed(2));
     },
 
-    click:  function() {
+    click: function () {
 
     },
 
-    startStop: function() {
+    startStop: function () {
         this.newGame();
 
     },
 
-    initializeComponent: function() {
+    initializeComponent: function () {
         roadView.initialize();
+        trafficModel.streetLength = roadView.canvas.width;
+        trafficModel.lightSystem.lights.push( new Light()); // default location
         this.updateScreen();
     },
 
     previous: 0,
 
-    animate: function(timestamp) {
+    animate: function (timestamp) {
         if (!this.previous)  this.previous = timestamp;
-        var tDt = (timestamp - this.previous)/ 1000.0;
+        var tDt = (timestamp - this.previous) / 1000.0;
         this.previous = timestamp;
-        trafficManager.update( tDt );
+        trafficManager.update(tDt);
         window.requestAnimationFrame(trafficManager.animate);
     }
 
