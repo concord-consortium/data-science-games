@@ -9,7 +9,7 @@ var roadView;
 var Light = function () {
     this.color = "green";
     this.phase = 2;
-    this.yellowDwell = 2;
+    this.yellowDwell = 3;
     this.location = 400;
     this.size = 30;
 
@@ -89,7 +89,7 @@ trafficModel = {
     time: 0,
     cars: [],
     streetLength: 0,
-    lightSystem: {lights: [], period: 10},
+    lightSystem: {lights: [], period: 16},
 
     update: function (dt) {
         this.time += dt;

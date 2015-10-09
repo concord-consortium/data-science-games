@@ -23,7 +23,7 @@ var Car = function() {
     this.happyAccel = 10;   // pixels per second per second
     this.happyBrake = -10;
     this.maxBrake = -50;
-    this.happyFollowingDistanceInSeconds = 1;
+    this.happyFollowingDistanceCarlengthsPer10 = 1;
     this.decision = {policy: "maintain", value: 0}; //   or "accelerate" or "brake"
 
     this.sitch = null;  //  calculated out in the model
@@ -38,58 +38,63 @@ var Car = function() {
 Car.prototype.decide = function(situation) {
     this.sitch = situation;
 
-    var tLogThing = "car @ " + Math.round(this.location)
-        + " v " + Math.round(this.speed)
-        + " a " + Math.round(this.acceleration);
-
-    var tHappyBrakeTime = -this.speed / this.happyBrake;    //  negative sign because happyBrake is negative
-    var tHappyBrakeDistance = -(.5) * this.happyBrake * tHappyBrakeTime * tHappyBrakeTime + 20;
-    var tSameSpeedDistanceDuringYellow = trafficModel.lightSystem.lights[0].yellowDwell * this.speed;
-    var tDecision;
-    tDecision = {policy: "maintain", value: 0}; //default
+    var tAccel = 0;
 
     //  first, see if we're going the speed we want
     if (this.speed < this.happySpeedMin) {
-        tDecision = {policy: "accelerate", value: this.happyAccel};
+        tAccel = this.happyAccel;
     } else if (this.speed > this.happySpeedMax) {
-        tDecision = {policy: "brake", value: this.happyBrake};
+        tAccel = this.happyBrake;
     }
 
     //  then deal with slowing down for a light
-    if (situation.lightColor != "green") {
-        if (situation.lightDistance > 0 && situation.lightDistance < tHappyBrakeDistance) {
-            tDecision = {policy: "brake", value: this.happyBrake};
-            if (situation.lightColor == "yellow" && (situation.lightDistance + 30) < tSameSpeedDistanceDuringYellow) {
-                tDecision = {policy: "maintain", value: 0};
+    var tHappyBrakeDistance = -(0.5) * this.speed * this.speed / this.happyBrake + 20; // minus because happyBrake is negative
+    var tSameSpeedDistanceDuringYellow = trafficModel.lightSystem.lights[0].yellowDwell * this.speed;
+
+    switch (situation.lightColor) {
+        case "red":
+            if (situation.lightDistance > 0 && situation.lightDistance <= tHappyBrakeDistance) {
+                if (tAccel > this.happyBrake) tAccel = this.happyBrake;
             }
-        }
+            break;
+        case "yellow":
+            if (situation.lightDistance > 0 && situation.lightDistance <= tHappyBrakeDistance) {
+                if ((situation.lightDistance + 30) > tSameSpeedDistanceDuringYellow)
+                    if (tAccel > this.happyBrake) tAccel = this.happyBrake;
+            }
     }
 
     //  then worry about cars in front of us
     var tClosingSpeed = this.speed - this.sitch.nextCarSpeed;
     var tEffectiveNextCarDistance = this.sitch.nextCarDistance
         - this.sitch.nextCarLength
-        - this.happyFollowingDistanceInSeconds * this.sitch.nextCarSpeed;
-    var tAccel = -tClosingSpeed * tClosingSpeed / 2.0 / tEffectiveNextCarDistance;
+        - this.carLength * this.happyFollowingDistanceCarlengthsPer10 * this.speed/10
+        - 5; // 5 = extra padding
+    var tDistanceClosedAtHappyBrake
+        = tClosingSpeed > 0
+        ? tClosingSpeed * tClosingSpeed * 0.5 / (-this.happyBrake)
+        : 0;
 
+    if (tDistanceClosedAtHappyBrake > tEffectiveNextCarDistance) {
+        if (tAccel > this.happyBrake) tAccel = this.happyBrake;
+    }
+
+    var tLogThing = "car @ " + Math.round(this.location)
+        + " v " + Math.round(this.speed)
+        + " a " + Math.round(this.acceleration);
     tLogThing += " dist="
         + Math.round(this.sitch.nextCarDistance)
+        + " distClHB=" + Math.round(tDistanceClosedAtHappyBrake)
         + " eff=" + Math.round(tEffectiveNextCarDistance)
             + " clos=" + Math.round(tClosingSpeed)
     + " tAcc=" + Math.round(tAccel * 100)/100;
 
-    tReason = (Math.round(tAccel * 100)/100).toString();    //  debug
+    var tPolicy = "maintain";
+    if (tAccel < 0) tPolicy = "brake";
+    if (tAccel > 0) tPolicy = "accelerate";
+    var tDecision = {policy: tPolicy, value: tAccel};
 
-    if (tAccel < this.happyBrake / 2) {
-        tDecision = {policy: "brake", value: this.happyBrake};
-    };
-    // Kludge?
-    if (tEffectiveNextCarDistance < 0) {
-        tDecision = {policy: "brake", value: this.happyBrake};
-
-    };
-
-    console.log(tLogThing);     //  debug
+   // console.log(tLogThing);     //  debug
     return tDecision;
 };
 
@@ -113,15 +118,6 @@ Car.prototype.update = function(dt) {
 
     if (this.speed > this.maxSpeed) this.speed = this.maxSpeed;
 
-/*
-    console.log( "dir, pol, x,v,a = " + this.direction + " "
-        + this.decision.policy + " "
-        + Math.round(this.location) + " "
-        + Math.round(this.speed) + " " + Math.round(this.acceleration)
-        + " Lightdist: " + Math.round(this.sitch.lightDistance)
-        + " happyBrakeDist: " + Math.round(this.sitch.lightDistance)
-    );
-*/
     // quick turn-around
     if (this.location > roadView.canvas.width) {
         this.location = roadView.canvas.width;
@@ -169,7 +165,8 @@ Car.prototype.draw = function(ctx) {
             ctx.fillStyle = "yellow";
     }
 
-    var tAdornmentText =  Math.round(this.sitch.nextCarDistance).toString(); // tReason;   //
+    //var tAdornmentText =  Math.round(this.sitch.nextCarDistance).toString(); // tReason;   //
+    var tAdornmentText =  Math.round(this.speed).toString(); // tReason;   //
 
     ctx.fillRect(tRear, tTop, 2, this.width);   //  todo: not really trear
 
