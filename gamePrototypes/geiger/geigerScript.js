@@ -32,7 +32,7 @@ function newGame() {
  * Used to set the game's caseID. Callback from codapHelper.openCase().
  * @param iResult
  */
-function    setUpNewGameData(iResult) { //  todo: figure out howto get this somewhere else. Couldn't get the callback to work.
+function    setUpNewGameData(iResult) { //  todo: figure out how to get this somewhere else. Couldn't get the callback to work.
     gameCaseID = iResult.caseID;
     console.log("got case ID " + (gameCaseID));
 }

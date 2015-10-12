@@ -18,7 +18,9 @@
 
     <!--These two scripts take care of the communication with CODAP-->
     <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/iframe-phone.js" language="javascript"></script>
-    <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/codap_helper.js" language="javascript"></script>
+    <!--<script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/codap_helper.js" language="javascript"></script>-->
+
+    <script src="extras/codap_helper.js" language="javascript"></script>
 
     <!-- This script is our game source -->
     <script src="Car.js" language="JavaScript"></script>
@@ -28,19 +30,24 @@
 </head>
 
 <body>
-<canvas id = "road" width=800 height=100 onmouseup="trafficManager.click();">
-</canvas>
+<svg id = "road" width=800 height=66>
+    <rect height="100%" width="100%" fill="gray"/>
+    <line x1="0" x2="800" y1="2" y2="2" stroke="white"/>
+    <line x1="0" x2="800" y1="64" y2="64" stroke="white"/>
+    <line x1="0" x2="800" y1="31" y2="33" stroke="yellow"/>
+    <line x1="0" x2="800" y1="33" y2="33" stroke="yellow"/>
+</svg>
 
 
 <div class="hBox">
-    <button id="startStop" onclick="trafficManager.startStop()">Start</button>
+    <button id="startStop" onclick="trafficManager.startStop()">go</button>
     <button id="addCar" onclick="trafficManager.addCar()">add car</button>
     <button id="update" onclick="trafficManager.update(1)">step</button>
-    <div id = "time">0.0</div>
-    <div id = "singleCarDisplay">car info</div>
-    <div id = "singleLightDisplay">light info</div>
+    <div class = "textIO" id = "time" style = "width: 50px">0.0</div>
+    <div class = "textIO" id = "singleCarDisplay">car info</div>
+    <div class = "textIO" id = "singleLightDisplay">light info</div>
+    <button id="game" onclick="trafficManager.gameButtonPressed()">new game</button>
 </div>
-
 
 <script>
     trafficManager.initializeComponent();

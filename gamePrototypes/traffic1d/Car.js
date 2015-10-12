@@ -8,6 +8,10 @@ var tReason = "foo";
  * @constructor
  */
 var Car = function() {
+    this.SVG = null;
+    this.brakeSVG = null;
+    this.lastRecordedTime = 0;
+
     this.direction = "east";    //
     this.speed = 50;     //  pixels per second
     this.location = 100;  //  x-coordinate of front bumper
@@ -119,12 +123,18 @@ Car.prototype.update = function(dt) {
     if (this.speed > this.maxSpeed) this.speed = this.maxSpeed;
 
     // quick turn-around
-    if (this.location > roadView.canvas.width) {
-        this.location = roadView.canvas.width;
+    if (this.location > trafficModel.streetLength) {
+        this.location = trafficModel.streetLength;
         this.direction = "west";
     } else if (this.location < 0) {
         this.location = 0;
         this.direction = "east";
+    };
+
+    //  now record data, if needed!
+    if (trafficModel.time - this.lastRecordedTime > 1.0) {
+        this.lastRecordedTime = trafficModel.time;
+
     }
 };
 
@@ -132,49 +142,49 @@ Car.prototype.update = function(dt) {
  * Draw this car
  * @param ctx   The drawing context
  */
-Car.prototype.draw = function(ctx) {
+Car.prototype.draw = function( ) {
     var tLeft, tTop, tRear;
+    var midStreet = roadView.roadSVG.getAttribute("height") / 2.0;
+    var theBrake = this.SVG.children[1];
 
     if (this.direction == "west") {
         tLeft = this.location;
         tRear = tLeft + this.carLength;
-        tTop = 50 - 10 * this.lane - this.width / 2;
+        tTop = midStreet - 10 * this.lane - this.width / 2;
+
+        theBrake.setAttribute("x", (this.carLength - 4).toString());
     } else {
         tLeft = this.location - this.carLength;
         tRear = tLeft;
-        tTop = 50 + 10 * this.lane - this.width / 2;
+        tTop = midStreet + 10 * this.lane - this.width / 2;
+        theBrake.setAttribute("x", "0");
     }
-    ctx.save();
-    ctx.fillStyle = this.color;
-    // ctx.fillStyle = this.sitch.lightColor;
-    ctx.fillRect(tLeft, tTop, this.carLength, this.width);
+
+    this.SVG.setAttribute("x", tLeft);
+    this.SVG.setAttribute("y", tTop);
 
     // brake lights
-
+    var tBrakeColor;
     switch (this.decision.policy) {
         case "brake":
-            ctx.fillStyle = "red";
+            tBrakeColor = "red";
             break;
         case "accelerate":
-            ctx.fillStyle = "green";
+            tBrakeColor = "green";
             break;
         case "maintain":
-            ctx.fillStyle = "white";
+            tBrakeColor = "white";
             break;
         default:
-            ctx.fillStyle = "yellow";
+            tBrakeColor = "yellow";
     }
+    theBrake.setAttribute("fill", tBrakeColor);
 
     //var tAdornmentText =  Math.round(this.sitch.nextCarDistance).toString(); // tReason;   //
     var tAdornmentText =  Math.round(this.speed).toString(); // tReason;   //
 
-    ctx.fillRect(tRear, tTop, 2, this.width);   //  todo: not really trear
+    var theText = this.SVG.children[2];
+    theText.setAttribute("textContent", tAdornmentText);
 
-    ctx.fillStyle = "white";
-    ctx.font = "7px Monaco";
-    ctx.fillText(tAdornmentText, tLeft, tTop - 1);
-
-
-    ctx.restore();
 };
 
