@@ -11,6 +11,7 @@ var Car = function() {
     this.SVG = null;
     this.brakeSVG = null;
     this.lastRecordedTime = 0;
+    this.carCaseID = 0;
 
     this.direction = "east";    //
     this.speed = 50;     //  pixels per second
@@ -134,6 +135,16 @@ Car.prototype.update = function(dt) {
     //  now record data, if needed!
     if (trafficModel.time - this.lastRecordedTime > 1.0) {
         this.lastRecordedTime = trafficModel.time;
+        codapHelper.createCase(
+            'moments',
+            [
+                trafficModel.time,
+                this.location,
+                this.speed,
+                this.decision.policy
+            ],
+            this.carCaseID
+        );
 
     }
 };
@@ -186,5 +197,10 @@ Car.prototype.draw = function( ) {
     var theText = this.SVG.children[2];
     theText.setAttribute("textContent", tAdornmentText);
 
+};
+
+Car.prototype.toString = function() {
+    t = "Car ID: " + this.carCaseID + " loc: " + this.location + " speed: " + this.speed + " " + this.direction;
+    return t;
 };
 

@@ -15,6 +15,10 @@ var Light = function () {
     this.size = 30;
     this.SVGRect = null;
 
+    //  make the svg, put the rect inside
+    //  attach an event handler to the larger svg
+    //  somehow give it an ID so we know which light gets clicked.
+
     this.SVGRect = document.createElementNS(svgNS, "rect");
     this.SVGRect.setAttribute("fill", this.color);
     this.SVGRect.setAttribute("width", this.size);
@@ -180,7 +184,7 @@ trafficManager = {
     gameInProgress: Boolean(false),
     running: Boolean(false),
     previous: 0,
-    carID: 0,
+    latestCarID: 0,
 
     gameButtonPressed: function () {
         if (this.gameInProgress) {  //  we're ending a game
@@ -197,57 +201,14 @@ trafficManager = {
     },
 
     addCar: function () {
-        var c = new Car();
-        if (Math.random() > 0.4) c.lane = 2;
+        this.latestCarID++;
 
-        var newCarSVG = document.createElementNS(svgNS, "svg");
-        newCarSVG.setAttribute("x","0");  //  note: attribute names are strings!!
-        newCarSVG.setAttribute("y","50");
-        newCarSVG.setAttribute("width", c.carLength);
-        newCarSVG.setAttribute("height", c.width);
-
-        var carRect = document.createElementNS(svgNS, "rect");
-        carRect.setAttribute("x","0");  //  note: attribute names are strings!!
-        carRect.setAttribute("y","0");
-        carRect.setAttribute("fill","black");
-        carRect.setAttribute("width", c.carLength);
-        carRect.setAttribute("height", c.width);
-
-        var brakeRect = document.createElementNS(svgNS, "rect");
-        brakeRect.setAttribute("x","0");  //  note: attribute names are strings!!
-        brakeRect.setAttribute("y","0");
-        brakeRect.setAttribute("fill","black");
-        brakeRect.setAttribute("width", 4);
-        brakeRect.setAttribute("height", c.width);
-        brakeRect.setAttribute("id", "brake");
-
-        var carText = document.createElementNS(svgNS, "text");
-        carText.setAttribute("fill", "white");
-        carText.setAttribute("y", -2);
-        carText.setAttribute("textContent", "foo");
-
-        newCarSVG.appendChild(carRect);
-        newCarSVG.appendChild(brakeRect);
-        newCarSVG.appendChild(carText);
-
-        roadView.roadSVG.appendChild(newCarSVG);         //  here we put the new object into the DOM.
-
-        /*
-                codapHelper.openCase(
-                    'cars',
-                    [null, null],
-                    trafficManager.setUpNewCarData
-                );
-        */
         codapHelper.createCase(
             'cars',
-            [null, null],
+            [this.latestCarID, null],
             trafficManager.gameCaseID,
             trafficManager.setUpNewCarData
         );
-        c.ID = this.carID;
-        c.SVG = newCarSVG;
-        trafficModel.cars.push(c);
     },
 
     update: function (dt) {
@@ -318,12 +279,55 @@ trafficManager = {
 
     setUpNewGameData: function(iResult) {
         trafficManager.gameCaseID = iResult.caseID;
-        console.log("got case ID " + (trafficManager.gameCaseID));
+        console.log("got game case ID " + (trafficManager.gameCaseID));
     },
 
     setUpNewCarData: function(iResult) {
-        trafficManager.carID = iResult.caseID;
-        console.log("got CAR ID " + (trafficManager.carID));
+        console.log("got CAR case ID " + (iResult.caseID) + " res: " +  iResult);
+
+        var c = new Car();
+        c.carCaseID = iResult.caseID;
+
+        console.log(c.toString());
+
+        codapHelper.updateCase("cars",[c.carCaseID, null], c.carCaseID);
+
+        if (Math.random() > 0.4) c.lane = 2;
+
+        var newCarSVG = document.createElementNS(svgNS, "svg");
+        newCarSVG.setAttribute("x","0");  //  note: attribute names are strings!!
+        newCarSVG.setAttribute("y","50");
+        newCarSVG.setAttribute("width", c.carLength);
+        newCarSVG.setAttribute("height", c.width);
+
+        var carRect = document.createElementNS(svgNS, "rect");
+        carRect.setAttribute("x","0");  //  note: attribute names are strings!!
+        carRect.setAttribute("y","0");
+        carRect.setAttribute("fill","black");
+        carRect.setAttribute("width", c.carLength);
+        carRect.setAttribute("height", c.width);
+
+        var brakeRect = document.createElementNS(svgNS, "rect");
+        brakeRect.setAttribute("x","0");  //  note: attribute names are strings!!
+        brakeRect.setAttribute("y","0");
+        brakeRect.setAttribute("fill","black");
+        brakeRect.setAttribute("width", 4);
+        brakeRect.setAttribute("height", c.width);
+        brakeRect.setAttribute("id", "brake");
+
+        var carText = document.createElementNS(svgNS, "text");
+        carText.setAttribute("fill", "white");
+        carText.setAttribute("y", -2);
+        carText.setAttribute("textContent", "foo");
+
+        newCarSVG.appendChild(carRect);
+        newCarSVG.appendChild(brakeRect);
+        newCarSVG.appendChild(carText);
+
+        roadView.roadSVG.appendChild(newCarSVG);         //  here we put the new object into the DOM.
+
+        c.SVG = newCarSVG;
+        trafficModel.cars.push(c);
     },
 
     endGame: function(reason) {

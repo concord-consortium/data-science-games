@@ -66,6 +66,21 @@ var codapHelper = {
     )
   },
 
+  openParentCase: function (iCollectionName, iValues, iParentID, iCallback) {
+    console.log("In NEW openCase");
+    if( iValues && !Array.isArray( iValues))
+      iValues = [iValues];
+    this.codapPhone.call({
+          action: 'openCase',
+          args: {
+            collection: iCollectionName,
+            values: iValues
+          }
+        },
+        iCallback
+    )
+  },
+
   closeCase: function (iCollectionName, iValues, iCaseID) {
     console.log("In closeCase");
     if( iValues && !Array.isArray( iValues))
@@ -79,6 +94,22 @@ var codapHelper = {
       }
     }, function () {
       console.log("closeCase")
+    });
+  },
+
+  updateCase: function (iCollectionName, iValues, iCaseID) {
+    console.log("In updateCase");
+    if( iValues && !Array.isArray( iValues))
+      iValues = [iValues];
+    this.codapPhone.call({
+      action: 'updateCase',
+      args: {
+        collection: iCollectionName,
+        values: iValues,
+        caseID: iCaseID
+      }
+    }, function () {
+      console.log("updateCase")
     });
   }
 
