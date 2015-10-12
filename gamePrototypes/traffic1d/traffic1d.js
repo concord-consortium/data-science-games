@@ -239,15 +239,11 @@ trafficManager = {
     startStop: function () {
         this.running = !(this.running);
 
-        if (this.running) {
-            console.log("Now runnning. Prev = " + this.previous);
-
+        if (this.running) { //  START UP
+            this.previous = 0;
             window.requestAnimationFrame(this.animate);
-            console.log("Now runnning (animate called). Prev = " + this.previous);
-        } else {
-            console.log("Now stopped. Prev = " + this.previous);
+        } else {    // PAUSE
             this.previous = 0;  //  so next animate will have a short (zero) dt
-            console.log("Still stopped. Prev = " + this.previous);
         };
         this.updateScreen();
     },
@@ -270,6 +266,7 @@ trafficManager = {
 
     startGame: function() {
         this.gameNumber++;
+        trafficModel.time = 0;      //  restart time for each game
         codapHelper.openCase(
             'games',
             [this.gameNumber, null],
