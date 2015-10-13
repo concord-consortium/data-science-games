@@ -42,10 +42,20 @@
 <div class="hBox">
     <button id="startStop" onclick="trafficManager.startStop()">go</button>
     <button id="addCar" onclick="trafficManager.addCar()">add car</button>
-    <button id="update" onclick="trafficManager.update(1)">step</button>
+    <!--<button id="update" onclick="trafficManager.update(1)">step</button>-->
     <div class = "textIO" id = "time" style = "width: 50px">0.0</div>
-    <div class = "textIO" id = "singleCarDisplay">car info</div>
-    <div class = "textIO" id = "singleLightDisplay">light info</div>
+    <div class = "textIO" id = "singleCarDisplay" style="width:200px">car info</div>
+    <div class = "textIO" id = "singleLightDisplay">
+        <form id="lightForm" name="lightForm" onsubmit="trafficManager.changeLightProperties()">
+            <span id="lightIntroText">Light at ###</span>
+            Green starts: <input type="text" id="phaseText" value="0" size="6">
+            Cycle length: <input type="text" id="periodText" value="0" size="6">
+            <input id="lightChangeSubmitButton"
+                   type="submit"
+                   value="Save Light"
+                   >
+        </form>
+    </div>
     <button id="game" onclick="trafficManager.gameButtonPressed()">new game</button>
 </div>
 

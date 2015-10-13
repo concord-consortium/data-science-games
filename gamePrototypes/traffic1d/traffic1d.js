@@ -7,25 +7,35 @@ var trafficManager;
 var trafficModel;
 var roadView;
 
-var Light = function () {
+var Light = function (number, startPhase, place) {
     this.color = "green";
-    this.phase = 2;
+    this.phase = startPhase;
     this.yellowDwell = 3;
-    this.location = 400;
-    this.size = 30;
+    this.location = place;
+    this.size = 30;     //  the width of the thing
+    this.wholeSVG = null;
     this.SVGRect = null;
+    this.lightNumber = number;
 
     //  make the svg, put the rect inside
     //  attach an event handler to the larger svg
     //  somehow give it an ID so we know which light gets clicked.
 
+    this.wholeSVG = document.createElementNS(svgNS, "svg");
+    this.wholeSVG.setAttribute("width", this.size.toString());
+    this.wholeSVG.setAttribute("height", roadView.roadSVG.getAttribute("height"));
+    this.wholeSVG.setAttribute("id", "L"+ this.lightNumber);
+    this.wholeSVG.addEventListener("click", trafficManager.clickLight);
+
     this.SVGRect = document.createElementNS(svgNS, "rect");
     this.SVGRect.setAttribute("fill", this.color);
-    this.SVGRect.setAttribute("width", this.size);
-    this.SVGRect.setAttribute("height", roadView.roadSVG.getAttribute("height"));
+    this.SVGRect.setAttribute("width", "100%");
+    this.SVGRect.setAttribute("height", "100%");
 
-    roadView.roadSVG.appendChild(this.SVGRect);         //  here we put the new object into the DOM.
+    this.wholeSVG.appendChild(this.SVGRect);
+    roadView.roadSVG.appendChild(this.wholeSVG);         //  here we put the new object into the DOM.
 
+    console.log("Made light with ID " + this.wholeSVG.getAttribute("id"));
 };
 
 Light.prototype.setColor = function (time, period) {
@@ -44,14 +54,14 @@ Light.prototype.setColor = function (time, period) {
 
 Light.prototype.draw = function ( ) {
     this.SVGRect.setAttribute("fill", this.color);
-    this.SVGRect.setAttribute("x", this.location - this.size/2);
-    this.SVGRect.setAttribute("y", 0);
-
+    this.wholeSVG.setAttribute("x", (this.location - this.size/2).toString());
+    this.wholeSVG.setAttribute("y", "0");
 };
 
 roadView = {
 
     roadSVG: null,
+    carSVGSize: 40,
 
     initialize: function () {
         this.roadSVG = document.getElementById("road");
@@ -80,37 +90,46 @@ roadView = {
 
     addCarSVG: function (c ) {
         var newCarSVG = document.createElementNS(svgNS, "svg");
+        newCarSVG.setAttribute("width", this.carSVGSize.toString());
+        newCarSVG.setAttribute("height", this.carSVGSize.toString());
+
         newCarSVG.setAttribute("x","0");  //  note: attribute names are strings!!
-        newCarSVG.setAttribute("y","50");
-        newCarSVG.setAttribute("width", c.carLength);
-        newCarSVG.setAttribute("height", c.width);
+        newCarSVG.setAttribute("y","0");
+        newCarSVG.setAttribute("id", "C"+ c.carCaseID);
+
+        var tTop, tLeft;
+        tTop = this.carSVGSize/2 - c.width/2;
+        tLeft = this.carSVGSize/2 - c.carLength/2;
 
         var carRect = document.createElementNS(svgNS, "rect");
-        carRect.setAttribute("x","0");  //  note: attribute names are strings!!
-        carRect.setAttribute("y","0");
+        carRect.setAttribute("x",tLeft.toString());  //  note: attribute names are strings!!
+        carRect.setAttribute("y",tTop.toString());
         carRect.setAttribute("fill","black");
-        carRect.setAttribute("width", c.carLength);
-        carRect.setAttribute("height", c.width);
+        carRect.setAttribute("width", c.carLength.toString());
+        carRect.setAttribute("height", c.width.toString());
 
         var brakeRect = document.createElementNS(svgNS, "rect");
-        brakeRect.setAttribute("x","0");  //  note: attribute names are strings!!
-        brakeRect.setAttribute("y","0");
+        brakeRect.setAttribute("x",tLeft.toString());  //  note: attribute names are strings!!
+        brakeRect.setAttribute("y",tTop.toString());
         brakeRect.setAttribute("fill","black");
-        brakeRect.setAttribute("width", 4);
-        brakeRect.setAttribute("height", c.width);
+        brakeRect.setAttribute("width", "4");
+        brakeRect.setAttribute("height", c.width.toString());
         brakeRect.setAttribute("id", "brake");
 
         var carText = document.createElementNS(svgNS, "text");
+        carText.setAttribute("x",tLeft.toString());  //  note: attribute names are strings!!
+        carText.setAttribute("y",tTop.toString());
         carText.setAttribute("fill", "white");
-        carText.setAttribute("y", -2);
         carText.setAttribute("textContent", "foo");
 
         newCarSVG.appendChild(carRect);
         newCarSVG.appendChild(brakeRect);
         newCarSVG.appendChild(carText);
 
+        newCarSVG.addEventListener("click",trafficManager.clickCar);
         this.roadSVG.appendChild(newCarSVG);         //  here we put the new object into the DOM.
         c.SVG = newCarSVG;
+        c.brakeSVG = brakeRect;
 
     }
 
@@ -212,15 +231,40 @@ trafficModel = {
             nextCarSpeed: tNextCarSpeed,
             nextCarLength: tNextCarLength
         };
+    },
+
+    getCarFromID: function(iID) {
+        var i;
+        for (i = 0; i < this.cars.length; i++ ) {
+            var c = this.cars[i];
+            if (iID == "C" + c.carCaseID) return c;
+        };
+        return null;
+    },
+
+    getLightFromID: function(iID) {
+        var i;
+        for (i = 0; i < this.lightSystem.lights.length; i++) {
+            var tLight = this.lightSystem.lights[i];
+            if (iID == "L" + tLight.lightNumber) return tLight;
+        };
+        return null;
     }
 };
 
+/**
+ * The main controller singleton
+ * @type {{gameNumber: number, gameCaseID: number, gameInProgress: boolean, running: boolean, previous: number, selectedCar: null, selectedLight: null, numberOfLights: number, gameButtonPressed: Function, addCar: Function, setUpNewCarData: Function, clickCar: Function, clickLight: Function, update: Function, updateScreen: Function, updateUIStuff: Function, click: Function, startStop: Function, initializeComponent: Function, animate: Function, startGame: Function, setUpNewGameData: Function, endGame: Function}}
+ */
 trafficManager = {
     gameNumber: 0,
     gameCaseID: 0,
     gameInProgress: Boolean(false),
     running: Boolean(false),
     previous: 0,
+    selectedCar: null,
+    selectedLight: null,
+    numberOfLights: 0,
 
     gameButtonPressed: function () {
         if (this.gameInProgress) {  //  we're ending a game
@@ -236,6 +280,9 @@ trafficManager = {
         this.updateScreen();
     },
 
+    /**
+     * Add a car to the world.
+     */
     addCar: function () {
 
         codapHelper.createCase(
@@ -253,6 +300,37 @@ trafficManager = {
         roadView.addCarSVG( c );
         trafficModel.cars.push(c);
         codapHelper.updateCase("cars",[c.carCaseID, null], c.carCaseID);
+    },
+
+    clickCar: function(e) {
+        console.log("Clicked on car ID#" + this.id + ".");
+        trafficManager.selectedCar = trafficModel.getCarFromID(this.id);
+        trafficManager.selectedLight = null;
+        trafficManager.updateScreen();
+    },
+
+    /**
+     * Note: "this" is the light itself.
+     * @param e
+     */
+    clickLight: function(e) {
+        console.log("Clicked on light #" + this.id + ".");
+        trafficManager.selectedLight = trafficModel.getLightFromID(this.id);
+        trafficManager.selectedCar = null;
+
+        // trafficManager.selectedLight.phase = 13;
+        trafficManager.updateScreen();
+    },
+
+    changeLightProperties: function( ) {
+        var tPhaseText = document.getElementById("phaseText");
+        var tPeriodText = document.getElementById("periodText");
+        var tNewPhase = Number(tPhaseText.value);
+        var tNewPeriod = Number(tPeriodText.value);
+
+        trafficManager.selectedLight.phase = tNewPhase;
+        trafficModel.lightSystem.period = tNewPeriod; // todo: validate!
+
     },
 
     update: function (dt) {
@@ -274,6 +352,32 @@ trafficManager = {
 
         var gameButton = document.getElementById("game");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
+
+        var carInfoDisplay = document.getElementById("singleCarDisplay");
+        if (this.selectedCar) {
+            carInfoDisplay.innerHTML = this.selectedCar.toString();
+            carInfoDisplay.style.display = "inline";
+        } else {
+            carInfoDisplay.style.display = "none";
+        };
+
+        var lightInfoDisplay = document.getElementById("singleLightDisplay");
+        if (this.selectedLight) {
+            var tPhaseText = document.getElementById("phaseText");
+            var tPeriodText = document.getElementById("periodText");
+            var tLightIntroText = document.getElementById("lightIntroText");
+
+            tPhaseText.value = this.selectedLight.phase;
+            tPeriodText.value = trafficModel.lightSystem.period;
+            tLightIntroText.innerHTML = "Light @ " + this.selectedLight.location;
+
+            lightInfoDisplay.style.display = "inline";
+        } else {
+            lightInfoDisplay.style.display = "none";
+        };
+
+
+
     },
 
     click: function () {
@@ -288,14 +392,16 @@ trafficManager = {
             window.requestAnimationFrame(this.animate);
         } else {    // PAUSE
             this.previous = 0;  //  so next animate will have a short (zero) dt
-        };
+        }
         this.updateScreen();
     },
 
     initializeComponent: function () {
+        this.numberOfLights++;
         roadView.initialize();
         trafficModel.streetLength = roadView.roadSVG.getAttribute("width");
-        trafficModel.lightSystem.lights.push( new Light() ); // default location
+        trafficModel.lightSystem.lights.push( new Light(1, 2, 300) ); // default location
+        trafficModel.lightSystem.lights.push( new Light(2, 8, 700) ); // default location
         this.updateScreen();
     },
 
@@ -333,6 +439,7 @@ trafficManager = {
             this.gameCaseID
         );
         this.gameCaseID = 0;     //  so we know there is no open case
+        console.log("Game ended: " + reason);
 
     }
 };
@@ -342,7 +449,7 @@ trafficManager = {
  */
 codapHelper.initSim({
     name: 'Traffic1d',
-    dimensions: {width: 820, height: 200},
+    dimensions: {width: 820, height: 120},
     collections: [  // There are > two collections: games, cars, moments
         {
             name: 'games',

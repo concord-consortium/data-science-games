@@ -20,6 +20,7 @@ var Car = function() {
     this.carLength = 10;
     this.width = 5;
     this.lane = 1;          //   count from the center. #1 is the fast lane.
+    this.totalDistance = 0;
     this.color = "#0000aa";
 
     this.happySpeedMin = 33;   //  pixels per second
@@ -113,8 +114,9 @@ Car.prototype.update = function(dt) {
 
     this.acceleration = this.decision.value;    //  here is where acceleration gets set
 
-    this.location += tDirectionSign * this.speed * dt;
-    this.location += tDirectionSign * 0.5 * this.acceleration * dt * dt;
+    var tDx = tDirectionSign * this.speed * dt + tDirectionSign * 0.5 * this.acceleration * dt * dt;
+    this.location += tDx;
+    this.totalDistance += tDx;
     this.speed += this.acceleration * dt;
     if (this.speed < 0) {
         this.speed = 0;
@@ -124,11 +126,14 @@ Car.prototype.update = function(dt) {
     if (this.speed > this.maxSpeed) this.speed = this.maxSpeed;
 
     // quick turn-around
+    var tExtra;
     if (this.location > trafficModel.streetLength) {
-        this.location = trafficModel.streetLength;
+        tExtra = this.location - trafficModel.streetLength;
+        this.location = trafficModel.streetLength - tExtra;
         this.direction = "west";
     } else if (this.location < 0) {
-        this.location = 0;
+        tExtra = -this.location;
+        this.location = tExtra;
         this.direction = "east";
     };
 
@@ -156,23 +161,26 @@ Car.prototype.update = function(dt) {
 Car.prototype.draw = function( ) {
     var tLeft, tTop, tRear;
     var midStreet = roadView.roadSVG.getAttribute("height") / 2.0;
+    var theCar = this.SVG.children[0];
     var theBrake = this.SVG.children[1];
+    var tHOff = roadView.carSVGSize/2 - this.carLength/2;
+    var tVOff = roadView.carSVGSize/2 - this.width/2;
+    var tCarLeft = theCar.getAttribute("x");
 
     if (this.direction == "west") {
         tLeft = this.location;
         tRear = tLeft + this.carLength;
         tTop = midStreet - 10 * this.lane - this.width / 2;
-
-        theBrake.setAttribute("x", (this.carLength - 4).toString());
+        theBrake.setAttribute("x", (Number(tCarLeft) + this.carLength - 4).toString());
     } else {
         tLeft = this.location - this.carLength;
         tRear = tLeft;
         tTop = midStreet + 10 * this.lane - this.width / 2;
-        theBrake.setAttribute("x", "0");
+        theBrake.setAttribute("x", tCarLeft);
     }
 
-    this.SVG.setAttribute("x", tLeft);
-    this.SVG.setAttribute("y", tTop);
+    this.SVG.setAttribute("x", (tLeft - tHOff).toString());
+    this.SVG.setAttribute("y", (tTop - tVOff).toString());
 
     // brake lights
     var tBrakeColor;
@@ -199,8 +207,12 @@ Car.prototype.draw = function( ) {
 
 };
 
+
 Car.prototype.toString = function() {
-    t = "Car ID: " + this.carCaseID + " loc: " + this.location + " speed: " + this.speed + " " + this.direction;
+    t = "Car ID: " + this.carCaseID
+        + " loc: " + Math.round(this.location)
+        + " speed: " + Math.round(this.speed)
+        + " " + this.direction;
     return t;
 };
 
