@@ -238,7 +238,7 @@ trafficModel = {
         for (i = 0; i < this.cars.length; i++ ) {
             var c = this.cars[i];
             if (iID == "C" + c.carCaseID) return c;
-        };
+        }
         return null;
     },
 
@@ -247,7 +247,7 @@ trafficModel = {
         for (i = 0; i < this.lightSystem.lights.length; i++) {
             var tLight = this.lightSystem.lights[i];
             if (iID == "L" + tLight.lightNumber) return tLight;
-        };
+        }
         return null;
     }
 };
@@ -345,6 +345,7 @@ trafficManager = {
 
     updateUIStuff: function() {
         var timeText = document.getElementById("time");
+        //timeText.innerHTML = parseFloat(trafficModel.time.toFixed(2));
         timeText.innerHTML = parseFloat(trafficModel.time.toFixed(2));
 
         var startStopButton = document.getElementById("startStop");
@@ -353,14 +354,16 @@ trafficManager = {
         var gameButton = document.getElementById("game");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
 
+        // Info about the selected car, if any.
         var carInfoDisplay = document.getElementById("singleCarDisplay");
         if (this.selectedCar) {
             carInfoDisplay.innerHTML = this.selectedCar.toString();
             carInfoDisplay.style.display = "inline";
         } else {
             carInfoDisplay.style.display = "none";
-        };
+        }
 
+        //  Display of info about the selected light
         var lightInfoDisplay = document.getElementById("singleLightDisplay");
         if (this.selectedLight) {
             var tPhaseText = document.getElementById("phaseText");
@@ -374,10 +377,7 @@ trafficManager = {
             lightInfoDisplay.style.display = "inline";
         } else {
             lightInfoDisplay.style.display = "none";
-        };
-
-
-
+        }
     },
 
     click: function () {
