@@ -70,6 +70,7 @@ geigerLabView = {
      * array of objects containing coordinates and results of past measurements
      */
     ghosts: [],
+    crosshairElement: null,
 
     /**
      * Sets up the properties
@@ -78,6 +79,7 @@ geigerLabView = {
     setup: function() {
         this.mainSVG = document.getElementById("lab");
         this.mainSVG.addEventListener("mouseup",clickInLab,false);
+        this.crosshairElement = document.getElementById("crosshairs");
 
         var tWidth = Number(this.mainSVG.getAttribute("width"));
         var tHeight = Number(this.mainSVG.getAttribute("height"));
@@ -89,7 +91,8 @@ geigerLabView = {
         ];
 
         this.detector = this.makeDetectorShape();
-        this.detector.setAttribute("stroke", "#ddeeff");
+        this.detector.setAttribute("stroke", "yellow");
+        this.detector.setAttribute("stroke-width", "2");
     },
 
     /**
@@ -123,6 +126,38 @@ geigerLabView = {
         tNewGhostShape.setAttribute("stroke", "#ddeeff");
         tNewGhostShape.setAttribute("class", "ghost");     //   can you make more than one id the same??
         this.moveShapeTo( tNewGhostShape, data.x, data.y );
+    },
+
+    setCrosshairs: function(x, y) {
+        var tXpixels = x * this.pixelsPerUnit[0];
+        var tYpixels = this.labHeight - y * this.pixelsPerUnit[1];
+
+        tHHair = document.getElementById("hLine");
+        tVHair = document.getElementById("vLine");
+
+        tHHair.setAttribute("x1","0");
+        tHHair.setAttribute("y1",tYpixels.toString());
+        tHHair.setAttribute("x2",(this.unitsAcross * this.pixelsPerUnit[0]).toString());
+        tHHair.setAttribute("y2",tYpixels.toString());
+
+        tVHair.setAttribute("x1",tXpixels.toString());
+        tVHair.setAttribute("y1","0");
+        tVHair.setAttribute("x2",tXpixels.toString());
+        tVHair.setAttribute("y2",(this.unitsAcross * this.pixelsPerUnit[1]).toString());
+
+    },
+
+    setRangeCircle: function(x, y, r) {
+        var tXpixels = x * this.pixelsPerUnit[0];
+        var tYpixels = this.labHeight - y * this.pixelsPerUnit[1];
+        var tRpixels = r * this.pixelsPerUnit[0];   //  todo: make into an ellipse?
+
+        tCircle = document.getElementById("rangeCircle");
+
+        tCircle.setAttribute("cx", tXpixels.toString());
+        tCircle.setAttribute("cy", tYpixels.toString());
+        tCircle.setAttribute("r", tRpixels.toString());
+        tCircle.setAttribute("fill", "rgba(255, 255, 255, 0.2)");
     },
 
     /**
@@ -162,8 +197,8 @@ geigerGameModel = {
     /**
      * Current position of the detector
      */
-    detectorX: 10, // Todo: HTML also sets initial values of the boxes to 10; should only be in one place.
-    detectorY: 10,
+    detectorX: 1, // Todo: HTML also sets initial values of the boxes to 10; should only be in one place.
+    detectorY: 1,
     /**
      * Total dose so far
      */
@@ -175,7 +210,7 @@ geigerGameModel = {
     /**
      * radius of the "collector"
      */
-    collectorRadius: 0.2,
+    collectorRadius: 0.5,
 
     /**
      * Exceed this and you lose!
@@ -243,8 +278,8 @@ geigerManager = {
     /**
      * initial coordinates of the detector
      */
-    initialX: 10,
-    initialY: 10,
+    initialX: 1,
+    initialY: 1,
     /**
      * Initializes various items.
      */
@@ -259,6 +294,8 @@ geigerManager = {
      */
     newGame: function() {
         geigerGameModel.newGame();
+        geigerLabView.setCrosshairs( geigerGameModel.sourceX, geigerGameModel.sourceY);
+
 
         this.moveDetectorTo(this.initialX, this.initialY);
 
@@ -280,6 +317,8 @@ geigerManager = {
      * called when the user exceeds the maximum dose
      */
     doLoss: function() {
+        geigerLabView.crosshairElement.style.visibility = "visible";
+
         this.gameState = "lost";
         console.log("game lost");
         this.finishGameCase( "lost" );
@@ -289,6 +328,7 @@ geigerManager = {
      * Called when the game is over because we've collected the sample.
      */
     doWin: function() {
+        geigerLabView.crosshairElement.style.visibility = "visible";
         this.gameState = "won";
         console.log("game won");
         this.finishGameCase( "won" );
@@ -314,6 +354,12 @@ geigerManager = {
         var winImage = document.getElementById('winImage');
         var lossImage = document.getElementById('lossImage');
         var playingControls = document.getElementById('playingControls');
+        var crosshairElement = document.getElementById('crosshairs');
+
+        crosshairElement.setAttribute(
+            "y",
+            (geigerGameModel.sourceY < 200) ? "240" : "40"
+        )
 
 
         switch (this.gameState) {
@@ -321,16 +367,19 @@ geigerManager = {
                 winImage.style.visibility = 'visible';
                 lossImage.style.visibility = 'hidden';
                 playingControls.style.visibility = 'hidden';
+                crosshairElement.style.visibility = "visible";
                 break;
             case "lost":
                 winImage.style.visibility = 'hidden';
                 lossImage.style.visibility = 'visible';
                 playingControls.style.visibility = 'hidden';
+                crosshairElement.style.visibility = "visible";
                 break;
             case "playing":
                 winImage.style.visibility = 'hidden';
                 lossImage.style.visibility = 'hidden';
                 playingControls.style.visibility = 'visible';
+                crosshairElement.style.visibility = "hidden";
                 break;
         }
     },
@@ -350,6 +399,12 @@ geigerManager = {
         // Redundant if user has changed position by typing.
         document.getElementById('detectorX').value = x.toString();
         document.getElementById('detectorY').value = y.toString();
+
+        geigerLabView.setRangeCircle(
+            geigerGameModel.detectorX,
+            geigerGameModel.detectorY,
+            geigerGameModel.collectorRadius
+        )
 
         displayInfo("Detector moved to (" + x + ", " + y + ")");
         this.updateScreen();
@@ -376,7 +431,8 @@ geigerManager = {
      */
     doMeasurement: function() {
         //first, figure out if we're close enough to collect it!
-        if (geigerGameModel.dSquared() < geigerGameModel.collectorRadius) {
+        if (geigerGameModel.dSquared()
+            < geigerGameModel.collectorRadius * geigerGameModel.collectorRadius) {
             geigerManager.doWin()
         } else {
             geigerGameModel.doMeasurement();
@@ -426,7 +482,7 @@ geigerManager = {
  */
 codapHelper.initSim({
     name: 'Geiger',
-    dimensions: {width: 444, height: 600},
+    dimensions: {width: 404, height: 580},
     collections: [  // There are two collections: a parent and a child
         {
             name: 'games',

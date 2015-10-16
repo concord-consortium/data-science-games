@@ -79,6 +79,7 @@ gauge = {
         var tXofTheText = 6;
         if (tFrac < 0.5) {
             tXofTheText = tWidthNumber + 6;
+            this.gaugeText.setAttribute("text-anchor","start");
         } else {
             tXofTheText = tWidthNumber - 6;
             this.gaugeText.setAttribute("text-anchor","end");
