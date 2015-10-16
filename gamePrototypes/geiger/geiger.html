@@ -27,10 +27,12 @@
 
 <body>
 <p>Click to place your detector. Press <strong>measure</strong> to get a reading. Try to find the source!</p>
-<canvas id = "lab" width=400 height=400 onmouseup="clickInLab();">
-</canvas>
+<svg id = "lab" width="400" height="400" onclick="clickInLab();">
+    <rect width="100%" height="100%" fill="slategray"></rect>
+    <rect id = "dangerZone" width="200" height="200" x="100" y="100" fill="darkslategray"></rect>
+</svg>
 
-<canvas id = "doseGauge" width="400" height="24"></canvas>
+<svg id = "doseGauge" width="400" height="24"></svg>
 <img id="winImage" src="art/GeigerWin.png" style="position: absolute; top: 80px; left: 80px; "/>
 <img id="lossImage" src="art/GeigerLoss.png" style="position: absolute; top: 80px; left: 80px; "/>
 

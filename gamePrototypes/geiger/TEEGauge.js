@@ -8,24 +8,52 @@ gauge = {
     min: 0,
     max: 0,
     value: 0,
-    canvas: null,
-    ctx: null,
+    wholeSVG: null,
+    backgroundRect: null,
+    gaugeRect: null,
+    gaugeText: null,
+
     label: "Value",
 
     setup: function(theID, label, min, max) {
-        this.canvas = document.getElementById(theID);
-        this.ctx = this.canvas.getContext('2d');
+        this.wholeSVG = document.getElementById(theID);
 
         this.min = min;
         this.max = max;
         this.label = label;
+
+        this.backgroundRect = document.createElementNS(svgNS, "rect");
+        this.gaugeRect = document.createElementNS(svgNS, "rect");
+        this.gaugeRect.setAttribute("width", this.wholeSVG.getAttribute("width"));
+        this.gaugeRect.setAttribute("height", this.wholeSVG.getAttribute("height"));
+        this.gaugeRect.setAttribute("x", "0");
+        this.gaugeRect.setAttribute("y", "0");
+        this.gaugeRect.setAttribute("y", "0");
+        this.gaugeRect.setAttribute("fill", "#777777");
+        this.backgroundRect.setAttribute("width", this.wholeSVG.getAttribute("width"));
+        this.backgroundRect.setAttribute("height", this.wholeSVG.getAttribute("height"));
+        this.backgroundRect.setAttribute("x", "0");
+        this.backgroundRect.setAttribute("y", "0");
+        this.gaugeRect.setAttribute("fill", "darkblue");
+
+        this.wholeSVG.appendChild(this.backgroundRect);
+        this.wholeSVG.appendChild(this.gaugeRect);
+
+        this.gaugeText = document.createElementNS(svgNS, "text");
+        this.gaugeText.textContent = "foo";
+        this.gaugeText.setAttribute("y", "20");
+        this.gaugeText.setAttribute("x", "4");
+        this.gaugeText.setAttribute("fill", "white");
+        this.gaugeText.setAttribute("font-family", "Verdana");
+
+        this.wholeSVG.appendChild(this.gaugeText);
+
+
     },
 
     update: function( val ) {
 
         this.value = val;
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawGauge();
 
@@ -34,26 +62,28 @@ gauge = {
     drawGauge: function() {
 
         var tFrac = this.value / this.max;
-        this.ctx.save();
+        if (tFrac > 1) tFrac = 1;
 
-        var tRGBString = "rgb(" + Math.floor(255.0 * tFrac) + ", " +
+        var tRGBColorString = "rgb(" + Math.floor(255.0 * tFrac) + ", " +
             Math.floor(255.0 * (1 - tFrac)) + ", 100)";
 
-        this.ctx.fillStyle = tRGBString;
+        this.gaugeRect.setAttribute("fill", tRGBColorString);
 
-        this.ctx.fillRect(0,0,
-            this.canvas.width * tFrac,
-            this.canvas.height);
+        tWidthNumber = Number(this.wholeSVG.getAttribute("width")) * tFrac;
 
-        //  text
-
-        this.ctx.fillStyle = "#eeeeee";
-        this.ctx.font = '14px Verdana';
+        this.gaugeRect.setAttribute("width", tWidthNumber.toString());
 
         var tLabel = this.label + ": " + this.value;
-        var tXText = (tFrac > 0.5) ? 6 : this.canvas.width * tFrac + 6;
-        this.ctx.fillText(tLabel, tXText, this.canvas.height - 7);  //  half of font size, 14
+        this.gaugeText.textContent = tLabel;
 
-        this.ctx.restore();
+        var tXofTheText = 6;
+        if (tFrac < 0.5) {
+            tXofTheText = tWidthNumber + 6;
+        } else {
+            tXofTheText = tWidthNumber - 6;
+            this.gaugeText.setAttribute("text-anchor","end");
+        }
+        this.gaugeText.setAttribute("x", tXofTheText.toString());
+
     }
 }

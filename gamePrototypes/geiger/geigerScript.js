@@ -1,6 +1,8 @@
 /**
  * Created by tim on 2015-10-03.
  */
+var svgNS = "http://www.w3.org/2000/svg";
+
 var geigerManager;
 var geigerGameModel;
 var geigerLabView;
@@ -44,14 +46,10 @@ function    setUpNewGameData(iResult) { //  todo: figure out how to get this som
  */
 geigerLabView = {
     /**
-     * The HTML <canvas>
+     * The SVG associated with the lab itself
      *     @property
      */
-    canvas: null,
-    /**
-     * The drawing context for this.canvas
-     */
-    ctx: null,
+    mainSVG: null,
     /**
      * The scale of the coordinate system in the view; determined in this.setup()
      */
@@ -59,56 +57,90 @@ geigerLabView = {
     /**
      * How many units across is this canvas?
      */
-    unitsAcross: 100.0,
+    unitsAcross: 10.0,
+    /**
+     * The svg thingy associated with the detector
+     */
+    detector: null,
+    /**
+     * height of the "lab" in pixels
+     */
+    labHeight: 0,
+    /**
+     * array of objects containing coordinates and results of past measurements
+     */
+    ghosts: [],
 
     /**
      * Sets up the properties
      * Also adds event listeners
      */
     setup: function() {
-        this.canvas = document.getElementById("lab");
-        this.canvas.addEventListener("mouseup",clickInLab,false);
-        this.ctx = this.canvas.getContext('2d');
+        this.mainSVG = document.getElementById("lab");
+        this.mainSVG.addEventListener("mouseup",clickInLab,false);
+
+        var tWidth = Number(this.mainSVG.getAttribute("width"));
+        var tHeight = Number(this.mainSVG.getAttribute("height"));
+        this.labHeight = tHeight;
+
         this.pixelsPerUnit = [
-            this.canvas.width / this.unitsAcross,
-            this.canvas.height / this.unitsAcross
+            tWidth / this.unitsAcross,
+            tHeight / this.unitsAcross
         ];
+
+        this.detector = this.makeDetectorShape();
+        this.detector.setAttribute("stroke", "#ddeeff");
+    },
+
+    /**
+     * Make and append a shape for display
+     */
+    makeDetectorShape: function() {
+
+        var tShape =  document.createElementNS(svgNS, "path");
+        tShape.setAttribute("d", "M 6 0 L 0 6 L -6 0 L 0 -6 L 6 0");
+        this.mainSVG.appendChild(tShape);         //  here we put the new object into the DOM.
+
+        return tShape;
+    },
+
+    /**
+     * add data for a new "ghost"
+     * AND draw the image. Data is {x, y, count}
+     * @param data
+     */
+    addGhost : function( data ) {
+        this.ghosts.push( data );
+
+        var tPower = (Math.log10(data.count));
+        var tRed = Math.round(255.0 * (tPower/4.0) * (tPower/4.0)); if (tRed > 255) tRed = 255;
+        var tGreen = Math.round(255.0 * (1 - tPower/5.0) * (1 - tPower/5.0)); if (tPower > 5) tGreen = 0;
+        var tBlue = Math.round(155.0 - 155.0 * (tPower/4.0)); if (tBlue < 0) tBlue = 0;
+
+        var tRGBString = "rgb("+tRed+","+tGreen+","+tBlue+")";
+        tNewGhostShape = this.makeDetectorShape();
+        tNewGhostShape.setAttribute("fill", tRGBString);
+        tNewGhostShape.setAttribute("stroke", "#ddeeff");
+        tNewGhostShape.setAttribute("class", "ghost");     //   can you make more than one id the same??
+        this.moveShapeTo( tNewGhostShape, data.x, data.y );
     },
 
     /**
      * Update this view.
      */
     update: function() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.beginPath();
-        this.drawDetector();
-        this.ctx.closePath();
-        // window.requestAnimationFrame(geigerLabView.update);
+        this.moveShapeTo( this.detector, geigerGameModel.detectorX, geigerGameModel.detectorY);
     },
 
     /**
-     * Draws the detector at the current location. Called by this.update().
+     * Draws a shape (an svg sub-thing) at the specified location. Called by this.update() and by the ghost stuff
      */
-    drawDetector: function( ) {
-        var tContext = this.ctx;
+    moveShapeTo: function( shape, x, y ) {
+        var tXpixels = x * this.pixelsPerUnit[0];
+        var tYpixels = this.labHeight - y * this.pixelsPerUnit[1];
 
-        tContext.save();
-        tContext.strokeStyle = "#DDEEFF";
-        tContext.translate(
-            geigerGameModel.detectorX * this.pixelsPerUnit[0],
-            this.canvas.height - geigerGameModel.detectorY * this.pixelsPerUnit[1]
-        );
-
-        tContext.beginPath();
-        tContext.moveTo(0,6);
-        tContext.lineTo(-6,0);
-        tContext.lineTo(0, -6);
-        tContext.lineTo(6,0);
-        tContext.closePath();
-        tContext.stroke();
-
-        tContext.restore();
+        var tTransform = "translate(" + tXpixels + "," + tYpixels + ")";
+        shape.setAttribute("transform", tTransform);
     }
 
 };
@@ -143,7 +175,7 @@ geigerGameModel = {
     /**
      * radius of the "collector"
      */
-    collectorRadius: 2.0,
+    collectorRadius: 0.2,
 
     /**
      * Exceed this and you lose!
@@ -156,7 +188,7 @@ geigerGameModel = {
     newGame: function () {
         this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
         this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
-        this.sourceStrength = 1000000;
+        this.sourceStrength = 10000;
         this.latestCount = 0;
         this.dose = 0;
     },
@@ -232,6 +264,15 @@ geigerManager = {
 
         displayInfo("New game. Find the source!");
         this.gameState = "playing";
+
+        //  remove old ghosts
+        var tGhostList = document.getElementsByClassName('ghost');
+
+        while(tGhostList[0]) {
+            tGhostList[0].parentNode.removeChild(tGhostList[0]);
+        }
+
+
         this.updateScreen();
     },
 
@@ -291,14 +332,13 @@ geigerManager = {
                 lossImage.style.visibility = 'hidden';
                 playingControls.style.visibility = 'visible';
                 break;
-
         }
-
     },
 
     /**
      * In charge of moving the detector.
      * Responds to clicks OR to edits in the coordinates from text boxes.
+     * Coordinates are in "game" space.
      * @param x
      * @param y
      */
@@ -348,6 +388,13 @@ geigerManager = {
             ); // no callback?
 
             displayGeigerCount(geigerGameModel.latestCount); // note: only on doMeasurement!
+            geigerLabView.addGhost(
+                {
+                    x : geigerGameModel.detectorX,
+                    y : geigerGameModel.detectorY,
+                    count: geigerGameModel.latestCount
+                }
+            );
         }
         if (geigerGameModel.dose > geigerGameModel.maxDose) {
             this.doLoss();
@@ -415,9 +462,10 @@ codapHelper.initSim({
  */
 function clickInLab( e ) {
 //    Note: this routine gives page coordinates. We want the coordinates in the canvas.
+    // 2015-10-15 decided to use e.offsetX, Y (using svg) instead of e.layerX (using canvas)
     if (!e) e = window.event;
-    var tX = e.layerX / geigerLabView.pixelsPerUnit[0];     //  convert to units
-    var tY = (geigerLabView.canvas.height - e.layerY) / geigerLabView.pixelsPerUnit[1];
+    var tX = e.offsetX / geigerLabView.pixelsPerUnit[0];     //  convert to units
+    var tY = (geigerLabView.labHeight - e.offsetY) / geigerLabView.pixelsPerUnit[1];
 
     geigerManager.moveDetectorTo(tX, tY);
 }

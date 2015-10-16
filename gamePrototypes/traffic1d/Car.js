@@ -150,7 +150,6 @@ Car.prototype.update = function(dt) {
             ],
             this.carCaseID
         );
-
     }
 };
 
