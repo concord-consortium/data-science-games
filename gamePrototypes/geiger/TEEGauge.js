@@ -2,6 +2,8 @@
  * Created by tim on 10/4/15.
  */
 
+//  todo: redefine as a class
+
 var gauge;
 
 gauge = {
@@ -27,7 +29,6 @@ gauge = {
         this.gaugeRect.setAttribute("width", this.wholeSVG.getAttribute("width"));
         this.gaugeRect.setAttribute("height", this.wholeSVG.getAttribute("height"));
         this.gaugeRect.setAttribute("x", "0");
-        this.gaugeRect.setAttribute("y", "0");
         this.gaugeRect.setAttribute("y", "0");
         this.gaugeRect.setAttribute("fill", "#777777");
         this.backgroundRect.setAttribute("width", this.wholeSVG.getAttribute("width"));

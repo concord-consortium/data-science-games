@@ -5,6 +5,9 @@
 
     or locally,
     http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/geiger/geiger.html
+
+    local with docs;
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/geiger/geiger.html&documentServer=http://document-store.herokuapp.com/&recordid=7002
     -->
 <!DOCTYPE html>
 
@@ -19,8 +22,11 @@
     <script src="http://concord-consortium.github.io/codap-data-interactives/Common/js/codap_helper.js" language="javascript"></script>
 
     <!-- This script is our game source -->
-    <script src="geigerScript.js" language="JavaScript"></script>
+    <script src="geigerManager.js" language="JavaScript"></script>
+    <script src="geigerModel.js" language="JavaScript"></script>
+    <script src="geigerLabView.js" language="JavaScript"></script>
     <script src="TEEGauge.js" language="JavaScript"></script>
+    <script src="geigerControlPanel.js" language="JavaScript"></script>
 
     <title>Geiger</title>
 </head>
@@ -66,7 +72,7 @@
         <span id="geigerInfo">original info</span></br>
         <span id="geigerCount">count: 0</span>
         </br></br>
-        <button value="new game" id="newGame" onclick="newGame();">new game</button>
+        <button value="new game" id="newGame" onclick="geigerManager.newGame();">new game</button>
     </div>
 </div>
 
