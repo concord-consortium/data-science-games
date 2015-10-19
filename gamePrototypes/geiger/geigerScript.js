@@ -36,7 +36,6 @@ function newGame() {
  */
 function    setUpNewGameData(iResult) { //  todo: figure out how to get this somewhere else. Couldn't get the callback to work.
     gameCaseID = iResult.caseID;
-    console.log("got case ID " + (gameCaseID));
 }
 
 /**
@@ -121,19 +120,24 @@ geigerLabView = {
         var tBlue = Math.round(155.0 - 155.0 * (tPower/4.0)); if (tBlue < 0) tBlue = 0;
 
         var tRGBString = "rgb("+tRed+","+tGreen+","+tBlue+")";
-        tNewGhostShape = this.makeDetectorShape();
+        var tNewGhostShape = this.makeDetectorShape();
         tNewGhostShape.setAttribute("fill", tRGBString);
         tNewGhostShape.setAttribute("stroke", "#ddeeff");
-        tNewGhostShape.setAttribute("class", "ghost");     //   can you make more than one id the same??
+        tNewGhostShape.setAttribute("class", "ghost");
         this.moveShapeTo( tNewGhostShape, data.x, data.y );
     },
 
+    /**
+     * Move the crosshairs (which indicate the position of the source) to game coordinates
+     * @param x
+     * @param y
+     */
     setCrosshairs: function(x, y) {
         var tXpixels = x * this.pixelsPerUnit[0];
         var tYpixels = this.labHeight - y * this.pixelsPerUnit[1];
 
-        tHHair = document.getElementById("hLine");
-        tVHair = document.getElementById("vLine");
+        var tHHair = document.getElementById("hLine");
+        var tVHair = document.getElementById("vLine");
 
         tHHair.setAttribute("x1","0");
         tHHair.setAttribute("y1",tYpixels.toString());
@@ -147,12 +151,18 @@ geigerLabView = {
 
     },
 
+    /**
+     * Alter attributes of the range circle (showing how big the collector is)
+     * @param x
+     * @param y
+     * @param r
+     */
     setRangeCircle: function(x, y, r) {
         var tXpixels = x * this.pixelsPerUnit[0];
         var tYpixels = this.labHeight - y * this.pixelsPerUnit[1];
         var tRpixels = r * this.pixelsPerUnit[0];   //  todo: make into an ellipse?
 
-        tCircle = document.getElementById("rangeCircle");
+        var tCircle = document.getElementById("rangeCircle");
 
         tCircle.setAttribute("cx", tXpixels.toString());
         tCircle.setAttribute("cy", tYpixels.toString());
@@ -241,8 +251,6 @@ geigerGameModel = {
 
     /**
      * Perform a measurement. Updates internal positions. Updates this.latestcount.
-     * @param x     X-position of detector.
-     * @param y
      */
     doMeasurement: function(  ) {
 
@@ -257,9 +265,8 @@ geigerGameModel = {
      * @returns {number}
      */
     dSquared: function() {
-        var tDsquared = (this.detectorX - this.sourceX ) * (this.detectorX - this.sourceX )
+        return (this.detectorX - this.sourceX ) * (this.detectorX - this.sourceX )
         + (this.detectorY - this.sourceY ) * (this.detectorY - this.sourceY );
-        return tDsquared;
     }
 
 };
@@ -359,7 +366,7 @@ geigerManager = {
         crosshairElement.setAttribute(
             "y",
             (geigerGameModel.sourceY < 200) ? "240" : "40"
-        )
+        );
 
 
         switch (this.gameState) {
@@ -404,7 +411,7 @@ geigerManager = {
             geigerGameModel.detectorX,
             geigerGameModel.detectorY,
             geigerGameModel.collectorRadius
-        )
+        );
 
         displayInfo("Detector moved to (" + x + ", " + y + ")");
         this.updateScreen();
@@ -557,8 +564,7 @@ function    randomPoisson( mean ) {
 
     if (mean > 100) {
         var sd = Math.sqrt(mean);
-        var tCount = Math.round(randomNormal(mean,sd));
-        return tCount;
+        return Math.round(randomNormal(mean,sd));
     }
     var L = Math.exp(-mean);
     var p = 1.0;
