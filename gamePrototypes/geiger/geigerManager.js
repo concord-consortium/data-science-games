@@ -49,12 +49,16 @@ geigerManager = {
      */
     initialX: 1,
     initialY: 1,
+
+    gauge: null,
+
     /**
      * Initializes various items.
      */
     initializeComponent: function() {
-        geigerLabView.setup();
-        gauge.setup('doseGauge','Dose',0,geigerGameModel.maxDose);
+        this.gauge = new Gauge();
+        this.gauge.setup('doseGauge','Dose',0,geigerGameModel.maxDose);
+        geigerLabView.setup( geigerGameModel.unitsAcross );
         this.newGame();
     },
 
@@ -67,7 +71,7 @@ geigerManager = {
         };
 
         this.gameNumber += 1;
-        geigerGameModel.newGame();
+        geigerGameModel.newGame();  //  set up the MODEL for a new game
 
         /**
          * start a new game case
@@ -125,7 +129,7 @@ geigerManager = {
      */
     updateScreen: function() {
         geigerLabView.update();
-        gauge.update( geigerGameModel.dose);
+        this.gauge.update( geigerGameModel.dose);
 
         // show and hide images
 
@@ -135,15 +139,13 @@ geigerManager = {
         var crosshairElement = document.getElementById('crosshairs');
 
         //  todo: hey, this is where the box-location bug is!
-        crosshairElement.setAttribute(
-            "y",
-            (geigerGameModel.sourceY < 200) ? "240" : "40"
-        );
-
+        tBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "240" : "40";
+        console.log("Source at y= "+ geigerGameModel.sourceY +", so we'll put the box at " + tBoxY);
 
         switch (this.gameState) {
             case "won":
                 winImage.style.visibility = 'visible';
+                winImage.setAttribute("y", tBoxY);
                 lossImage.style.visibility = 'hidden';
                 playingControls.style.visibility = 'hidden';
                 crosshairElement.style.visibility = "visible";
@@ -151,6 +153,7 @@ geigerManager = {
             case "lost":
                 winImage.style.visibility = 'hidden';
                 lossImage.style.visibility = 'visible';
+                lossImage.setAttribute("y", tBoxY);
                 playingControls.style.visibility = 'hidden';
                 crosshairElement.style.visibility = "visible";
                 break;

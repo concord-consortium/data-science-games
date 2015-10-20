@@ -68,7 +68,8 @@ geigerLabView = {
      * Sets up the properties
      * Also adds event listeners
      */
-    setup: function() {
+    setup: function( unitsAcross ) {
+        this.unitsAcross = unitsAcross;
         this.mainSVG = document.getElementById("lab");
         this.mainSVG.addEventListener("mouseup",clickInLab,false);
         this.crosshairElement = document.getElementById("crosshairs");
@@ -77,7 +78,6 @@ geigerLabView = {
         var tHeight = Number(this.mainSVG.getAttribute("height"));
         this.labHeight = tHeight;
 
-        //  todo: use object instead of array
         this.pixelsPerUnit = {
             x: tWidth / this.unitsAcross,
             y: tHeight / this.unitsAcross

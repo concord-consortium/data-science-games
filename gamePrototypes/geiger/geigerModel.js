@@ -43,7 +43,7 @@ geigerGameModel = {
     /**
      * Strength of the radiation
      */
-    sourceStrength: 0,
+    sourceStrength: 10000,
     /**
      * Current position of the detector
      */
@@ -67,12 +67,14 @@ geigerGameModel = {
      */
     maxDose: 20000,
 
+    unitsAcross: 10.0,
+
     /**
      * Initialize model properties for a new game
      */
     newGame: function () {
-        this.sourceX = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
-        this.sourceY = (geigerLabView.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
+        this.sourceX = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
+        this.sourceY = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
         this.sourceStrength = 10000;
         this.latestCount = 0;
         this.dose = 0;
@@ -83,9 +85,9 @@ geigerGameModel = {
      * @returns {number}
      */
     signalStrength: function () {
-        var tCount = (geigerGameModel.sourceStrength / this.dSquared());
-        tCount = Math.round(tCount);
-        return tCount;
+        var tSignalStrength = (this.sourceStrength / this.dSquared());
+        tSignalStrength = Math.round(tSignalStrength);
+        return tSignalStrength;
     },
 
     /**
