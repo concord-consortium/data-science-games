@@ -82,7 +82,6 @@ geigerManager = {
             geigerManager.setUpNewGameData
         );
 
-        console.log("New game. Source at (" + (geigerGameModel.sourceX) + ", " + (geigerGameModel.sourceY) + ")");
         geigerLabView.setCrosshairs( geigerGameModel.sourceX, geigerGameModel.sourceY);
         geigerLabView.removeOldGhosts();
 
@@ -208,6 +207,21 @@ geigerManager = {
     },
 
     /**
+     * Called from HTML when user clicks in the "Lab"
+     * @param e
+     */
+    clickInLab: function (e) {
+        //    Note: this routine gives page coordinates. We want the coordinates in the canvas.
+        // 2015-10-15 decided to use e.offsetX, Y (using svg) instead of e.layerX (using canvas)
+        if (!e) e = window.event;
+        var tX = e.offsetX / geigerLabView.pixelsPerUnit.x;     //  convert to units
+        var tY = (geigerLabView.labHeight - e.offsetY) / geigerLabView.pixelsPerUnit.y;
+
+        geigerManager.moveDetectorTo(tX, tY);
+    },
+
+
+    /**
      * User has called for a measurement.
      * Creates a "measurement" case in CODAP.
      */
@@ -300,54 +314,3 @@ codapHelper.initSim({
     ]
 });
 
-/**
- * Called from HTML when user clicks in the "Lab"
- * @param e
- */
-function clickInLab( e ) {
-//    Note: this routine gives page coordinates. We want the coordinates in the canvas.
-    // 2015-10-15 decided to use e.offsetX, Y (using svg) instead of e.layerX (using canvas)
-    if (!e) e = window.event;
-    var tX = e.offsetX / geigerLabView.pixelsPerUnit.x;     //  convert to units
-    var tY = (geigerLabView.labHeight - e.offsetY) / geigerLabView.pixelsPerUnit.y;
-
-    geigerManager.moveDetectorTo(tX, tY);
-}
-
-
-/**
- * A funky random Poisson function.
- * Use Knuth algorithm up to n = 100; normal approximation beyond that.
- * @param mean
- * @returns {number}
- */
-function    randomPoisson( mean ) {
-
-    if (mean > 100) {
-        var sd = Math.sqrt(mean);
-        return Math.round(randomNormal(mean,sd));   //  todo: use randomNormal from common
-    }
-    var L = Math.exp(-mean);
-    var p = 1.0;
-    var k = 0;
-    do {
-        k++;
-        p *= Math.random();
-    } while (p > L);
-    return (k - 1);
-}
-
-/**
- * Random normal, Box-Muller transform. Use only one value.
- * @param mean
- * @param sd
- * @returns {*}
- */
-function    randomNormal(mean,sd) {
-    var t1 = Math.random();
-    var t2 = Math.random();
-
-    var tZ = Math.sqrt(-2 * Math.log(t1)) * Math.cos(2 * Math.PI*t2);
-
-    return mean + sd * tZ;
-}

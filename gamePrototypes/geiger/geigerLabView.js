@@ -71,7 +71,7 @@ geigerLabView = {
     setup: function( unitsAcross ) {
         this.unitsAcross = unitsAcross;
         this.mainSVG = document.getElementById("lab");
-        this.mainSVG.addEventListener("mouseup",clickInLab,false);
+        this.mainSVG.addEventListener("mouseup",geigerManager.clickInLab,false);
         this.crosshairElement = document.getElementById("crosshairs");
 
         var tWidth = Number(this.mainSVG.getAttribute("width"));
