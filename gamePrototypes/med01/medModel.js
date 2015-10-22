@@ -30,17 +30,47 @@ var medModel;
 
 medModel = {
 
-    critters: null,
+    numberOfCritters: 100,
+    critters: [],
+    locations: [],
+    elapsed : 0,
+
 
     update: function( dt ) {
+        this.elapsed += dt;
+
         var i;
-        for (i = 0; i < critters.length; i++) {
-            critters[i].update(dt);
+        for (i = 0; i < this.critters.length; i++) {
+            this.critters[i].update(dt);
         }
     },
 
-    initialize: function() {
-        this.critters = [];
+    newGame: function() {
+        var i;
+        this.elapsed = 0;
+
+        for (i = 0; i < medGeography.numberOfLocations(); i++ ) {
+            var L = new Location( i );
+            this.locations.push( L );   // todo: fix so it's not a coincidence that the index is the index :)
+        }
+
+        for (i = 0; i < this.numberOfCritters; i++) {
+            var C = new Critter( i );
+            this.critters.push( C );
+        }
+    },
+
+    setNewCritterDest: function( critter ) {
+        var tNL = medGeography.numberOfLocations();
+        var tDestIndex = Math.floor(Math.random() * tNL);     //  a random location
+        var tDestLoc = this.locations[ tDestIndex ];
+        var tParking = tDestLoc.localParkingCoordinates( critter.myIndex );
+        var txDest = Number(tDestLoc.shapeSVG.getAttribute("x")) + tParking.x;
+        var tyDest = Number(tDestLoc.shapeSVG.getAttribute("y")) + tParking.y;
+
+        critter.destLoc = tDestLoc;
+        critter.destX = txDest;
+        critter.destY = tyDest;
     }
 
 };

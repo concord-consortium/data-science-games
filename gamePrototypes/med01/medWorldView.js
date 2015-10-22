@@ -31,13 +31,100 @@ var medWorldView;
 medWorldView = {
 
     mainSVG: null,
+    model: null,
 
-    update: function() {
+    VBLeft : 0,
+    VBTop : 0,
+    VBWidth : 300,
+    VBHeight : 300,
+
+    actualWidth : 0,
+    actualHeight : 0,
+
+    updateScreen: function() {
+        var i;
+        for (i = 0; i < this.model.critters.length; i++) {
+            var tC = this.model.critters[i];
+            var tCritterImage = tC.shapeSVG;
+            tCritterImage.setAttribute("cx",tC.x.toString());
+            tCritterImage.setAttribute("cy",tC.y.toString());
+        }
+
+    },
+
+    flushAndRedraw : function () {
+        while(this.mainSVG.lastChild) {
+            this.mainSVG.removeChild(this.mainSVG.lastChild);
+        }
+
+        var i;
+        for (i = 0; i < this.model.locations.length; i++) {
+            var tL = this.model.locations[i];
+            this.attachShape(tL.shapeSVG);
+        };
+        for (i = 0; i < this.model.critters.length; i++) {
+            var tC = this.model.critters[i];
+            this.attachShape(tC.shapeSVG);
+        }
 
     },
 
     initialize: function() {
-        this.mainSVG = document.getElementById( "medWorld" );
+        this.mainSVG = document.getElementById( "worldView" );
+        this.mainSVG.addEventListener("mousedown", medWorldView.down,false);
+        this.mainSVG.addEventListener("mouseup", medWorldView.up,false);
+        this.mainSVG.addEventListener("mousemove", medWorldView.move,false);
+
+        this.actualHeight = this.mainSVG.getAttribute("height");
+        this.actualWidth = this.mainSVG.getAttribute("width");
+
+        this.updateViewBox();
+
+    },
+
+    updateViewBox : function() {
+        //  todo: check parameters and pin
+        var tString = this.VBLeft.toString() + " " + this.VBTop + " " + this.VBWidth + " " + this.VBHeight;
+        this.mainSVG.setAttribute("viewBox", tString);
+    },
+
+    attachShape : function(shape) {
+        this.mainSVG.appendChild( shape );
+    },
+
+    //  event section. Handles drag.
+
+    zoom : function( factor ) {
+        medWorldView.VBLeft -= (factor - 1) * (medWorldView.VBWidth/2);
+        medWorldView.VBTop -= (factor - 1) * ( medWorldView.VBHeight/2);
+        medWorldView.VBWidth *= factor;
+        medWorldView.VBHeight *= factor;
+        medWorldView.updateViewBox();
+    },
+
+    down : function( e ) {
+
+    },
+
+    // todo: make it so the zoom centers on the mouse coordinates
+    up : function( e ) {
+        if (e.altKey) {
+            medWorldView.zoom(e.shiftKey ? 1.5 : 2 / 3)
+        }
+    },
+
+    move : function ( e ) {
+        var tHScale = medWorldView.VBWidth / medWorldView.actualWidth;
+        var tVScale = medWorldView.VBHeight / medWorldView.actualHeight;
+
+        if (e.button === 0 && e.buttons === 1) {
+            var tDx = e.movementX * tHScale;
+            var tDy = e.movementY * tVScale;
+
+            medWorldView.VBLeft -= tDx;
+            medWorldView.VBTop  -= tDy;
+            medWorldView.updateViewBox();
+        }
     }
 
 };

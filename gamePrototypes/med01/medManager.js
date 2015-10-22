@@ -31,20 +31,40 @@ var svgNS = "http://www.w3.org/2000/svg";   //  needed to draw svg's
 var medManager;
 
 medManager = {
+    nLocations: 100,
+    locTypes: [ "food", "water", "dwelling"],
+    previous: 0,    //  timestamp for animation
+    running: Boolean( true ),
 
+    update : function( dt) {
+        medModel.update( dt );       //
 
-    update : function() {
-        var tDt = 1;
-        medModel.update( tDt );       //
         this.updateScreen();
     },
 
     updateScreen: function() {
+        medWorldView.updateScreen();
 
     },
 
-    initializeComponent : function() {
+    animate: function (timestamp) {
+        if (!medManager.previous)  medManager.previous = timestamp;
+        var tDt = (timestamp - medManager.previous) / 1000.0;
+        medManager.previous = timestamp;
+        medManager.update(tDt);
+        if (medManager.running) window.requestAnimationFrame(medManager.animate);
+    },
 
+    newGame:    function() {
+        medModel.newGame();
+        medWorldView.flushAndRedraw();
+        window.requestAnimationFrame(this.animate);
+    },
+
+    initializeComponent : function() {
+        medWorldView.initialize();
+        medWorldView.model = medModel;
+        this.newGame();
     }
 };
 

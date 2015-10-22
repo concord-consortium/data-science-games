@@ -26,15 +26,79 @@
  */
 
 
-var Critter = function() {
-    var x = 0;
-    var y = 0;
-    var destX = 0;
-    var destY = 0;
+var Critter = function( index ) {
+    this.myIndex = index;
+
+    this.x = 0;
+    this.y = 0;
+    this.destX = 0;
+    this.destY = 0;
+    this.destLoc = null;
+    this.speed = 100; // game units per second
+
+    this.hungry = 0;
+    this.thirsty = 0;
+    this.tired = 0;
+
+    this.dwellTime = 5.0;
+    this.dwellRemaining = this.dwellTime;
+
+    this.location = null;
+
+    this.shapeSVG = null;
+
+    this.munching = Boolean(false);
+
+    this.initialize();
 };
 
 Critter.prototype.update = function (dt) {
+    if (this.munching) {
+        this.dwellRemaining -= dt;
+        if (this.dwellRemaining <= 0) {  //  done munching
+            this.newDest();
+            this.munching = false;
+        }
+
+    } else {
+        //  move towards dest
+        var txToDest = this.destX - this.x;
+        var tyToDest = this.destY - this.y;
+
+        var tDestDist = Math.sqrt( txToDest * txToDest + tyToDest * tyToDest);
+
+        var tThisDistance = dt * this.speed;
+
+        var tDx = txToDest * tThisDistance / tDestDist;
+        var tDy = tyToDest * tThisDistance / tDestDist;
+
+        if (tDestDist < 5) {
+            this.munching = true;
+            this.dwellRemaining = this.dwellTime
+        } else {
+            this.x += tDx;
+            this.y += tDy;
+        }
+
+    };
 
 };
 
+Critter.prototype.initialize = function() {
+    var tTS = medGeography.totalSize();
+    this.x = Math.random() * Number(tTS.width);
+    this.y = Math.random() * Number(tTS.height);
+    var tShape = document.createElementNS(svgNS, "circle");
+    tShape.setAttribute("cx", this.x.toString());
+    tShape.setAttribute("cy", this.y.toString());
+    tShape.setAttribute("r", "10");         //  todo: fix this
+    tShape.setAttribute("fill", "yellow");
+    this.shapeSVG = tShape;
+    this.newDest();
+};
+
+Critter.prototype.newDest = function() {
+    //temp!
+    medModel.setNewCritterDest( this );
+}
 
