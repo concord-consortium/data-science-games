@@ -30,53 +30,59 @@ var medWorldView;
 
 medWorldView = {
 
-    mainSVG: null,
+    snapWorld: null,
     model: null,
 
     VBLeft : 0,
     VBTop : 0,
-    VBWidth : 300,
-    VBHeight : 300,
+    VBWidth : 1000,
+    VBHeight : 1000,
 
     actualWidth : 0,
     actualHeight : 0,
 
     updateScreen: function() {
+/*
         var i;
         for (i = 0; i < this.model.critters.length; i++) {
             var tC = this.model.critters[i];
-            var tCritterImage = tC.shapeSVG;
-            tCritterImage.setAttribute("cx",tC.x.toString());
-            tCritterImage.setAttribute("cy",tC.y.toString());
+            var tCritterImage = tC.snapShape;
+            tCritterImage.attr("cx",tC.x.toString());
+            tCritterImage.attr("cy",tC.y.toString());
         }
+*/
 
     },
 
     flushAndRedraw : function () {
+
+        this.snapWorld.clear();
+        /*
         while(this.mainSVG.lastChild) {
             this.mainSVG.removeChild(this.mainSVG.lastChild);
         }
+        */
 
         var i;
         for (i = 0; i < this.model.locations.length; i++) {
             var tL = this.model.locations[i];
-            this.attachShape(tL.shapeSVG);
+            this.snapWorld.append(tL.snapShape);
         };
         for (i = 0; i < this.model.critters.length; i++) {
             var tC = this.model.critters[i];
-            this.attachShape(tC.shapeSVG);
+            this.snapWorld.append(tC.snapShape);
         }
 
     },
 
     initialize: function() {
-        this.mainSVG = document.getElementById( "worldView" );
-        this.mainSVG.addEventListener("mousedown", medWorldView.down,false);
-        this.mainSVG.addEventListener("mouseup", medWorldView.up,false);
-        this.mainSVG.addEventListener("mousemove", medWorldView.move,false);
+        this.snapWorld = Snap(document.getElementById( "worldView" ));
+        this.snapWorld.node.addEventListener("mousedown", medWorldView.down,false);
+        this.snapWorld.node.addEventListener("mouseup", medWorldView.up,false);
+        this.snapWorld.node.addEventListener("mousemove", medWorldView.move,false);
 
-        this.actualHeight = this.mainSVG.getAttribute("height");
-        this.actualWidth = this.mainSVG.getAttribute("width");
+        this.actualHeight = this.snapWorld.attr("height");
+        this.actualWidth = this.snapWorld.attr("width");
 
         this.updateViewBox();
 
@@ -85,11 +91,11 @@ medWorldView = {
     updateViewBox : function() {
         //  todo: check parameters and pin
         var tString = this.VBLeft.toString() + " " + this.VBTop + " " + this.VBWidth + " " + this.VBHeight;
-        this.mainSVG.setAttribute("viewBox", tString);
+        this.snapWorld.attr({"viewBox" : tString});
     },
 
     attachShape : function(shape) {
-        this.mainSVG.appendChild( shape );
+        this.snapWorld.appendChild( shape );
     },
 
     //  event section. Handles drag.

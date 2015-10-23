@@ -28,12 +28,12 @@
 
 var Location = function( index ) {
     this.locType = null;
-    this.shapeSVG = null;
+    this.snapShape = null;
     this.critters = [];
 
     var tLocInfo = medGeography.newLocationInfoByIndex( index );
 
-    this.shapeSVG = tLocInfo.shape;
+    this.snapShape = tLocInfo.shape;        //      a Snap element
     this.locType = tLocInfo.locType;
 };
 
@@ -42,8 +42,8 @@ Location.prototype.localParkingCoordinates = function( index ) {
     var n = Math.ceil(Math.sqrt(medModel.numberOfCritters));    // on a side
     var row = Math.floor(index / n);
     var col = index % n;
-    var w = this.shapeSVG.getAttribute("width");
-    var h = this.shapeSVG.getAttribute("height");
+    var w = this.snapShape.attr("width");
+    var h = this.snapShape.attr("height");
 
     var xx = w/n/2 + col * (w/n);
     var yy = h/n/2 + row * (h/n);

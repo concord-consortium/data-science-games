@@ -30,7 +30,7 @@ var medModel;
 
 medModel = {
 
-    numberOfCritters: 100,
+    numberOfCritters: 1,
     critters: [],
     locations: [],
     elapsed : 0,
@@ -61,16 +61,31 @@ medModel = {
     },
 
     setNewCritterDest: function( critter ) {
-        var tNL = medGeography.numberOfLocations();
-        var tDestIndex = Math.floor(Math.random() * tNL);     //  a random location
-        var tDestLoc = this.locations[ tDestIndex ];
+        var tCritterNeeds = critter.mostUrgentNeed();
+
+        var tClosestDistance = Number.MAX_VALUE;
+        var i;
+        var tBestLocation = null;
+
+        for (i = 0; i < medGeography.numberOfLocations(); i++) {
+            tTestLocation = this.locations[i];
+            if (tTestLocation != critter.currentLocation && tTestLocation.locType == tCritterNeeds.what) {
+                tTestDistance = critter.distanceToLoc( tTestLocation);
+                if (tTestDistance < tClosestDistance) {
+                    tClosestDistance = tTestDistance;
+                    tBestLocation = tTestLocation;
+                }
+            }
+        }
+        var tDestLoc = tBestLocation;
         var tParking = tDestLoc.localParkingCoordinates( critter.myIndex );
-        var txDest = Number(tDestLoc.shapeSVG.getAttribute("x")) + tParking.x;
-        var tyDest = Number(tDestLoc.shapeSVG.getAttribute("y")) + tParking.y;
+        var txDest = Number(tDestLoc.snapShape.attr("x")) + tParking.x;
+        var tyDest = Number(tDestLoc.snapShape.attr("y")) + tParking.y;
 
         critter.destLoc = tDestLoc;
         critter.destX = txDest;
         critter.destY = tyDest;
-    }
+    },
+
 
 };

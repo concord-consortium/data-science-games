@@ -39,8 +39,8 @@ medGeography = {
         var tShape = this.theShape( index );
         var tRole = pickRandomItemFrom( medManager.locTypes );
         var tColor = Location.colors[tRole];
-        tShape.setAttribute("fill", tColor);
-        tShape.setAttribute("stroke", "white");
+        tShape.attr("fill", tColor);
+        tShape.attr("stroke", "white");
 
         return { shape: tShape, locType: tRole };
     },
@@ -52,11 +52,12 @@ medGeography = {
         var tLeft = tColumn * this.kPixelsWide;
         var tTop = tRow * this.kPixelsTall;
 
-        var tShape = document.createElementNS(svgNS, "rect");
-        tShape.setAttribute("x", tLeft.toString());
-        tShape.setAttribute("y", tTop.toString());
-        tShape.setAttribute("width", this.kPixelsWide.toString());
-        tShape.setAttribute("height", this.kPixelsTall.toString());
+        var tSVGShape = document.createElementNS(svgNS, "rect");
+        var tShape = Snap(tSVGShape);       //      this is a snap element
+        tShape.attr("x", tLeft.toString());
+        tShape.attr("y", tTop.toString());
+        tShape.attr("width", this.kPixelsWide.toString());
+        tShape.attr("height", this.kPixelsTall.toString());
 
         return tShape;
     },
