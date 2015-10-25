@@ -30,7 +30,7 @@ var medModel;
 
 medModel = {
 
-    numberOfCritters: 1,
+    numberOfCritters: 51,
     critters: [],
     locations: [],
     elapsed : 0,
@@ -56,20 +56,23 @@ medModel = {
 
         for (i = 0; i < this.numberOfCritters; i++) {
             var C = new Critter( i );
-            this.critters.push( C );
+
+            var locIndex = Math.floor(Math.random() * this.locations.length);
+            var tLoc = this.locations[ locIndex ];
+            C.initialize( tLoc );
+
+            this.critters.push( C );    //  add critter to our local array
         }
     },
 
-    setNewCritterDest: function( critter ) {
-        var tCritterNeeds = critter.mostUrgentNeed();
-
+    setNewCritterDest: function( critter, need) {
         var tClosestDistance = Number.MAX_VALUE;
         var i;
         var tBestLocation = null;
 
         for (i = 0; i < medGeography.numberOfLocations(); i++) {
             tTestLocation = this.locations[i];
-            if (tTestLocation != critter.currentLocation && tTestLocation.locType == tCritterNeeds.what) {
+            if (tTestLocation != critter.currentLocation && tTestLocation.locType == need) {
                 tTestDistance = critter.distanceToLoc( tTestLocation);
                 if (tTestDistance < tClosestDistance) {
                     tClosestDistance = tTestDistance;
@@ -87,5 +90,19 @@ medModel = {
         critter.destY = tyDest;
     },
 
+    doArrival: function( o ) {      //  medModel.doArrival({ critter; c, atLocation: L} );
+        var tCritter = o.critter;
+        var tLocation = o.atLocation;
+        tCritter.moving = false;
+        tCritter.x = tCritter.snapShape.attr("cx");
+        tCritter.y = tCritter.snapShape.attr("cy");
+        tCritter.currentLocation = tLocation;
+        tCritter.destLoc = null;
+        tLocation.addCritter( tCritter );
+    },
+
+    setCoords: function( inObject ) {
+        var tCrit = inObject.ofCritter;
+    },
 
 };

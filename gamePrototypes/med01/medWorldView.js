@@ -57,11 +57,6 @@ medWorldView = {
     flushAndRedraw : function () {
 
         this.snapWorld.clear();
-        /*
-        while(this.mainSVG.lastChild) {
-            this.mainSVG.removeChild(this.mainSVG.lastChild);
-        }
-        */
 
         var i;
         for (i = 0; i < this.model.locations.length; i++) {
@@ -94,9 +89,6 @@ medWorldView = {
         this.snapWorld.attr({"viewBox" : tString});
     },
 
-    attachShape : function(shape) {
-        this.snapWorld.appendChild( shape );
-    },
 
     //  event section. Handles drag.
 

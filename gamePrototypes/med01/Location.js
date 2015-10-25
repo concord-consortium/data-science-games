@@ -51,6 +51,10 @@ Location.prototype.localParkingCoordinates = function( index ) {
     return {x: xx, y: yy};
 };
 
+Location.prototype.addCritter = function( c ) {
+    this.critters.push[c];
+};
+
 /**
  * NOTE: Class method!
  * @returns {{food: string, water: string, dwelling: string}}
