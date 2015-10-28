@@ -117,7 +117,6 @@ medManager = {
             this.finishGame( "abort");
             //  this.endGame("abort");
         } else {    //  we're starting a new game
-            medModel.newGame();     //  todo: decide if we need this AND the call to startGame. May have become redundant :)
             window.requestAnimationFrame(this.animate);
             this.running = Boolean(true);
             this.newGame();
