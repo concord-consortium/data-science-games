@@ -37,7 +37,7 @@ medManager = {
     nLocations: 100,
     locTypes: [ "food", "water", "dwelling"],
     previous: 0,    //  timestamp for animation
-    running: Boolean( true ),
+    running: Boolean( false ),
     gameInProgress: Boolean (false),
 
     update : function( dt) {
@@ -93,7 +93,8 @@ medManager = {
 
         var startStopButton = document.getElementById("startStop");
         startStopButton.innerHTML = (this.running) ? "pause" : "go";
-        
+        startStopButton.disabled = !(this.gameInProgress);
+
         var gameButton = document.getElementById("newGameButton");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
         
@@ -129,7 +130,7 @@ medManager = {
         medNames.initialize();
         medWorldView.initialize();
         medWorldView.model = medModel;
-        this.newGame();
+       // this.newGame();
     }
 };
 
