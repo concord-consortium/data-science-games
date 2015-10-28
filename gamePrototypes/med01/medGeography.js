@@ -34,32 +34,40 @@ medGeography = {
 
     kPixelsWide: 100,
     kPixelsTall: 100,
+    
+    row: 0,
+    col: 0,
+    
+    colLetters : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
 
     newLocationInfoByIndex: function( index ) {
-        var tShape = this.theShape( index );
+        var tSnapSVGShape = this.theShape( index );
         var tRole = pickRandomItemFrom( medManager.locTypes );
         var tColor = Location.colors[tRole];
-        tShape.attr("fill", tColor);
-        tShape.attr("stroke", "white");
 
-        return { shape: tShape, locType: tRole };
+        var tBackgroundSnap = tSnapSVGShape.rect();
+        tBackgroundSnap.attr(
+            {fill:tColor, stroke: "white", x:0, y:0,
+                width: tSnapSVGShape.attr("width"),
+                height: tSnapSVGShape.attr("height")
+            }
+        );
+        var tName = this.colLetters[ this.col ] + this.row;
+        
+        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName };
     },
 
     theShape: function( index ) {
-        var tRow = Math.floor( index / this.kColumnsInGrid );
-        var tColumn = index % this.kColumnsInGrid;
+        this.row = Math.floor( index / this.kColumnsInGrid );
+        this.col = index % this.kColumnsInGrid;
 
-        var tLeft = tColumn * this.kPixelsWide;
-        var tTop = tRow * this.kPixelsTall;
+        var tLeft = this.col * this.kPixelsWide;
+        var tTop = this.row * this.kPixelsTall;
 
-        var tSVGShape = document.createElementNS(svgNS, "rect");
-        var tShape = Snap(tSVGShape);       //      this is a snap element
-        tShape.attr("x", tLeft.toString());
-        tShape.attr("y", tTop.toString());
-        tShape.attr("width", this.kPixelsWide.toString());
-        tShape.attr("height", this.kPixelsTall.toString());
-
-        return tShape;
+        var tOuterSVG = Snap( this.kPixelsWide, this.kPixelsTall);      //  Make new snap SVG Elemenrt
+        tOuterSVG.attr("x", tLeft.toString());
+        tOuterSVG.attr("y", tTop.toString());
+        return tOuterSVG;
     },
 
     numberOfLocations: function() {

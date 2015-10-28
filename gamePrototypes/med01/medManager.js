@@ -31,10 +31,14 @@ var svgNS = "http://www.w3.org/2000/svg";   //  needed to draw svg's
 var medManager;
 
 medManager = {
+    gameNumber: 0,
+    CODAPConnector: null,
+
     nLocations: 100,
     locTypes: [ "food", "water", "dwelling"],
     previous: 0,    //  timestamp for animation
     running: Boolean( true ),
+    gameInProgress: Boolean (false),
 
     update : function( dt) {
         medModel.update( dt );       //
@@ -44,7 +48,7 @@ medManager = {
 
     updateScreen: function() {
         medWorldView.updateScreen();
-
+        this.updateUIStuff();
     },
 
     animate: function (timestamp) {
@@ -56,56 +60,77 @@ medManager = {
     },
 
     newGame:    function() {
+        this.gameNumber += 1;
+        this.CODAPConnector.newGameCase( "epidemics", this.gameNumber);
         medModel.newGame();
         medWorldView.flushAndRedraw();
-        window.requestAnimationFrame(this.animate);
+        this.gameInProgress = true;
+        this.restart();
     },
 
+    finishGame: function( result ) {
+        this.gameInProgress = false;
+        this.pause();       //  stop any animation and progress
+        this.CODAPConnector.finishGameCase( result );
+        this.updateScreen();
+    },
+
+    pause: function() {
+        this.running = false;
+        this.updateScreen();
+    },
+
+    restart: function() {
+        this.previous = null;
+        this.running = true;
+        window.requestAnimationFrame(this.animate); //  START UP
+        this.updateScreen();
+    },
+
+    updateUIStuff : function( ) {
+        var timeText = document.getElementById("timeText");
+        timeText.innerHTML = parseFloat(medModel.elapsed.toFixed(2));
+
+        var startStopButton = document.getElementById("startStop");
+        startStopButton.innerHTML = (this.running) ? "pause" : "go";
+        
+        var gameButton = document.getElementById("newGameButton");
+        gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
+        
+        
+    },
+
+    doCritterClick : function( theCritter ) {
+        console.log("clicked in critter named " + theCritter.name);
+        this.CODAPConnector.doEventRecord( [
+            medModel.elapsed,
+            theCritter.name,
+            theCritter.currentLocation.name,
+            "click",
+            theCritter.health == 0 ? "sick" : "healthy"
+        ]);
+    },
+
+    newGameButtonPressed: function () {
+
+        if (this.gameInProgress) {  //  we're ending a game
+            this.finishGame( "abort");
+            //  this.endGame("abort");
+        } else {    //  we're starting a new game
+            medModel.newGame();     //  todo: decide if we need this AND the call to startGame. May have become redundant :)
+            window.requestAnimationFrame(this.animate);
+            this.running = Boolean(true);
+            this.newGame();
+        }
+        this.updateScreen();
+    },
+    
     initializeComponent : function() {
+        this.CODAPConnector = new MedCODAPConnector( );
+        medNames.initialize();
         medWorldView.initialize();
         medWorldView.model = medModel;
         this.newGame();
     }
 };
-
-/**
- * Required call to initialize the sim, connect it to CODAP.
- */
-codapHelper.initSim({
-    name: 'Med 01',
-    dimensions: {width: 404, height: 580},
-    collections: [  // There are two collections: a parent and a child
-        {
-            name: 'games',
-            labels: {
-                singleCase: "game",
-                pluralCase: "games",
-                setOfCasesWithArticle: "a tournament"
-            },
-            // The parent collection spec:
-            attrs: [
-                {name: "gameNumber", type: 'categorical'},
-                {name: "result", type: 'categorical'},
-                {name: "dose", type: 'numeric', precision: 0},
-                {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "sourceY", type: 'numeric', unit: 'meters', precision: 2}
-            ],
-            childAttrName: "measurement"
-        },
-        {
-            name: 'measurements',
-            labels: {
-                singleCase: "measurement",
-                pluralCase: "measurements",
-                setOfCasesWithArticle: "a game"
-            },
-            // The child collection specification:
-            attrs: [
-                {name: "x", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "y", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "count", type: 'numeric', precision: 0}
-            ]
-        }
-    ]
-});
 

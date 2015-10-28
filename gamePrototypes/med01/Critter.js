@@ -28,6 +28,7 @@
 
 var Critter = function( index ) {
     this.myIndex = index;
+    this.currentLocation;
 
     this.x = 0;
     this.y = 0;
@@ -38,14 +39,19 @@ var Critter = function( index ) {
 
     this.motivation = null;
     this.activity = null;
-    this.snapShape = null;
+    this.view = new CritterView( this );
 
     this.moving = Boolean(false);
+
+    this.health = 1.0;
+    
+    this.name = null;
 
 };
 
 Critter.prototype.update = function (dt) {
     this.motivation.update( dt );
+    this.view.update( this, dt );
 
     if (!this.moving && !this.activity) {   //  idle critter!
         var tCritterNeeds = this.motivation.mostUrgentNeed();
@@ -59,41 +65,33 @@ Critter.prototype.update = function (dt) {
             }
         }
     }
-    // console.log(this.toString());
 };
 
 Critter.prototype.startMove = function() {
-    this.moving = true;
+    medModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
     var tTime = this.distanceToLoc( this.destLoc ) / this.speed;
-    this.snapShape.animate(
-        {"cx" : this.destX, "cy" : this.destY},
+    this.view.snapShape.animate(
+        {"x" : this.destX, "y" : this.destY},
         tTime * 1000, null,
         function() {
             medModel.doArrival({ critter: this, atLocation: this.destLoc} );
         }.bind(this)
     );
-
 };
 
 
 Critter.prototype.initialize = function( where ) {
+    this.name = medNames.newName( );
+
     this.currentLocation = where;
+    where.addCritter(this);
 
     this.motivation = new Motivation( this );
     var tParkAt = where.localParkingCoordinates( this.myIndex );
     this.x = Number(where.snapShape.attr("x")) + tParkAt.x;
     this.y = Number(where.snapShape.attr("y")) + tParkAt.y;
-
-    var tSVGShape = document.createElementNS(svgNS, "circle");
-    var tShape = Snap(tSVGShape);
-    //  var tShape = Snap.circle( this.x, this.y, 10);
-    tShape.attr("cx", this.x.toString());
-    tShape.attr("cy", this.y.toString());
-    tShape.attr("r", "10");         //  todo: fix this
-    tShape.attr("fill", "yellow");
-    //tShape.click( Critter.clickCritter );
-    this.snapShape = tShape;
-
+    this.view.moveTo( this.x, this.y );
+    
 };
 
 
@@ -106,10 +104,6 @@ Critter.prototype.distanceToLoc = function( L ) {
     return Math.sqrt( tdx * tdx + tdy * tdy);
 };
 
-
-Critter.prototype.clickCritter = function( e ) {
-    console.log("Critter clicked. " + e.toString());
-};
 
 Critter.prototype.toString = function() {
     return "C " + this.myIndex + " mot "

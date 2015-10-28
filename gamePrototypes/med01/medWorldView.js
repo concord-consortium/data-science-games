@@ -33,8 +33,13 @@ medWorldView = {
     snapWorld: null,
     model: null,
 
+    /**
+     * VB stands for viewBox...
+     */
     VBLeft : 0,
     VBTop : 0,
+    VBMaxWidth : 1000,
+    VBMaxHeight : 1000,
     VBWidth : 1000,
     VBHeight : 1000,
 
@@ -63,9 +68,14 @@ medWorldView = {
             var tL = this.model.locations[i];
             this.snapWorld.append(tL.snapShape);
         };
+
+        /**
+         * This is where the Critter's image actually
+         * gets attached to the parent SVG.
+         */
         for (i = 0; i < this.model.critters.length; i++) {
             var tC = this.model.critters[i];
-            this.snapWorld.append(tC.snapShape);
+            this.snapWorld.append(tC.view.snapShape);
         }
 
     },
@@ -85,6 +95,14 @@ medWorldView = {
 
     updateViewBox : function() {
         //  todo: check parameters and pin
+        this.VBLeft = Math.max(0, this.VBLeft);
+        this.VBTop = Math.max(0, this.VBTop);
+        this.VBWidth = Math.min( this.VBWidth, this.VBMaxWidth);
+        this.VBHeight = Math.min( this.VBHeight, this.VBMaxHeight);
+
+        if (this.VBLeft + this.VBWidth > this.VBMaxWidth) this.VBLeft = this.VBMaxWidth - this.VBWidth;
+        if (this.VBTop + this.VBHeight > this.VBMaxHeight) this.VBTop = this.VBMaxHeight - this.VBHeight;
+
         var tString = this.VBLeft.toString() + " " + this.VBTop + " " + this.VBWidth + " " + this.VBHeight;
         this.snapWorld.attr({"viewBox" : tString});
     },
@@ -124,5 +142,4 @@ medWorldView = {
             medWorldView.updateViewBox();
         }
     }
-
 };

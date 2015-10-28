@@ -48,13 +48,16 @@
     <script src="../Snap.svg/dist/snap.svg.js"></script>
 
     <!-- Our game source -->
+    <script src="MedCODAPConnector.js" language="JavaScript"></script>
     <script src="medManager.js" language="JavaScript"></script>
     <script src="medModel.js" language="JavaScript"></script>
     <script src="medWorldView.js" language="JavaScript"></script>
     <script src="medGeography.js" language="JavaScript"></script>
     <script src="Location.js" language="JavaScript"></script>
     <script src="Critter.js" language="JavaScript"></script>
+    <script src="CritterView.js" language="JavaScript"></script>
     <script src="Motivation.js" language="JavaScript"></script>
+    <script src="nameGenerator.js" language="JavaScript"></script>
 
 
     <title>Med01</title>
@@ -65,8 +68,14 @@
     <circle r="120" cx="0" cy="0" fill="red"></circle>
 
 </svg>
-<button onclick="medWorldView.zoom(1.5)">zoom out</button>
-<button onclick="medWorldView.zoom(0.6666667)">zoom in</button>
+
+<div class="hBox">
+	<button id="startStop" onclick="medManager.running ? medManager.pause() : medManager.restart();">go</button>
+	<div class = "textIO" style = "width : 100px">Time: <span id = "timeText">0</span></div>
+	<button onclick="medWorldView.zoom(1.5)">zoom out</button> 
+	<button onclick="medWorldView.zoom(0.6666667)">zoom in</button>
+	<button id="newGameButton" onclick="medManager.newGameButtonPressed()">new game</button> 
+</div>
 
 
 

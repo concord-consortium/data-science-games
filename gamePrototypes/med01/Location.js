@@ -27,16 +27,25 @@
 
 
 var Location = function( index ) {
-    this.locType = null;
-    this.snapShape = null;
-    this.critters = [];
+    this.myIndex = index;
+
+    this.critters = new Set();
 
     var tLocInfo = medGeography.newLocationInfoByIndex( index );
 
-    this.snapShape = tLocInfo.shape;        //      a Snap element
+    this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
+    this.bgShape = tLocInfo.bg;        //      a Snap element
     this.locType = tLocInfo.locType;
+    this.name = tLocInfo.name;
+    
+    this.snapText = this.snapShape.text(10, 90, this.name);
+    this.snapText.attr({fill: "white"});
 };
 
+Location.prototype.update = function( dt ) {
+    var tNCrit = this.critters.size;
+    this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
+};
 
 Location.prototype.localParkingCoordinates = function( index ) {
     var n = Math.ceil(Math.sqrt(medModel.numberOfCritters));    // on a side
@@ -48,11 +57,17 @@ Location.prototype.localParkingCoordinates = function( index ) {
     var xx = w/n/2 + col * (w/n);
     var yy = h/n/2 + row * (h/n);
 
-    return {x: xx, y: yy};
+    return {x: xx - CritterView.overallViewSize/2 , y: yy - CritterView.overallViewSize/2};
 };
 
 Location.prototype.addCritter = function( c ) {
-    this.critters.push[c];
+    this.critters.add( c );
+    this.snapText.attr({text: this.critters.size});
+};
+
+Location.prototype.removeCritter = function( c ) {
+    this.critters.delete( c );
+    this.snapText.attr({text: this.critters.size});
 };
 
 /**
@@ -62,5 +77,5 @@ Location.prototype.addCritter = function( c ) {
 Location.colors = {
     "food": "green",
     "water": "blue",
-    "dwelling": "brown"
+    "dwelling": "darkKhaki"
 };
