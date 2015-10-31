@@ -29,10 +29,14 @@ var medModel;
 
 medModel = {
 
-    numberOfCritters: 36,
+    numberOfCritters: 49,
     critters: [],
     locations: [],
     elapsed : 0,
+
+    averageSecondsToInfection : 3,
+    newDataOnEveryArrival : true,
+    newDataOnEveryDeparture : true,
 
     update: function( dt ) {
         this.elapsed += dt;
@@ -45,7 +49,7 @@ medModel = {
             this.critters[i].update(dt);
         }
         
-        if (Math.random() < dt * 2) {   //  average twice per second
+        if (Math.random() < dt / this.averageSecondsToInfection) {   //
             medModel.infect();
         }
     },
@@ -71,53 +75,38 @@ medModel = {
             this.critters.push( C );    //  add critter to our local array
 
             if (i == 0) C.health = -1;
+
+            //  if (this.newDataOnEveryArrival) medManager.emitCritterData(C, "start");
         }
 
     },
 
-    setNewCritterDest: function( critter, need) {
-        var tClosestDistance = Number.MAX_VALUE;
-        var i;
-        var tBestLocation = null;
-
-        // todo: figure out whether this system biases towards 0,0 (because the test is strictly less than, or the origin adjustment)
-        for (i = 0; i < medGeography.numberOfLocations(); i++) {
-            tTestLocation = this.locations[i];
-            if (tTestLocation != critter.currentLocation && tTestLocation.locType == need) {
-                tTestDistance = critter.distanceToLoc( tTestLocation);
-                if (tTestDistance < tClosestDistance) {
-                    tClosestDistance = tTestDistance;
-                    tBestLocation = tTestLocation;
-                }
-            }
-        }
-        var tDestLoc = tBestLocation;
-        var tParking = tDestLoc.localParkingCoordinates( critter.myIndex );
-        var txDest = Number(tDestLoc.snapShape.attr("x")) + tParking.x;
-        var tyDest = Number(tDestLoc.snapShape.attr("y")) + tParking.y;
-
-        critter.destLoc = tDestLoc;
-        critter.destX = txDest;
-        critter.destY = tyDest;
-    },
 
     doArrival: function( o ) {      //  medModel.doArrival({ critter; c, atLocation: L} );
         var tCritter = o.critter;
         var tLocation = o.atLocation;
+        tCritter.activity = null;
         tCritter.moving = false;
         tCritter.x = tCritter.view.snapShape.attr("x");
         tCritter.y = tCritter.view.snapShape.attr("y");
         tCritter.currentLocation = tLocation;
         tCritter.destLoc = null;
         tLocation.addCritter( tCritter );
+        if (this.newDataOnEveryArrival) medManager.emitCritterData( tCritter, "arrival");
     },
 
     doDeparture: function( o ) {
         var tCritter = o.critter;
         var tLocation = o.fromLocation;
+
+        if (this.newDataOnEveryDeparture)
+            medManager.emitCritterData( tCritter, "departure"); //  must do before currentLocation changes
+
+        tCritter.activity = "traveling";
         tCritter.moving = true;
         tCritter.currentLocation = null;    //  is this a good idea??
         tLocation.removeCritter( tCritter );
+
     },
 
     infect: function() {

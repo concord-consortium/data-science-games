@@ -60,12 +60,42 @@ Critter.prototype.update = function (dt) {
             if (tCritterNeeds.what === this.currentLocation.locType) {
                 this.activity = tCritterNeeds.bestActivity;
             } else {
-                medModel.setNewCritterDest(this, tCritterNeeds.what);      //  sets destLoc, destX, and destY
+                this.setNewDest( );      //  sets destLoc, destX, and destY
                 this.startMove();
             }
         }
     }
 };
+
+Critter.prototype.setNewDest = function( ) {
+    var tCritterNeeds = this.motivation.mostUrgentNeed().what;
+    var tClosestDistance = Number.MAX_VALUE;
+    var i;
+    var tBestLocations = [];
+
+    // todo: figure out whether this system biases towards 0,0 (because the test is strictly less than, or the origin adjustment)
+    for (i = 0; i < medGeography.numberOfLocations(); i++) {
+        var tTestLocation = medModel.locations[i];
+        if (tTestLocation != this.currentLocation && tTestLocation.locType == tCritterNeeds) {
+            var tTestDistance = this.distanceToLoc( tTestLocation);
+            if (tTestDistance < tClosestDistance - medGeography.kPixelsWide) {  //  with some slop
+                tClosestDistance = tTestDistance;
+                tBestLocations = [tTestLocation];
+            } else if (tTestDistance < tClosestDistance + medGeography.kPixelsWide) {
+                tBestLocations.push( tTestLocation );
+            }
+        }
+    }
+    var tDestLoc = pickRandomItemFrom(tBestLocations);
+
+    this.destLoc = tDestLoc;
+    var tCenter = tDestLoc.centerCoordinates();     //  for now, head for center of the loc
+
+    this.destX = tCenter.x;
+    this.destY = tCenter.y;
+};
+
+
 
 Critter.prototype.startMove = function() {
     medModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
@@ -79,19 +109,25 @@ Critter.prototype.startMove = function() {
     );
 };
 
+Critter.prototype.startJiggleMove = function( destination ) {
+    this.view.snapShape.stop();
+    this.view.snapShape.animate(
+        { "x": destination.x, "y": destination.y },
+        1000, null,
+        null
+    );
+};
 
 Critter.prototype.initialize = function( where ) {
     this.name = medNames.newName( );
-
     this.currentLocation = where;
+    this.x = where.snapShape.attr("x");
+    this.y = where.snapShape.attr("y");
+    this.view.moveTo( this.x, this.y );
+    this.motivation = new Motivation( this );
+
     where.addCritter(this);
 
-    this.motivation = new Motivation( this );
-    var tParkAt = where.localParkingCoordinates( this.myIndex );
-    this.x = Number(where.snapShape.attr("x")) + tParkAt.x;
-    this.y = Number(where.snapShape.attr("y")) + tParkAt.y;
-    this.view.moveTo( this.x, this.y );
-    
 };
 
 

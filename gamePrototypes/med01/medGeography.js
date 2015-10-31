@@ -47,22 +47,25 @@ medGeography = {
 
         var tBackgroundSnap = tSnapSVGShape.rect();
         tBackgroundSnap.attr(
-            {fill:tColor, stroke: "white", x:0, y:0,
+            {
+                fill:tColor,
+                stroke: "white",
+                x:0, y:0,
                 width: tSnapSVGShape.attr("width"),
                 height: tSnapSVGShape.attr("height")
             }
         );
         var tName = this.colLetters[ this.col ] + this.row;
         
-        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName };
+        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName, row: this.row, col: this.col+1 };
     },
 
     theShape: function( index ) {
-        this.row = Math.floor( index / this.kColumnsInGrid );
+        this.row = this.kRowsInGrid - Math.floor( index / this.kColumnsInGrid );
         this.col = index % this.kColumnsInGrid;
 
         var tLeft = this.col * this.kPixelsWide;
-        var tTop = this.row * this.kPixelsTall;
+        var tTop = (this.row - 1) * this.kPixelsTall;
 
         var tOuterSVG = Snap( this.kPixelsWide, this.kPixelsTall);      //  Make new snap SVG Elemenrt
         tOuterSVG.attr("x", tLeft.toString());

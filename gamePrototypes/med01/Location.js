@@ -28,15 +28,19 @@
 
 var Location = function( index ) {
     this.myIndex = index;
+    this.row = 0;
+    this.col = 0;
 
     this.critters = new Set();
 
     var tLocInfo = medGeography.newLocationInfoByIndex( index );
 
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
-    this.bgShape = tLocInfo.bg;        //      a Snap element
+    this.bgShape = tLocInfo.bg;        //      a Snap element: the background square. It has the color.
     this.locType = tLocInfo.locType;
     this.name = tLocInfo.name;
+    this.row = tLocInfo.row;
+    this.col = tLocInfo.col;
     
     this.snapText = this.snapShape.text(10, 90, this.name);
     this.snapText.attr({fill: "white"});
@@ -47,27 +51,71 @@ Location.prototype.update = function( dt ) {
     this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
 };
 
-Location.prototype.localParkingCoordinates = function( index ) {
-    var n = Math.ceil(Math.sqrt(medModel.numberOfCritters));    // on a side
+Location.prototype.globalParkingCoordinates = function( index ) {
+    var tNCritters = this.critters.size;
+    var n = Math.ceil(Math.sqrt(tNCritters));    // on a side
+
+    if (index >= tNCritters) console.log("index " + index + " nCritt " + tNCritters);
+    //n = 1;
+    //index = 0;
+
     var row = Math.floor(index / n);
     var col = index % n;
-    var w = this.snapShape.attr("width");
-    var h = this.snapShape.attr("height");
+    var w = Number(this.snapShape.attr("width"));
+    var h = Number(this.snapShape.attr("height"));
 
-    var xx = w/n/2 + col * (w/n);
-    var yy = h/n/2 + row * (h/n);
+    var xx = w/n/2 + col * (w/n) + Number(this.snapShape.attr("x"));
+    var yy = h/n/2 + row * (h/n) + Number(this.snapShape.attr("y"));
 
-    return {x: xx - CritterView.overallViewSize/2 , y: yy - CritterView.overallViewSize/2};
+    return {        //  coordinates of upper LHC of the CRITTER's view.
+        x: xx - CritterView.overallViewSize/2 ,
+        y: yy - CritterView.overallViewSize/2
+    };
 };
 
-Location.prototype.addCritter = function( c ) {
-    this.critters.add( c );
-    this.snapText.attr({text: this.critters.size});
+Location.prototype.centerCoordinates = function() {
+    var tx = Number(this.snapShape.attr("x"));
+    var ty = Number(this.snapShape.attr("y"));
+    tx += Number(this.snapShape.attr("width"))/2;
+    ty += Number(this.snapShape.attr("height"))/2;
+
+    return( {x:tx, y:ty});
+};
+
+Location.prototype.addCritter = function( critter ) {
+    this.critters.add( critter ); //  now the number of critters is correct
+
+   this.indexInSet = 0;
+
+    //  give all my critters a new location within the Location
+
+/*
+    for (indexInSet = 0; indexInSet < this.critters.size; indexInSet++ ) {
+        var tCritter = this.critters[ indexInSet ];
+        var tDestination = this.globalParkingCoordinates( indexInSet );  //  todo: fix this so it uses the index within the set of critters
+        critter.startJiggleMove( tDestination );
+
+    };
+*/
+
+    this.critters.forEach(
+        //  anonymous function called for each critter
+        function( cr ) {
+            var tDestination = this.globalParkingCoordinates( this.indexInSet );  //  todo: fix this so it uses the index within the set of critters
+            cr.startJiggleMove( tDestination );
+            this.indexInSet++;
+        },
+        this
+    );
+
+
+
+    this.update();
 };
 
 Location.prototype.removeCritter = function( c ) {
     this.critters.delete( c );
-    this.snapText.attr({text: this.critters.size});
+    this.update();
 };
 
 /**

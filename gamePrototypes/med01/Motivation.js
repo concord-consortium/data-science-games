@@ -28,9 +28,9 @@
 var Motivation = function( c ) {
     this.critter = c;
 
-    this.hungry = 3 * Math.random();
-    this.thirsty = 3 * Math.random();
-    this.tired = 0;
+    this.hungry = 1.7 * Math.random();
+    this.thirsty = 1.7 * Math.random();
+    this.tired = 0.2 * Math.random();
 
 };
 
@@ -57,10 +57,7 @@ Motivation.prototype.update = function (dt) {
             break;
         default:
             break;
-
     };
-
-
 };
 
 Motivation.prototype.mostUrgentNeed = function( ) {

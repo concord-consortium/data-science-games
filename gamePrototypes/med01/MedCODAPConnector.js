@@ -77,9 +77,13 @@ codapHelper.initSim({
             attrs: [
                 {name: "time", type: 'numeric', unit: 'seconds', precision: 2},
                 {name: "name", type: 'categorical'},
-                {name: "location", type: 'categorical'},
+                {name: "activity", type: 'categorical'},
                 {name: "recordType", type: 'categorical'},
-                {name: "result", type: 'categorical'}
+                {name: "result", type: 'categorical'},
+                {name: "location", type: 'categorical'},
+                {name: 'row', type: 'categorical'},
+                {name: 'col', type: 'categorical'}
+
             ]
         }
     ]

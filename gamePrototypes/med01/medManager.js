@@ -103,12 +103,21 @@ medManager = {
 
     doCritterClick : function( theCritter ) {
         console.log("clicked in critter named " + theCritter.name);
+        this.emitCritterData( theCritter, "click");
+    },
+
+    emitCritterData : function( theCritter, eventType ) {
+
+        var tLocName = (theCritter.currentLocation) ? theCritter.currentLocation.name : "transit";
         this.CODAPConnector.doEventRecord( [
             medModel.elapsed,
             theCritter.name,
-            theCritter.currentLocation.name,
-            "click",
-            theCritter.health == 0 ? "sick" : "healthy"
+            theCritter.activity,
+            eventType,
+            theCritter.health == 0 ? "sick" : "healthy",
+            tLocName,
+            theCritter.currentLocation.row,
+            theCritter.currentLocation.col
         ]);
     },
 
