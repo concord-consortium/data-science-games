@@ -48,7 +48,7 @@ trafficManager = {
             this.running = Boolean(false);
             this.endGame("abort");
         } else {    //  we're starting a new game
-            trafficModel.newGame();
+            trafficModel.newGame();     //  todo: decide if we need this AND the call to newGame. May have become redundant :)
             window.requestAnimationFrame(this.animate);
             this.running = Boolean(true);
             this.startGame();
@@ -161,17 +161,22 @@ trafficManager = {
 
     },
 
+    start: function() {
+        this.previous = 0;
+        window.requestAnimationFrame(this.animate);
+    },
+    
     startStop: function () {
         this.running = !(this.running);
 
-        if (this.running) { //  START UP
-            this.previous = 0;
-            window.requestAnimationFrame(this.animate);
+        if (this.running) { this.start()//  START UP
         } else {    // PAUSE
             this.previous = 0;  //  so next animate will have a short (zero) dt
         }
         this.updateScreen();
     },
+
+
 
     initializeComponent: function () {
         this.numberOfLights++;
