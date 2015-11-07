@@ -90,9 +90,6 @@
         </form>
     </div>
     <div class="vBox">
-        <input type="checkbox"
-               id="useRandom"
-               form="geigerForm"> use randomness</br>
 
         <span id="geigerInfo">original info</span></br>
         <span id="geigerCount">count: 0</span>
@@ -101,6 +98,23 @@
     </div>
 </div>
 
+<hr/>
+
+<div class = "hBox" id = "features">
+    <input type="checkbox"
+           id="useRandom"
+           form="geigerForm"> use randomness</br>
+    <input type="checkbox"
+           id="deathPossible"
+           form="geigerForm" checked> end game on high dose</br>
+    <input type="checkbox"
+           id="useDistance"
+           form="geigerForm"> use distance, not count</br>
+    <input type="checkbox"
+           id="bigRadius"
+           form="geigerForm"> extra-large scooper</br>
+
+</div>
 
 <script>
     geigerManager.initializeComponent();

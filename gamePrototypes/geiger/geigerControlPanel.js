@@ -44,7 +44,12 @@ geigerControlPanel = {
  */
     displayGeigerCount: function(count) { //  todo: use spans in HTML
     var geigerCountText = document.getElementById('geigerCount');
-    geigerCountText.innerHTML = "count: " + (count) + " at (" +
+
+    var tAssembledText;
+
+    tAssembledText = (document.forms.geigerForm.useDistance.checked) ? "distance (mm): " : "count: ";
+
+    geigerCountText.innerHTML = tAssembledText + (count) + " at (" +
         (geigerGameModel.detectorX) + ", " + (geigerGameModel.detectorY) + ")" +
         " Dose: " + geigerGameModel.dose + ".";
 

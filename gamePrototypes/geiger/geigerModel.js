@@ -43,7 +43,7 @@ geigerGameModel = {
     /**
      * Strength of the radiation
      */
-    sourceStrength: 10000,
+    initialSourceStrength: 10000,
     /**
      * Current position of the detector
      */
@@ -60,7 +60,7 @@ geigerGameModel = {
     /**
      * radius of the "collector"
      */
-    collectorRadius: 0.5,
+    baseCollectorRadius: 0.5,
 
     /**
      * Exceed this and you lose!
@@ -75,7 +75,7 @@ geigerGameModel = {
     newGame: function () {
         this.sourceX = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
         this.sourceY = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
-        this.sourceStrength = 10000;
+        this.sourceStrength = this.initialSourceStrength;
         this.latestCount = 0;
         this.dose = 0;
     },
@@ -98,9 +98,34 @@ geigerGameModel = {
         var tSignal = this.signalStrength();
         this.latestCount = document.forms.geigerForm.useRandom.checked ? randomPoisson(tSignal) : tSignal;
 
+        if (document.forms.geigerForm.useDistance.checked) {
+            this.latestCount = Math.round( 1000 * Math.sqrt( this.dSquared()));
+        }
+
         this.dose += this.latestCount;   // TODO: Update game case with current dose.
 
     },
+
+    /**
+     * supply the current radius of the collector (depends on game options)
+     * @returns {number}
+     */
+    collectorRadius : function () {
+        var tRadius = this.baseCollectorRadius;
+        if (document.forms.geigerForm.bigRadius.checked) tRadius *= 3;
+        return tRadius;
+    },
+
+    /**
+     * test whether the detector is close enough to capture the source
+     * @returns {boolean}
+     */
+    captured: function() {
+        var tRadius = this.collectorRadius();
+        return (this.dSquared() < tRadius * tRadius);
+    },
+
+
     /**
      * Utility: what's the square of the distance from the detector to the source?
      * @returns {number}

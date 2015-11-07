@@ -137,9 +137,7 @@ geigerManager = {
         var playingControls = document.getElementById('playingControls');
         var crosshairElement = document.getElementById('crosshairs');
 
-        //  todo: hey, this is where the box-location bug is!
         tBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "240" : "40";
-        console.log("Source at y= "+ geigerGameModel.sourceY +", so we'll put the box at " + tBoxY);
 
         switch (this.gameState) {
             case "won":
@@ -184,7 +182,7 @@ geigerManager = {
         geigerLabView.setRangeCircle(
             geigerGameModel.detectorX,
             geigerGameModel.detectorY,
-            geigerGameModel.collectorRadius
+            geigerGameModel.collectorRadius()
         );
 
         geigerControlPanel.displayInfo("Detector moved to (" + x + ", " + y + ")");
@@ -227,8 +225,7 @@ geigerManager = {
      */
     doMeasurement: function() {
         //first, figure out if we're close enough to collect it!
-        if (geigerGameModel.dSquared()
-            < geigerGameModel.collectorRadius * geigerGameModel.collectorRadius) {
+        if (geigerGameModel.captured()) {
             geigerManager.doWin()
         } else {
             geigerGameModel.doMeasurement();
@@ -248,8 +245,10 @@ geigerManager = {
                 }
             );
         }
-        if (geigerGameModel.dose > geigerGameModel.maxDose) {
-            this.doLoss();
+        if (document.forms.geigerForm.deathPossible.checked) {
+            if (geigerGameModel.dose > geigerGameModel.maxDose) {
+                this.doLoss();
+            }
         }
         this.updateScreen();
     },
@@ -278,7 +277,7 @@ geigerManager = {
  */
 codapHelper.initSim({
     name: 'Geiger',
-    dimensions: {width: 404, height: 580},
+    dimensions: {width: 404, height: 640},
     collections: [  // There are two collections: a parent and a child
         {
             name: 'games',
