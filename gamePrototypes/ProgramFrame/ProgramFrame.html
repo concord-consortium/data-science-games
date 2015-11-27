@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Program Frame Tests</title>
+
+    <script src="../Snap.svg/dist/snap.svg.js"></script>
+
+    <script src="PFManager.js"  language="JavaScript"></script>
+    <script src="PFContainerView.js" language="JavaScript"></script>
+    <script src="PSView.js"     language="JavaScript"></script>
+    <script src="PFModel.js"    language="JavaScript"></script>
+    <script src="PSModel.js"    language="JavaScript"></script>
+
+    <!-- Snap -->
+    <script src="../Snap.svg/dist/snap.svg.js"></script>
+
+</head>
+<body>
+
+<svg id="theFrame" width="300" height="500" style="background-color: #6ecd5a">
+
+</svg>
+
+<script>
+    var thePFManager = new PFManager("theFrame");
+    thePFManager.addEmptyStatement( );
+    thePFManager.addEmptyStatement( );
+    console.log( thePFManager.programAsString() );
+</script>
+
+</body>
+</html>
