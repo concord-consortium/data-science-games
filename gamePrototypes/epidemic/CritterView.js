@@ -28,9 +28,9 @@
 var CritterView = function( c ) {
     this.critter = c;
     var tHalfSize = CritterView.overallViewSize / 2;
-    this.snapShape = new Snap( tHalfSize * 2, tHalfSize * 2 );
+    this.snapShape = new Snap( tHalfSize * 2, tHalfSize * 2 );  //  width and height.
     
-    this.bgCircle = this.snapShape.circle(tHalfSize, tHalfSize, tHalfSize);
+    this.bgCircle = this.snapShape.circle(tHalfSize, tHalfSize, tHalfSize); //  add Snap circle with cx, cy, and r
     this.bgCircle.attr({
         fill : "yellow"
     });
@@ -43,7 +43,7 @@ var CritterView = function( c ) {
     });
 
     this.healthCircle.click( function() {       //      todo: find the best way to click on ANY visible part of the critter
-            medManager.doCritterClick( this.critter );
+            epiManager.doCritterClick( this.critter );
         }.bind(this)
     );
 };

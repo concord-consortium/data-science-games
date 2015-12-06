@@ -25,6 +25,12 @@
  * Created by tim on 10/23/15.
  */
 
+/**
+ * Constructor for a Motivation.
+ * This is a model class for Critters, helps them decide what to do.
+ * @param c
+ * @constructor
+ */
 var Motivation = function( c ) {
     this.critter = c;
 
@@ -34,6 +40,11 @@ var Motivation = function( c ) {
 
 };
 
+/**
+ * Update this Critter's motivation.
+ * For example, make it hungrier if it is not eating.
+ * @param dt
+ */
 Motivation.prototype.update = function (dt) {
 
     var tLocation = this.critter.currentLocation;
@@ -42,6 +53,9 @@ Motivation.prototype.update = function (dt) {
     this.thirsty += dt / 10;
     this.tired += dt / 50;
 
+    /**
+     * Alter the internal values depending on the activity
+     */
     switch (this.critter.activity) {
         case "eating":
             this.hungry -= tLocation.locType === "food" ? dt : dt / 5;
@@ -60,6 +74,11 @@ Motivation.prototype.update = function (dt) {
     };
 };
 
+/**
+ * Determine this critter's most urgent need, and supplies an object that
+ * tells you what you need, how urgently, and what you have to do to slake it.
+ * @returns {{what: string, urgency: (number|*), bestActivity: string}}
+ */
 Motivation.prototype.mostUrgentNeed = function( ) {
     var tNeed = "food";
     var tActivity = "eating";
@@ -80,6 +99,10 @@ Motivation.prototype.mostUrgentNeed = function( ) {
     return {what: tNeed, urgency: tValue, bestActivity: tActivity};
 };
 
+/**
+ * A string of the current motivation, for debugging purposes.
+ * @returns {string}
+ */
 Motivation.prototype.toString = function() {
     return "[Mot: Hu-Th-Ti = "
         + Math.round(this.hungry * 1000)/1000 + " " +

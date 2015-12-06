@@ -3,7 +3,7 @@
  */
 /*
  ==========================================================================
- medWorldView.js
+ epidemicWorldView.js
 
  Main view for the med DSG.
 
@@ -25,11 +25,16 @@
  ==========================================================================
  */
 
-
+/**
+ * Singleton object that manages the main view in which the critters move around.
+ */
 var medWorldView;
 
 medWorldView = {
 
+    /**
+     *  snap.svg element that contains all the locations and critters. The whole world.
+     */
     snapWorld: null,
     model: null,
 
@@ -59,6 +64,10 @@ medWorldView = {
 
     },
 
+    /**
+     * Clear the snapWorld, then use information from the model to add all of the world's
+     * locations and critters (in the form of their snapShapes).
+     */
     flushAndRedraw : function () {
 
         this.snapWorld.clear();
@@ -80,8 +89,11 @@ medWorldView = {
 
     },
 
+    /**
+     * Initialize the view. This creates this.snapWorld.
+     */
     initialize: function() {
-        this.snapWorld = Snap(document.getElementById( "worldView" ));
+        this.snapWorld = Snap(document.getElementById( "epiWorldView" ));
         this.snapWorld.node.addEventListener("mousedown", medWorldView.down,false);
         this.snapWorld.node.addEventListener("mouseup", medWorldView.up,false);
         this.snapWorld.node.addEventListener("mousemove", medWorldView.move,false);
@@ -93,6 +105,11 @@ medWorldView = {
 
     },
 
+    /**
+     * Member properties that determine the viewBox (for zoom and pan) have already been set.
+     * Here, we pin them to the world and set the viewBox itself (it's a DOM attribute)
+     * so they get manifested on the screen.
+     */
     updateViewBox : function() {
         //  todo: check parameters and pin
         this.VBLeft = Math.max(0, this.VBLeft);

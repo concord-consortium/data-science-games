@@ -4,7 +4,7 @@
 
 /*
 ==========================================================================
-medManager.js
+epiManager.js
 
 Main controller for the med DSG.
 
@@ -28,9 +28,14 @@ limitations under the License.
 
 
 var svgNS = "http://www.w3.org/2000/svg";   //  needed to draw svg's
-var medManager;
+var epiManager;
 
-medManager = {
+/**
+ * Singleton controller object (main) for the "Epidemic" DSG
+ *
+ * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
+ */
+epiManager = {
     gameNumber: 0,
     CODAPConnector: null,
 
@@ -40,25 +45,39 @@ medManager = {
     running: Boolean( false ),
     gameInProgress: Boolean (false),
 
+    /**
+     * General update method. Asks the model to update, then updates our screen.
+     * @param dt
+     */
     update : function( dt) {
         medModel.update( dt );       //
-
         this.updateScreen();
     },
 
+    /**
+     * Manages update of screen. this involves the main view plus any of our UI stuff.
+     */
     updateScreen: function() {
         medWorldView.updateScreen();
         this.updateUIStuff();
     },
 
+    /**
+     * Animation function for Epidemic.
+     * Necessary not for visible animations, but for updating the model *hunger, thirst, etc)
+     * @param timestamp
+     */
     animate: function (timestamp) {
-        if (!medManager.previous)  medManager.previous = timestamp;
-        var tDt = (timestamp - medManager.previous) / 1000.0;
-        medManager.previous = timestamp;
-        medManager.update(tDt);
-        if (medManager.running) window.requestAnimationFrame(medManager.animate);
+        if (!epiManager.previous)  epiManager.previous = timestamp;
+        var tDt = (timestamp - epiManager.previous) / 1000.0;
+        epiManager.previous = timestamp;
+        epiManager.update(tDt);
+        if (epiManager.running) window.requestAnimationFrame(epiManager.animate);
     },
 
+    /**
+     * Handles a new game in Epidemic
+     */
     newGame:    function() {
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase( "epidemics", this.gameNumber);
@@ -68,6 +87,10 @@ medManager = {
         this.restart();
     },
 
+    /**
+     * Handles the end of a game in Epidemic
+     * @param result    could be "won" "lost" "aborted" etc
+     */
     finishGame: function( result ) {
         this.gameInProgress = false;
         this.pause();       //  stop any animation and progress
@@ -87,6 +110,9 @@ medManager = {
         this.updateScreen();
     },
 
+    /**
+     * Updates text, button text, etc., that is not in the main "world" display area
+     */
     updateUIStuff : function( ) {
         var timeText = document.getElementById("timeText");
         timeText.innerHTML = parseFloat(medModel.elapsed.toFixed(2));
@@ -97,15 +123,22 @@ medManager = {
 
         var gameButton = document.getElementById("newGameButton");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
-        
-        
     },
 
+    /**
+     * Handles a click on a critter.
+     * @param theCritter    the actual Critter clicked.
+     */
     doCritterClick : function( theCritter ) {
         console.log("clicked in critter named " + theCritter.name);
-        this.emitCritterData( theCritter, "click");
+        if (epiOptions.dataOnCritterClick) this.emitCritterData(theCritter, "click");
     },
 
+    /**
+     * Asks CODAP to write the Critter data out
+     * @param theCritter
+     * @param eventType
+     */
     emitCritterData : function( theCritter, eventType ) {
 
         var tLocName = (theCritter.currentLocation) ? theCritter.currentLocation.name : "transit";
@@ -121,19 +154,27 @@ medManager = {
         ]);
     },
 
+    /**
+     * User asks for a new game.
+     */
     newGameButtonPressed: function () {
 
         if (this.gameInProgress) {  //  we're ending a game
             this.finishGame( "abort");
             //  this.endGame("abort");
         } else {    //  we're starting a new game
+            // todo: redundant with restart()?
             window.requestAnimationFrame(this.animate);
             this.running = Boolean(true);
             this.newGame();
         }
         this.updateScreen();
     },
-    
+
+    /**
+     * Called at the very beginnning to initialize this component.
+     * Creates the connector, the name-making object, the model, and teh view.
+     */
     initializeComponent : function() {
         this.CODAPConnector = new MedCODAPConnector( );
         medNames.initialize();

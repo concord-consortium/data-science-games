@@ -42,7 +42,7 @@ medGeography = {
 
     newLocationInfoByIndex: function( index ) {
         var tSnapSVGShape = this.theShape( index );
-        var tRole = pickRandomItemFrom( medManager.locTypes );
+        var tRole = pickRandomItemFrom( epiManager.locTypes );
         var tColor = Location.colors[tRole];
 
         var tBackgroundSnap = tSnapSVGShape.rect();

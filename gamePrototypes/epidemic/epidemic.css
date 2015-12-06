@@ -32,6 +32,12 @@ input {
     text-align: right;
 }
 
+/* ID options */
+
+#options   {
+    background-color: #fae7e9;
+}
+
 
 /*		BOX CLASSES		*/
 

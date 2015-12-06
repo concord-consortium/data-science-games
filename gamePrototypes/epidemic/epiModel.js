@@ -3,7 +3,7 @@
  */
 /*
  ==========================================================================
- medModel.js
+ epiModel.js
 
  Model for the med DSG.
 
@@ -35,8 +35,6 @@ medModel = {
     elapsed : 0,
 
     averageSecondsToInfection : 3,
-    newDataOnEveryArrival : true,
-    newDataOnEveryDeparture : true,
 
     update: function( dt ) {
         this.elapsed += dt;
@@ -48,10 +46,8 @@ medModel = {
         for (i = 0; i < this.critters.length; i++) {
             this.critters[i].update(dt);
         }
-        
-        if (Math.random() < dt / this.averageSecondsToInfection) {   //
-            medModel.infect();
-        }
+
+        medModel.infect( dt );
     },
 
     newGame: function() {
@@ -60,12 +56,12 @@ medModel = {
         this.locations = [];
         this.critters = [];
 
-        for (i = 0; i < medGeography.numberOfLocations(); i++ ) {
+        for (i = 0; i < medGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
             var L = new Location( i );
             this.locations.push( L );   // todo: fix so it's not a coincidence that the index is the index :)
         }
 
-        for (i = 0; i < this.numberOfCritters; i++) {
+        for (i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
             var C = new Critter( i );
 
             var locIndex = Math.floor(Math.random() * this.locations.length);
@@ -76,7 +72,7 @@ medModel = {
 
             if (i == 0) C.health = -1;
 
-            //  if (this.newDataOnEveryArrival) medManager.emitCritterData(C, "start");
+            //  if (this.newDataOnEveryArrival) epiManager.emitCritterData(C, "start");
         }
 
     },
@@ -92,15 +88,15 @@ medModel = {
         tCritter.currentLocation = tLocation;
         tCritter.destLoc = null;
         tLocation.addCritter( tCritter );
-        if (this.newDataOnEveryArrival) medManager.emitCritterData( tCritter, "arrival");
+        if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
     },
 
     doDeparture: function( o ) {
         var tCritter = o.critter;
         var tLocation = o.fromLocation;
 
-        if (this.newDataOnEveryDeparture)
-            medManager.emitCritterData( tCritter, "departure"); //  must do before currentLocation changes
+        if (epiOptions.dataOnDeparture)
+            epiManager.emitCritterData( tCritter, "departure"); //  must do before currentLocation changes
 
         tCritter.activity = "traveling";
         tCritter.moving = true;
@@ -109,17 +105,18 @@ medModel = {
 
     },
 
-    infect: function() {
+
+    infect: function( dt ) {
         var i;
         for (i = 0; i < this.locations.length; i++) {
             var tLocation = this.locations[i];
-            var tInfected = false;
+            var tInfectionInLocation = false;
             tLocation.critters.forEach(function(c) {
-                if (c.health == -1) tInfected = true;
+                if (c.health == -1) tInfectionInLocation = true;
             });
-            if (tInfected) {
+            if (tInfectionInLocation) {
                 tLocation.critters.forEach(function(c) {
-                    if (c.health == 1) c.health = 0;
+                    if (c.health == 1 && Math.random() < dt / this.averageSecondsToInfection) c.health = 0;
                 });
                 
             }

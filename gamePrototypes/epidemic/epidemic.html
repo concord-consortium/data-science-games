@@ -1,7 +1,7 @@
 <!--
 
  ==========================================================================
- med01.html
+ epidemic.html
 
  Main page for the med DSG.
 
@@ -24,20 +24,20 @@
 
     Here is the URL...
 
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/med01/med01.html
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/epidemic/epidemic.html
 
     or locally,
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/med01/med01.html
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/epidemic/epidemic.html
 
     local with docs;
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/med01/med01.html&documentServer=http://document-store.herokuapp.com/&recordid=7002
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/epidemic/epidemic.html&documentServer=http://document-store.herokuapp.com/&recordid=7002
     -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel='stylesheet' type='text/css' href='med.css'/>
+    <link rel='stylesheet' type='text/css' href='epidemic.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
@@ -48,39 +48,48 @@
     <script src="../Snap.svg/dist/snap.svg.js"></script>
 
     <!-- Our game source -->
-    <script src="MedCODAPConnector.js" language="JavaScript"></script>
-    <script src="medManager.js" language="JavaScript"></script>
-    <script src="medModel.js" language="JavaScript"></script>
-    <script src="medWorldView.js" language="JavaScript"></script>
-    <script src="medGeography.js" language="JavaScript"></script>
+    <script src="epiCODAPConnector.js" language="JavaScript"></script>
+    <script src="epiManager.js" language="JavaScript"></script>
+    <script src="epiModel.js" language="JavaScript"></script>
+    <script src="epidemicWorldView.js" language="JavaScript"></script>
+    <script src="epiGeography.js" language="JavaScript"></script>
     <script src="Location.js" language="JavaScript"></script>
     <script src="Critter.js" language="JavaScript"></script>
     <script src="CritterView.js" language="JavaScript"></script>
     <script src="Motivation.js" language="JavaScript"></script>
     <script src="nameGenerator.js" language="JavaScript"></script>
+    <script src="epiOptions.js" language="JavaScript"></script>
 
 
     <title>Med01</title>
 </head>
 <body>
-<svg width="400" height="400" viewBox="0 0 1500 1500" id="worldView">
+<svg width="400" height="400" viewBox="0 0 1500 1500" id="epiWorldView">
     <rect x="-100" y="-100" width="100%" height="100%" fill="yellow" stroke="black" ></rect>
     <circle r="120" cx="0" cy="0" fill="red"></circle>
     <text x="500" y="500" font-size="60" text-anchor="middle" fill="darkslategray">Press "new game"</text>
 </svg>
 
 <div class="hBox">
-	<button id="startStop" onclick="medManager.running ? medManager.pause() : medManager.restart();">go</button>
+	<button id="startStop" onclick="epiManager.running ? epiManager.pause() : epiManager.restart();">go</button>
 	<div class = "textIO" style = "width : 100px">Time: <span id = "timeText">0</span></div>
 	<button onclick="medWorldView.zoom(1.5)">zoom out</button> 
 	<button onclick="medWorldView.zoom(0.6666667)">zoom in</button>
-	<button id="newGameButton" onclick="medManager.newGameButtonPressed()">new game</button> 
+	<button id="newGameButton" onclick="epiManager.newGameButtonPressed()">new game</button>
+</div>
+
+<hr/>
+
+<div class = "vBox" id = "options" onclick="epiOptions.optionChange()">
+    <div class="hBox"><input type="checkbox" id="dataOnCritterClick"> data on Critter click</div>
+
+    <div class="hBox"><input type="checkbox" id="dataOnArrival"> data on arrival </div>
+    <div class="hBox"><input type="checkbox" id="dataOnDeparture"> data on departure</div>
 </div>
 
 
-
 <script>
-    medManager.initializeComponent();
+    epiManager.initializeComponent();
 </script>
 
 </body>
