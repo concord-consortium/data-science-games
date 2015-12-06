@@ -58,6 +58,10 @@ geigerGameModel = {
      */
     latestCount: 0,
     /**
+     * The distance reading the last time the detector was used
+     */
+    latestDistance : 0,
+    /**
      * radius of the "collector"
      */
     baseCollectorRadius: 0.5,
@@ -68,6 +72,7 @@ geigerGameModel = {
     maxDose: 20000,
 
     unitsAcross: 10.0,
+    distanceFactor : 39.37,
 
     /**
      * Initialize model properties for a new game
@@ -91,18 +96,18 @@ geigerGameModel = {
     },
 
     /**
-     * Perform a measurement. Updates internal positions. Updates this.latestcount.
+     * Perform a measurement. Updates internal positions. Updates this.latestCount, .latestDistance
      */
     doMeasurement: function(  ) {
 
         var tSignal = this.signalStrength();
         this.latestCount = document.forms.geigerForm.useRandom.checked ? randomPoisson(tSignal) : tSignal;
-
-        if (document.forms.geigerForm.useDistance.checked) {
-            this.latestCount = Math.round( 1000 * Math.sqrt( this.dSquared()));
-        }
-
+        this.latestDistance = this.distanceFactor * Math.sqrt( this.dSquared());
         this.dose += this.latestCount;   // TODO: Update game case with current dose.
+
+        if (!document.forms.geigerForm.showDistance.checked) {
+            this.latestDistance = "";
+        }
 
     },
 

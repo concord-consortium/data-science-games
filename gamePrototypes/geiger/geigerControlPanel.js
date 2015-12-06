@@ -34,24 +34,28 @@ geigerControlPanel = {
      * @param message {string} The string message.
      */
     displayInfo: function( message ) {
-    var geigerInfoText = document.getElementById('geigerInfo');
-    geigerInfoText.innerHTML = message;
+        var geigerInfoText = document.getElementById('geigerInfo');
+        geigerInfoText.innerHTML = message;
     },
 
-/**
- * Display function: the latest count from the geiger counter
- * @param count The number to display
- */
-    displayGeigerCount: function(count) { //  todo: use spans in HTML
-    var geigerCountText = document.getElementById('geigerCount');
+    /**
+     * Display function: the latest count from the geiger counter
+     * @param count The number to display
+     */
+    displayGeigerCount: function(count, distance) { //  todo: use spans in HTML
 
-    var tAssembledText;
+        var geigerCountText = document.getElementById('geigerCount');
+        var tAssembledText = "";
 
-    tAssembledText = (document.forms.geigerForm.useDistance.checked) ? "distance (mm): " : "count: ";
+        if (document.forms.geigerForm.showDistance.checked) {
+            tAssembledText += "dist: " + (distance);
+        }
 
-    geigerCountText.innerHTML = tAssembledText + (count) + " at (" +
-        (geigerGameModel.detectorX) + ", " + (geigerGameModel.detectorY) + ")" +
-        " Dose: " + geigerGameModel.dose + ".";
+
+        geigerCountText.innerHTML =
+            tAssembledText + " count : " + (count) + " at (" +
+            (geigerGameModel.detectorX) + ", " + (geigerGameModel.detectorY) + ")" +
+            "\nDose: " + geigerGameModel.dose + ".";
 
     }
 

@@ -44,10 +44,11 @@
 
     <!-- This script is our game source -->
     <script src="geiger1DManager.js" language="JavaScript"></script>
-    <script src="geiger1DModel.js" language="JavaScript"></script>
+    <!-- <script src="geiger1DModel.js" language="JavaScript"></script> -->
+    <script src="../geiger/geigerModel.js" language="JavaScript"></script>
     <script src="geiger1DView.js" language="JavaScript"></script>
     <script src="TEEGauge.js" language="JavaScript"></script>
-    <script src="geigerControlPanel.js" language="JavaScript"></script>
+    <script src="../geiger/geigerControlPanel.js" language="JavaScript"></script>
     <script src="../common/TEEUtils.js" language="JavaScript"></script>
 
     <title>Geiger</title>
@@ -98,13 +99,13 @@
 <div class = "hBox" id = "features">
     <input type="checkbox"
            id="useRandom"
-           form="geigerForm"> use randomness</br>
+           form="geigerForm"> use randomness (harder)</br>
     <input type="checkbox"
            id="deathPossible"
            form="geigerForm" checked> end game on high dose</br>
     <input type="checkbox"
-           id="useDistance"
-           form="geigerForm"> use distance, not count</br>
+           id="showDistance"
+           form="geigerForm"> show distance as well as count (makes it easier)</br>
     <input type="checkbox"
            id="bigRadius"
            form="geigerForm"> extra-large scooper</br>

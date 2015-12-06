@@ -232,11 +232,16 @@ geigerManager = {
 
             codapHelper.createCase(
                 'measurements',
-                [geigerGameModel.detectorX, geigerGameModel.detectorY, geigerGameModel.latestCount],
+                [
+                    geigerGameModel.detectorX,
+                    geigerGameModel.detectorY,
+                    geigerGameModel.latestDistance,
+                    geigerGameModel.latestCount
+                ],
                 this.gameCaseID
             ); // no callback?
 
-            geigerControlPanel.displayGeigerCount(geigerGameModel.latestCount); // note: only on doMeasurement!
+            geigerControlPanel.displayGeigerCount(geigerGameModel.latestCount, geigerGameModel.latestDistance); // note: only on doMeasurement!
             geigerLabView.addGhost(
                 {
                     x : geigerGameModel.detectorX,
@@ -307,6 +312,7 @@ codapHelper.initSim({
             attrs: [
                 {name: "x", type: 'numeric', unit: 'meters', precision: 2},
                 {name: "y", type: 'numeric', unit: 'meters', precision: 2},
+                {name: "distance", type: 'numeric', unit: 'units', precision: 2},
                 {name: "count", type: 'numeric', precision: 0}
             ]
         }
