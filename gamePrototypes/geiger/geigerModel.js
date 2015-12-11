@@ -38,8 +38,8 @@ geigerGameModel = {
     /**
      * (secret) position of the source of radiation
      */
-    sourceX: 0,
-    sourceY: 0,
+    sourceX: 1,
+    sourceY: 1,
     /**
      * Strength of the radiation
      */
@@ -79,7 +79,8 @@ geigerGameModel = {
      */
     newGame: function () {
         this.sourceX = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
-        this.sourceY = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
+        if (geigerManager.twoDimensional) this.sourceY = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
+        else this.sourceY = 1;
         this.sourceStrength = this.initialSourceStrength;
         this.latestCount = 0;
         this.dose = 0;
@@ -101,11 +102,11 @@ geigerGameModel = {
     doMeasurement: function(  ) {
 
         var tSignal = this.signalStrength();
-        this.latestCount = document.forms.geigerForm.useRandom.checked ? randomPoisson(tSignal) : tSignal;
+        this.latestCount = geigerOptions.useRandom ? randomPoisson(tSignal) : tSignal;
         this.latestDistance = this.distanceFactor * Math.sqrt( this.dSquared());
         this.dose += this.latestCount;   // TODO: Update game case with current dose.
 
-        if (!document.forms.geigerForm.showDistance.checked) {
+        if (!geigerOptions.showDistance) {
             this.latestDistance = "";
         }
 
@@ -117,7 +118,7 @@ geigerGameModel = {
      */
     collectorRadius : function () {
         var tRadius = this.baseCollectorRadius;
-        if (document.forms.geigerForm.bigRadius.checked) tRadius *= 3;
+        //if (geigerOptions.bigRadius) tRadius *= 3;
         return tRadius;
     },
 

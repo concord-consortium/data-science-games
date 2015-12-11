@@ -46,9 +46,10 @@ geigerControlPanel = {
 
         var geigerCountText = document.getElementById('geigerCount');
         var tAssembledText = "";
+        var tDisplayDistance = Math.round(100 * distance)/100;
 
-        if (document.forms.geigerForm.showDistance.checked) {
-            tAssembledText += "dist: " + (distance);
+        if (geigerOptions.showDistance) {
+            tAssembledText += "dist: " + (tDisplayDistance);
         }
 
 

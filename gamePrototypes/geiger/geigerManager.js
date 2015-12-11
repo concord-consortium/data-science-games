@@ -37,13 +37,14 @@ var geigerManager;
  */
 geigerManager = {
 
+    CODAPConnector: null,
     gameNumber: 0,
     gameCaseID: 0,
 
     /**
      * string about whether the game is "playing", "won" (the previous game) or "lost"
      */
-    gameState: "playing",
+    gameState: "idle",   //  affects only what widgets are visible
     /**
      * initial coordinates of the detector
      */
@@ -57,30 +58,25 @@ geigerManager = {
      */
     initializeComponent: function() {
         this.gauge = new Gauge();
+        this.CODAPConnector = new GeigerCODAPConnector();
         this.gauge.setup('doseGauge','Dose',0,geigerGameModel.maxDose);
-        geigerLabView.setup( geigerGameModel.unitsAcross );
-        this.newGame();
+        geigerLabView.setup( geigerGameModel.unitsAcross ); //  todo: fix so model gets it from view
+        this.updateScreen();
+        // this.newGame();
     },
 
     /**
      * Resets Geiger for a new game.
      */
     newGame: function() {
-        if (this.gameCaseID > 0) {   //  may not be necesary
-            geigerManager.finishGameCase( null );
+        if (this.CODAPConnector.gameCaseID > 0) {   //  may not be necesary
+            geigerManager.finishGameCase( "aborted" );
         };
 
         this.gameNumber += 1;
         geigerGameModel.newGame();  //  set up the MODEL for a new game
 
-        /**
-         * start a new game case
-         */
-        codapHelper.openCase(
-            'games',
-            [this.gameNumber, null, 0, null, null],
-            geigerManager.setUpNewGameData
-        );
+        this.CODAPConnector.newGameCase( "games", this.gameNumber);
 
         geigerLabView.setCrosshairs( geigerGameModel.sourceX, geigerGameModel.sourceY);
         geigerLabView.removeOldGhosts();
@@ -89,42 +85,52 @@ geigerManager = {
 
         geigerControlPanel.displayInfo("New game. Find the source!");
         this.gameState = "playing";
+        geigerOptions.reconcile();
 
         this.updateScreen();
-    },
-
-    /**
-     * Used to set the game's caseID. Callback from codapHelper.openCase().
-     * @param iResult
-     */
-    setUpNewGameData: function (iResult) {
-        geigerManager.gameCaseID = iResult.caseID;
     },
 
     /**
      * called when the user exceeds the maximum dose
      */
     doLoss: function() {
-        geigerLabView.crosshairElement.style.visibility = "visible";
-
         this.gameState = "lost";
         console.log("game lost");
         this.finishGameCase( "lost" );
+        this.updateScreen();
     },
 
     /**
      * Called when the game is over because we've collected the sample.
      */
     doWin: function() {
-        geigerLabView.crosshairElement.style.visibility = "visible";
         this.gameState = "won";
         console.log("game won");
         this.finishGameCase( "won" );
+        this.updateScreen();
+    },
+
+    /**
+     * finishes the current game case
+     */
+    finishGameCase: function( result ) {
+        var tValueList = [
+            this.gameNumber,
+            result,
+            geigerGameModel.dose,
+            geigerGameModel.sourceX,
+        ];
+
+        if (this.twoDimensional) tValueList.push(geigerGameModel.sourceY);
+
+        this.CODAPConnector.finishGameCase(tValueList);
+        this.gameCaseID = 0;     //  so we know there is no open case
     },
 
     /**
      * Calls what's necessary to refresh the screen.
      * This includes the Lab, the gauge, and any other stuff such as text.
+     * Also: widget visibility.
      */
     updateScreen: function() {
         geigerLabView.update();
@@ -137,7 +143,8 @@ geigerManager = {
         var playingControls = document.getElementById('playingControls');
         var crosshairElement = document.getElementById('crosshairs');
 
-        tBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "240" : "40";
+        var tBoxY = 0;
+        if (this.twoDimensional) tBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "240" : "40";
 
         switch (this.gameState) {
             case "won":
@@ -160,6 +167,12 @@ geigerManager = {
                 playingControls.style.visibility = 'visible';
                 crosshairElement.style.visibility = "hidden";
                 break;
+            case "idle":
+                winImage.style.visibility = 'hidden';
+                lossImage.style.visibility = 'hidden';
+                playingControls.style.visibility = 'hidden';
+                crosshairElement.style.visibility = "hidden";
+                break;
         }
     },
 
@@ -172,12 +185,17 @@ geigerManager = {
      */
     moveDetectorTo: function (x, y) {
         geigerGameModel.detectorX = x;
-        geigerGameModel.detectorY = y;
 
         // Make sure the coordinate boxes read the right values.
         // Redundant if user has changed position by typing.
         document.getElementById('detectorX').value = x.toString();
-        document.getElementById('detectorY').value = y.toString();
+
+        if (this.twoDimensional) {
+            geigerGameModel.detectorY = y;
+            document.getElementById('detectorY').value = y.toString();
+        } else {
+            geigerGameModel.detectorY = geigerManager.initialY;
+        }
 
         geigerLabView.setRangeCircle(
             geigerGameModel.detectorX,
@@ -185,7 +203,8 @@ geigerManager = {
             geigerGameModel.collectorRadius()
         );
 
-        geigerControlPanel.displayInfo("Detector moved to (" + x + ", " + y + ")");
+        var tCoordinateString = "("+ x + (this.twoDimensional ? ", " + y : "") + ")";
+        geigerControlPanel.displayInfo("Detector moved to " + tCoordinateString );
         this.updateScreen();
     },
 
@@ -194,12 +213,17 @@ geigerManager = {
      * Updates coordinates of the detector.
      */
     moveDetectorByTyping: function() {
-        var x = document.forms.geigerForm.detectorX.value.trim();
-        var y = document.forms.geigerForm.detectorY.value.trim();
+        var y;
+        var detYbox = document.getElementById("detectorY");
+        var detXbox = document.getElementById("detectorX");
+        if (this.twoDimensional) {
+            y = detYbox.value.trim();
+            y = Math.max(0, y);
+            y = Math.min(y, geigerLabView.unitsAcross);
+        }
+        var x = detXbox.value.trim();
         x = Math.max(0, x);
         x = Math.min(x, geigerLabView.unitsAcross);
-        y = Math.max(0, y);
-        y = Math.min(y, geigerLabView.unitsAcross);
 
         this.moveDetectorTo(x, y);
     },
@@ -213,7 +237,10 @@ geigerManager = {
         // 2015-10-15 decided to use e.offsetX, Y (using svg) instead of e.layerX (using canvas)
         if (!e) e = window.event;
         var tX = e.offsetX / geigerLabView.pixelsPerUnit.x;     //  convert to units
-        var tY = (geigerLabView.labHeight - e.offsetY) / geigerLabView.pixelsPerUnit.y;
+        var tY = null;
+        if (geigerManager.twoDimensional) {
+            tY = (geigerLabView.labHeight - e.offsetY) / geigerLabView.pixelsPerUnit.y;
+        }
 
         geigerManager.moveDetectorTo(tX, tY);
     },
@@ -230,16 +257,12 @@ geigerManager = {
         } else {
             geigerGameModel.doMeasurement();
 
-            codapHelper.createCase(
-                'measurements',
-                [
-                    geigerGameModel.detectorX,
-                    geigerGameModel.detectorY,
-                    geigerGameModel.latestDistance,
-                    geigerGameModel.latestCount
-                ],
-                this.gameCaseID
-            ); // no callback?
+            var tValueList = [ geigerGameModel.detectorX ];
+            if (this.twoDimensional) tValueList.push(geigerGameModel.detectorY);
+            tValueList.push(geigerGameModel.latestDistance);
+            tValueList.push(geigerGameModel.latestCount);
+
+            this.CODAPConnector.doEventRecord(tValueList);
 
             geigerControlPanel.displayGeigerCount(geigerGameModel.latestCount, geigerGameModel.latestDistance); // note: only on doMeasurement!
             geigerLabView.addGhost(
@@ -250,7 +273,7 @@ geigerManager = {
                 }
             );
         }
-        if (document.forms.geigerForm.deathPossible.checked) {
+        if (geigerOptions.deathPossible) {
             if (geigerGameModel.dose > geigerGameModel.maxDose) {
                 this.doLoss();
             }
@@ -258,64 +281,63 @@ geigerManager = {
         this.updateScreen();
     },
 
+
     /**
-     * finishes the current game case
+     * Manages save and restore
      */
-    finishGameCase: function( result ) {
-        codapHelper.closeCase(
-            'games',
-            [
-                this.gameNumber,
-                result,
-                geigerGameModel.dose,
-                geigerGameModel.sourceX,
-                geigerGameModel.sourceY
-            ],
-            this.gameCaseID
-        );
-        this.gameCaseID = 0;     //  so we know there is no open case
+
+    geigerDoCommand : function( arg, iCallback ) {
+        var tCommand = arg.operation;
+        switch (tCommand) {
+            case "saveState":
+                console.log("saving...");
+                var tState = {
+                    version : geigerManager.version,
+                    gameNumber : geigerManager.gameNumber,
+                    gameCaseID : geigerManager.gameCaseID,
+                    gameState : geigerManager.gameState,
+
+                    sourceX : geigerGameModel.sourceX,
+                    sourceY : geigerGameModel.sourceY,
+                    initialSourceStrength : geigerGameModel.initialSourceStrength,
+                    detectorX : geigerGameModel.detectorX,
+                    detectorY : geigerGameModel.detectorY,
+                    dose : geigerGameModel.dose,
+                    latestCount : geigerGameModel.latestCount,
+                    latestDistance : geigerGameModel.latestDistance,
+                    baseCollectorRadius : geigerGameModel.baseCollectorRadius
+                };
+                iCallback( { success : true , state : tState });
+                break;
+
+            case "restoreState":
+                console.log("restoring...");
+                var tOutcomeSuccessful = true;
+                var tState = arg.args.state;
+                geigerManager.version = tState.version;
+                geigerManager.gameNumber = tState.gameNumber;
+                geigerManager.gameCaseID = tState.gameCaseID;
+                geigerManager.gameState = tState.gameState;
+
+                geigerGameModel.sourceX = tState.sourceX;
+                geigerGameModel.sourceY = tState.sourceY;
+                geigerGameModel.initialSourceStrength = tState.initialSourceStrength;
+                geigerGameModel.detectorX = tState.detectorX;
+                geigerGameModel.detectorY = tState.detectorY;
+                geigerGameModel.dose = tState.dose;
+                geigerGameModel.latestCount = tState.latestCount;
+                geigerGameModel.latestDistance = tState.latestDistance;
+                geigerGameModel.baseCollectorRadius = tState.baseCollectorRadius;
+
+                iCallback( { success : tOutcomeSuccessful });
+
+                geigerManager.updateScreen();
+
+                break;
+            default:
+                //console.log("A command we don't care about: " + tCommand);
+                break;
+        };
     }
 };
-
-/**
- * Required call to initialize the sim, connect it to CODAP.
- */
-codapHelper.initSim({
-    name: 'Geiger',
-    dimensions: {width: 404, height: 640},
-    collections: [  // There are two collections: a parent and a child
-        {
-            name: 'games',
-            labels: {
-                singleCase: "game",
-                pluralCase: "games",
-                setOfCasesWithArticle: "a tournament"
-            },
-            // The parent collection spec:
-            attrs: [
-                {name: "gameNumber", type: 'categorical'},
-                {name: "result", type: 'categorical'},
-                {name: "dose", type: 'numeric', precision: 0},
-                {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "sourceY", type: 'numeric', unit: 'meters', precision: 2}
-            ],
-            childAttrName: "measurement"
-        },
-        {
-            name: 'measurements',
-            labels: {
-                singleCase: "measurement",
-                pluralCase: "measurements",
-                setOfCasesWithArticle: "a game"
-            },
-            // The child collection specification:
-            attrs: [
-                {name: "x", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "y", type: 'numeric', unit: 'meters', precision: 2},
-                {name: "distance", type: 'numeric', unit: 'units', precision: 2},
-                {name: "count", type: 'numeric', precision: 0}
-            ]
-        }
-    ]
-});
 
