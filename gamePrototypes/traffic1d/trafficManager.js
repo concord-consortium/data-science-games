@@ -34,6 +34,7 @@ var trafficManager;
  * @type {{gameNumber: number, gameCaseID: number, gameInProgress: boolean, running: boolean, previous: number, selectedCar: null, selectedLight: null, numberOfLights: number, gameButtonPressed: Function, addCar: Function, setUpNewCarData: Function, clickCar: Function, clickLight: Function, update: Function, updateScreen: Function, updateUIStuff: Function, click: Function, startStop: Function, initializeComponent: Function, animate: Function, startGame: Function, setUpNewGameData: Function, endGame: Function}}
  */
 trafficManager = {
+    version : "vPre-001",
     gameNumber: 0,
     gameCaseID: 0,
     gameInProgress: Boolean(false),
@@ -231,6 +232,7 @@ trafficManager = {
  */
 codapHelper.initSim({
     name: 'Traffic1d',
+    version : trafficManager.version,
     dimensions: {width: 820, height: 120},
     collections: [  // There are > two collections: games, cars, moments
         {
