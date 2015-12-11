@@ -36,6 +36,7 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
+    version : "vPre-001",
     gameNumber: 0,
     CODAPConnector: null,
 
@@ -50,7 +51,7 @@ epiManager = {
      * @param dt
      */
     update : function( dt) {
-        medModel.update( dt );       //
+        epiModel.update( dt );       //
         this.updateScreen();
     },
 
@@ -81,7 +82,7 @@ epiManager = {
     newGame:    function() {
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase( "epidemics", this.gameNumber);
-        medModel.newGame();
+        epiModel.newGame();
         medWorldView.flushAndRedraw();
         this.gameInProgress = true;
         this.restart();
@@ -115,7 +116,7 @@ epiManager = {
      */
     updateUIStuff : function( ) {
         var timeText = document.getElementById("timeText");
-        timeText.innerHTML = parseFloat(medModel.elapsed.toFixed(2));
+        timeText.innerHTML = parseFloat(epiModel.elapsed.toFixed(2));
 
         var startStopButton = document.getElementById("startStop");
         startStopButton.innerHTML = (this.running) ? "pause" : "go";
@@ -143,9 +144,11 @@ epiManager = {
 
         var tLocName = (theCritter.currentLocation) ? theCritter.currentLocation.name : "transit";
         this.CODAPConnector.doEventRecord( [
-            medModel.elapsed,
+            epiModel.elapsed,
             theCritter.name,
+            theCritter.eyeColor,
             theCritter.activity,
+            theCritter.temperature,
             eventType,
             theCritter.health == 0 ? "sick" : "healthy",
             tLocName,
@@ -176,11 +179,19 @@ epiManager = {
      * Creates the connector, the name-making object, the model, and teh view.
      */
     initializeComponent : function() {
-        this.CODAPConnector = new MedCODAPConnector( );
+        this.CODAPConnector = new EpiCODAPConnector( );
         medNames.initialize();
         medWorldView.initialize();
-        medWorldView.model = medModel;
+        medWorldView.model = epiModel;
        // this.newGame();
+    },
+
+    /**
+     * Manages save and restore
+     */
+
+    epiDoCommand : function( arg ) {
+        // console.log(arg);
     }
 };
 

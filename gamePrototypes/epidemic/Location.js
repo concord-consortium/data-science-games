@@ -33,7 +33,7 @@ var Location = function( index ) {
 
     this.critters = new Set();
 
-    var tLocInfo = medGeography.newLocationInfoByIndex( index );
+    var tLocInfo = epiGeography.newLocationInfoByIndex( index );
 
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
     this.bgShape = tLocInfo.bg;        //      a Snap element: the background square. It has the color.
@@ -89,14 +89,6 @@ Location.prototype.addCritter = function( critter ) {
 
     //  give all my critters a new location within the Location
 
-/*
-    for (indexInSet = 0; indexInSet < this.critters.size; indexInSet++ ) {
-        var tCritter = this.critters[ indexInSet ];
-        var tDestination = this.globalParkingCoordinates( indexInSet );  //  todo: fix this so it uses the index within the set of critters
-        critter.startJiggleMove( tDestination );
-
-    };
-*/
 
     this.critters.forEach(
         //  anonymous function called for each critter
@@ -126,4 +118,10 @@ Location.colors = {
     "food": "green",
     "water": "blue",
     "dwelling": "darkKhaki"
+};
+
+Location.mainActivities = {
+    "food": "eating",
+    "water": "drinking",
+    "dwelling": "resting"
 };

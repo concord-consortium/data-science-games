@@ -75,6 +75,27 @@ Motivation.prototype.update = function (dt) {
 };
 
 /**
+ * returns the urgency at the current location
+ */
+Motivation.prototype.urgencyHere = function() {
+    var tLocation = this.critter.currentLocation;
+    switch( tLocation.locType ) {
+        case "food":
+            return this.hungry;
+            break;
+        case "water":
+            return this.thirsty;
+            break;
+        case "dwelling":
+            return this.tired;
+            break;
+        default:
+            break;
+    };
+    return null;
+};
+
+/**
  * Determine this critter's most urgent need, and supplies an object that
  * tells you what you need, how urgently, and what you have to do to slake it.
  * @returns {{what: string, urgency: (number|*), bestActivity: string}}

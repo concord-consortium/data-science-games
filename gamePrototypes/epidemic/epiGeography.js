@@ -25,9 +25,14 @@
  * Created by tim on 10/21/15.
  */
 
-var medGeography;
+var epiGeography;
 
-medGeography = {
+/**
+ * Singleton that manages the geography of this grid world.
+ *
+ * @type {{kRowsInGrid: number, kColumnsInGrid: number, kPixelsWide: number, kPixelsTall: number, row: number, col: number, colLetters: string[], newLocationInfoByIndex: epiGeography.newLocationInfoByIndex, theShape: epiGeography.theShape, numberOfLocations: epiGeography.numberOfLocations, totalSize: epiGeography.totalSize}}
+ */
+epiGeography = {
 
     kRowsInGrid: 10,
     kColumnsInGrid: 10,
@@ -60,6 +65,11 @@ medGeography = {
         return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName, row: this.row, col: this.col+1 };
     },
 
+    /**
+     * Create the (Snap.svg) shape of the cell (Location). this is the "paper."
+     * The contents of the location get filled in later (in Location, for exmaple)
+     * @param index
+     */
     theShape: function( index ) {
         this.row = this.kRowsInGrid - Math.floor( index / this.kColumnsInGrid );
         this.col = index % this.kColumnsInGrid;
@@ -73,10 +83,18 @@ medGeography = {
         return tOuterSVG;
     },
 
+    /**
+     * How many locations altogether?
+     * @returns {number}
+     */
     numberOfLocations: function() {
         return this.kRowsInGrid * this.kColumnsInGrid;
     },
 
+    /**
+     * a total size, in pixels, width: and height:
+     * @returns {{width: number, height: number}}
+     */
     totalSize : function() {
         return {
             width : this.kColumnsInGrid * this.kPixelsWide,

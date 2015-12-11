@@ -25,10 +25,15 @@
  * Created by tim on 10/19/15.
  */
 
-
+/**
+ * Model class for Critters. See also CritterView.js.
+ *
+ * @param index
+ * @constructor
+ */
 var Critter = function( index ) {
     this.myIndex = index;
-    this.currentLocation;
+    this.currentLocation = null;
 
     this.x = 0;
     this.y = 0;
@@ -39,19 +44,30 @@ var Critter = function( index ) {
 
     this.motivation = null;
     this.activity = null;
-    this.view = new CritterView( this );
 
     this.moving = Boolean(false);
 
-    this.health = 1.0;
-    
-    this.name = null;
+    this.health = 1.0;      //  0 = sick, 1 = healthy
+    this.infectious = false;
 
+    this.name = null;
+    this.eyeColor = pickRandomItemFrom(Critter.eyeColors);
+    this.borderColor = Critter.borderColors[0];
+    this.baseTemperature = (this.eyeColor == Critter.eyeColors[0]) ? 36.0 : 34.5 ;
+    this.baseTemperature += Math.random() * 0.6;
+    this.baseTemperature -= Math.random() * 0.6;
+
+    this.view = new CritterView( this );
 };
 
+/**
+ * Update the internal values
+ * @param dt    amount of time that has passed since the last update
+ */
 Critter.prototype.update = function (dt) {
     this.motivation.update( dt );
     this.view.update( this, dt );
+    this.temperature = this.findTemperature();
 
     if (!this.moving && !this.activity) {   //  idle critter!
         var tCritterNeeds = this.motivation.mostUrgentNeed();
@@ -67,6 +83,23 @@ Critter.prototype.update = function (dt) {
     }
 };
 
+/**
+ * Get a temperature reading for this Critter.
+ */
+Critter.prototype.findTemperature = function() {
+    var tTemp;
+    tTemp = (this.health == 0) ? this.baseTemperature + 1.1 : this.baseTemperature;
+    tTemp += Math.random() * 0.2;
+    tTemp -= Math.random() * 0.2;
+    return tTemp;
+};
+
+/**
+ * Set a new destination for this Critter.
+ * This is based on its needs (see Motivation)
+ * and the distances to Locations that can meet the needs.
+ * We are playing around with picking locations that may not be the absolute closest.
+ */
 Critter.prototype.setNewDest = function( ) {
     var tCritterNeeds = this.motivation.mostUrgentNeed().what;
     var tClosestDistance = Number.MAX_VALUE;
@@ -74,14 +107,14 @@ Critter.prototype.setNewDest = function( ) {
     var tBestLocations = [];
 
     // todo: figure out whether this system biases towards 0,0 (because the test is strictly less than, or the origin adjustment)
-    for (i = 0; i < medGeography.numberOfLocations(); i++) {
-        var tTestLocation = medModel.locations[i];
+    for (i = 0; i < epiGeography.numberOfLocations(); i++) {
+        var tTestLocation = epiModel.locations[i];
         if (tTestLocation != this.currentLocation && tTestLocation.locType == tCritterNeeds) {
             var tTestDistance = this.distanceToLoc( tTestLocation);
-            if (tTestDistance < tClosestDistance - medGeography.kPixelsWide) {  //  with some slop
+            if (tTestDistance < tClosestDistance - epiGeography.kPixelsWide) {  //  with some slop
                 tClosestDistance = tTestDistance;
                 tBestLocations = [tTestLocation];
-            } else if (tTestDistance < tClosestDistance + medGeography.kPixelsWide) {
+            } else if (tTestDistance < tClosestDistance + epiGeography.kPixelsWide) {
                 tBestLocations.push( tTestLocation );
             }
         }
@@ -95,20 +128,28 @@ Critter.prototype.setNewDest = function( ) {
     this.destY = tCenter.y;
 };
 
-
-
+/**
+ * Begin a move to a new location. Note that this calls Snap.svg's animate function, and
+ * then uses epiModel.doArrival as a callback.
+ */
 Critter.prototype.startMove = function() {
-    medModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
+    epiModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
     var tTime = this.distanceToLoc( this.destLoc ) / this.speed;
     this.view.snapShape.animate(
         {"x" : this.destX, "y" : this.destY},
         tTime * 1000, null,
         function() {
-            medModel.doArrival({ critter: this, atLocation: this.destLoc} );
+            epiModel.doArrival({ critter: this, atLocation: this.destLoc} );
         }.bind(this)
     );
 };
 
+/**
+ * Starts a "jiggle" move, that is, re-line-up in response to
+ * a new Critter joining this Location.
+ * "Destination" is within the Location.
+ * @param destination
+ */
 Critter.prototype.startJiggleMove = function( destination ) {
     this.view.snapShape.stop();
     this.view.snapShape.animate(
@@ -118,6 +159,10 @@ Critter.prototype.startJiggleMove = function( destination ) {
     );
 };
 
+/**
+ * Set up initial values for this Critter
+ * @param where
+ */
 Critter.prototype.initialize = function( where ) {
     this.name = medNames.newName( );
     this.currentLocation = where;
@@ -130,7 +175,11 @@ Critter.prototype.initialize = function( where ) {
 
 };
 
-
+/**
+ * How far is the given location?
+ * @param L     the Location in question
+ * @returns {number}
+ */
 Critter.prototype.distanceToLoc = function( L ) {
     var tLocW = Number(L.snapShape.attr("width"));
     var tLocX = Number(L.snapShape.attr("x")) + tLocW/2;
@@ -145,4 +194,7 @@ Critter.prototype.toString = function() {
     return "C " + this.myIndex + " mot "
         + this.motivation
     ;
-}
+};
+
+Critter.eyeColors = ["violet", "fuchsia"];
+Critter.borderColors = ["orange"];

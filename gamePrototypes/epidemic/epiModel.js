@@ -25,9 +25,9 @@
  ==========================================================================
  */
 
-var medModel;
+var epiModel;
 
-medModel = {
+epiModel = {
 
     numberOfCritters: 49,
     critters: [],
@@ -47,7 +47,7 @@ medModel = {
             this.critters[i].update(dt);
         }
 
-        medModel.infect( dt );
+        epiModel.infect( dt );
     },
 
     newGame: function() {
@@ -56,11 +56,17 @@ medModel = {
         this.locations = [];
         this.critters = [];
 
-        for (i = 0; i < medGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
+        /**
+         * Create all the Locations. Use the index to determine where it is, etc.
+         */
+        for (i = 0; i < epiGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
             var L = new Location( i );
             this.locations.push( L );   // todo: fix so it's not a coincidence that the index is the index :)
         }
 
+        /**
+         * Create all the Critters.
+         */
         for (i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
             var C = new Critter( i );
 
@@ -70,24 +76,22 @@ medModel = {
 
             this.critters.push( C );    //  add critter to our local array
 
-            if (i == 0) C.health = -1;
+            if (i == 0) C.infectious = true;
 
             //  if (this.newDataOnEveryArrival) epiManager.emitCritterData(C, "start");
         }
-
     },
 
-
-    doArrival: function( o ) {      //  medModel.doArrival({ critter; c, atLocation: L} );
+    doArrival: function( o ) {      //  epiModel.doArrival({ critter; c, atLocation: L} );
         var tCritter = o.critter;
         var tLocation = o.atLocation;
-        tCritter.activity = null;
         tCritter.moving = false;
         tCritter.x = tCritter.view.snapShape.attr("x");
         tCritter.y = tCritter.view.snapShape.attr("y");
         tCritter.currentLocation = tLocation;
         tCritter.destLoc = null;
         tLocation.addCritter( tCritter );
+        tCritter.activity = Location.mainActivities[ tLocation.locType ];
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
     },
 
@@ -108,15 +112,17 @@ medModel = {
 
     infect: function( dt ) {
         var i;
+        var tInfectionProbability = dt / this.averageSecondsToInfection;
         for (i = 0; i < this.locations.length; i++) {
             var tLocation = this.locations[i];
             var tInfectionInLocation = false;
             tLocation.critters.forEach(function(c) {
-                if (c.health == -1) tInfectionInLocation = true;
+                if (c.infectious) tInfectionInLocation = true;
             });
             if (tInfectionInLocation) {
                 tLocation.critters.forEach(function(c) {
-                    if (c.health == 1 && Math.random() < dt / this.averageSecondsToInfection) c.health = 0;
+                    if (c.health == 1 && Math.random() < tInfectionProbability) c.health = 0;
+                    if (c.infectious) c.health = 1;
                 });
                 
             }
