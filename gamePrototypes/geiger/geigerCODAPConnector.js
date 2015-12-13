@@ -42,12 +42,11 @@ var GeigerCODAPConnector = function(  ) {
  * Open a new "parent" case (the "game" level in the hierarchy)
  *
  * @param gameCollectionName
- * @param gameNumber
  */
-GeigerCODAPConnector.prototype.newGameCase = function(gameCollectionName, gameNumber ) {
+GeigerCODAPConnector.prototype.newGameCase = function(gameCollectionName ) {
 
     this.gameCollectionName = gameCollectionName;
-    this.gameNumber = gameNumber;
+    this.gameNumber += 1;
 
     codapHelper.openCase(
         this.gameCollectionName,
@@ -85,6 +84,20 @@ GeigerCODAPConnector.prototype.doEventRecord = function(values ) {
 };
 //      end of GeigerCODAPConnector class
 
+GeigerCODAPConnector.prototype.getSaveObject = function() {
+    var tOut = {};
+    tOut.gameCaseID = this.gameCaseID;
+    tOut.gameNumber = this.gameNumber;
+    tOut.gameCollectionName = this.gameCollectionName;
+
+    return tOut;
+};
+
+GeigerCODAPConnector.prototype.restoreFrom = function( iObject ) {
+    this.gameCaseID = iObject.gameCaseID;
+    this.gameNumber = iObject.gameNumber;
+    this.gameCollectionName = iObject.gameCollectionName;
+};
 
 /**
  * Required call to initialize the sim, connect it to CODAP.

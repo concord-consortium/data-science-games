@@ -47,12 +47,12 @@ might need: &documentServer=http://document-store.concord.org
     <script src="geigerManager.js" language="JavaScript"></script>
     <script>
         geigerManager.twoDimensional = false;
-        geigerManager.version = "vPre-002";
+        geigerManager.version = "vPre-003";
     </script>
 
 
     <script src="geigerModel.js" language="JavaScript"></script>
-    <script src="geiger1DView.js" language="JavaScript"></script>
+    <script src="geigerLabView.js" language="JavaScript"></script>
     <script src="TEEGauge.js" language="JavaScript"></script>
     <script src="geigerCODAPConnector.js" language="JavaScript"></script>
     <script src="geigerControlPanel.js" language="JavaScript"></script>
@@ -62,10 +62,11 @@ might need: &documentServer=http://document-store.concord.org
 
 <body>
 <p>Click to place your detector. Press <strong>measure</strong> to get a reading. Try to find the source!</p>
-<svg id = "lab" width="400" height="80">
+<svg id = "lab" width="400" height="80" onclick="geigerManager.clickInLab()">
     <rect width="100%" height="100%" fill="slategray"></rect>
     <rect id = "dangerZone" width="200" height="200" x="100" y="100" fill="darkslategray"></rect>
     <circle r="20" cx="5" cy="5" fill="lightgray" stroke="none" id="rangeCircle"></circle>
+    <text x="100" y="40" id="startText" style="fill : white">Press New Game to begin</text>
 
     <g id="crosshairs" stroke="red">
         <line x1="5" y1="0" x2="5" y2="100" id="vLine"></line>
@@ -100,9 +101,15 @@ might need: &documentServer=http://document-store.concord.org
 
 <hr/>
 
-<div class = "vBox" id = "options" onclick="geigerOptions.reconcile()">
+<div class = "vBox" id = "options" onchange="geigerOptions.reconcile()">
     <div class = "hBox"><input type="checkbox" id="showDistance" > show distance as well as count (easier)</div>
-    <div class = "hBox"><input type="checkbox" id="bigRadius"> extra-large scooper</div>
+    <div class = "hBox">Scooper radius: <select id="radius" onchange="geigerOptions.reconcile()">
+        <option value = "0.05">tiny</option>
+        <option value = "0.2">small</option>
+        <option value = "0.5" selected>normal</option>
+        <option value = "1.5">huge</option>
+    </select></div>
+
     <div class = "hBox"><input type="checkbox" id="deathPossible" checked> end game on high dose</div>
     <div class = "hBox"><input type="checkbox" id="useRandom"> use randomness (harder)</div>
 </div>

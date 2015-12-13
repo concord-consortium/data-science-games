@@ -44,6 +44,7 @@ geigerGameModel = {
      * Strength of the radiation
      */
     initialSourceStrength: 10000,
+    sourceStrength : 10000,
     /**
      * Current position of the detector
      */
@@ -109,7 +110,6 @@ geigerGameModel = {
         if (!geigerOptions.showDistance) {
             this.latestDistance = "";
         }
-
     },
 
     /**
@@ -117,9 +117,7 @@ geigerGameModel = {
      * @returns {number}
      */
     collectorRadius : function () {
-        var tRadius = this.baseCollectorRadius;
-        //if (geigerOptions.bigRadius) tRadius *= 3;
-        return tRadius;
+        return geigerOptions.scooperRadius;
     },
 
     /**

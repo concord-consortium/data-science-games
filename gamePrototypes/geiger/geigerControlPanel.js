@@ -52,11 +52,13 @@ geigerControlPanel = {
             tAssembledText += "dist: " + (tDisplayDistance);
         }
 
+        var tDisplayCoordinates = "(" + geigerGameModel.detectorX;
+        if (geigerManager.twoDimensional) tDisplayCoordinates += ", " + geigerGameModel.detectorY;
+        tDisplayCoordinates += ")";
 
         geigerCountText.innerHTML =
-            tAssembledText + " count : " + (count) + " at (" +
-            (geigerGameModel.detectorX) + ", " + (geigerGameModel.detectorY) + ")" +
-            "\nDose: " + geigerGameModel.dose + ".";
+            tAssembledText + " count : " + (count) + " at " + tDisplayCoordinates +
+            "<br>Dose: " + geigerGameModel.dose + ".";
 
     }
 

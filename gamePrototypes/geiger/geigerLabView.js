@@ -68,10 +68,9 @@ geigerLabView = {
      * Sets up the properties
      * Also adds event listeners
      */
-    setup: function( unitsAcross ) {
-        this.unitsAcross = unitsAcross;
+    setup: function( ) {
         this.mainSVG = document.getElementById("lab");
-        this.mainSVG.addEventListener("mouseup",geigerManager.clickInLab,false);
+        this.unitsAcross = geigerGameModel.unitsAcross;     //  units in game space
         this.crosshairElement = document.getElementById("crosshairs");
 
         var tWidth = Number(this.mainSVG.getAttribute("width"));
@@ -94,7 +93,8 @@ geigerLabView = {
     makeDetectorShape: function() {
 
         var tShape =  document.createElementNS(svgNS, "path");
-        tShape.setAttribute("d", "M 6 0 L 0 6 L -6 0 L 0 -6 L 6 0");
+        var tShapeCommands = (geigerManager.twoDimensional) ? "M 6 0 L 0 6 L -6 0 L 0 -6 L 6 0" : "M 6 0 L -6 0 L 0 24 L 6 0";
+        tShape.setAttribute("d", tShapeCommands);
         this.mainSVG.appendChild(tShape);         //  here we put the new object into the DOM.
 
         return tShape;
@@ -139,15 +139,18 @@ geigerLabView = {
      */
     setCrosshairs: function(x, y) {
         var tXpixels = x * this.pixelsPerUnit.x;
-        var tYpixels = this.labHeight - y * this.pixelsPerUnit.y;
+        var tYpixels = geigerManager.twoDimensional ? this.labHeight - y * this.pixelsPerUnit.y : this.labHeight;
 
-        var tHHair = document.getElementById("hLine");
+        var tHHair;
+        if (geigerManager.twoDimensional) tHHair = document.getElementById("hLine");
         var tVHair = document.getElementById("vLine");
 
-        tHHair.setAttribute("x1","0");
-        tHHair.setAttribute("y1",tYpixels.toString());
-        tHHair.setAttribute("x2",(this.unitsAcross * this.pixelsPerUnit.x).toString());
-        tHHair.setAttribute("y2",tYpixels.toString());
+        if (geigerManager.twoDimensional) {
+            tHHair.setAttribute("x1", "0");
+            tHHair.setAttribute("y1", tYpixels.toString());
+            tHHair.setAttribute("x2", (this.unitsAcross * this.pixelsPerUnit.x).toString());
+            tHHair.setAttribute("y2", tYpixels.toString());
+        }
 
         tVHair.setAttribute("x1",tXpixels.toString());
         tVHair.setAttribute("y1","0");
@@ -158,6 +161,7 @@ geigerLabView = {
 
     /**
      * Alter attributes of the range circle (showing how big the collector is)
+     * Called from geigerManager.moveDetectorTo()
      * @param x
      * @param y
      * @param r
@@ -179,6 +183,12 @@ geigerLabView = {
      * Update this view.
      */
     update: function() {
+        var tRadius = geigerGameModel.collectorRadius();
+        this.setRangeCircle(
+            geigerGameModel.detectorX,
+            geigerGameModel.detectorY,  //  call with Y even in the 1D case. The 1D labView ignores it.
+            tRadius
+        );
         this.moveShapeTo( this.detector, geigerGameModel.detectorX, geigerGameModel.detectorY);
     },
 
@@ -187,10 +197,23 @@ geigerLabView = {
      */
     moveShapeTo: function( shape, x, y ) {
         var tXpixels = x * this.pixelsPerUnit.x;
-        var tYpixels = this.labHeight - y * this.pixelsPerUnit.y;
+        var tYpixels = (geigerManager.twoDimensional) ? this.labHeight - y * this.pixelsPerUnit.y : this.labHeight / 2;
 
         var tTransform = "translate(" + tXpixels + "," + tYpixels + ")";
         shape.setAttribute("transform", tTransform);
+    },
+
+    getSaveObject: function() {
+        var tSaveObject = { ghosts : this.ghosts };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.setup( );
+
+        for  (g of iObject.ghosts) {
+            this.addGhost( g );
+        }
     }
 
 };
