@@ -72,7 +72,14 @@ geigerGameModel = {
      */
     maxDose: 20000,
 
+    /**
+     * Units across the "lab" in game units (meters)
+     */
     unitsAcross: 10.0,
+
+    /**
+     * When the detector reports distance, it (secretly) does so in inches. Used in this.doMeasurement().
+     */
     distanceFactor : 39.37,
 
     /**
@@ -80,8 +87,9 @@ geigerGameModel = {
      */
     newGame: function () {
         this.sourceX = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2);
-        if (geigerManager.twoDimensional) this.sourceY = (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2); // TODO: fix vertical coordinate of source
-        else this.sourceY = 1;
+        this.sourceY = (geigerManager.twoDimensional) ?
+            (this.unitsAcross * (0.25 + 0.50 * Math.random())).toFixed(2) : // TODO: fix vertical coordinate of source
+            1;
         this.sourceStrength = this.initialSourceStrength;
         this.latestCount = 0;
         this.dose = 0;
@@ -99,17 +107,25 @@ geigerGameModel = {
 
     /**
      * Perform a measurement. Updates internal positions. Updates this.latestCount, .latestDistance
+     * Resturns a Boolean that tells whether the source is captured
      */
     doMeasurement: function(  ) {
+        var dsq = this.dSquared();
 
-        var tSignal = this.signalStrength();
+        var tSignal = Math.round(this.sourceStrength / dsq );
         this.latestCount = geigerOptions.useRandom ? randomPoisson(tSignal) : tSignal;
-        this.latestDistance = this.distanceFactor * Math.sqrt( this.dSquared());
+
+        var tWin = this.captured(dsq);        //   figure out if we're close enough to collect it
+        if (tWin) this.latestCount = 0;     //  no extra dose when you collect it (also avoids huge values)
         this.dose += this.latestCount;   // TODO: Update game case with current dose.
+
+        this.latestDistance = this.distanceFactor * Math.sqrt( dsq );
 
         if (!geigerOptions.showDistance) {
             this.latestDistance = "";
         }
+
+        return tWin;
     },
 
     /**
@@ -124,9 +140,9 @@ geigerGameModel = {
      * test whether the detector is close enough to capture the source
      * @returns {boolean}
      */
-    captured: function() {
+    captured: function( dsq ) {
         var tRadius = this.collectorRadius();
-        return (this.dSquared() < tRadius * tRadius);
+        return (dsq < tRadius * tRadius);
     },
 
 

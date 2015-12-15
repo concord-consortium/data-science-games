@@ -37,17 +37,24 @@ var geigerManager;
  */
 geigerManager = {
 
+    /**
+     * Manages calls to CODAP for init and for making new cases
+     */
     CODAPConnector: null,
 
     /**
      * string about whether the game is "playing", "won" (the previous game) or "lost"
      */
     gameState: "idle",   //  affects only what widgets are visible
+
     /**
      * initial coordinates of the detector
      */
     initialX: 1,
     initialY: 1,
+
+    gameEndBoxX : 40,
+    gameEndBoxY : 0,
 
     gauge: null,
 
@@ -70,22 +77,16 @@ geigerManager = {
         var tStartText = document.getElementById("startText");
         tStartText.style.visibility = "hidden";
 
-        if (this.CODAPConnector.gameCaseID > 0) {   //  may not be necesary
+        if (this.CODAPConnector.gameCaseID > 0) {
             geigerManager.finishGameCase( "aborted" );
-        };
+        }
 
         geigerGameModel.newGame();  //  set up the MODEL for a new game
 
-        //  Based on source position, set the positions of the win and loss boxes
+        //  set the positions of the win and loss boxes based on source position
 
-        var tBoxY = 0;
-        if (this.twoDimensional) tBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "230" : "30";
-        var tBoxX = (geigerGameModel.sourceX > geigerGameModel.unitsAcross/2.0) ? "30" : "230";
-        winImage.setAttribute("y", tBoxY);
-        winImage.setAttribute("x", tBoxX);
-        lossImage.setAttribute("y", tBoxY);
-        lossImage.setAttribute("x", tBoxX);
-
+        if (this.twoDimensional) this.gameEndBoxY = (geigerGameModel.sourceY > geigerGameModel.unitsAcross/2.0) ? "230" : "30";
+        this.gameEndBoxX = (geigerGameModel.sourceX > geigerGameModel.unitsAcross/2.0) ? "30" : "230";
 
         this.CODAPConnector.newGameCase( "games" );
 
@@ -161,6 +162,8 @@ geigerManager = {
                 playingControls.style.visibility = 'hidden';
                 crosshairElement.style.visibility = "visible";
                 startText.style.visibility = "hidden";
+                winImage.setAttribute("y", this.gameEndBoxY);
+                winImage.setAttribute("x", this.gameEndBoxX);
                 break;
             case "lost":
                 winImage.style.visibility = 'hidden';
@@ -168,6 +171,8 @@ geigerManager = {
                 playingControls.style.visibility = 'hidden';
                 crosshairElement.style.visibility = "visible";
                 startText.style.visibility = "hidden";
+                lossImage.setAttribute("y", this.gameEndBoxY);
+                lossImage.setAttribute("x", this.gameEndBoxX);
                 break;
             case "playing":
                 winImage.style.visibility = 'hidden';
@@ -250,14 +255,20 @@ geigerManager = {
         if (geigerManager.gameState == "playing") geigerManager.moveDetectorTo(tX, tY);
     },
 
+    /**
+     * User has clicked in an options control
+     */
+    clickOption: function() {
+        geigerOptions.reconcile();
+        this.updateScreen();
+    },
 
     /**
      * User has called for a measurement.
      * Creates a "measurement" case in CODAP.
      */
     doMeasurement: function() {
-        geigerGameModel.doMeasurement();
-        var tWin = geigerGameModel.captured();        //now, figure out if we're close enough to collect it!
+        var tWin = geigerGameModel.doMeasurement();
 
         var tValueList = [ geigerGameModel.detectorX ];
         if (this.twoDimensional) tValueList.push(geigerGameModel.detectorY);
@@ -277,13 +288,12 @@ geigerManager = {
                     count: geigerGameModel.latestCount
                 }
             );
-        }
-        if (geigerOptions.deathPossible) {
-            if (geigerGameModel.dose > geigerGameModel.maxDose) {
-                this.doLoss();
+            if (geigerOptions.deathPossible) {
+                if (geigerGameModel.dose > geigerGameModel.maxDose) {
+                    this.doLoss();
+                }
             }
         }
-
 
         this.updateScreen();
     },
@@ -301,6 +311,8 @@ geigerManager = {
                 var tState = {
                     version : geigerManager.version,
                     gameState : geigerManager.gameState,
+                    gameEndBoxX : geigerManager.gameEndBoxX,
+                    gameEndBoxY : geigerManager.gameEndBoxY,
 
                     sourceX : geigerGameModel.sourceX,
                     sourceY : geigerGameModel.sourceY,
@@ -314,7 +326,9 @@ geigerManager = {
 
                     labView : geigerLabView.getSaveObject(),
 
-                    connector : geigerManager.CODAPConnector.getSaveObject()
+                    connector : geigerManager.CODAPConnector.getSaveObject(),
+
+                    options : geigerOptions.getSaveObject()
 
                 };
                 iCallback( { success : true , state : tState });
@@ -324,8 +338,11 @@ geigerManager = {
                 console.log("eeps restoring...");
                 var tOutcomeSuccessful = true;
                 var tState = arg.args.state;
+
                 geigerManager.version = tState.version;
                 geigerManager.gameState = tState.gameState;
+                geigerManager.gameEndBoxX = tState.gameEndBoxX;
+                geigerManager.gameEndBoxY = tState.gameEndBoxY;
 
                 geigerGameModel.sourceX = Number(tState.sourceX);
                 geigerGameModel.sourceY = Number(tState.sourceY);
@@ -337,9 +354,11 @@ geigerManager = {
                 geigerGameModel.latestDistance = tState.latestDistance;
                 geigerGameModel.baseCollectorRadius = tState.baseCollectorRadius;
 
-                geigerLabView.restoreFrom( tState.labView );
+                geigerLabView.restoreFrom( tState.labView );    //  source must be set before
 
                 geigerManager.CODAPConnector.restoreFrom( tState.connector );
+
+                geigerOptions.restoreFrom( tState.options );
 
                 iCallback( { success : tOutcomeSuccessful });
 

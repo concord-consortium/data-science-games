@@ -9,7 +9,7 @@ var geigerOptions;
 
 geigerOptions = {
     showDistance : false,
-    scooperRadius : false,
+    scooperRadius : 10,
     deathPossible : false,
     useRandom : false,
 
@@ -23,7 +23,25 @@ geigerOptions = {
         this.scooperRadius = Number(tRadiusValue);
         this.deathPossible = document.getElementById("deathPossible").checked;
         this.useRandom = document.getElementById("useRandom").checked;
-        geigerManager.updateScreen();
+    },
+
+    getSaveObject : function() {
+        var tState = {
+            showDistance : this.showDistance,
+            scooperRadius : document.getElementById("radius").value,    //  the text, for restore
+            deathPossible : this.deathPossible,
+            useRandom : this.useRandom
+        };
+
+        return tState;
+    },
+
+    restoreFrom : function( iState ) {
+        document.getElementById("showDistance").checked = iState.showDistance;
+        document.getElementById("radius").value = iState.scooperRadius;
+        document.getElementById("deathPossible").checked = iState.deathPossible;
+        document.getElementById("useRandom").checked = iState.useRandom;
+        this.reconcile();
     }
 
 }

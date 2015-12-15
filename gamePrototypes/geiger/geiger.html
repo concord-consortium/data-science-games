@@ -105,9 +105,9 @@
 <hr/>
 
 
-<div class = "vBox" id = "options" onclick="geigerOptions.reconcile()">
+<div class = "vBox" id = "options" onchange="geigerManager.clickOption()">
     <div class = "hBox"><input type="checkbox" id="showDistance" > show distance as well as count (easier)</div>
-    <div class = "hBox">Scooper radius: <select id="radius" onchange="geigerOptions.reconcile()">
+    <div class = "hBox">Scooper radius: <select id="radius">
         <option value = "0.05">tiny</option>
         <option value = "0.2">small</option>
         <option value = "0.5" selected>normal</option>

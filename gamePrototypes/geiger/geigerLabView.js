@@ -49,7 +49,7 @@ geigerLabView = {
     /**
      * How many units across is this canvas?
      */
-    unitsAcross: 10.0,
+    unitsAcross: 5.0,
     /**
      * The svg thingy associated with the detector
      */
@@ -62,6 +62,9 @@ geigerLabView = {
      * array of objects containing coordinates and results of past measurements
      */
     ghosts: [],
+    /**
+     * Element that shows the position of the source (made visible at end of game)
+     */
     crosshairElement: null,
 
     /**
@@ -80,11 +83,13 @@ geigerLabView = {
         this.pixelsPerUnit = {
             x: tWidth / this.unitsAcross,
             y: tHeight / this.unitsAcross
-        }
+        };
 
-        this.detector = this.makeDetectorShape();
-        this.detector.setAttribute("stroke", "yellow");
-        this.detector.setAttribute("stroke-width", "2");
+        if (!this.detector) {
+            this.detector = this.makeDetectorShape();
+            this.detector.setAttribute("stroke", "yellow");
+            this.detector.setAttribute("stroke-width", "2");
+        }
     },
 
     /**
@@ -93,7 +98,9 @@ geigerLabView = {
     makeDetectorShape: function() {
 
         var tShape =  document.createElementNS(svgNS, "path");
-        var tShapeCommands = (geigerManager.twoDimensional) ? "M 6 0 L 0 6 L -6 0 L 0 -6 L 6 0" : "M 6 0 L -6 0 L 0 24 L 6 0";
+        var tShapeCommands = (geigerManager.twoDimensional) ?
+            "M 6 0 L 0 6 L -6 0 L 0 -6 L 6 0" :
+            "M 6 0 L -6 0 L 0 24 L 6 0";
         tShape.setAttribute("d", tShapeCommands);
         this.mainSVG.appendChild(tShape);         //  here we put the new object into the DOM.
 
@@ -121,6 +128,9 @@ geigerLabView = {
         this.moveShapeTo( tNewGhostShape, data.x, data.y );
     },
 
+    /**
+     * Remove both the ghost elements in the DOM, and empty the ghosts array
+     */
     removeOldGhosts : function() {
         //  remove old ghosts
         var tGhostList = document.getElementsByClassName('ghost');
@@ -129,7 +139,7 @@ geigerLabView = {
             tGhostList[0].parentNode.removeChild(tGhostList[0]);
         }
 
-
+        this.ghosts = [];
     },
 
     /**
@@ -211,9 +221,13 @@ geigerLabView = {
     restoreFrom: function( iObject ) {
         this.setup( );
 
-        for  (g of iObject.ghosts) {
-            this.addGhost( g );
-        }
+        iObject.ghosts.forEach(
+            function( iGhost ) {
+                this.addGhost( iGhost )
+            }.bind(this)
+        )
+
+        this.setCrosshairs( geigerGameModel.sourceX, geigerGameModel.sourceY);
     }
 
 };
