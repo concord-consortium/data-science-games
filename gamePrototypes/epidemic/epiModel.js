@@ -34,8 +34,12 @@ epiModel = {
     locations: [],
     elapsed : 0,
 
-    averageSecondsToInfection : 3,
+    kAverageSecondsToInfection : 3,
 
+    /**
+     * Update the entire model
+     * @param dt this many seconds
+     */
     update: function( dt ) {
         this.elapsed += dt;
 
@@ -50,6 +54,9 @@ epiModel = {
         epiModel.infect( dt );
     },
 
+    /**
+     * Adjust the model to reflect a new game
+     */
     newGame: function() {
         var i;
         this.elapsed = 0;
@@ -68,20 +75,24 @@ epiModel = {
          * Create all the Critters.
          */
         for (i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
-            var C = new Critter( i );
+            var tC = new Critter( i );
 
             var locIndex = Math.floor(Math.random() * this.locations.length);
             var tLoc = this.locations[ locIndex ];
-            C.initialize( tLoc );
+            tC.initialize( tLoc );
 
-            this.critters.push( C );    //  add critter to our local array
+            this.critters.push( tC );    //  add critter to our local array
 
-            if (i == 0) C.infectious = true;
+            if (i == 0) tC.infectious = true;
 
             //  if (this.newDataOnEveryArrival) epiManager.emitCritterData(C, "start");
         }
     },
 
+    /**
+     * A Critter arrives at a new Location.
+     * @param o { critter; c, atLocation: L}
+     */
     doArrival: function( o ) {      //  epiModel.doArrival({ critter; c, atLocation: L} );
         var tCritter = o.critter;
         var tLocation = o.atLocation;
@@ -95,6 +106,10 @@ epiModel = {
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
     },
 
+    /**
+     * A Critter departs from a location
+     * @param o
+     */
     doDeparture: function( o ) {
         var tCritter = o.critter;
         var tLocation = o.fromLocation;
@@ -109,10 +124,13 @@ epiModel = {
 
     },
 
-
+    /**
+     * Create any new infections
+     * @param dt    in this amount of time
+     */
     infect: function( dt ) {
         var i;
-        var tInfectionProbability = dt / this.averageSecondsToInfection;
+        var tInfectionProbability = dt / this.kAverageSecondsToInfection;
         for (i = 0; i < this.locations.length; i++) {
             var tLocation = this.locations[i];
             var tInfectionInLocation = false;
@@ -128,7 +146,12 @@ epiModel = {
             }
         }
     },
-    
+
+    /**
+     * Apparently unused
+     * TODO: find out for sure and delete if it is
+     * @param inObject
+     */
     setCoords: function( inObject ) {
         var tCrit = inObject.ofCritter;
     },

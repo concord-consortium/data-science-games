@@ -51,13 +51,13 @@ var Critter = function( index ) {
     this.infectious = false;
 
     this.name = null;
-    this.eyeColor = pickRandomItemFrom(Critter.eyeColors);
+    this.eyeColor = pickRandomItemFrom(Critter.eyeColors);  //  Todo: wrap things like this in globals
     this.borderColor = Critter.borderColors[0];
     this.baseTemperature = (this.eyeColor == Critter.eyeColors[0]) ? 36.0 : 34.5 ;
     this.baseTemperature += Math.random() * 0.6;
     this.baseTemperature -= Math.random() * 0.6;
 
-    this.view = new CritterView( this );
+    this.view = new CritterView( this );    //  todo: decouple view from model
 };
 
 /**
@@ -66,7 +66,7 @@ var Critter = function( index ) {
  */
 Critter.prototype.update = function (dt) {
     this.motivation.update( dt );
-    this.view.update( this, dt );
+    this.view.update( this, dt );   //  todo: Think we don't need to pass "this"
     this.temperature = this.findTemperature();
 
     if (!this.moving && !this.activity) {   //  idle critter!
@@ -131,6 +131,7 @@ Critter.prototype.setNewDest = function( ) {
 /**
  * Begin a move to a new location. Note that this calls Snap.svg's animate function, and
  * then uses epiModel.doArrival as a callback.
+ * todo: somehow get into the view.
  */
 Critter.prototype.startMove = function() {
     epiModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
@@ -196,5 +197,5 @@ Critter.prototype.toString = function() {
     ;
 };
 
-Critter.eyeColors = ["violet", "fuchsia"];
+Critter.eyeColors = ["violet", "dodgerblue"];   //  todo: pass in the attribute setup so we match the colors
 Critter.borderColors = ["orange"];

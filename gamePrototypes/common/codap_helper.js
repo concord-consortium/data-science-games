@@ -44,10 +44,9 @@ var codapHelper = {
         parent: iParentID,
         log: false
       }
-    }, function () {
-      if( iCallback)
-        iCallback();
-    });
+    },
+        iCallback
+    );
   },
 
   openCase: function (iCollectionName, iValues, iCallback) {

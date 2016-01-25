@@ -28,9 +28,9 @@
 /**
  * Singleton object that manages the main view in which the critters move around.
  */
-var medWorldView;
+var epiWorldView;
 
-medWorldView = {
+epiWorldView = {
 
     /**
      *  snap.svg element that contains all the locations and critters. The whole world.
@@ -94,9 +94,9 @@ medWorldView = {
      */
     initialize: function() {
         this.snapWorld = Snap(document.getElementById( "epiWorldView" ));
-        this.snapWorld.node.addEventListener("mousedown", medWorldView.down,false);
-        this.snapWorld.node.addEventListener("mouseup", medWorldView.up,false);
-        this.snapWorld.node.addEventListener("mousemove", medWorldView.move,false);
+        this.snapWorld.node.addEventListener("mousedown", epiWorldView.down,false);
+        this.snapWorld.node.addEventListener("mouseup", epiWorldView.up,false);
+        this.snapWorld.node.addEventListener("mousemove", epiWorldView.move,false);
 
         this.actualHeight = this.snapWorld.attr("height");
         this.actualWidth = this.snapWorld.attr("width");
@@ -128,11 +128,11 @@ medWorldView = {
     //  event section. Handles drag.
 
     zoom : function( factor ) {
-        medWorldView.VBLeft -= (factor - 1) * (medWorldView.VBWidth/2);
-        medWorldView.VBTop -= (factor - 1) * ( medWorldView.VBHeight/2);
-        medWorldView.VBWidth *= factor;
-        medWorldView.VBHeight *= factor;
-        medWorldView.updateViewBox();
+        epiWorldView.VBLeft -= (factor - 1) * (epiWorldView.VBWidth/2);
+        epiWorldView.VBTop -= (factor - 1) * ( epiWorldView.VBHeight/2);
+        epiWorldView.VBWidth *= factor;
+        epiWorldView.VBHeight *= factor;
+        epiWorldView.updateViewBox();
     },
 
     down : function( e ) {
@@ -142,21 +142,21 @@ medWorldView = {
     // todo: make it so the zoom centers on the mouse coordinates
     up : function( e ) {
         if (e.altKey) {
-            medWorldView.zoom(e.shiftKey ? 1.5 : 2 / 3)
+            epiWorldView.zoom(e.shiftKey ? 1.5 : 2 / 3)
         }
     },
 
     move : function ( e ) {
-        var tHScale = medWorldView.VBWidth / medWorldView.actualWidth;
-        var tVScale = medWorldView.VBHeight / medWorldView.actualHeight;
+        var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
+        var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
 
         if (e.button === 0 && e.buttons === 1) {
             var tDx = e.movementX * tHScale;
             var tDy = e.movementY * tVScale;
 
-            medWorldView.VBLeft -= tDx;
-            medWorldView.VBTop  -= tDy;
-            medWorldView.updateViewBox();
+            epiWorldView.VBLeft -= tDx;
+            epiWorldView.VBTop  -= tDy;
+            epiWorldView.updateViewBox();
         }
     }
 };

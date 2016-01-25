@@ -36,7 +36,7 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version : "vPre-001",
+    version : "vPre-002",
     gameNumber: 0,
     CODAPConnector: null,
 
@@ -59,7 +59,7 @@ epiManager = {
      * Manages update of screen. this involves the main view plus any of our UI stuff.
      */
     updateScreen: function() {
-        medWorldView.updateScreen();
+        epiWorldView.updateScreen();
         this.updateUIStuff();
     },
 
@@ -83,7 +83,7 @@ epiManager = {
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase( "epidemics", this.gameNumber);
         epiModel.newGame();
-        medWorldView.flushAndRedraw();
+        epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
         this.restart();
     },
@@ -181,8 +181,8 @@ epiManager = {
     initializeComponent : function() {
         this.CODAPConnector = new EpiCODAPConnector( );
         medNames.initialize();
-        medWorldView.initialize();
-        medWorldView.model = epiModel;
+        epiWorldView.initialize();
+        epiWorldView.model = epiModel;
        // this.newGame();
     },
 
