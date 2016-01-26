@@ -1,0 +1,63 @@
+
+
+body {
+    background-color: beige;
+}
+
+input {
+    text-align: right;
+}
+
+/* ID options */
+
+#options   {
+    background-color: #fae7e9;
+}
+
+#files {
+    line-height: 20px;
+}
+
+.patientListElement {
+    white-space: nowrap;
+    background-color: #eedddd;
+    padding-top: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 3px;
+}
+
+/*		BOX CLASSES		*/
+
+.hBox	{
+    display: flex;
+    flex-direction: row;
+    /*display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	horizontal;
+    -moz-box-orient:	horizontal;
+    box-orient:	horizontal;*/
+}
+
+.vBox	{
+    display: flex;
+    flex-direction: column;
+    /*
+    display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	vertical;
+    -moz-box-orient:	vertical;
+    box-orient:	vertical;
+    */
+}
+
+.textIO {
+    background-color: yellowgreen;
+    margin: 2px;
+    padding: 2px;
+    font-family: sans-serif;
+    font-size: 7pt;
+    color: white;
+}

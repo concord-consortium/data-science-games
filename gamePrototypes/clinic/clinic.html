@@ -1,0 +1,59 @@
+<!--
+
+Here is the URL...
+
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/clinic/clinic.html
+
+or locally,
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/clinic/clinic.html
+
+local with docs;
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/clinic/clinic.html&documentServer=http://document-store.herokuapp.com/&recordid=7002
+
+
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinic</title>
+    <link rel='stylesheet' type='text/css' href='clinic.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/jquery.js"></script>
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+
+    <!--        actual game code        -->
+    <script src="clinicManager.js"></script>
+    <script src="clinicCODAPConnector.js"></script>
+    <script src="Patient.js"></script>
+    <script src="namesForGames.js"></script>
+
+</head>
+<body>
+<h1 id="mainTitle">Clinic</h1>
+<p id = "gameTime">now</p>
+<p id = "currentStatus">waiting</p>
+
+<button id="newPatient" onclick="clinicManager.newPatientButton()">new patient</button>
+<div id="commands">
+    <button id="temp" onclick="clinicManager.doButton(event)">take temp</button>
+    <button id="bp" onclick="clinicManager.doButton(event)">take bp</button>
+    <button id="weight" onclick="clinicManager.doButton(event)">weight</button>
+    <button id="height" onclick="clinicManager.doButton(event)">height</button>
+</div>
+
+<hr>
+<div id="files">
+
+</div>
+<script>
+    clinicManager.start();
+</script>
+</body>
+</html>
