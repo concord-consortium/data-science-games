@@ -147,16 +147,18 @@ epiWorldView = {
     },
 
     move : function ( e ) {
-        var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
-        var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
+        if (!epiManager.draggingCritter) {
+            var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
+            var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
 
-        if (e.button === 0 && e.buttons === 1) {
-            var tDx = e.movementX * tHScale;
-            var tDy = e.movementY * tVScale;
+            if (e.button === 0 && e.buttons === 1) {
+                var tDx = e.movementX * tHScale;
+                var tDy = e.movementY * tVScale;
 
-            epiWorldView.VBLeft -= tDx;
-            epiWorldView.VBTop  -= tDy;
-            epiWorldView.updateViewBox();
+                epiWorldView.VBLeft -= tDx;
+                epiWorldView.VBTop -= tDy;
+                epiWorldView.updateViewBox();
+            }
         }
     }
 };

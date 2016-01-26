@@ -51,7 +51,7 @@ var Critter = function( index ) {
     this.infectious = false;
 
     this.name = null;
-    this.eyeColor = pickRandomItemFrom(Critter.eyeColors);  //  Todo: wrap things like this in globals
+    this.eyeColor = TEEUtils.pickRandomItemFrom(Critter.eyeColors);
     this.borderColor = Critter.borderColors[0];
     this.baseTemperature = (this.eyeColor == Critter.eyeColors[0]) ? 36.0 : 34.5 ;
     this.baseTemperature += Math.random() * 0.6;
@@ -119,7 +119,7 @@ Critter.prototype.setNewDest = function( ) {
             }
         }
     }
-    var tDestLoc = pickRandomItemFrom(tBestLocations);
+    var tDestLoc = TEEUtils.pickRandomItemFrom(tBestLocations);
 
     this.destLoc = tDestLoc;
     var tCenter = tDestLoc.centerCoordinates();     //  for now, head for center of the loc

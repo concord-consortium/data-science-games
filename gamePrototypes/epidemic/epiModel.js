@@ -108,7 +108,7 @@ epiModel = {
 
     /**
      * A Critter departs from a location
-     * @param o
+     * @param o { critter; c, fromLocation: L}
      */
     doDeparture: function( o ) {
         var tCritter = o.critter;
@@ -120,7 +120,7 @@ epiModel = {
         tCritter.activity = "traveling";
         tCritter.moving = true;
         tCritter.currentLocation = null;    //  is this a good idea??
-        tLocation.removeCritter( tCritter );
+        if (tLocation) tLocation.removeCritter( tCritter );
 
     },
 
@@ -142,9 +142,13 @@ epiModel = {
                     if (c.health == 1 && Math.random() < tInfectionProbability) c.health = 0;
                     if (c.infectious) c.health = 1;
                 });
-                
+
             }
         }
+    },
+
+    coordsToLocation: function( iX, iY) {
+        return this.locations[ epiGeography.coordToLocationIndex( iX, iY)];
     },
 
     /**

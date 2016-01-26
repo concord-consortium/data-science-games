@@ -30,6 +30,8 @@ var epiGeography;
 /**
  * Singleton that manages the geography of this grid world.
  *
+ * The 1-D index starts at zero in the BOTTOM LEFT. Then goes left to right, then bottom to top.
+ *
  * @type {{kRowsInGrid: number, kColumnsInGrid: number, kPixelsWide: number, kPixelsTall: number, row: number, col: number, colLetters: string[], newLocationInfoByIndex: epiGeography.newLocationInfoByIndex, theShape: epiGeography.theShape, numberOfLocations: epiGeography.numberOfLocations, totalSize: epiGeography.totalSize}}
  */
 epiGeography = {
@@ -37,17 +39,17 @@ epiGeography = {
     kRowsInGrid: 10,
     kColumnsInGrid: 10,
 
-    kPixelsWide: 100,
+    kPixelsWide: 100,       //  width in game pixels of one CELL
     kPixelsTall: 100,
-    
+
     row: 0,
     col: 0,
-    
+
     colLetters : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
 
     newLocationInfoByIndex: function( index ) {
         var tSnapSVGShape = this.theShape( index );
-        var tRole = pickRandomItemFrom( epiManager.locTypes );
+        var tRole = TEEUtils.pickRandomItemFrom( epiManager.locTypes );
         var tColor = Location.colors[tRole];
 
         var tBackgroundSnap = tSnapSVGShape.rect();
@@ -61,7 +63,7 @@ epiGeography = {
             }
         );
         var tName = this.colLetters[ this.col ] + this.row;
-        
+
         return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName, row: this.row, col: this.col+1 };
     },
 
@@ -100,6 +102,33 @@ epiGeography = {
             width : this.kColumnsInGrid * this.kPixelsWide,
             height : this.kRowsInGrid * this.kPixelsTall
         }
+    },
+
+    /**
+     * Convert game coordinates to the Location index
+     * @param iX    x in GAME coordinates (0,1000-ish)
+     * @param iY
+     * @returns {number}    index of Location. Starts lower left, left to right then bottom to top
+     */
+    coordToLocationIndex: function( iX, iY) {
+
+        // first, pin to the active rectangle
+
+        var tTS = this.totalSize();
+        if (iX < 0) iX = 0;
+        if (iY < 0) iY = 0;
+        if (iX >= tTS.width) iX = tTS.width - 1;
+        if (iY >= tTS.height) iY = tTS.height - 1;
+
+        //  Now figure out which row or column we're in
+
+        var tCol = Math.floor( iX / this.kPixelsWide),
+            tRow = this.kRowsInGrid - Math.floor( iY / this.kPixelsTall ) - 1;
+        var result =  tRow * this.kColumnsInGrid + tCol;
+
+        if (result < 0 || result >= this.numberOfLocations()) result = null;
+
+        return result;
     }
 
 };

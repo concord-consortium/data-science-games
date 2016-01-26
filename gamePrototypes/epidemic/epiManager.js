@@ -3,28 +3,28 @@
  */
 
 /*
-==========================================================================
-epiManager.js
+ ==========================================================================
+ epiManager.js
 
-Main controller for the med DSG.
+ Main controller for the med DSG.
 
-    Author:   Tim Erickson
+ Author:   Tim Erickson
 
-Copyright (c) 2015 by The Concord Consortium, Inc. All rights reserved.
+ Copyright (c) 2015 by The Concord Consortium, Inc. All rights reserved.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-limitations under the License.
-==========================================================================
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ==========================================================================
+ */
 
 
 var svgNS = "http://www.w3.org/2000/svg";   //  needed to draw svg's
@@ -36,29 +36,30 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version : "vPre-002",
+    version: "vPre-002",
     gameNumber: 0,
     CODAPConnector: null,
 
     nLocations: 100,
-    locTypes: [ "food", "water", "dwelling"],
+    locTypes: ["food", "water", "dwelling"],
     previous: 0,    //  timestamp for animation
-    running: Boolean( false ),
-    gameInProgress: Boolean (false),
+    running: Boolean(false),
+    gameInProgress: Boolean(false),
+    draggingCritter: false,        //      so we will NOT drag the world if zoomed!
 
     /**
      * General update method. Asks the model to update, then updates our screen.
      * @param dt
      */
-    update : function( dt) {
-        epiModel.update( dt );       //
+    update: function (dt) {
+        epiModel.update(dt);       //
         this.updateScreen();
     },
 
     /**
      * Manages update of screen. this involves the main view plus any of our UI stuff.
      */
-    updateScreen: function() {
+    updateScreen: function () {
         epiWorldView.updateScreen();
         this.updateUIStuff();
     },
@@ -79,9 +80,9 @@ epiManager = {
     /**
      * Handles a new game in Epidemic
      */
-    newGame:    function() {
+    newGame: function () {
         this.gameNumber += 1;
-        this.CODAPConnector.newGameCase( "epidemics", this.gameNumber);
+        this.CODAPConnector.newGameCase("epidemics", this.gameNumber);
         epiModel.newGame();
         epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
@@ -92,19 +93,19 @@ epiManager = {
      * Handles the end of a game in Epidemic
      * @param result    could be "won" "lost" "aborted" etc
      */
-    finishGame: function( result ) {
+    finishGame: function (result) {
         this.gameInProgress = false;
         this.pause();       //  stop any animation and progress
-        this.CODAPConnector.finishGameCase( result );
+        this.CODAPConnector.finishGameCase(result);
         this.updateScreen();
     },
 
-    pause: function() {
+    pause: function () {
         this.running = false;
         this.updateScreen();
     },
 
-    restart: function() {
+    restart: function () {
         this.previous = null;
         this.running = true;
         window.requestAnimationFrame(this.animate); //  START UP
@@ -114,7 +115,7 @@ epiManager = {
     /**
      * Updates text, button text, etc., that is not in the main "world" display area
      */
-    updateUIStuff : function( ) {
+    updateUIStuff: function () {
         var timeText = document.getElementById("timeText");
         timeText.innerHTML = parseFloat(epiModel.elapsed.toFixed(2));
 
@@ -126,11 +127,27 @@ epiManager = {
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
     },
 
+    handleDropOfCritter: function (iCritter, iX, iY) {
+        this.draggingCritter = false;
+
+        var tLocation = epiModel.coordsToLocation(iX, iY);
+        if (tLocation) {
+            epiModel.doDeparture({
+                critter: iCritter,
+                fromLocation: iCritter.currentLocation
+            });
+            epiModel.doArrival({
+                critter: iCritter,
+                atLocation: tLocation
+            });
+        }
+    },
+
     /**
      * Handles a click on a critter.
      * @param theCritter    the actual Critter clicked.
      */
-    doCritterClick : function( theCritter ) {
+    doCritterClick: function (theCritter) {
         console.log("clicked in critter named " + theCritter.name);
         if (epiOptions.dataOnCritterClick) this.emitCritterData(theCritter, "click");
     },
@@ -140,10 +157,10 @@ epiManager = {
      * @param theCritter
      * @param eventType
      */
-    emitCritterData : function( theCritter, eventType ) {
+    emitCritterData: function (theCritter, eventType) {
 
         var tLocName = (theCritter.currentLocation) ? theCritter.currentLocation.name : "transit";
-        this.CODAPConnector.doEventRecord( [
+        this.CODAPConnector.doEventRecord([
             epiModel.elapsed,
             theCritter.name,
             theCritter.eyeColor,
@@ -163,7 +180,7 @@ epiManager = {
     newGameButtonPressed: function () {
 
         if (this.gameInProgress) {  //  we're ending a game
-            this.finishGame( "abort");
+            this.finishGame("abort");
             //  this.endGame("abort");
         } else {    //  we're starting a new game
             // todo: redundant with restart()?
@@ -178,19 +195,19 @@ epiManager = {
      * Called at the very beginnning to initialize this component.
      * Creates the connector, the name-making object, the model, and teh view.
      */
-    initializeComponent : function() {
-        this.CODAPConnector = new EpiCODAPConnector( );
+    initializeComponent: function () {
+        this.CODAPConnector = new EpiCODAPConnector();
         medNames.initialize();
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
-       // this.newGame();
+        // this.newGame();
     },
 
     /**
      * Manages save and restore
      */
 
-    epiDoCommand : function( arg ) {
+    epiDoCommand: function (arg) {
         // console.log(arg);
     }
 };
