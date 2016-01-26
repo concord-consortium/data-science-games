@@ -74,6 +74,24 @@ var CritterView = function( c ) {
             epiManager.doCritterClick( this.critter );
         }.bind(this)
     );
+
+    var tStartX, tStartY,
+        onDragStart = function( iX, iY, iEvent) {
+            tStartX = Number(this.snapShape.attr('x'));
+            tStartY = Number(this.snapShape.attr('y'));
+        },
+        onDragMove = function( iDX, iDY, iX, iY, iEvent) {
+            var tVPDX = iDX * epiWorldView.VBWidth / Number(epiWorldView.actualWidth),
+                tVPDY = iDY * epiWorldView.VBHeight / Number(epiWorldView.actualHeight);
+            this.moveTo( tStartX + tVPDX, tStartY + tVPDY);
+
+            // todo: epiManager.handleMoveOfCritter();
+        },
+        onDragEnd = function( iEvent) {
+            epiManager.handleDropOfCritter( this.critter, iEvent.offsetX, iEvent.offsetY);
+        };
+
+    this.healthCircle.drag(onDragMove, onDragStart, onDragEnd, this, this, this);
 };
 
 /**

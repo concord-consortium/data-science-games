@@ -100,6 +100,15 @@ epiGeography = {
             width : this.kColumnsInGrid * this.kPixelsWide,
             height : this.kRowsInGrid * this.kPixelsTall
         }
-    }
+    },
+
+  /**
+   * Given x,y return the index of its location
+   */
+    coordToLocationIndex: function( iX, iY) {
+      var tCol = Math.floor( iX / epiWorldView.actualWidth * this.kColumnsInGrid),
+            tRow = Math.floor( iY / epiWorldView.actualHeight * this.kRowsInGrid);
+      return tRow * this.kColumnsInGrid + tCol;
+  }
 
 };

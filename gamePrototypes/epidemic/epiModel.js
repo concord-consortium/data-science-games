@@ -147,6 +147,10 @@ epiModel = {
         }
     },
 
+    coordsToLocation: function( iX, iY) {
+        return this.locations[ epiGeography.coordToLocationIndex( iX, iY)];
+    },
+
     /**
      * Apparently unused
      * TODO: find out for sure and delete if it is

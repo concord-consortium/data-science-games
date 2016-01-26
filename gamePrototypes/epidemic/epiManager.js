@@ -126,6 +126,14 @@ epiManager = {
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
     },
 
+    handleDropOfCritter: function( iCritter, iX, iY) {
+        var tLocation = epiModel.coordsToLocation( iX, iY);
+        epiModel.doDeparture( { critter: iCritter,
+                                fromLocation: iCritter.currentLocation });
+        epiModel.doArrival( { critter: iCritter,
+                                atLocation: tLocation});
+    },
+
     /**
      * Handles a click on a critter.
      * @param theCritter    the actual Critter clicked.
