@@ -43,8 +43,8 @@ epiManager = {
     nLocations: 100,
     locTypes: ["food", "water", "dwelling"],
     previous: 0,    //  timestamp for animation
-    running: Boolean(false),
-    gameInProgress: Boolean(false),
+    running: false,
+    gameInProgress: false,
     draggingCritter: false,        //      so we will NOT drag the world if zoomed!
 
     /**
@@ -66,7 +66,7 @@ epiManager = {
 
     /**
      * Animation function for Epidemic.
-     * Necessary not for visible animations, but for updating the model *hunger, thirst, etc)
+     * Necessary not for visible animations, but for updating the model -- hunger, thirst, etc)
      * @param timestamp
      */
     animate: function (timestamp) {
@@ -86,6 +86,7 @@ epiManager = {
         epiModel.newGame();
         epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
+        epiOptions.optionChange();
         this.restart();
     },
 
@@ -175,17 +176,13 @@ epiManager = {
     },
 
     /**
-     * User asks for a new game.
+     * User asks for a new game. (Or, if a game is in progress, to abort a game)
      */
     newGameButtonPressed: function () {
 
         if (this.gameInProgress) {  //  we're ending a game
             this.finishGame("abort");
-            //  this.endGame("abort");
         } else {    //  we're starting a new game
-            // todo: redundant with restart()?
-            window.requestAnimationFrame(this.animate);
-            this.running = Boolean(true);
             this.newGame();
         }
         this.updateScreen();
@@ -193,14 +190,13 @@ epiManager = {
 
     /**
      * Called at the very beginnning to initialize this component.
-     * Creates the connector, the name-making object, the model, and teh view.
+     * Creates the connector, the name-making object, the model, and the view.
      */
     initializeComponent: function () {
         this.CODAPConnector = new EpiCODAPConnector();
         medNames.initialize();
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
-        // this.newGame();
     },
 
     /**
