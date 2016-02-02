@@ -53,6 +53,10 @@ epiManager = {
      */
     update: function (dt) {
         epiModel.update(dt);       //
+
+        var tEnd = epiModel.endCheck();
+
+        if (tEnd) this.finishGame( tEnd );
         this.updateScreen();
     },
 
@@ -98,13 +102,20 @@ epiManager = {
     finishGame: function (result) {
         this.gameInProgress = false;
         this.pause();       //  stop any animation and progress
-        this.CODAPConnector.finishGameCase(result);
+        var theData = {
+            nMoves : epiModel.nMoves,
+            sickSeconds : epiModel.sicknessReport().totalElapsed,
+            elapsed : epiModel.elapsed,
+            result : result
+        };
+        this.CODAPConnector.finishGameCase(theData);
         this.updateScreen();
     },
 
     pause: function () {
         this.running = false;
         this.updateScreen();
+        //  todo: in general, fix pauses so that animation freezes
     },
 
     restart: function () {
@@ -124,16 +135,24 @@ epiManager = {
         var startStopButton = document.getElementById("startStop");
         startStopButton.innerHTML = (this.running) ? "pause" : "go";
         startStopButton.disabled = !(this.gameInProgress);
+        startStopButton.style.visibility = (this.gameInProgress) ? "visible" : "hidden";
+
+        var maladyMenu = document.getElementById("maladyChoice");
+        maladyMenu.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
 
         var gameButton = document.getElementById("newGameButton");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
 
         tSickReport = epiModel.sicknessReport();
-        $( "#healthReport").html("Sick: " + tSickReport.numberSick + ", Total sick seconds: " + tSickReport.totalElapsed);
+        $( "#healthReport").html("Moves: " + epiModel.nMoves
+            + " Sick: " + tSickReport.numberSick
+            + ", Total sick seconds: " + tSickReport.totalElapsed);
     },
 
     handleDropOfCritter: function (iCritter, iX, iY) {
         this.draggingCritter = false;
+
+        // todo: consider moving the rest to epiModel
 
         var tLocation = epiModel.coordsToLocation(iX, iY);
         if (tLocation) {
@@ -145,6 +164,7 @@ epiManager = {
                 critter: iCritter,
                 atLocation: tLocation
             });
+            epiModel.nMoves += 1;
         }
     },
 
@@ -174,8 +194,8 @@ epiManager = {
             eventType,
             theCritter.health == 0 ? "sick" : "healthy",
             tLocName,
-            theCritter.currentLocation.row,
-            theCritter.currentLocation.col
+            (theCritter.currentLocation) ? theCritter.currentLocation.row : "",
+            (theCritter.currentLocation) ? theCritter.currentLocation.col : ""
         ]);
     },
 
@@ -201,6 +221,7 @@ epiManager = {
         medNames.initialize();
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
+        this.updateScreen();
     },
 
     /**

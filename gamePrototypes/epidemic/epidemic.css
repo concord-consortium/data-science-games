@@ -32,12 +32,24 @@ input {
     text-align: right;
 }
 
-/* ID options */
+/* class options */
 
-#options   {
+.options   {
     background-color: #fae7e9;
+    padding: 4px;
+}
+.diseaseOptions   {
+    background-color: #ffdddd;
+    padding: 4px;
 }
 
+/* option IDs */
+
+/*  button etc stuff */
+
+#startStop  {
+    width : 50px
+}
 
 /*		BOX CLASSES		*/
 

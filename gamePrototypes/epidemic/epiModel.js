@@ -30,9 +30,11 @@ var epiModel;
 epiModel = {
 
     numberOfCritters: 49,
+
     critters: [],
     locations: [],
     elapsed : 0,
+    nMoves : 0,
     malady : null,
 
 
@@ -60,6 +62,7 @@ epiModel = {
     newGame: function() {
         var i;
         this.elapsed = 0;
+        this.nMoves = 0;
         this.locations = [];
         this.critters = [];
 
@@ -85,8 +88,17 @@ epiModel = {
 
         //  pick a malady
 
-        epiMalady.pickMalady( 0 );  //
+        epiMalady.pickMalady( );
         epiMalady.initMalady();
+    },
+
+    endCheck : function() {
+        var tEnd = null;
+        var tSickSeconds = this.sicknessReport().totalElapsed;
+
+        if (tSickSeconds > epiMalady.pSickSecondsToGameEnd) tEnd = "lost";
+        if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = "won";
+        return tEnd;
     },
 
     /**
@@ -104,6 +116,8 @@ epiModel = {
         tLocation.addCritter( tCritter );
         tCritter.activity = Location.mainActivities[ tLocation.locType ];
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
+        //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
+        //  (Why are they invalid?)
     },
 
     /**
@@ -133,6 +147,9 @@ epiModel = {
             case 0:
                 this.infect0( dt );
                 break;
+            case 1:
+                this.infect0( dt );
+                break;
             default:
                 break;
         }
@@ -149,7 +166,7 @@ epiModel = {
             var tInfectionInLocation = epiMalady.exposureInLocation( tLocation );
             if (tInfectionInLocation) {
                 tLocation.critters.forEach(function(c) {
-                    epiMalady.infectExposedCritter( c, dt )
+                    epiMalady.possiblyInfectExposedCritter( c, dt )
                 });
             }
         }

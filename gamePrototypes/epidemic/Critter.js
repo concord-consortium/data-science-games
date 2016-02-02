@@ -41,6 +41,7 @@ var Critter = function( index ) {
     this.destY = 0;
     this.destLoc = null;
     this.speed = 100; // game units per second
+    this.kBaseSpeed = 100; // game units per second
 
     this.motivation = null;
     this.activity = null;
@@ -50,6 +51,8 @@ var Critter = function( index ) {
     this.health = 1.0;      //  0 = sick, 1 = healthy
     this.elapsedSick = 0.0; //  how long have we been sick.
     this.infectious = false;
+    this.infected = false;        //  do we have the malady? (may still need to incubate)
+    this.incubationTime = null;      //  how long since infection
     this.antibodies = 0.0;
 
     this.name = null;
@@ -69,6 +72,7 @@ var Critter = function( index ) {
 Critter.prototype.update = function (dt) {
     this.motivation.update( dt );
     this.updateHealth( dt );
+    this.speed = this.kBaseSpeed * (0.5 + 0.5 * this.health);
 
     this.view.update( dt );
     this.temperature = this.findTemperature();
@@ -96,6 +100,17 @@ Critter.prototype.updateHealth = function( dt ) {
 
     if (this.health == 0) {
         this.elapsedSick += dt;
+    }
+
+    if (this.infected && this.health > 0 && this.antibodies == 0) {
+        //  console.log("Incubation: " + this.incubationTime);
+        this.incubationTime += dt;
+    }
+
+    if (this.incubationTime > epiMalady.pIncubationInSeconds) {
+        console.log("Incubation ended. Now sick. ");
+        this.health = 0.0;      //  simple get sick
+        this.incubationTime = null;
     }
 
     if (this.elapsedSick > epiMalady.pDiseaseDurationInSeconds) {

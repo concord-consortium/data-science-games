@@ -33,7 +33,7 @@ var codapHelper = {
   },
 
   createCases: function (iCollectionName, iValuesArrays, iParentID, iCallback) {
-    console.log("In createCases");
+    //  console.log("In createCases");
     if( iValuesArrays && !Array.isArray( iValuesArrays))
       iValuesArrays = [iValuesArrays];
     this.codapPhone.call({

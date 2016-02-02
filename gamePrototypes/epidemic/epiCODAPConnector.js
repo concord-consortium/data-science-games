@@ -59,12 +59,15 @@ EpiCODAPConnector.prototype.newGameCase = function(gameCollectionName, gameNumbe
 /**
  * finishes the current game case
  */
-EpiCODAPConnector.prototype.finishGameCase = function(result ) {
+EpiCODAPConnector.prototype.finishGameCase = function( iData ) {
     codapHelper.closeCase(
         this.gameCollectionName,
         [
             this.gameNumber,
-            result,
+            iData.nMoves,
+            iData.sickSeconds,
+            iData.elapsed,
+            iData.result,
         ],
         this.gameCaseID
     );
@@ -105,6 +108,9 @@ codapHelper.initSim({
                 // The parent collection spec:
                 attrs: [
                     {name: "epiNumber", type: 'categorical'},
+                    {name: "moves", type: 'numeric',  precision: 0},
+                    {name: "sickSecs", type: 'numeric', unit: 'seconds', precision: 2},
+                    {name: "elapsed", type: 'numeric', unit: 'seconds', precision: 2},
                     {name: "result", type: 'categorical'}
                 ],
                 childAttrName: "event"

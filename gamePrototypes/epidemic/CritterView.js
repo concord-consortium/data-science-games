@@ -40,9 +40,10 @@ var CritterView = function( c ) {
 
     //  background
 
+
     this.bgCircle = this.snapShape.circle(0, 0, 10); //  add Snap circle with cx, cy, and r
     this.bgCircle.attr({
-        fill : "yellow"
+        fill : CritterView.kUsualBackgroundColor
     });
 
     //  "eye" line
@@ -111,7 +112,13 @@ var CritterView = function( c ) {
  */
 CritterView.prototype.update = function (dt) {
     var tHealth = this.critter.health;
-    this.healthCircle.attr( {stroke : (tHealth == 0) ? "gray" : this.critter.borderColor});
+    this.healthCircle.attr( {stroke : (tHealth == 0) ? CritterView.kSickBorderColor : this.critter.borderColor});
+
+    if (epiOptions.showCarrier) {
+        this.bgCircle.attr({fill: (this.critter.infectious) ? CritterView.kCarrierBackgroundColor : CritterView.kUsualBackgroundColor});
+    } else {
+        this.bgCircle.attr({fill: CritterView.kUsualBackgroundColor});
+    }
 };
 
 /**
@@ -130,4 +137,7 @@ CritterView.prototype.moveTo = function( xx, yy ) {
  * @type {number}
  */
 CritterView.overallViewSize = 20;
+CritterView.kUsualBackgroundColor = "yellow";
+CritterView.kCarrierBackgroundColor = "black";
+CritterView.kSickBorderColor = "gray";
 
