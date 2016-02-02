@@ -82,6 +82,7 @@ var CritterView = function( c ) {
             epiManager.draggingCritter = true;
         },
         onDragMove = function( iDX, iDY, iX, iY, iEvent) {
+            //  todo: use CTM. See onDragEnd, below.
             var tVPDX = iDX * epiWorldView.VBWidth / Number(epiWorldView.actualWidth),
                 tVPDY = iDY * epiWorldView.VBHeight / Number(epiWorldView.actualHeight);
             this.moveTo( tStartX + tVPDX, tStartY + tVPDY);
@@ -90,7 +91,6 @@ var CritterView = function( c ) {
         },
         onDragEnd = function( iEvent) {
             var CTM = epiWorldView.snapWorld.node.getScreenCTM();
-            //  var CTM = iEvent.target.getScreenCTM();
             var CTMI = CTM.inverse();
             var screenCoordinates = this.snapShape.node.createSVGPoint();
             screenCoordinates.x = iEvent.offsetX;
@@ -109,9 +109,9 @@ var CritterView = function( c ) {
  * @param critter
  * @param dt
  */
-CritterView.prototype.update = function (critter, dt) {
-    var tHealth = critter.health;
-    this.healthCircle.attr( {stroke : (tHealth == 0) ? "gray" : critter.borderColor});
+CritterView.prototype.update = function (dt) {
+    var tHealth = this.critter.health;
+    this.healthCircle.attr( {stroke : (tHealth == 0) ? "gray" : this.critter.borderColor});
 };
 
 /**

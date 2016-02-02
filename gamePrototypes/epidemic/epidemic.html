@@ -42,7 +42,9 @@
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
     <script src="../common/codap_helper.js" language="javascript"></script>
+
     <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="../common/jquery.js" language="javascript"></script>
 
     <!-- Snap -->
     <script src="../Snap.svg/dist/snap.svg.js"></script>
@@ -51,13 +53,14 @@
     <script src="epiManager.js" language="JavaScript"></script>
     <script src="epiCODAPConnector.js" language="JavaScript"></script>
     <script src="epiModel.js" language="JavaScript"></script>
-    <script src="epidemicWorldView.js" language="JavaScript"></script>
+    <script src="epiWorldView.js" language="JavaScript"></script>
     <script src="epiGeography.js" language="JavaScript"></script>
     <script src="Location.js" language="JavaScript"></script>
     <script src="Critter.js" language="JavaScript"></script>
     <script src="CritterView.js" language="JavaScript"></script>
     <script src="Motivation.js" language="JavaScript"></script>
     <script src="nameGenerator.js" language="JavaScript"></script>
+    <script src="epiMalady.js" language="JavaScript"></script>
     <script src="epiOptions.js" language="JavaScript"></script>
 
 
@@ -78,12 +81,13 @@
 	<button id="newGameButton" onclick="epiManager.newGameButtonPressed()">new game</button>
 </div>
 
+<p id="healthReport"></p>
+
 <hr/>
 
 <div class = "vBox" id = "options" onclick="epiOptions.optionChange()">
-    <div class="hBox"><input type="checkbox" id="dataOnCritterClick"> data on Critter click</div>
-
-    <div class="hBox"><input type="checkbox" id="dataOnArrival"> data on arrival </div>
+    <div class="hBox"><input type="checkbox" id="dataOnCritterClick" checked> data on Critter click</div>
+    <div class="hBox"><input type="checkbox" id="dataOnArrival" checked> data on arrival </div>
     <div class="hBox"><input type="checkbox" id="dataOnDeparture" checked> data on departure</div>
 </div>
 

@@ -3,7 +3,7 @@
  */
 /*
  ==========================================================================
- epidemicWorldView.js
+ epiWorldView.js
 
  Main view for the med DSG.
 
@@ -111,7 +111,7 @@ epiWorldView = {
      * so they get manifested on the screen.
      */
     updateViewBox : function() {
-        //  todo: check parameters and pin
+        //  check parameters and pin
         this.VBLeft = Math.max(0, this.VBLeft);
         this.VBTop = Math.max(0, this.VBTop);
         this.VBWidth = Math.min( this.VBWidth, this.VBMaxWidth);
@@ -127,7 +127,7 @@ epiWorldView = {
 
     //  event section. Handles drag.
 
-    zoom : function( factor ) {
+    zoom : function( factor, event ) {
         epiWorldView.VBLeft -= (factor - 1) * (epiWorldView.VBWidth/2);
         epiWorldView.VBTop -= (factor - 1) * ( epiWorldView.VBHeight/2);
         epiWorldView.VBWidth *= factor;
@@ -142,7 +142,7 @@ epiWorldView = {
     // todo: make it so the zoom centers on the mouse coordinates
     up : function( e ) {
         if (e.altKey) {
-            epiWorldView.zoom(e.shiftKey ? 1.5 : 2 / 3)
+            epiWorldView.zoom(e.shiftKey ? 1.5 : 2 / 3, e)
         }
     },
 

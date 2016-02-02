@@ -33,8 +33,8 @@ epiModel = {
     critters: [],
     locations: [],
     elapsed : 0,
+    malady : null,
 
-    kAverageSecondsToInfection : 3,
 
     /**
      * Update the entire model
@@ -77,16 +77,16 @@ epiModel = {
         for (i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
             var tC = new Critter( i );
 
-            var locIndex = Math.floor(Math.random() * this.locations.length);
-            var tLoc = this.locations[ locIndex ];
+            var tLoc = TEEUtils.pickRandomItemFrom(this.locations);
             tC.initialize( tLoc );
 
             this.critters.push( tC );    //  add critter to our local array
-
-            if (i == 0) tC.infectious = true;
-
-            //  if (this.newDataOnEveryArrival) epiManager.emitCritterData(C, "start");
         }
+
+        //  pick a malady
+
+        epiMalady.pickMalady( 0 );  //
+        epiMalady.initMalady();
     },
 
     /**
@@ -129,24 +129,51 @@ epiModel = {
      * @param dt    in this amount of time
      */
     infect: function( dt ) {
+        switch( epiMalady.pMaladyNumber ) {
+            case 0:
+                this.infect0( dt );
+                break;
+            default:
+                break;
+        }
+    },
+
+    /**
+     * Does infection for disease #0. todo: move to epiMalady
+     * @param dt
+     */
+    infect0 : function( dt ) {
         var i;
-        var tInfectionProbability = dt / this.kAverageSecondsToInfection;
         for (i = 0; i < this.locations.length; i++) {
             var tLocation = this.locations[i];
-            var tInfectionInLocation = false;
-            tLocation.critters.forEach(function(c) {
-                if (c.infectious) tInfectionInLocation = true;
-            });
+            var tInfectionInLocation = epiMalady.exposureInLocation( tLocation );
             if (tInfectionInLocation) {
                 tLocation.critters.forEach(function(c) {
-                    if (c.health == 1 && Math.random() < tInfectionProbability) c.health = 0;
-                    if (c.infectious) c.health = 1;
+                    epiMalady.infectExposedCritter( c, dt )
                 });
-
             }
         }
     },
 
+    sicknessReport : function() {
+        var totElapsed = 0;
+        var nSick = 0;
+
+        this.critters.forEach( function(c) {
+            totElapsed += c.elapsedSick;
+            if (c.health != 1) nSick++;
+        } );
+
+        return {totalElapsed : totElapsed.toFixed(2), numberSick : nSick};
+    },
+
+    /**
+     * Given (game) coordinates, like from a mouse click, find the Location they're in.
+     *
+     * @param iX
+     * @param iY
+     * @returns {*}     theLocation
+     */
     coordsToLocation: function( iX, iY) {
         return this.locations[ epiGeography.coordToLocationIndex( iX, iY)];
     },

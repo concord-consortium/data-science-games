@@ -83,7 +83,8 @@ epiManager = {
     newGame: function () {
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase("epidemics", this.gameNumber);
-        epiModel.newGame();
+
+        epiModel.newGame( );
         epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
         epiOptions.optionChange();
@@ -126,6 +127,9 @@ epiManager = {
 
         var gameButton = document.getElementById("newGameButton");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
+
+        tSickReport = epiModel.sicknessReport();
+        $( "#healthReport").html("Sick: " + tSickReport.numberSick + ", Total sick seconds: " + tSickReport.totalElapsed);
     },
 
     handleDropOfCritter: function (iCritter, iX, iY) {

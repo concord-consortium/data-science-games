@@ -27,6 +27,11 @@
 
 
 var     TEEUtils = {
+
+    twoPlaces : function( x ) {
+        return (Math.round( x * 100) / 100.0);
+    },
+
     /**
      * A funky random Poisson function.
      * Use Knuth algorithm up to n = 100; normal approximation beyond that.

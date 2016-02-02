@@ -25,7 +25,11 @@
  * Created by tim on 10/21/15.
  */
 
-
+/**
+ * Constructor for Location
+ * @param index     the index determines its position in the grid
+ * @constructor
+ */
 var Location = function( index ) {
     this.myIndex = index;
     this.row = 0;
@@ -46,14 +50,24 @@ var Location = function( index ) {
     this.snapText.attr({fill: "white"});
 };
 
+/**
+ * Update the location. This is where we would grow grass, etc.
+ * Also, view-oriented tasks such as updating the population of the Location.
+ * @param dt
+ */
 Location.prototype.update = function( dt ) {
     var tNCrit = this.critters.size;
     this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
 };
 
+/**
+ * Calculate coordinates for the indexth Critter in this Location
+ * @param index
+ * @returns {{x: number, y: number}}    GLOBAL game coordinates for this Critter
+ */
 Location.prototype.globalParkingCoordinates = function( index ) {
     var tNCritters = this.critters.size;
-    var n = Math.ceil(Math.sqrt(tNCritters));    // on a side
+    var n = Math.ceil(Math.sqrt(tNCritters));    // arrage in a square, this many on a side
 
     if (index >= tNCritters) console.log("index " + index + " nCritt " + tNCritters);
     //n = 1;
@@ -73,6 +87,10 @@ Location.prototype.globalParkingCoordinates = function( index ) {
     };
 };
 
+/**
+ * Get center coordinates for this Location
+ * @returns {{x: number, y: number}}
+ */
 Location.prototype.centerCoordinates = function() {
     var tx = Number(this.snapShape.attr("x"));
     var ty = Number(this.snapShape.attr("y"));
@@ -82,6 +100,11 @@ Location.prototype.centerCoordinates = function() {
     return( {x:tx, y:ty});
 };
 
+/**
+ * Add a Critter to our list.
+ * Called when a new Critter arrives; this causes all other Critters to adjust their formation
+ * @param critter
+ */
 Location.prototype.addCritter = function( critter ) {
     this.critters.add( critter ); //  now the number of critters is correct
 
@@ -105,6 +128,10 @@ Location.prototype.addCritter = function( critter ) {
     this.update();
 };
 
+/**
+ * A Critter leaves this place. No adjustment for the rest of the Critters.
+ * @param c
+ */
 Location.prototype.removeCritter = function( c ) {
     this.critters.delete( c );
     this.update();

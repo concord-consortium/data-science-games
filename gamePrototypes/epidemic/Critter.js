@@ -48,7 +48,9 @@ var Critter = function( index ) {
     this.moving = Boolean(false);
 
     this.health = 1.0;      //  0 = sick, 1 = healthy
+    this.elapsedSick = 0.0; //  how long have we been sick.
     this.infectious = false;
+    this.antibodies = 0.0;
 
     this.name = null;
     this.eyeColor = TEEUtils.pickRandomItemFrom(Critter.eyeColors);
@@ -66,7 +68,9 @@ var Critter = function( index ) {
  */
 Critter.prototype.update = function (dt) {
     this.motivation.update( dt );
-    this.view.update( this, dt );   //  todo: Think we don't need to pass "this"
+    this.updateHealth( dt );
+
+    this.view.update( dt );
     this.temperature = this.findTemperature();
 
     if (!this.moving && !this.activity) {   //  idle critter!
@@ -83,14 +87,32 @@ Critter.prototype.update = function (dt) {
     }
 };
 
+
+/**
+ * Update a critter's health variables, do disease progress.
+ * @param dt
+ */
+Critter.prototype.updateHealth = function( dt ) {
+
+    if (this.health == 0) {
+        this.elapsedSick += dt;
+    }
+
+    if (this.elapsedSick > epiMalady.pDiseaseDurationInSeconds) {
+        this.antibodies = 1.0;
+        this.health = 1.0;
+    }
+};
+
 /**
  * Get a temperature reading for this Critter.
  */
 Critter.prototype.findTemperature = function() {
+    var kTemperatureElevation = 1.5;
     var tTemp;
-    tTemp = (this.health == 0) ? this.baseTemperature + 1.1 : this.baseTemperature;
-    tTemp += Math.random() * 0.2;
-    tTemp -= Math.random() * 0.2;
+    var tHowSick = 1 - this.health;
+    tTemp = this.baseTemperature + tHowSick * kTemperatureElevation;  //  1.5 = how much for this disease.
+    tTemp += TEEUtils.randomNormal(0,0.2);
     return tTemp;
 };
 
@@ -107,6 +129,8 @@ Critter.prototype.setNewDest = function( ) {
     var tBestLocations = [];
 
     // todo: figure out whether this system biases towards 0,0 (because the test is strictly less than, or the origin adjustment)
+    // //   Also may be the non-centeredness of the CritterView.
+
     for (i = 0; i < epiGeography.numberOfLocations(); i++) {
         var tTestLocation = epiModel.locations[i];
         if (tTestLocation != this.currentLocation && tTestLocation.locType == tCritterNeeds) {
@@ -167,8 +191,9 @@ Critter.prototype.startJiggleMove = function( destination ) {
 Critter.prototype.initialize = function( where ) {
     this.name = medNames.newName( );
     this.currentLocation = where;
-    this.x = where.snapShape.attr("x");
-    this.y = where.snapShape.attr("y");
+    tLocCenter = where.centerCoordinates();
+    this.x = tLocCenter.x;
+    this.y = tLocCenter.y;
     this.view.moveTo( this.x, this.y );
     this.motivation = new Motivation( this );
 
@@ -183,8 +208,9 @@ Critter.prototype.initialize = function( where ) {
  */
 Critter.prototype.distanceToLoc = function( L ) {
     var tLocW = Number(L.snapShape.attr("width"));
+    var tLocH = Number(L.snapShape.attr("height"));
     var tLocX = Number(L.snapShape.attr("x")) + tLocW/2;
-    var tLocY = Number(L.snapShape.attr("y")) + tLocW/2;   //  todo: fix for height
+    var tLocY = Number(L.snapShape.attr("y")) + tLocH/2;
     var tdx = tLocX - this.x;
     var tdy = tLocY - this.y;
     return Math.sqrt( tdx * tdx + tdy * tdy);
