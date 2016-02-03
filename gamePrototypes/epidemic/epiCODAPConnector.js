@@ -87,13 +87,18 @@ EpiCODAPConnector.prototype.doEventRecord = function(values ) {
 
 };
 
-/**
- * Called by CODAP to initialize the simulation.
- * Two parameters: an object containing the organization of the data,
- * and a callback function when a doCommand is issued.
- * (We'll use it for save and restore)
- */
-codapHelper.initSim({
+EpiCODAPConnector.getInitSimObject = function() {
+    var tColorMapObject = { };
+
+    var i;
+    //  todo: redo this as a forEach()
+
+    for (i = 0; i < Critter.eyeColors.length; i++) {
+        var color = Critter.eyeColors[i];
+        tColorMapObject[ color ] = color;
+    };
+
+    var oInitSimObject = {
         name: 'Epidemic',
         version : epiManager.version,
         dimensions: {width: 404, height: 580},
@@ -126,7 +131,11 @@ codapHelper.initSim({
                 attrs: [
                     {name: "time", type: 'numeric', unit: 'seconds', precision: 2},
                     {name: "name", type: 'categorical'},
-                    {name: "eyeColor", type: 'categorical'},
+                    {
+                        name: "eyeColor",
+                        type: 'categorical',
+                        colormap: tColorMapObject
+                    },
                     {name: "activity", type: 'categorical'},
                     {name: "temp", type: 'numeric', precision: 1},
                     {name: "recordType", type: 'categorical'},
@@ -138,6 +147,19 @@ codapHelper.initSim({
                 ]
             }
         ]
-    },
+    };
+
+    return oInitSimObject;
+};
+
+
+/**
+ * Called by CODAP to initialize the simulation.
+ * Two parameters: an object containing the organization of the data,
+ * and a callback function when a doCommand is issued.
+ * (We'll use it for save and restore)
+ */
+codapHelper.initSim(
+    EpiCODAPConnector.getInitSimObject(),
     epiManager.epiDoCommand
 );
