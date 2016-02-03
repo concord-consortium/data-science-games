@@ -108,12 +108,17 @@ Critter.prototype.updateHealth = function( dt ) {
     }
 
     if (this.incubationTime > epiMalady.pIncubationInSeconds) {
-        console.log("Incubation ended. Now sick. ");
+        console.log(this.name + " incubation ended. Now sick. ");
         this.health = 0.0;      //  simple get sick
         this.incubationTime = null;
+
+        if (epiMalady.pMaladyNumber == 3) {
+            this.infectious = false;
+        }
     }
 
-    if (this.elapsedSick > epiMalady.pDiseaseDurationInSeconds) {
+    if (this.health < 1.0 && this.elapsedSick > epiMalady.pDiseaseDurationInSeconds) {
+        console.log(this.name + " is now well. ");
         this.antibodies = 1.0;
         this.health = 1.0;
     }
