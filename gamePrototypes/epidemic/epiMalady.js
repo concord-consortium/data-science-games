@@ -26,8 +26,8 @@ epiMalady = {
     pAverageSecondsToInfection : null,
     pDiseaseDurationInSeconds : null,
     pIncubationInSeconds : null,
-    pSickSecondsToGameEnd : 500,
-    pTotalElapsedSecondsToGameEnd : 600,
+    pSickSecondsToGameEnd : 200,
+    pTotalElapsedSecondsToGameEnd : 180,
 
     pMaladyNameList : ["Thrisp", "Dog Fever", "Alban's Bloat"], //  todo: populate the DOM menu from this
 

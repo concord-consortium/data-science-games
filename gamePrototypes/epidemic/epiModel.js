@@ -94,10 +94,13 @@ epiModel = {
 
     endCheck : function() {
         var tEnd = null;
-        var tSickSeconds = this.sicknessReport().totalElapsed;
 
-        if (tSickSeconds > epiMalady.pSickSecondsToGameEnd) tEnd = "lost";
-        if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = "won";
+        if (!epiOptions.endlessGame) {
+            var tSickSeconds = this.sicknessReport().totalElapsed;
+
+            if (tSickSeconds > epiMalady.pSickSecondsToGameEnd) tEnd = "lost";
+            if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = "won";
+        }
         return tEnd;
     },
 
