@@ -64,7 +64,9 @@ epiGeography = {
         );
         var tName = this.colLetters[ this.col ] + this.row;
 
-        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName, row: this.row, col: this.col+1 };
+        //   todo: figure out how to set the order of a categorical so that we don't have to use a numeric column.
+        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName,
+            row: this.row, col: this.col+1 }; // this.colLetters[ this.col ] };
     },
 
     /**

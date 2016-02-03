@@ -42,12 +42,15 @@ var Location = function( index ) {
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
     this.bgShape = tLocInfo.bg;        //      a Snap element: the background square. It has the color.
     this.locType = tLocInfo.locType;
+    this.baseFill = Location.colors[ this.locType ];
     this.name = tLocInfo.name;
     this.row = tLocInfo.row;
     this.col = tLocInfo.col;
     
     this.snapText = this.snapShape.text(10, 90, this.name);
     this.snapText.attr({fill: "white"});
+
+    this.toxic = false;     //  for location-based toxic maladies
 };
 
 /**
@@ -58,6 +61,12 @@ var Location = function( index ) {
 Location.prototype.update = function( dt ) {
     var tNCrit = this.critters.size;
     this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
+
+    if (this.toxic && epiOptions.showCarrier) {
+        this.bgShape.attr({ stroke: "black", fill : "lightgray", strokewidth : 20 });
+    } else {
+        this.bgShape.attr({ stroke: "white", fill : this.baseFill, strokewidth : 4 });
+    }
 };
 
 /**
@@ -122,9 +131,6 @@ Location.prototype.addCritter = function( critter ) {
         },
         this
     );
-
-
-
     this.update();
 };
 

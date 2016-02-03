@@ -154,6 +154,7 @@ epiModel = {
                 this.infect0( dt );
                 break;
             default:
+                this.infect0( dt );
                 break;
         }
     },
@@ -166,7 +167,7 @@ epiModel = {
         var i;
         for (i = 0; i < this.locations.length; i++) {
             var tLocation = this.locations[i];
-            var tInfectionInLocation = epiMalady.exposureInLocation( tLocation );
+            var tInfectionInLocation = (epiMalady.exposureInLocation( tLocation ) || tLocation.toxic);
             if (tInfectionInLocation) {
                 tLocation.critters.forEach(function(c) {
                     epiMalady.possiblyInfectExposedCritter( c, dt )

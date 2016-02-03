@@ -52,15 +52,6 @@ epiWorldView = {
     actualHeight : 0,
 
     updateScreen: function() {
-/*
-        var i;
-        for (i = 0; i < this.model.critters.length; i++) {
-            var tC = this.model.critters[i];
-            var tCritterImage = tC.snapShape;
-            tCritterImage.attr("cx",tC.x.toString());
-            tCritterImage.attr("cy",tC.y.toString());
-        }
-*/
 
     },
 

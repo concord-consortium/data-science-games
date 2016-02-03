@@ -11,11 +11,14 @@
                             So the property here MUST be kept in synch.
                             epiManager.updateUIStuff() makes the menu invisible during game play.
     this.initMalady()       set parameters for the chosen malady. Choice is already made.
-    this.possiblyInfectExposedCritter(c, dt)    determines is infection takes place,
-                                        sets initial critter values for an infected critter
+
+    epiModel.infect()       handles infection every update.
+
+    this.possiblyInfectExposedCritter(c, dt)
+                            determines is infection takes place,
+                            sets initial critter values for an infected critter
     Critter.updateHealth()  take care of incubation, getting well, etc
 
-    Critter.load    helps govern incubation. When Critter.load gets to 1, you're sick.
  */
 var epiMalady;
 
@@ -67,6 +70,15 @@ epiMalady = {
                 epiModel.critters[0].antibodies = 1.0;
                 break;
 
+            case 2:
+                this.pDiseaseDurationInSeconds = 200;
+                this.pAverageSecondsToInfection = 1;
+                this.pIncubationInSeconds = 10;
+                var tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
+                while (tLoc.locType != "water") tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
+                tLoc.toxic = true;
+                break;
+
             default:
                 this.pDiseaseDurationInSeconds = 60;
                 this.pAverageSecondsToInfection = 3;
@@ -85,13 +97,24 @@ epiMalady = {
     },
 
     possiblyInfectExposedCritter : function(iCritter, dt ) {
+        console.log( iCritter.name + " exposed in " + iCritter.currentLocation.name);
         var tInfectionProbability = dt / this.pAverageSecondsToInfection;
         if (Math.random() < tInfectionProbability) {
             if (iCritter.health == 1 && iCritter.antibodies == 0.0 && !this.infected) {
                 iCritter.infected = true;
                 iCritter.incubationTime = 0.0;
-            }      //  simple get sick.
-            if (iCritter.infectious) iCritter.health = 1;       //  in this disease, the carrier is asymptomatic
+                console.log( iCritter.name + " infected");
+            }
+            switch (this.pMaladyNumber) {
+                case 0:
+                    if (iCritter.infectious) iCritter.health = 1;       //  in this disease, the carrier is asymptomatic
+                    break;
+                case 1:
+                    if (iCritter.infectious) iCritter.health = 1;       //  in this disease, the carrier is asymptomatic
+                    break;
+                case 2:
+                    break;
+            }
         };
     }
 
