@@ -136,7 +136,7 @@ EpiCODAPConnector.getInitSimObject = function() {
                         type: 'categorical',
                         colormap: tColorMapObject
                     },
-                    {name: "activity", type: 'categorical'},
+                    {name: "activity", type: 'categorical', colormap : Location.colorMap},
                     {name: "temp", type: 'numeric', precision: 1},
                     {name: "recordType", type: 'categorical'},
                     {name: "result", type: 'categorical'},
@@ -152,6 +152,25 @@ EpiCODAPConnector.getInitSimObject = function() {
     return oInitSimObject;
 };
 
+EpiCODAPConnector.prototype.getSaveObject = function() {
+    var tState = {
+        gameCaseID : this.gameCaseID,
+        gameNumber : this.gameNumber,
+        gameCollectionName : this.gameCollectionName
+    };
+
+    return tState;
+}
+
+/**
+ * @param iObject   object containing the property values.
+ */
+EpiCODAPConnector.prototype.restoreFrom = function( iObject ) {
+    this.gameCaseID = iObject.gameCaseID;
+    this.gameNumber = iObject.gameNumber;
+    this.gameCollectionName = iObject.gameCollectionName;
+};
+
 
 /**
  * Called by CODAP to initialize the simulation.
@@ -163,3 +182,4 @@ codapHelper.initSim(
     EpiCODAPConnector.getInitSimObject(),
     epiManager.epiDoCommand
 );
+

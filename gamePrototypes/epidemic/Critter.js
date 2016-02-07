@@ -34,6 +34,7 @@
 var Critter = function( index ) {
     this.myIndex = index;
     this.currentLocation = null;
+    this.currentLocationIndex = null;
 
     this.x = 0;
     this.y = 0;
@@ -64,6 +65,66 @@ var Critter = function( index ) {
 
     this.view = new CritterView( this );    //  todo: decouple view from model
 };
+
+Critter.prototype.getSaveObject =  function() {
+    var tSaveObject = {
+        myIndex : this.myIndex,
+        currentLocationIndex : this.currentLocation.myIndex,
+        x : this.x,
+        y : this.y,
+        speed : this.speed,
+        //  moving
+        motivation : this.motivation.getSaveObject(),       //  this Class needs its own thing
+        activity : this.activity,
+        health : this.health,
+        elapsedSick : this.elapsedSick,
+        infectious : this.infectious,
+        infected : this.infected,
+        incubationTime : this.incubationTime,
+        antibodies : this.antibodies,
+        name : this.name,
+        eyeColor : this.eyeColor,
+        borderColor : this.borderColor,
+        baseTemperature : this.baseTemperature,
+
+    };
+    return tSaveObject;
+};
+
+Critter.prototype.restoreFrom = function( iObject ) {
+
+    this.myIndex = iObject.myIndex;
+    this.x = iObject.x;
+    this.y = iObject.y;
+    this.speed = iObject.speed;
+
+    //  treat motivation specially
+
+    this.motivation = new Motivation( this );
+    this.motivation.restoreFrom( iObject.motivation );
+
+    //  onward...
+
+    this.moving = false;
+    this.activity = iObject.activity;
+    this.health = iObject.health;
+    this.elapsedSick = iObject.elapsedSick;
+    this.infectious = iObject.infectious;
+    this.infected = iObject.infected;
+    this.incubationTime = iObject.incubationTime;
+    this.antibodies = iObject.antibodies;
+    this.name = iObject.name;
+    this.eyeColor = iObject.eyeColor;
+    this.borderColor = iObject.borderColor;
+    this.baseTemperature = iObject.baseTemperature;
+
+    this.view = new CritterView( this ); // todo: eliminate all old views on restore
+
+    this.currentLocationIndex = iObject.currentLocationIndex;   //  todo: find more elegant solution
+    this.currentLocation = epiModel.locations[ this.currentLocationIndex ];
+    this.currentLocation.addCritter( this );
+};
+
 
 /**
  * Update the internal values
@@ -178,7 +239,11 @@ Critter.prototype.setNewDest = function( ) {
  * todo: somehow get into the view.
  */
 Critter.prototype.startMove = function() {
-    epiModel.doDeparture( {critter: this, fromLocation: this.currentLocation });
+    epiModel.doDeparture( {
+        critter: this,
+        fromLocation: this.currentLocation ,
+        reason : "migration"
+    });
     var tTime = this.distanceToLoc( this.destLoc ) / this.speed;
     this.view.snapShape.animate(
         {"x" : this.destX, "y" : this.destY},

@@ -37,6 +37,63 @@ epiModel = {
     nMoves : 0,
     malady : null,
 
+    getSaveObject: function() {
+        var tSaveObject = {
+            numberOfCritters : this.numberOfCritters,
+            elapsed : this.elapsed,
+            nMoves : this.nMoves,
+            malady : this.malady,
+            critters : this.arraySaveObject( this.critters ),
+            locations : this.arraySaveObject( this.locations )
+
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.initialize( );     //  clean up all vars, esp critters and locations, now empty
+
+        this.numberOfCritters = iObject.numberOfCritters;
+        this.elapsed = iObject.elapsed;
+        this.nMoves = iObject.nMoves;
+        this.malady = iObject.malady;
+
+        //  restore all locations
+
+        iObject.locations.forEach( function( el ) {
+            var tLoc = new Location( el.myIndex );  //  put it in the right place
+            tLoc.restoreFrom( el );                 //   give it the right properties
+            this.locations.push( tLoc );      //   add it to the array
+        }.bind( this )
+        );    //  so that "this" is the model inside the anonymous function
+
+        //  restore all critters. Assumes locations all exist.
+        iObject.critters.forEach( function( el ) {
+            var tCrit = new Critter( -1 );
+            tCrit.restoreFrom( el );
+            this.critters.push( tCrit );
+        }.bind( this )
+        );
+    },
+
+    arraySaveObject : function( array ) {
+        var aResult = [];
+
+        array.forEach( function (item) {
+            tSaveObject = item.getSaveObject();
+            aResult.push( tSaveObject );
+        });
+
+        return aResult;
+    },
+
+    arrayRestoreFromObject : function ( obj ) {
+        var aResult = [];
+
+        obj.forEach( function ( o ) {   //  o is the storage object for a critetr or location
+            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg tp restore from? Do I have to pass in the restore function?
+        });
+    },
 
     /**
      * Update the entire model
@@ -60,16 +117,13 @@ epiModel = {
      * Adjust the model to reflect a new game
      */
     newGame: function() {
-        var i;
-        this.elapsed = 0;
-        this.nMoves = 0;
-        this.locations = [];
-        this.critters = [];
+
+        this.initialize();
 
         /**
          * Create all the Locations. Use the index to determine where it is, etc.
          */
-        for (i = 0; i < epiGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
+        for (var i = 0; i < epiGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
             var L = new Location( i );
             this.locations.push( L );   // todo: fix so it's not a coincidence that the index is the index :)
         }
@@ -77,7 +131,7 @@ epiModel = {
         /**
          * Create all the Critters.
          */
-        for (i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
+        for (var i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
             var tC = new Critter( i );
 
             var tLoc = TEEUtils.pickRandomItemFrom(this.locations);
@@ -130,9 +184,10 @@ epiModel = {
     doDeparture: function( o ) {
         var tCritter = o.critter;
         var tLocation = o.fromLocation;
+        var tReason = o.reason;
 
         if (epiOptions.dataOnDeparture)
-            epiManager.emitCritterData( tCritter, "departure"); //  must do before currentLocation changes
+            epiManager.emitCritterData( tCritter, o.reason); //  must do before currentLocation changes
 
         tCritter.activity = "traveling";
         tCritter.moving = true;
@@ -200,12 +255,29 @@ epiModel = {
     },
 
     /**
+     * Make a fresh, new, clean model.
+     * Suitable for new game or a restore from a file.
+     */
+    initialize : function() {
+
+        this.critters.forEach( function(c) { c.currentLocation = null;}); //    break pointer loop
+
+        this.elapsed = 0;
+        this.nMoves = 0;
+        this.locations = [];
+        this.critters = [];
+
+    }
+
+/*
+    /!**
      * Apparently unused
      * TODO: find out for sure and delete if it is
      * @param inObject
-     */
+     *!/
     setCoords: function( inObject ) {
         var tCrit = inObject.ofCritter;
     },
+*/
 
 };

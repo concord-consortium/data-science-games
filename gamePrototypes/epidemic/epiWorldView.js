@@ -58,6 +58,8 @@ epiWorldView = {
     /**
      * Clear the snapWorld, then use information from the model to add all of the world's
      * locations and critters (in the form of their snapShapes).
+     *
+     * Called when we start a new game.
      */
     flushAndRedraw : function () {
 
@@ -85,6 +87,9 @@ epiWorldView = {
      */
     initialize: function() {
         this.snapWorld = Snap(document.getElementById( "epiWorldView" ));
+
+        //  these listeners are for zoom and pan
+
         this.snapWorld.node.addEventListener("mousedown", epiWorldView.down,false);
         this.snapWorld.node.addEventListener("mouseup", epiWorldView.up,false);
         this.snapWorld.node.addEventListener("mousemove", epiWorldView.move,false);

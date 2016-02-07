@@ -49,7 +49,7 @@ epiGeography = {
 
     newLocationInfoByIndex: function( index ) {
         var tSnapSVGShape = this.theShape( index );
-        var tRole = TEEUtils.pickRandomItemFrom( epiManager.locTypes );
+        var tRole = TEEUtils.pickRandomItemFrom( Location.locTypes );
         var tColor = Location.colors[tRole];
 
         var tBackgroundSnap = tSnapSVGShape.rect();
@@ -62,11 +62,17 @@ epiGeography = {
                 height: tSnapSVGShape.attr("height")
             }
         );
-        var tName = this.colLetters[ this.col ] + this.row;
+        var tName = this.colLetters[ this.col ] + (this.row + 1);
 
         //   todo: figure out how to set the order of a categorical so that we don't have to use a numeric column.
-        return { snap: tSnapSVGShape, bg: tBackgroundSnap, locType: tRole, name: tName,
-            row: this.row, col: this.col+1 }; // this.colLetters[ this.col ] };
+        return {
+            snap: tSnapSVGShape,
+            bg: tBackgroundSnap,
+            locType: tRole,
+            name: tName,
+            row: this.row,
+            col: this.col
+        };
     },
 
     /**
@@ -75,11 +81,11 @@ epiGeography = {
      * @param index
      */
     theShape: function( index ) {
-        this.row = this.kRowsInGrid - Math.floor( index / this.kColumnsInGrid );
-        this.col = index % this.kColumnsInGrid;
+        this.row = this.kRowsInGrid - Math.floor( index / this.kColumnsInGrid ) - 1;    //  row from 0 to 9
+        this.col = index % this.kColumnsInGrid;                                         //  col from 0 to 9
 
         var tLeft = this.col * this.kPixelsWide;
-        var tTop = (this.row - 1) * this.kPixelsTall;
+        var tTop = (this.row) * this.kPixelsTall;
 
         var tOuterSVG = Snap( this.kPixelsWide, this.kPixelsTall);      //  Make new snap SVG Elemenrt
         tOuterSVG.attr("x", tLeft.toString());

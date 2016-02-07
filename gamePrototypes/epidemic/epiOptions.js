@@ -24,5 +24,32 @@ epiOptions = {
         this.endlessGame = document.getElementById("endlessGame").checked
     },
 
+    getSaveObject: function() {
+        var tSaveObject = {
+            dataOnCritterClick : this.dataOnCritterClick,
+            dataOnArrival : this.dataOnArrival,
+            dataOnDeparture : this.dataOnDeparture,
+            showCarrier : this.showCarrier,
+            endlessGame : this.endlessGame,
+            pMaladyNumber : this.pMaladyNumber,
+            pMaladyName : this.pMaladyName,
+            pMaladyNameList : this.pMaladyNameList,
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.pMaladyNumber = iObject.pMaladyNumber;
+        this.pMaladyName = iObject.pMaladyName;
+        this.pMaladyNameList = iObject.pMaladyNameList;
+
+        document.getElementById("dataOnCritterClick").checked = iObject.dataOnCritterClick;
+        document.getElementById("dataOnArrival").checked = iObject.dataOnArrival;
+        document.getElementById("dataOnDeparture").checked = iObject.dataOnDeparture;
+        document.getElementById("showCarrier").checked = iObject.showCarrier;
+        document.getElementById("endlessGame").checked = iObject.endlessGame;
+
+        this.optionChange();
+    },
 
 }

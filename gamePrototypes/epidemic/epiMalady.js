@@ -38,6 +38,31 @@ epiMalady = {
 
     pMaladyNameList : ["Thrisp", "Dog Fever", "Alban's Bloat", "Arthemia"], //  todo: populate the DOM menu from this
 
+    getSaveObject: function() {
+        var tSaveObject = {
+            pMaladyNumber : this.pMaladyNumber,
+            pMaladyName : this.pMaladyName,
+            pAverageSecondsToInfection : this.pAverageSecondsToInfection,
+            pDiseaseDurationInSeconds : this.pDiseaseDurationInSeconds,
+            pIncubationInSeconds : this.pIncubationInSeconds,
+            pSickSecondsToGameEnd : this.pSickSecondsToGameEnd,
+            pTotalElapsedSecondsToGameEnd : this.pTotalElapsedSecondsToGameEnd,
+            pMaladyNameList : this.pMaladyNameList,
+
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.pMaladyNumber = iObject.pMaladyNumber;
+        this.pMaladyName = iObject.pMaladyName;
+        this.pAverageSecondsToInfection = iObject.pAverageSecondsToInfection;
+        this.pDiseaseDurationInSeconds = iObject.pDiseaseDurationInSeconds;
+        this.pIncubationInSeconds = iObject.pIncubationInSeconds;
+        this.pSickSecondsToGameEnd = iObject.pSickSecondsToGameEnd;
+        this.pTotalElapsedSecondsToGameEnd = iObject.pTotalElapsedSecondsToGameEnd;
+        this.pMaladyNameList = iObject.pMaladyNameList;
+    },
     /**
      * Set the malady ID parameters
      */
@@ -79,7 +104,10 @@ epiMalady = {
                 this.pAverageSecondsToInfection = 1;
                 this.pIncubationInSeconds = 10;
                 var tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
-                while (tLoc.locType != "water") tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
+                while (tLoc.locType != "water" ||
+                    tLoc.row <= 1 || tLoc.row >= epiGeography.kRowsInGrid - 2 ||
+                    tLoc.col <= 1 || tLoc.col >= epiGeography.kColumnsInGrid - 2)
+                    tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
                 tLoc.toxic = true;
                 break;
 

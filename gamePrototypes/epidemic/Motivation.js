@@ -40,6 +40,7 @@ var Motivation = function( c ) {
 
 };
 
+
 /**
  * Update this Critter's motivation.
  * For example, make it hungrier if it is not eating.
@@ -130,5 +131,28 @@ Motivation.prototype.toString = function() {
         + Math.round(this.thirsty * 1000)/1000 + " " +
         + Math.round(this.tired * 1000)/1000 + "]"
         ;
+};
+
+Motivation.prototype.getSaveObject = function() {
+    var tState = {
+        hungry : this.hungry,
+        thirsty : this.thirsty,
+        tired : this.tired
+    };
+
+    return tState;
 }
+
+/**
+ * Restore a Critter's motivation.
+ * this motivation has already been creted by teh Critter, with itself as the .critter object
+ * @param iObject   object containing the property values.
+ */
+Motivation.prototype.restoreFrom = function( iObject ) {
+    this.hungry = iObject.hungry;
+    this.thirsty = iObject.thirsty;
+    this.tired = iObject.tired;
+};
+
+
 

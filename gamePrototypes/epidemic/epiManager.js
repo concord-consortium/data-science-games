@@ -36,12 +36,11 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-002c",
+    version: "vPre-002d",
     gameNumber: 0,
     CODAPConnector: null,
 
-    nLocations: 100,
-    locTypes: ["food", "water", "dwelling"],
+    kNumLocations: 100,
     previous: 0,    //  timestamp for animation
     running: false,
     gameInProgress: false,
@@ -158,7 +157,8 @@ epiManager = {
         if (tLocation) {
             epiModel.doDeparture({
                 critter: iCritter,
-                fromLocation: iCritter.currentLocation
+                fromLocation: iCritter.currentLocation,
+                reason : "dragged"
             });
             epiModel.doArrival({
                 critter: iCritter,
@@ -194,8 +194,8 @@ epiManager = {
             eventType,
             theCritter.health == 0 ? "sick" : "healthy",
             tLocName,
-            (theCritter.currentLocation) ? theCritter.currentLocation.row : "",
-            (theCritter.currentLocation) ? theCritter.currentLocation.col : ""
+            (theCritter.currentLocation) ? theCritter.currentLocation.row + 1 : "",
+            (theCritter.currentLocation) ? theCritter.currentLocation.col + 1 : ""
         ]);
     },
 
@@ -213,7 +213,7 @@ epiManager = {
     },
 
     /**
-     * Called at the very beginnning to initialize this component.
+     * Called at the very beginning to initialize this component.
      * Creates the connector, the name-making object, the model, and the view.
      */
     initializeComponent: function () {
@@ -228,8 +228,74 @@ epiManager = {
      * Manages save and restore
      */
 
-    epiDoCommand: function (arg) {
-        // console.log(arg);
+    epiDoCommand: function (arg, iCallback) {
+        var tCommand = arg.operation;
+        switch (tCommand) {
+            case "saveState":
+                //  here we construct the "state" to be restored
+                console.log("saving...");
+                var tState = {
+                    epiManager : epiManager.getSaveObject(),
+                    epiMalady : epiMalady.getSaveObject(),
+                    epiModel : epiModel.getSaveObject(),
+                    epiOptions : epiOptions.getSaveObject()
+                };
+
+                iCallback({success: true, state: tState});
+                break;
+
+            case "restoreState":
+                console.log("eeps restoring...");
+                var tOutcomeSuccessful = true;
+                var tState = arg.args.state;
+
+                //  here we restore whatever we saved in the "saveState" case
+                epiManager.restoreFrom( tState.epiManager );
+                epiMalady.restoreFrom( tState.epiMalady );
+                epiModel.restoreFrom( tState.epiModel );
+                epiOptions.restoreFrom( tState.epiOptions );
+
+                epiWorldView.flushAndRedraw();      //  called after the model is restored?
+
+                iCallback({success: tOutcomeSuccessful});
+
+                epiManager.pause();     //   make sure we're stopped.
+                epiManager.updateScreen();
+                break;
+            default:
+                //console.log("A command we don't care about: " + tCommand);
+                break;
+        }
+    },
+
+    getSaveObject: function() {
+        var tSaveObject = {
+            version : this.version,
+            gameNumber : this.gameNumber,
+            kNumLocations : this.kNumLocations,
+            //  previous
+            //  running
+            gameInProgress : this.gameInProgress,
+            //draggingCritter
+            CODAPConnector : this.CODAPConnector.getSaveObject()
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.initializeComponent( );
+
+        this.version = iObject.version;
+        this.gameNumber = iObject.gameNumber;
+        this.kNumLocations = iObject.kNumLocations;
+        this.previous = 0;          //      always start anew
+        this.running = false;
+        this.gameInProgress = iObject.gameInProgress;
+        this.draggingCritter = false;   //  never be dragging on restore
+        this.CODAPConnector.restoreFrom( iObject.CODAPConnector );
+
     }
+
+
 };
 

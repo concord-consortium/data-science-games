@@ -32,11 +32,14 @@
  */
 var Location = function( index ) {
     this.myIndex = index;
-    this.row = 0;
-    this.col = 0;
+    this.setLocationProperties( this.myIndex );
+
+    this.toxic = false;     //  for location-based toxic maladies
+};
+
+Location.prototype.setLocationProperties = function( index ) {
 
     this.critters = new Set();
-
     var tLocInfo = epiGeography.newLocationInfoByIndex( index );
 
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
@@ -46,11 +49,32 @@ var Location = function( index ) {
     this.name = tLocInfo.name;
     this.row = tLocInfo.row;
     this.col = tLocInfo.col;
-    
     this.snapText = this.snapShape.text(10, 90, this.name);
     this.snapText.attr({fill: "white"});
+};
 
-    this.toxic = false;     //  for location-based toxic maladies
+Location.prototype.getSaveObject = function() {
+    var tSaveObject = {
+        myIndex : this.myIndex,
+        locType : this.locType,
+        baseFill : this.baseFill,
+        toxic : this.toxic,
+    };
+    return tSaveObject;
+};
+
+/**
+ * Restore an existing Location from its object representation.
+ * It already has the corrrect index; that's done in epiModel's restore.
+ * There, it made a new Location( el.myIndex ) so position, row, col, and INDEX are all correct.
+ * Here, we just adjust what kind of Location it is, and its base color.
+ * @param iObject
+ */
+Location.prototype.restoreFrom = function( iObject ) {
+
+    this.locType = iObject.locType;
+    this.baseFill = iObject.baseFill;
+    this.toxic = iObject.toxic;
 };
 
 /**
@@ -144,14 +168,21 @@ Location.prototype.removeCritter = function( c ) {
 };
 
 /**
- * NOTE: Class method!
- * @returns {{food: string, water: string, dwelling: string}}
+ * NOTE: Class properties!
  */
 Location.colors = {
     "food": "green",
     "water": "blue",
     "dwelling": "darkKhaki"
 };
+
+Location.colorMap = {
+    "eating" : "green",
+    "drinking" : "blue",
+    "resting" : "darkKhaki"
+};
+
+Location.locTypes = ['food', 'water', 'dwelling'];
 
 Location.mainActivities = {
     "food": "eating",
