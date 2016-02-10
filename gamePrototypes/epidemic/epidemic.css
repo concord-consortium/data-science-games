@@ -35,20 +35,29 @@ input {
 /* class options */
 
 .options   {
-    background-color: #fae7e9;
+    background-color: #ecc;
     padding: 4px;
 }
-.diseaseOptions   {
-    background-color: #ffdddd;
+.gameOptions   {
+    background-color: #fee;
     padding: 4px;
 }
 
+.imageButton    {
+    background-image: url('../art/pause.png');
+    background-size: 100% 100%;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
 /* option IDs */
 
 /*  button etc stuff */
 
-#startStop  {
-    width : 50px
+#allDataButton {
+    background-color: #0a9a87;
+    color: white;
 }
 
 /*		BOX CLASSES		*/

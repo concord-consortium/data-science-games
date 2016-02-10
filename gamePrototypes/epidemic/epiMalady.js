@@ -105,8 +105,8 @@ epiMalady = {
                 this.pIncubationInSeconds = 10;
                 var tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
                 while (tLoc.locType != "water" ||
-                    tLoc.row <= 1 || tLoc.row >= epiGeography.kRowsInGrid - 2 ||
-                    tLoc.col <= 1 || tLoc.col >= epiGeography.kColumnsInGrid - 2)
+                    tLoc.row < epiGeography.pRowsInGrid/5 || tLoc.row >= epiGeography.pRowsInGrid * 4 / 5 ||
+                    tLoc.col < epiGeography.pColumnsInGrid/5 || tLoc.col >= epiGeography.pColumnsInGrid * 4 / 5)
                     tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
                 tLoc.toxic = true;
                 break;

@@ -80,28 +80,32 @@
 </svg>
 
 <div class="hBox">
-    <button id="startStop" onclick="epiManager.running ? epiManager.pause() : epiManager.restart();">go</button>
-    <div class = "textIO" style = "width : 80px">Time: <span id = "timeText">0</span></div>
-    <button onclick="epiWorldView.zoom(1.5)">zoom out</button>
-    <button onclick="epiWorldView.zoom(0.6666667)">zoom in</button>
-    <button id="newGameButton" onclick="epiManager.newGameButtonPressed()">new game</button>
+        <div class = "imageButton" id="startStop" onclick="epiManager.running ? epiManager.pause() : epiManager.restart();"></div>
+        <div class = "textIO" style = "width : 80px">Time: <span id = "timeText">0</span></div>
+        <div class="imageButton" style="background-image:url('../art/zoomOut.png')" onclick="epiWorldView.zoom(1.5)"></div>
+        <div class="imageButton" style="background-image:url('../art/zoomIn.png')" onclick="epiWorldView.zoom(0.6666667)"></div>
+        <button id="allDataButton" onclick="epiManager.captureDataForAllCritters()">all data</button> &nbsp;&nbsp;&nbsp;
+        <button id="newGameButton" onclick="epiManager.newGameButtonPressed()">new game</button>
 </div>
 
 <p id="healthReport"></p>
 
 <hr/>
 
-<div class="hBox">
+<label class="hBox">
     <div class = "vBox options" id = "gameOptions" onclick="epiOptions.optionChange()">
-        <div class="hBox"><input type="checkbox" id="dataOnCritterClick" checked> data on Critter click</div>
-        <div class="hBox"><input type="checkbox" id="dataOnArrival" checked> data on arrival </div>
-        <div class="hBox"><input type="checkbox" id="dataOnDeparture" checked> data on departure</div>
-        <div class="hBox"><input type="checkbox" id="showCarrier">Cheat: Show the carrier</div>
-        <div class="hBox"><input type="checkbox" id="endlessGame">Game does not end</div>
+        <label><input type="checkbox" id="dataOnCritterClick" checked> data on Critter click</label>
+        <label><input type="checkbox" id="dataOnArrival" > data on arrival </label>
+        <label><input type="checkbox" id="dataOnDeparture" > data on departure</label>
+        <label><input type="checkbox" id="crittersMoveOnTheirOwn" checked>Critters move on their own (Harder)</label>
+        <label><input type="checkbox" id="showCarrier">Cheat: Show the carrier (Easier)</label>
     </div>
 
-    <div class="diseaseOptions">
-        Disease choice: <br>
+    <div class="vBox gameOptions" onclick="epiOptions.optionChange()">
+        <label id="smallGameDiv"><input type="checkbox" id="smallGame">Small game (Easier)</label>
+        <label><input type="checkbox" id="endlessGame">Game does not end</label>
+        <hr>
+        <div id="maladyChoiceDiv">Disease:
         <select id="maladyChoice">
             <option value = "0">Thrisp</option>
             <option value = "1">Dog Fever</option>
@@ -109,6 +113,7 @@
             <option value = "3">Arthemia</option>
             <option value = "all">surprise me</option>
         </select>
+        </div>
     </div>
 </div>
 

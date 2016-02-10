@@ -48,6 +48,7 @@ var Critter = function( index ) {
     this.activity = null;
 
     this.moving = Boolean(false);
+    this.selected = false;
 
     this.health = 1.0;      //  0 = sick, 1 = healthy
     this.elapsedSick = 0.0; //  how long have we been sick.
@@ -138,15 +139,17 @@ Critter.prototype.update = function (dt) {
     this.view.update( dt );
     this.temperature = this.findTemperature();
 
-    if (!this.moving && !this.activity) {   //  idle critter!
-        var tCritterNeeds = this.motivation.mostUrgentNeed();
+    if (epiOptions.crittersMoveOnTheirOwn) {
+        if (!this.moving && !this.activity) {   //  idle critter!
+            var tCritterNeeds = this.motivation.mostUrgentNeed();
 
-        if (tCritterNeeds.urgency > 2.0) {  //  bigger need
-            if (tCritterNeeds.what === this.currentLocation.locType) {
-                this.activity = tCritterNeeds.bestActivity;
-            } else {
-                this.setNewDest( );      //  sets destLoc, destX, and destY
-                this.startMove();
+            if (tCritterNeeds.urgency > 2.0) {  //  bigger need
+                if (tCritterNeeds.what === this.currentLocation.locType) {
+                    this.activity = tCritterNeeds.bestActivity;
+                } else {
+                    this.setNewDest();      //  sets destLoc, destX, and destY
+                    this.startMove();
+                }
             }
         }
     }

@@ -80,7 +80,9 @@ epiWorldView = {
             this.snapWorld.append(tC.view.snapShape);
         }
 
+
     },
+
 
     /**
      * Initialize the view. This creates this.snapWorld.
@@ -120,6 +122,11 @@ epiWorldView = {
         this.snapWorld.attr({"viewBox" : tString});
     },
 
+    setGridSize : function() {
+        this.VBHeight = this.VBMaxHeight =  epiGeography.kPixelsTall * epiGeography.pRowsInGrid;
+        this.VBWidth = this.VBMaxWidth = epiGeography.kPixelsWide * epiGeography.pColumnsInGrid;
+        this.updateViewBox();
+    },
 
     //  event section. Handles drag.
 

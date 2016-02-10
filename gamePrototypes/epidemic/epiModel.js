@@ -91,7 +91,7 @@ epiModel = {
         var aResult = [];
 
         obj.forEach( function ( o ) {   //  o is the storage object for a critetr or location
-            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg tp restore from? Do I have to pass in the restore function?
+            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg to restore from? Do I have to pass in the restore function?
         });
     },
 
@@ -143,7 +143,7 @@ epiModel = {
         //  pick a malady
 
         epiMalady.pickMalady( );
-        epiMalady.initMalady();
+        epiMalady.initMalady( );
     },
 
     endCheck : function() {
@@ -156,6 +156,14 @@ epiModel = {
             if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = "won";
         }
         return tEnd;
+    },
+
+    selectCritter :  function(iCritter, iReplace) {
+        if (iReplace) this.critters.forEach( function(c) {
+            c.selected = false;
+        })
+
+        iCritter.selected = true;
     },
 
     /**
@@ -203,9 +211,6 @@ epiModel = {
     infect: function( dt ) {
         switch( epiMalady.pMaladyNumber ) {
             case 0:
-                this.infect0( dt );
-                break;
-            case 1:
                 this.infect0( dt );
                 break;
             default:
@@ -268,16 +273,4 @@ epiModel = {
         this.critters = [];
 
     }
-
-/*
-    /!**
-     * Apparently unused
-     * TODO: find out for sure and delete if it is
-     * @param inObject
-     *!/
-    setCoords: function( inObject ) {
-        var tCrit = inObject.ofCritter;
-    },
-*/
-
 };

@@ -101,7 +101,7 @@ EpiCODAPConnector.getInitSimObject = function() {
     var oInitSimObject = {
         name: 'Epidemic',
         version : epiManager.version,
-        dimensions: {width: 404, height: 580},
+        dimensions: {width: 404, height: 600},
         collections: [  // There are two collections: a parent and a child
             {
                 name: 'epidemics',
@@ -131,15 +131,15 @@ EpiCODAPConnector.getInitSimObject = function() {
                 attrs: [
                     {name: "time", type: 'numeric', unit: 'seconds', precision: 2},
                     {name: "name", type: 'categorical'},
+                    {name: "result", type: 'categorical'},
+                    {name: "activity", type: 'categorical', colormap : Location.colorMap},
+                    {name: "temp", type: 'numeric', precision: 1},
                     {
                         name: "eyeColor",
                         type: 'categorical',
                         colormap: tColorMapObject
                     },
-                    {name: "activity", type: 'categorical', colormap : Location.colorMap},
-                    {name: "temp", type: 'numeric', precision: 1},
                     {name: "recordType", type: 'categorical'},
-                    {name: "result", type: 'categorical'},
                     {name: "location", type: 'categorical'},
                     {name: 'row', type: 'categorical'},
                     {name: 'col', type: 'categorical'}

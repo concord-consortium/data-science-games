@@ -36,8 +36,8 @@ var epiGeography;
  */
 epiGeography = {
 
-    kRowsInGrid: 10,
-    kColumnsInGrid: 10,
+    pRowsInGrid: 10,
+    pColumnsInGrid: 10,
 
     kPixelsWide: 100,       //  width in game pixels of one CELL
     kPixelsTall: 100,
@@ -81,8 +81,8 @@ epiGeography = {
      * @param index
      */
     theShape: function( index ) {
-        this.row = this.kRowsInGrid - Math.floor( index / this.kColumnsInGrid ) - 1;    //  row from 0 to 9
-        this.col = index % this.kColumnsInGrid;                                         //  col from 0 to 9
+        this.row = this.pRowsInGrid - Math.floor( index / this.pColumnsInGrid ) - 1;    //  row from 0 to 9
+        this.col = index % this.pColumnsInGrid;                                         //  col from 0 to 9
 
         var tLeft = this.col * this.kPixelsWide;
         var tTop = (this.row) * this.kPixelsTall;
@@ -98,7 +98,7 @@ epiGeography = {
      * @returns {number}
      */
     numberOfLocations: function() {
-        return this.kRowsInGrid * this.kColumnsInGrid;
+        return this.pRowsInGrid * this.pColumnsInGrid;
     },
 
     /**
@@ -107,8 +107,8 @@ epiGeography = {
      */
     totalSize : function() {
         return {
-            width : this.kColumnsInGrid * this.kPixelsWide,
-            height : this.kRowsInGrid * this.kPixelsTall
+            width : this.pColumnsInGrid * this.kPixelsWide,
+            height : this.pRowsInGrid * this.kPixelsTall
         }
     },
 
@@ -131,12 +131,21 @@ epiGeography = {
         //  Now figure out which row or column we're in
 
         var tCol = Math.floor( iX / this.kPixelsWide),
-            tRow = this.kRowsInGrid - Math.floor( iY / this.kPixelsTall ) - 1;
-        var result =  tRow * this.kColumnsInGrid + tCol;
+            tRow = this.pRowsInGrid - Math.floor( iY / this.kPixelsTall ) - 1;
+        var result =  tRow * this.pColumnsInGrid + tCol;
 
         if (result < 0 || result >= this.numberOfLocations()) result = null;
 
         return result;
+    },
+
+    /**
+     * changes the number of rows or columns on behalf of epiManager.
+     * @param iRows
+     */
+    setGridSize : function(iRows) {
+        this.pRowsInGrid = iRows;
+        this.pColumnsInGrid = iRows;
     }
 
 };

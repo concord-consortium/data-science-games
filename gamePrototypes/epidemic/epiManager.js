@@ -36,11 +36,11 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-002d",
+    version: "vPre-003",
     gameNumber: 0,
     CODAPConnector: null,
 
-    kNumLocations: 100,
+    pNumLocations: 100,
     previous: 0,    //  timestamp for animation
     running: false,
     gameInProgress: false,
@@ -84,6 +84,19 @@ epiManager = {
      * Handles a new game in Epidemic
      */
     newGame: function () {
+        if (epiOptions.smallGame) {
+            this.pNumLocations = 25;
+            epiGeography.setGridSize( 5 );
+            epiWorldView.setGridSize();
+            epiModel.numberOfCritters = 20;
+        }
+        else {
+            this.pNumLocations = 100;
+            epiGeography.setGridSize( 10 );
+            epiWorldView.setGridSize();
+            epiModel.numberOfCritters = 49;
+        }
+
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase("epidemics", this.gameNumber);
 
@@ -91,6 +104,7 @@ epiManager = {
         epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
         epiOptions.optionChange();
+        this.captureDataForAllCritters();
         this.restart();
     },
 
@@ -128,16 +142,20 @@ epiManager = {
      * Updates text, button text, etc., that is not in the main "world" display area
      */
     updateUIStuff: function () {
+        var maladyMenu = document.getElementById("maladyChoiceDiv");
+        var smallGameDiv = document.getElementById("smallGameDiv");
+
         var timeText = document.getElementById("timeText");
         timeText.innerHTML = parseFloat(epiModel.elapsed.toFixed(2));
 
         var startStopButton = document.getElementById("startStop");
-        startStopButton.innerHTML = (this.running) ? "pause" : "go";
-        startStopButton.disabled = !(this.gameInProgress);
-        startStopButton.style.visibility = (this.gameInProgress) ? "visible" : "hidden";
 
-        var maladyMenu = document.getElementById("maladyChoice");
-        maladyMenu.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
+        startStopButton.style.backgroundImage = (this.running) ? "url('../art/pause.png')" : "url('../art/play.png')";
+        //  startStopButton.disabled = !(this.gameInProgress);
+
+        smallGameDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
+        maladyChoiceDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
+        startStopButton.style.visibility = (this.gameInProgress) ? "visible" : "hidden";
 
         var gameButton = document.getElementById("newGameButton");
         gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
@@ -169,12 +187,22 @@ epiManager = {
     },
 
     /**
+     * Captures data for all critters at once
+     */
+    captureDataForAllCritters : function() {
+        epiModel.critters.forEach( function( iCritter ) {
+            epiManager.emitCritterData(iCritter, "all");
+        });
+    },
+
+    /**
      * Handles a click on a critter.
      * @param theCritter    the actual Critter clicked.
      */
-    doCritterClick: function (theCritter) {
-        console.log("clicked in critter named " + theCritter.name);
-        if (epiOptions.dataOnCritterClick) this.emitCritterData(theCritter, "click");
+    doCritterClick: function (iCritter) {
+        //  console.log("clicked in critter named " + iCritter.name);
+        if (epiOptions.dataOnCritterClick) this.emitCritterData(iCritter, "click");
+        epiModel.selectCritter(iCritter, true);    //  select the critter, and clear any previous selection
     },
 
     /**
@@ -188,11 +216,11 @@ epiManager = {
         this.CODAPConnector.doEventRecord([
             epiModel.elapsed,
             theCritter.name,
-            theCritter.eyeColor,
+            theCritter.health == 0 ? "sick" : "healthy",
             theCritter.activity,
             theCritter.temperature,
+            theCritter.eyeColor,
             eventType,
-            theCritter.health == 0 ? "sick" : "healthy",
             tLocName,
             (theCritter.currentLocation) ? theCritter.currentLocation.row + 1 : "",
             (theCritter.currentLocation) ? theCritter.currentLocation.col + 1 : ""
@@ -272,7 +300,7 @@ epiManager = {
         var tSaveObject = {
             version : this.version,
             gameNumber : this.gameNumber,
-            kNumLocations : this.kNumLocations,
+            pNumLocations : this.pNumLocations,
             //  previous
             //  running
             gameInProgress : this.gameInProgress,
@@ -287,7 +315,7 @@ epiManager = {
 
         this.version = iObject.version;
         this.gameNumber = iObject.gameNumber;
-        this.kNumLocations = iObject.kNumLocations;
+        this.pNumLocations = iObject.pNumLocations;
         this.previous = 0;          //      always start anew
         this.running = false;
         this.gameInProgress = iObject.gameInProgress;

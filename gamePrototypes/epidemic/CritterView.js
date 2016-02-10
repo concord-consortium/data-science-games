@@ -35,11 +35,20 @@ var CritterView = function( c ) {
 
     //  "paper"
 
-    this.snapShape = new Snap( CritterView.overallViewSize, CritterView.overallViewSize );  //  width and height.
-    this.snapShape.attr({ viewBox : "-10 -10 20 20"});
+    var critRad = CritterView.overallViewSize / 2;
+    var tVBText = -critRad + " " + (-critRad) + " " + 2 * critRad + " " + 2 * critRad;
+
+    this.snapShape = new Snap( 2 * critRad, 2 * critRad );  //  width and height.
+    this.snapShape.attr({ viewBox : tVBText});
+
+    //  selectionCircle
+
+    this.selectionCircle = this.snapShape.circle(0, 0, critRad);
+    this.selectionCircle.attr({
+        fill : "white"
+    });
 
     //  background
-
 
     this.bgCircle = this.snapShape.circle(0, 0, 10); //  add Snap circle with cx, cy, and r
     this.bgCircle.attr({
@@ -106,7 +115,7 @@ var CritterView = function( c ) {
 };
 
 /**
- * Update the view, e.g., in response to changes in health
+ * Update the view, e.g., in response to changes in health or selection
  * @param critter
  * @param dt
  */
@@ -119,6 +128,8 @@ CritterView.prototype.update = function (dt) {
     } else {
         this.bgCircle.attr({fill: CritterView.kUsualBackgroundColor});
     }
+
+    this.selectionCircle.attr({fill : (this.critter.selected) ? "red" : "transparent"});
 };
 
 /**
@@ -136,7 +147,7 @@ CritterView.prototype.moveTo = function( xx, yy ) {
  * Class variable: the overall (full) size of the view
  * @type {number}
  */
-CritterView.overallViewSize = 20;
+CritterView.overallViewSize = 30;
 CritterView.kUsualBackgroundColor = "yellow";
 CritterView.kCarrierBackgroundColor = "black";
 CritterView.kSickBorderColor = "gray";
