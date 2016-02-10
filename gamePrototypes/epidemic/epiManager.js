@@ -37,6 +37,7 @@ var epiManager;
  */
 epiManager = {
     version: "vPre-003",
+    UI : {},
     gameNumber: 0,
     CODAPConnector: null,
 
@@ -142,23 +143,14 @@ epiManager = {
      * Updates text, button text, etc., that is not in the main "world" display area
      */
     updateUIStuff: function () {
-        var maladyMenu = document.getElementById("maladyChoiceDiv");
-        var smallGameDiv = document.getElementById("smallGameDiv");
 
-        var timeText = document.getElementById("timeText");
-        timeText.innerHTML = parseFloat(epiModel.elapsed.toFixed(2));
+        this.UI.timeText.innerHTML = parseFloat(epiModel.elapsed.toFixed(2));
+        this.UI.startStopButton.style.backgroundImage = (this.running) ? "url('../art/pause.png')" : "url('../art/play.png')";
+        this.UI.smallGameDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
+        this.UI.maladyChoiceDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
+        this.UI.startStopButton.style.visibility = (this.gameInProgress) ? "visible" : "hidden";
 
-        var startStopButton = document.getElementById("startStop");
-
-        startStopButton.style.backgroundImage = (this.running) ? "url('../art/pause.png')" : "url('../art/play.png')";
-        //  startStopButton.disabled = !(this.gameInProgress);
-
-        smallGameDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
-        maladyChoiceDiv.style.visibility = (this.gameInProgress) ? "hidden" : "visible";
-        startStopButton.style.visibility = (this.gameInProgress) ? "visible" : "hidden";
-
-        var gameButton = document.getElementById("newGameButton");
-        gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
+        this.UI.gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
 
         tSickReport = epiModel.sicknessReport();
         $( "#healthReport").html("Moves: " + epiModel.nMoves
@@ -245,6 +237,15 @@ epiManager = {
      * Creates the connector, the name-making object, the model, and the view.
      */
     initializeComponent: function () {
+
+        //  save UI element names
+
+        this.UI.gameButton = document.getElementById("newGameButton");
+        this.UI.timeText = document.getElementById("timeText");
+        this.UI.startStopButton = document.getElementById("startStop");
+        this.UI.maladyChoiceDiv = document.getElementById("maladyChoiceDiv");
+        this.UI.smallGameDiv = document.getElementById("smallGameDiv");
+
         this.CODAPConnector = new EpiCODAPConnector();
         medNames.initialize();
         epiWorldView.initialize();
