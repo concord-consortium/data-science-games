@@ -60,6 +60,13 @@ input {
     color: white;
 }
 
+#newGameButton {
+    background-color: darkgray;
+    color: white;
+    position: absolute;
+    right:  12px;
+}
+
 /*		BOX CLASSES		*/
 
 .hBox	{

@@ -79,8 +79,6 @@ epiWorldView = {
             var tC = this.model.critters[i];
             this.snapWorld.append(tC.view.snapShape);
         }
-
-
     },
 
 

@@ -159,10 +159,7 @@ epiModel = {
     },
 
     selectCritter :  function(iCritter, iReplace) {
-        if (iReplace) this.critters.forEach( function(c) {
-            c.selected = false;
-        })
-
+        if (iReplace) epiManager.clearSelection();
         iCritter.selected = true;
     },
 
@@ -185,24 +182,6 @@ epiModel = {
         //  (Why are they invalid?)
     },
 
-    /**
-     * A Critter departs from a location
-     * @param o { critter; c, fromLocation: L}
-     */
-    doDeparture: function( o ) {
-        var tCritter = o.critter;
-        var tLocation = o.fromLocation;
-        var tReason = o.reason;
-
-        if (epiOptions.dataOnDeparture)
-            epiManager.emitCritterData( tCritter, o.reason); //  must do before currentLocation changes
-
-        tCritter.activity = "traveling";
-        tCritter.moving = true;
-        tCritter.currentLocation = null;    //  is this a good idea??
-        if (tLocation) tLocation.removeCritter( tCritter );
-
-    },
 
     /**
      * Create any new infections

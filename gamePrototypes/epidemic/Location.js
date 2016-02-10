@@ -51,6 +51,9 @@ Location.prototype.setLocationProperties = function( index ) {
     this.col = tLocInfo.col;
     this.snapText = this.snapShape.text(10, 90, this.name);
     this.snapText.attr({fill: "white"});
+
+    this.snapShape.click( epiManager.clearSelection );
+
 };
 
 Location.prototype.getSaveObject = function() {

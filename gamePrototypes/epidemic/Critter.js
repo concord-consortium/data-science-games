@@ -67,64 +67,6 @@ var Critter = function( index ) {
     this.view = new CritterView( this );    //  todo: decouple view from model
 };
 
-Critter.prototype.getSaveObject =  function() {
-    var tSaveObject = {
-        myIndex : this.myIndex,
-        currentLocationIndex : this.currentLocation.myIndex,
-        x : this.x,
-        y : this.y,
-        speed : this.speed,
-        //  moving
-        motivation : this.motivation.getSaveObject(),       //  this Class needs its own thing
-        activity : this.activity,
-        health : this.health,
-        elapsedSick : this.elapsedSick,
-        infectious : this.infectious,
-        infected : this.infected,
-        incubationTime : this.incubationTime,
-        antibodies : this.antibodies,
-        name : this.name,
-        eyeColor : this.eyeColor,
-        borderColor : this.borderColor,
-        baseTemperature : this.baseTemperature,
-
-    };
-    return tSaveObject;
-};
-
-Critter.prototype.restoreFrom = function( iObject ) {
-
-    this.myIndex = iObject.myIndex;
-    this.x = iObject.x;
-    this.y = iObject.y;
-    this.speed = iObject.speed;
-
-    //  treat motivation specially
-
-    this.motivation = new Motivation( this );
-    this.motivation.restoreFrom( iObject.motivation );
-
-    //  onward...
-
-    this.moving = false;
-    this.activity = iObject.activity;
-    this.health = iObject.health;
-    this.elapsedSick = iObject.elapsedSick;
-    this.infectious = iObject.infectious;
-    this.infected = iObject.infected;
-    this.incubationTime = iObject.incubationTime;
-    this.antibodies = iObject.antibodies;
-    this.name = iObject.name;
-    this.eyeColor = iObject.eyeColor;
-    this.borderColor = iObject.borderColor;
-    this.baseTemperature = iObject.baseTemperature;
-
-    this.view = new CritterView( this ); // todo: eliminate all old views on restore
-
-    this.currentLocationIndex = iObject.currentLocationIndex;   //  todo: find more elegant solution
-    this.currentLocation = epiModel.locations[ this.currentLocationIndex ];
-    this.currentLocation.addCritter( this );
-};
 
 
 /**
@@ -231,24 +173,23 @@ Critter.prototype.setNewDest = function( ) {
     var tDestLoc = TEEUtils.pickRandomItemFrom(tBestLocations);
 
     this.destLoc = tDestLoc;
-    var tCenter = tDestLoc.centerCoordinates();     //  for now, head for center of the loc
-
-    this.destX = tCenter.x;
-    this.destY = tCenter.y;
 };
 
 /**
  * Begin a move to a new location. Note that this calls Snap.svg's animate function, and
  * then uses epiModel.doArrival as a callback.
- * todo: somehow get into the view.
  */
-Critter.prototype.startMove = function() {
-    epiModel.doDeparture( {
-        critter: this,
-        fromLocation: this.currentLocation ,
-        reason : "migration"
-    });
-    var tTime = this.distanceToLoc( this.destLoc ) / this.speed;
+Critter.prototype.startMove = function( ) {
+    this.doDeparture( this.currentLocation ,"migration");
+    this.headForCenterOfLocation( this.destLoc );
+};
+
+Critter.prototype.headForCenterOfLocation = function(iL )  {
+    var tCenter = iL.centerCoordinates();     //  for now, head for center of the loc
+    this.destX = tCenter.x;
+    this.destY = tCenter.y;
+    var tTime = this.distanceToLoc( iL ) / this.speed;
+
     this.view.snapShape.animate(
         {"x" : this.destX, "y" : this.destY},
         tTime * 1000, null,
@@ -259,15 +200,33 @@ Critter.prototype.startMove = function() {
 };
 
 /**
+ * A critter actually departs
+ * @param iToLoc    for what location
+ * @param iReason   why?
+ */
+Critter.prototype.doDeparture = function( iToLoc, iReason ) {
+
+    this.activity = "traveling";
+    this.moving = true;
+
+    if (epiOptions.dataOnDeparture)
+        epiManager.emitCritterData( this, iReason); //  must do before currentLocation changes
+
+    this.currentLocation = null;    //  is this a good idea??
+    if (iToLoc) iToLoc.removeCritter( this );
+
+};
+
+/**
  * Starts a "jiggle" move, that is, re-line-up in response to
  * a new Critter joining this Location.
  * "Destination" is within the Location.
- * @param destination
+ * @param iDest
  */
-Critter.prototype.startJiggleMove = function( destination ) {
+Critter.prototype.startJiggleMove = function( iDest ) {
     this.view.snapShape.stop();
     this.view.snapShape.animate(
-        { "x": destination.x, "y": destination.y },
+        { "x": iDest.x, "y": iDest.y },
         1000, null,
         null
     );
@@ -305,6 +264,64 @@ Critter.prototype.distanceToLoc = function( L ) {
     return Math.sqrt( tdx * tdx + tdy * tdy);
 };
 
+Critter.prototype.getSaveObject =  function() {
+    var tSaveObject = {
+        myIndex : this.myIndex,
+        currentLocationIndex : this.currentLocation.myIndex,
+        x : this.x,
+        y : this.y,
+        speed : this.speed,
+        //  moving
+        motivation : this.motivation.getSaveObject(),       //  this Class needs its own thing
+        activity : this.activity,
+        health : this.health,
+        elapsedSick : this.elapsedSick,
+        infectious : this.infectious,
+        infected : this.infected,
+        incubationTime : this.incubationTime,
+        antibodies : this.antibodies,
+        name : this.name,
+        eyeColor : this.eyeColor,
+        borderColor : this.borderColor,
+        baseTemperature : this.baseTemperature,
+
+    };
+    return tSaveObject;
+};
+
+Critter.prototype.restoreFrom = function( iObject ) {
+
+    this.myIndex = iObject.myIndex;
+    this.x = iObject.x;
+    this.y = iObject.y;
+    this.speed = iObject.speed;
+
+    //  treat motivation specially
+
+    this.motivation = new Motivation( this );
+    this.motivation.restoreFrom( iObject.motivation );
+
+    //  onward...
+
+    this.moving = false;
+    this.activity = iObject.activity;
+    this.health = iObject.health;
+    this.elapsedSick = iObject.elapsedSick;
+    this.infectious = iObject.infectious;
+    this.infected = iObject.infected;
+    this.incubationTime = iObject.incubationTime;
+    this.antibodies = iObject.antibodies;
+    this.name = iObject.name;
+    this.eyeColor = iObject.eyeColor;
+    this.borderColor = iObject.borderColor;
+    this.baseTemperature = iObject.baseTemperature;
+
+    this.view = new CritterView( this ); // todo: eliminate all old views on restore
+
+    this.currentLocationIndex = iObject.currentLocationIndex;   //  todo: find more elegant solution
+    this.currentLocation = epiModel.locations[ this.currentLocationIndex ];
+    this.currentLocation.addCritter( this );
+};
 
 Critter.prototype.toString = function() {
     return "C " + this.myIndex + " mot "

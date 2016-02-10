@@ -36,7 +36,7 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-003",
+    version: "vPre-003b",
     UI : {},
     gameNumber: 0,
     CODAPConnector: null,
@@ -105,7 +105,7 @@ epiManager = {
         epiWorldView.flushAndRedraw();
         this.gameInProgress = true;
         epiOptions.optionChange();
-        this.captureDataForAllCritters();
+        this.captureDataForAllCritters();   //  todo: fix that this doesn't work
         this.restart();
     },
 
@@ -129,13 +129,21 @@ epiManager = {
     pause: function () {
         this.running = false;
         this.updateScreen();
-        //  todo: in general, fix pauses so that animation freezes
+        epiModel.critters.forEach( function(c) {
+            if (c.moving) c.view.snapShape.stop();
+        })
     },
 
     restart: function () {
         this.previous = null;
         this.running = true;
-        window.requestAnimationFrame(this.animate); //  START UP
+        window.requestAnimationFrame(this.animate); //  START UP TIME
+
+        epiModel.critters.forEach( function(c) {       //   start up ritter movements
+            if (c.moving) {
+                c.headForCenterOfLocation(c.destLoc);
+            }
+        });
         this.updateScreen();
     },
 
@@ -165,11 +173,7 @@ epiManager = {
 
         var tLocation = epiModel.coordsToLocation(iX, iY);
         if (tLocation) {
-            epiModel.doDeparture({
-                critter: iCritter,
-                fromLocation: iCritter.currentLocation,
-                reason : "dragged"
-            });
+            iCritter.doDeparture(iCritter.currentLocation,"dragged");
             epiModel.doArrival({
                 critter: iCritter,
                 atLocation: tLocation
@@ -196,6 +200,11 @@ epiManager = {
         if (epiOptions.dataOnCritterClick) this.emitCritterData(iCritter, "click");
         epiModel.selectCritter(iCritter, true);    //  select the critter, and clear any previous selection
     },
+
+    clearSelection : function() {
+        epiModel.critters.forEach( function(c) { c.selected = false; })
+    },
+
 
     /**
      * Asks CODAP to write the Critter data out
