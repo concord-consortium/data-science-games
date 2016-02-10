@@ -174,6 +174,7 @@ Critter.prototype.updateHealth = function( dt ) {
     if (this.incubationTime > epiMalady.pIncubationInSeconds) {
         console.log(this.name + " incubation ended. Now sick. ");
         this.health = 0.0;      //  simple get sick
+        if (epiOptions.dataOnGetSick) epiManager.emitCritterData( this, "got sick");
         this.incubationTime = null;
 
         if (epiMalady.pMaladyNumber == 3) {
