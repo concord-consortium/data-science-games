@@ -78,7 +78,7 @@ Critter.prototype.update = function (dt) {
     this.updateHealth( dt );
     this.speed = this.kBaseSpeed * (0.5 + 0.5 * this.health);
 
-    this.view.update( dt );
+    this.view.update(  );
     this.temperature = this.findTemperature();
 
     if (epiOptions.crittersMoveOnTheirOwn) {

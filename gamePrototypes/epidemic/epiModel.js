@@ -37,64 +37,6 @@ epiModel = {
     nMoves : 0,
     malady : null,
 
-    getSaveObject: function() {
-        var tSaveObject = {
-            numberOfCritters : this.numberOfCritters,
-            elapsed : this.elapsed,
-            nMoves : this.nMoves,
-            malady : this.malady,
-            critters : this.arraySaveObject( this.critters ),
-            locations : this.arraySaveObject( this.locations )
-
-        };
-        return tSaveObject;
-    },
-
-    restoreFrom: function( iObject ) {
-        this.initialize( );     //  clean up all vars, esp critters and locations, now empty
-
-        this.numberOfCritters = iObject.numberOfCritters;
-        this.elapsed = iObject.elapsed;
-        this.nMoves = iObject.nMoves;
-        this.malady = iObject.malady;
-
-        //  restore all locations
-
-        iObject.locations.forEach( function( el ) {
-            var tLoc = new Location( el.myIndex );  //  put it in the right place
-            tLoc.restoreFrom( el );                 //   give it the right properties
-            this.locations.push( tLoc );      //   add it to the array
-        }.bind( this )
-        );    //  so that "this" is the model inside the anonymous function
-
-        //  restore all critters. Assumes locations all exist.
-        iObject.critters.forEach( function( el ) {
-            var tCrit = new Critter( -1 );
-            tCrit.restoreFrom( el );
-            this.critters.push( tCrit );
-        }.bind( this )
-        );
-    },
-
-    arraySaveObject : function( array ) {
-        var aResult = [];
-
-        array.forEach( function (item) {
-            tSaveObject = item.getSaveObject();
-            aResult.push( tSaveObject );
-        });
-
-        return aResult;
-    },
-
-    arrayRestoreFromObject : function ( obj ) {
-        var aResult = [];
-
-        obj.forEach( function ( o ) {   //  o is the storage object for a critetr or location
-            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg to restore from? Do I have to pass in the restore function?
-        });
-    },
-
     /**
      * Update the entire model
      * @param dt this many seconds
@@ -251,5 +193,63 @@ epiModel = {
         this.locations = [];
         this.critters = [];
 
+    },
+
+    getSaveObject: function() {
+        var tSaveObject = {
+            numberOfCritters : this.numberOfCritters,
+            elapsed : this.elapsed,
+            nMoves : this.nMoves,
+            malady : this.malady,
+            critters : this.arraySaveObject( this.critters ),
+            locations : this.arraySaveObject( this.locations )
+
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.initialize( );     //  clean up all vars, esp critters and locations, now empty
+
+        this.numberOfCritters = iObject.numberOfCritters;
+        this.elapsed = iObject.elapsed;
+        this.nMoves = iObject.nMoves;
+        this.malady = iObject.malady;
+
+        //  restore all locations
+
+        iObject.locations.forEach( function( el ) {
+                var tLoc = new Location( el.myIndex );  //  put it in the right place
+                tLoc.restoreFrom( el );                 //   give it the right properties
+                this.locations.push( tLoc );      //   add it to the array
+            }.bind( this )
+        );    //  so that "this" is the model inside the anonymous function
+
+        //  restore all critters. Assumes locations all exist.
+        iObject.critters.forEach( function( el ) {
+                var tCrit = new Critter( -1 );
+                tCrit.restoreFrom( el );
+                this.critters.push( tCrit );
+            }.bind( this )
+        );
+    },
+
+    arraySaveObject : function( array ) {
+        var aResult = [];
+
+        array.forEach( function (item) {
+            tSaveObject = item.getSaveObject();
+            aResult.push( tSaveObject );
+        });
+
+        return aResult;
+    },
+
+    arrayRestoreFromObject : function ( obj ) {
+        var aResult = [];
+
+        obj.forEach( function ( o ) {   //  o is the storage object for a critetr or location
+            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg to restore from? Do I have to pass in the restore function?
+        });
     }
 };

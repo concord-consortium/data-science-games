@@ -43,9 +43,11 @@ var CritterView = function( c ) {
 
     //  selectionCircle
 
-    this.selectionCircle = this.snapShape.circle(0, 0, critRad);
+    this.selectionCircle = this.snapShape.circle(0, 0, critRad - 3);
     this.selectionCircle.attr({
-        fill : "white"
+        stroke : "white",
+        fill :"transparent",
+        strokeWidth : 5
     });
 
     //  background
@@ -92,7 +94,7 @@ var CritterView = function( c ) {
             epiManager.draggingCritter = true;
         },
         onDragMove = function( iDX, iDY, iX, iY, iEvent) {
-            //  todo: use CTM. See onDragEnd, below.
+            //  todo: use CTM. See onDragEnd, below. That way we could highlight droppable Locations
             var tVPDX = iDX * epiWorldView.VBWidth / Number(epiWorldView.actualWidth),
                 tVPDY = iDY * epiWorldView.VBHeight / Number(epiWorldView.actualHeight);
             this.moveTo( tStartX + tVPDX, tStartY + tVPDY);
@@ -100,14 +102,13 @@ var CritterView = function( c ) {
             // todo: epiManager.handleMoveOfCritter();
         },
         onDragEnd = function( iEvent) {
-            var CTM = epiWorldView.snapWorld.node.getScreenCTM();
+            var CTM = epiWorldView.snapWorld.node.getScreenCTM();   //  CTM = coordinate transformation matrix
             var CTMI = CTM.inverse();
             var screenCoordinates = this.snapShape.node.createSVGPoint();
             screenCoordinates.x = iEvent.offsetX;
             screenCoordinates.y = iEvent.offsetY;
 
             var gameCoordinates = screenCoordinates.matrixTransform( CTMI );
-            //epiManager.handleDropOfCritter( this.critter, iEvent.offsetX, iEvent.offsetY);
             epiManager.handleDropOfCritter( this.critter, gameCoordinates.x, gameCoordinates.y);
         };
 
@@ -116,10 +117,8 @@ var CritterView = function( c ) {
 
 /**
  * Update the view, e.g., in response to changes in health or selection
- * @param critter
- * @param dt
  */
-CritterView.prototype.update = function (dt) {
+CritterView.prototype.update = function ( ) {
     var tHealth = this.critter.health;
     this.healthCircle.attr( {stroke : (tHealth == 0) ? CritterView.kSickBorderColor : this.critter.borderColor});
 
@@ -129,7 +128,7 @@ CritterView.prototype.update = function (dt) {
         this.bgCircle.attr({fill: CritterView.kUsualBackgroundColor});
     }
 
-    this.selectionCircle.attr({fill : (this.critter.selected) ? "red" : "transparent"});
+    this.selectionCircle.attr({stroke : (this.critter.selected) ? "white" : "transparent"});
 };
 
 /**

@@ -86,8 +86,8 @@ Location.prototype.restoreFrom = function( iObject ) {
  * @param dt
  */
 Location.prototype.update = function( dt ) {
-    var tNCrit = this.critters.size;
-    this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
+    //var tNCrit = this.critters.size;
+    //this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
 
     if (this.toxic && epiOptions.showCarrier) {
         this.bgShape.attr({ stroke: "black", fill : "lightgray", strokewidth : 20 });

@@ -38,31 +38,6 @@ epiMalady = {
 
     pMaladyNameList : ["Thrisp", "Dog Fever", "Alban's Bloat", "Arthemia"], //  todo: populate the DOM menu from this
 
-    getSaveObject: function() {
-        var tSaveObject = {
-            pMaladyNumber : this.pMaladyNumber,
-            pMaladyName : this.pMaladyName,
-            pAverageSecondsToInfection : this.pAverageSecondsToInfection,
-            pDiseaseDurationInSeconds : this.pDiseaseDurationInSeconds,
-            pIncubationInSeconds : this.pIncubationInSeconds,
-            pSickSecondsToGameEnd : this.pSickSecondsToGameEnd,
-            pTotalElapsedSecondsToGameEnd : this.pTotalElapsedSecondsToGameEnd,
-            pMaladyNameList : this.pMaladyNameList,
-
-        };
-        return tSaveObject;
-    },
-
-    restoreFrom: function( iObject ) {
-        this.pMaladyNumber = iObject.pMaladyNumber;
-        this.pMaladyName = iObject.pMaladyName;
-        this.pAverageSecondsToInfection = iObject.pAverageSecondsToInfection;
-        this.pDiseaseDurationInSeconds = iObject.pDiseaseDurationInSeconds;
-        this.pIncubationInSeconds = iObject.pIncubationInSeconds;
-        this.pSickSecondsToGameEnd = iObject.pSickSecondsToGameEnd;
-        this.pTotalElapsedSecondsToGameEnd = iObject.pTotalElapsedSecondsToGameEnd;
-        this.pMaladyNameList = iObject.pMaladyNameList;
-    },
     /**
      * Set the malady ID parameters
      */
@@ -81,22 +56,23 @@ epiMalady = {
     initMalady : function() {
 
         console.log("Initializing malady #" + this.pMaladyNumber);
+        var tCritterCarrier = TEEUtils.pickRandomItemFrom( epiModel.critters ); //  pick possible carrier
 
         switch( this.pMaladyNumber ) {
             case 0:
                 this.pDiseaseDurationInSeconds = 50;
                 this.pAverageSecondsToInfection = 2;
                 this.pIncubationInSeconds = 0;
-                epiModel.critters[0].infectious = true;
-                epiModel.critters[0].antibodies = 1.0;
+                tCritterCarrier.infectious = true;
+                tCritterCarrier.antibodies = 1.0;
                 break;
 
             case 1:
                 this.pDiseaseDurationInSeconds = 40;
                 this.pAverageSecondsToInfection = 5;
-                this.pIncubationInSeconds = 20;
-                epiModel.critters[0].infectious = true;
-                epiModel.critters[0].antibodies = 1.0;
+                this.pIncubationInSeconds = 20;         //  ah! Incubation period!
+                tCritterCarrier.infectious = true;
+                tCritterCarrier.antibodies = 1.0;
                 break;
 
             case 2: //  toxic location
@@ -115,8 +91,8 @@ epiMalady = {
                 this.pDiseaseDurationInSeconds = 40;
                 this.pAverageSecondsToInfection = 10;
                 this.pIncubationInSeconds = 20;
-                epiModel.critters[0].infectious = true; //  carrier to get things started?
-                epiModel.critters[0].antibodies = 1.0;
+                tCritterCarrier.infectious = true; //  carrier to get things started?
+                tCritterCarrier.antibodies = 1.0;
                 break;
 
             default:
@@ -161,8 +137,33 @@ epiMalady = {
                     break;
             }
         }
-    }
+    },
 
+    getSaveObject: function() {
+        var tSaveObject = {
+            pMaladyNumber : this.pMaladyNumber,
+            pMaladyName : this.pMaladyName,
+            pAverageSecondsToInfection : this.pAverageSecondsToInfection,
+            pDiseaseDurationInSeconds : this.pDiseaseDurationInSeconds,
+            pIncubationInSeconds : this.pIncubationInSeconds,
+            pSickSecondsToGameEnd : this.pSickSecondsToGameEnd,
+            pTotalElapsedSecondsToGameEnd : this.pTotalElapsedSecondsToGameEnd,
+            pMaladyNameList : this.pMaladyNameList,
+
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.pMaladyNumber = iObject.pMaladyNumber;
+        this.pMaladyName = iObject.pMaladyName;
+        this.pAverageSecondsToInfection = iObject.pAverageSecondsToInfection;
+        this.pDiseaseDurationInSeconds = iObject.pDiseaseDurationInSeconds;
+        this.pIncubationInSeconds = iObject.pIncubationInSeconds;
+        this.pSickSecondsToGameEnd = iObject.pSickSecondsToGameEnd;
+        this.pTotalElapsedSecondsToGameEnd = iObject.pTotalElapsedSecondsToGameEnd;
+        this.pMaladyNameList = iObject.pMaladyNameList;
+    }
 };
 
 

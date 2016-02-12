@@ -25,9 +25,11 @@ epiOptions = {
         this.dataOnArrival = document.getElementById("dataOnArrival").checked;
         this.dataOnDeparture = document.getElementById("dataOnDeparture").checked;
         this.dataOnGetSick = document.getElementById("dataOnGetSick").checked;
-        this.showCarrier = document.getElementById("showCarrier").checked
-        this.endlessGame = document.getElementById("endlessGame").checked
-        this.smallGame = document.getElementById("smallGame").checked
+        this.showCarrier = document.getElementById("showCarrier").checked;
+        this.endlessGame = document.getElementById("endlessGame").checked;
+        this.smallGame = document.getElementById("smallGame").checked;
+
+        epiManager.updateScreen();
     },
 
     getSaveObject: function() {

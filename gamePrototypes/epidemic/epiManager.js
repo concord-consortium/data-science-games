@@ -36,7 +36,7 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-003b",
+    version: "vPre-003c",
     UI : {},
     gameNumber: 0,
     CODAPConnector: null,
@@ -63,7 +63,7 @@ epiManager = {
     /**
      * Manages update of screen. this involves the main view plus any of our UI stuff.
      */
-    updateScreen: function () {
+    updateScreen: function ( ) {
         epiWorldView.updateScreen();
         this.updateUIStuff();
     },
@@ -101,12 +101,12 @@ epiManager = {
         this.gameNumber += 1;
         this.CODAPConnector.newGameCase("epidemics", this.gameNumber);
 
-        epiModel.newGame( );
-        epiWorldView.flushAndRedraw();
+        epiModel.newGame( );            //  create all model Critters and Locations
+        epiWorldView.flushAndRedraw();  //  draw all Locations and Critters anew
         this.gameInProgress = true;
-        epiOptions.optionChange();
-        this.captureDataForAllCritters();   //  todo: fix that this doesn't work
-        this.restart();
+        epiOptions.optionChange();      //  make sure all the option checks are saved
+        this.restart();                 //  time starts up
+      //  this.captureDataForAllCritters();   //  todo:  this doesn't work! Fix it!
     },
 
     /**
@@ -139,7 +139,7 @@ epiManager = {
         this.running = true;
         window.requestAnimationFrame(this.animate); //  START UP TIME
 
-        epiModel.critters.forEach( function(c) {       //   start up ritter movements
+        epiModel.critters.forEach( function(c) {       //   start up critter movements
             if (c.moving) {
                 c.headForCenterOfLocation(c.destLoc);
             }
@@ -170,15 +170,17 @@ epiManager = {
         this.draggingCritter = false;
 
         // todo: consider moving the rest to epiModel
-
-        var tLocation = epiModel.coordsToLocation(iX, iY);
-        if (tLocation) {
-            iCritter.doDeparture(iCritter.currentLocation,"dragged");
-            epiModel.doArrival({
-                critter: iCritter,
-                atLocation: tLocation
-            });
-            epiModel.nMoves += 1;
+        var tDepartureLoc = iCritter.currentLocation;
+        var tArrivalLoc = epiModel.coordsToLocation(iX, iY);
+        if (tDepartureLoc != tArrivalLoc) { //  kludge because click gave us a move
+            if (tArrivalLoc) {
+                iCritter.doDeparture(tDepartureLoc, "dragged");
+                epiModel.doArrival({
+                    critter: iCritter,
+                    atLocation: tArrivalLoc
+                });
+                epiModel.nMoves += 1;
+            }
         }
     },
 
@@ -196,13 +198,18 @@ epiManager = {
      * @param theCritter    the actual Critter clicked.
      */
     doCritterClick: function (iCritter) {
-        //  console.log("clicked in critter named " + iCritter.name);
         if (epiOptions.dataOnCritterClick) this.emitCritterData(iCritter, "click");
         epiModel.selectCritter(iCritter, true);    //  select the critter, and clear any previous selection
+        //  todo: extend the selection on shift
+        iCritter.view.update();    //  update our view
+        this.updateScreen();
     },
 
     clearSelection : function() {
-        epiModel.critters.forEach( function(c) { c.selected = false; })
+        epiModel.critters.forEach( function(c) {
+            c.selected = false;
+            c.view.update();
+        })
     },
 
 
