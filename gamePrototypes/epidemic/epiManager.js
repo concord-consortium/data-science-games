@@ -262,7 +262,7 @@ epiManager = {
         this.UI.maladyChoiceDiv = document.getElementById("maladyChoiceDiv");
         this.UI.smallGameDiv = document.getElementById("smallGameDiv");
 
-        this.CODAPConnector = new EpiCODAPConnector();
+        this.CODAPConnector = new farsCODAPConnector();
         medNames.initialize();
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
