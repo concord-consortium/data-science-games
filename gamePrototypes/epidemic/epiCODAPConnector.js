@@ -131,7 +131,11 @@ EpiCODAPConnector.getInitSimObject = function() {
                 attrs: [
                     {name: "time", type: 'numeric', unit: 'seconds', precision: 2},
                     {name: "name", type: 'categorical'},
-                    {name: "result", type: 'categorical'},
+                    {
+                        name: "result",
+                        type: 'categorical',
+                        colormap : { "healthy" : Critter.borderColors[0], "sick" : CritterView.kSickBorderColor }
+                    },
                     {name: "activity", type: 'categorical', colormap : Location.colorMap},
                     {name: "temp", type: 'numeric', precision: 1},
                     {
@@ -160,7 +164,7 @@ EpiCODAPConnector.prototype.getSaveObject = function() {
     };
 
     return tState;
-}
+};
 
 /**
  * @param iObject   object containing the property values.

@@ -63,6 +63,7 @@ epiWorldView = {
      */
     flushAndRedraw : function () {
 
+        this.setGridSize();
         this.snapWorld.clear();
 
         var i;

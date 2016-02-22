@@ -146,6 +146,25 @@ epiGeography = {
     setGridSize : function(iRows) {
         this.pRowsInGrid = iRows;
         this.pColumnsInGrid = iRows;
+    },
+
+    getSaveObject: function() {
+        var tSaveObject = {
+            pRowsInGrid : this.pRowsInGrid,
+            pColumnsInGrid : this.pColumnsInGrid,
+            kPixelsWide : this.kPixelsWide,
+            kPixelsTall : this.kPixelsTall,
+        };
+        return tSaveObject;
+    },
+
+    restoreFrom: function( iObject ) {
+        this.pRowsInGrid = iObject.pRowsInGrid;
+        this.pColumnsInGrid = iObject.pColumnsInGrid;
+        this.kPixelsWide = iObject.kPixelsWide;
+        this.kPixelsTall = iObject.kPixelsTall;
+
     }
+
 
 };

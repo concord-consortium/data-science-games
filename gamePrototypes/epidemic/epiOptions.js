@@ -15,9 +15,6 @@ epiOptions = {
     endlessGame : false,
     smallGame : false,
 
-    pMaladyNumber : null,
-    pMaladyName : null,
-    pMaladyNameList : [],
 
     optionChange : function() {
         this.crittersMoveOnTheirOwn = document.getElementById("crittersMoveOnTheirOwn").checked;
@@ -42,17 +39,11 @@ epiOptions = {
             showCarrier : this.showCarrier,
             endlessGame : this.endlessGame,
             smallGame : this.smallGame,
-            pMaladyNumber : this.pMaladyNumber,
-            pMaladyName : this.pMaladyName,
-            pMaladyNameList : this.pMaladyNameList,
         };
         return tSaveObject;
     },
 
     restoreFrom: function( iObject ) {
-        this.pMaladyNumber = iObject.pMaladyNumber;
-        this.pMaladyName = iObject.pMaladyName;
-        this.pMaladyNameList = iObject.pMaladyNameList;
 
         document.getElementById("crittersMoveOnTheirOwn").checked = iObject.crittersMoveOnTheirOwn;
         document.getElementById("dataOnCritterClick").checked = iObject.dataOnCritterClick;

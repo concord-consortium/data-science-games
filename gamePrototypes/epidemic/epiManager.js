@@ -36,12 +36,11 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-003c",
+    version: "vPre-003d",
     UI : {},
     gameNumber: 0,
     CODAPConnector: null,
 
-    pNumLocations: 100,
     previous: 0,    //  timestamp for animation
     running: false,
     gameInProgress: false,
@@ -86,15 +85,11 @@ epiManager = {
      */
     newGame: function () {
         if (epiOptions.smallGame) {
-            this.pNumLocations = 25;
             epiGeography.setGridSize( 5 );
-            epiWorldView.setGridSize();
             epiModel.numberOfCritters = 20;
         }
         else {
-            this.pNumLocations = 100;
             epiGeography.setGridSize( 10 );
-            epiWorldView.setGridSize();
             epiModel.numberOfCritters = 49;
         }
 
@@ -262,7 +257,7 @@ epiManager = {
         this.UI.maladyChoiceDiv = document.getElementById("maladyChoiceDiv");
         this.UI.smallGameDiv = document.getElementById("smallGameDiv");
 
-        this.CODAPConnector = new farsCODAPConnector();
+        this.CODAPConnector = new EpiCODAPConnector();
         medNames.initialize();
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
@@ -278,9 +273,10 @@ epiManager = {
         switch (tCommand) {
             case "saveState":
                 //  here we construct the "state" to be restored
-                console.log("saving...");
+                console.log("eeps saving...");
                 var tState = {
                     epiManager : epiManager.getSaveObject(),
+                    epiGeography : epiGeography.getSaveObject(),
                     epiMalady : epiMalady.getSaveObject(),
                     epiModel : epiModel.getSaveObject(),
                     epiOptions : epiOptions.getSaveObject()
@@ -296,6 +292,7 @@ epiManager = {
 
                 //  here we restore whatever we saved in the "saveState" case
                 epiManager.restoreFrom( tState.epiManager );
+                epiGeography.restoreFrom( tState.epiGeography );
                 epiMalady.restoreFrom( tState.epiMalady );
                 epiModel.restoreFrom( tState.epiModel );
                 epiOptions.restoreFrom( tState.epiOptions );
@@ -317,7 +314,6 @@ epiManager = {
         var tSaveObject = {
             version : this.version,
             gameNumber : this.gameNumber,
-            pNumLocations : this.pNumLocations,
             //  previous
             //  running
             gameInProgress : this.gameInProgress,
@@ -332,7 +328,6 @@ epiManager = {
 
         this.version = iObject.version;
         this.gameNumber = iObject.gameNumber;
-        this.pNumLocations = iObject.pNumLocations;
         this.previous = 0;          //      always start anew
         this.running = false;
         this.gameInProgress = iObject.gameInProgress;

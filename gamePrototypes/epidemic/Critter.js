@@ -34,7 +34,6 @@
 var Critter = function( index ) {
     this.myIndex = index;
     this.currentLocation = null;
-    this.currentLocationIndex = null;
 
     this.x = 0;
     this.y = 0;
@@ -74,6 +73,12 @@ var Critter = function( index ) {
  * @param dt    amount of time that has passed since the last update
  */
 Critter.prototype.update = function (dt) {
+
+    var tWeird = !this.moving && !this.currentLocation;
+
+    if (tWeird) {
+        console.log("WEIRD: " + this.name )
+    }
     this.motivation.update( dt );
     this.updateHealth( dt );
     this.speed = this.kBaseSpeed * (0.5 + 0.5 * this.health);
@@ -267,11 +272,12 @@ Critter.prototype.distanceToLoc = function( L ) {
 Critter.prototype.getSaveObject =  function() {
     var tSaveObject = {
         myIndex : this.myIndex,
-        currentLocationIndex : this.currentLocation.myIndex,
+        currentLocationIndex : this.currentLocation ? this.currentLocation.myIndex : -1,
+        destLocIndex : this.destLoc ? this.destLoc.myIndex : -1,
         x : this.x,
         y : this.y,
         speed : this.speed,
-        //  moving
+        moving : this.moving,       //  is this OK?
         motivation : this.motivation.getSaveObject(),       //  this Class needs its own thing
         activity : this.activity,
         health : this.health,
@@ -303,7 +309,7 @@ Critter.prototype.restoreFrom = function( iObject ) {
 
     //  onward...
 
-    this.moving = false;
+    this.moving = iObject.moving;
     this.activity = iObject.activity;
     this.health = iObject.health;
     this.elapsedSick = iObject.elapsedSick;
@@ -318,9 +324,17 @@ Critter.prototype.restoreFrom = function( iObject ) {
 
     this.view = new CritterView( this ); // todo: eliminate all old views on restore
 
-    this.currentLocationIndex = iObject.currentLocationIndex;   //  todo: find more elegant solution
-    this.currentLocation = epiModel.locations[ this.currentLocationIndex ];
-    this.currentLocation.addCritter( this );
+    var tCurrentLocationIndex = iObject.currentLocationIndex;
+    if (tCurrentLocationIndex >= 0) {
+        this.currentLocation = epiModel.locations[ tCurrentLocationIndex ];
+        this.currentLocation.addCritter( this );
+    } else {
+        this.currentLocation = null;    //  traveling
+    }
+
+    var tdestLocIndex = iObject.destLocIndex;
+    this.destLoc = tdestLocIndex > 0 ? epiModel.locations[ tdestLocIndex ] : null;
+
 };
 
 Critter.prototype.toString = function() {
@@ -329,5 +343,5 @@ Critter.prototype.toString = function() {
     ;
 };
 
-Critter.eyeColors = ["violet", "dodgerblue"];   //  todo: pass in the attribute setup so we match the colors
+Critter.eyeColors = ["violet", "dodgerblue"];
 Critter.borderColors = ["orange"];
