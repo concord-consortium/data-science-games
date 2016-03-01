@@ -27,6 +27,12 @@ function	CODAP_MySQL_getOneRow($db, $query)	{
     return $result;
 }
 
+function console_log( $data ){
+  echo '<script>';
+  echo 'console.log('. json_encode( $data ) .')';
+  echo '</script>';
+}
+
 /*
 //      eeps at bluehost version
 $dbname = "denofinq_bart";
@@ -41,19 +47,26 @@ $user = "root";
 $pass = "root";
 
 //  universal code here
-$varList = "X.seq AS id, X.exitTime, entryT.abbr2 AS startAt, entryT.region AS startReg, " .
-            "exitT.abbr2 AS endAt, exitT.region AS endReg, T.media AS ticket ";
+$varList = "X.seq AS id, X.exitTime, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
+            "exitT.abbr6 AS endAt, exitT.region AS endReg, T.media AS ticket ";
 $joinList = "JOIN stations AS entryT ON (entryT.code = X.entry_id) " .
             "JOIN stations AS exitT ON (exitT.code = X.exit_id) " .
             "JOIN ticketTypes AS T ON (T.type_id = X.type_id)  ";
 
 $command = $_POST["c"];
-$startTime = $_POST["start"];
-$stopTime = $_POST["stop"];
 
-$timeRange = " WHERE exitTime >= '" . $startTime . "' AND exitTime < '" . $stopTime . "'";
 
-$query = "SELECT " . $varList . " FROM exits AS X " . $joinList . $timeRange ;
+$stationClause = "";
+
+if (isset($_POST["stn0"])) {
+    $stn0 = $_POST["stn0"];
+    $stationClause .= " AND entryT.abbr6 = '" . $stn0 . "'";
+}
+
+if (isset($_POST["stn1"])) {
+    $stn1 = $_POST["stn1"];
+    $stationClause .= " AND exitT.abbr6 = '" . $stn1 . "'";
+}
 
 
 
@@ -65,16 +78,25 @@ switch ($command) {
     case "byTime":
     case "byArrival":
     case "byDeparture":
+        $startTime = $_POST["start"];
+        $stopTime = $_POST["end"];
+        $timeRange = " WHERE exitTime >= '" . $startTime . "' AND exitTime < '" . $stopTime . "'";
+
+        $query = "SELECT " . $varList . " FROM exits AS X " . $joinList . $timeRange . $stationClause;
 
         break;
 }
 
 
+file_put_contents("bartdebug.txt", "\n\nPT: " . implode(" | ",$_POST) , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\nQQ: " . $query , FILE_APPEND);
 
 $query = stripcslashes( $query );
+file_put_contents("bartdebug.txt", "\n----\nQQ: " . $query , FILE_APPEND);
 
 $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
 $rows = CODAP_MySQL_getQueryResult($DBH, $query);
+file_put_contents("bartdebug.txt", "\n    " . count($rows) . " row(s)" , FILE_APPEND);
 echo json_encode($rows);
 
 

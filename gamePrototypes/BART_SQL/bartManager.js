@@ -8,7 +8,7 @@ var bartManager;
 
 bartManager = {
 
-    version :  "001",
+    version :  "002a",
     kBaseURL :  "http://localhost:8888/bart/getBARTdata.php",   //  "getBARTdata.php"   //  todo : set to release URL
     kBaseDateString : "Wed Sep 30 2015 00:00:00 GMT-0700 (PDT)",
     baseDate : null,
@@ -112,18 +112,12 @@ bartManager = {
     },
 
     assembleQueryDataString : function() {
-        var tVarList = "X.seq AS id, X.exitTime, entryT.abbr2 AS startAt, entryT.region AS startReg, " +
-            "exitT.abbr2 AS endAt, exitT.region AS endReg, T.media AS ticket ";
-        var tQuery = "SELECT " + tVarList + " FROM exits AS X ";
-        tQuery +=
-            "JOIN stations AS entryT ON (entryT.code = X.entry_id) " +
-            "JOIN stations AS exitT ON (exitT.code = X.exit_id) " +
-            "JOIN ticketTypes AS T ON (T.type_id = X.type_id)  ";
 
         var tStartTime = new Date(this.dataDateTime.getTime());
         var tEndTime = new Date(this.dataDateTime.getTime());
 
         var dataString = "c=" + this.dataChoice;
+        var stationClauseString = "";
 
         switch (this.dataChoice) {
             case "byTime":
@@ -132,26 +126,28 @@ bartManager = {
 
             case "byArrival":
                 tEndTime.setTime(tEndTime.getTime() + 20 * 60 * 1000);   //   20 minutes later
-                tQuery += " AND exitT.abbr2 = '" + this.arrivalStation + "'"
+                stationClauseString = "&stn1=" + this.arrivalStation;   //  the abbr6 of that station
                 break;
 
             case "byDeparture":
                 tEndTime.setTime(tEndTime.getTime() + 20 * 60 * 1000);   //   20 minutes later
-                tQuery += " AND entryT.abbr2 = '" + this.departureStation + "'"
+                stationClauseString = "&stn0=" + this.departureStation ;   //  the abbr6 of that station
                 break;
 
             default:
                 tQuery += " true LIMIT 10"
         }
 
-        dataString += "?start=" + tStartTime.BART_string() + "?end=" + tEndTime.BART_string();
+        dataString += "&start=" + tStartTime.BART_string()
+            + "&end=" + tEndTime.BART_string()
+            + stationClauseString;
 
-        //  $("#query").html( "<strong>MySQL Query</strong> : " + tQuery );
+        $("#query").html( "<strong>data string for PHP</strong> : " + dataString );
         return dataString;
     },
 
     doBucketOfData : function() {
-        var tQuery = this.assembleQuery();
+        var tDataString = this.assembleQueryDataString();
         var theData;
         this.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case
 
@@ -159,18 +155,18 @@ bartManager = {
             if (iResult.success) {
                 bartManager.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
                 console.log("Bucket case ID set to " + iResult.caseID);
-                doQuery(tQuery);
+                doQuery( );
             } else {
                 console.log("Failed to create bucket case.");
             }
         }
 
-        function doQuery( iQuery ) {
+        function doQuery(   ) {
             $("#status").text("getting data from eeps...");
             $.ajax({
                 type :  "post",
                 url :   bartManager.kBaseURL,
-                data :  "q=" + iQuery + "&message=" + "Hello ",
+                data :  tDataString,
                 success: weGotData
             });
         }
@@ -218,7 +214,7 @@ bartManager = {
                 var theStations = JSON.parse( iData );
                 theStations.forEach(
                     function (sta)  {
-                        result += "<option value='"+sta.abbr2+"'>"+sta.name+"</option>";
+                        result += "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
                     }
                 )
                 $("#arrivalSelector").empty().append(result);   // put them into the DOM
