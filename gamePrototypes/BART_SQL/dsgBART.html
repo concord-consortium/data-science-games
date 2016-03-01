@@ -42,8 +42,9 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
 <fieldset id="getDataBlock">
     <legend>Specify data</legend>
-    <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>all trips at
-    <input id="timeControl" type="time">(Doesn't work in IE or FFox)<br>
+    Time: <input id="timeControl" type="time">(Doesn't work in IE or FFox)<br>
+
+    <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one minute window, all stations<br>
 
     <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/>only trips to
     <select id="arrivalSelector"></select> (20 minute window)<br>
@@ -54,9 +55,11 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
 </fieldset>
 
-<p id="query"></p>
-<p id="result"></p>
-<p id="status">waiting...</p>
+<p>
+    <span id="query">PHP info.</span><br>
+    <span id="result"></span><br>
+    <span id="status">Ready.</span>
+</p>
 
 </body>
 
