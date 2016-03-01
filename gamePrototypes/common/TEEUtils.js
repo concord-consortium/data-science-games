@@ -28,6 +28,12 @@
 
 var     TEEUtils = {
 
+    padIntegerToTwo : function( i ) {
+        if (i == 0) return "00";
+        if (i >= 10) return "" + i;
+        else return "0"+i;
+    },
+
     twoPlaces : function( x ) {
         return (Math.round( x * 100) / 100.0);
     },
@@ -80,4 +86,21 @@ var     TEEUtils = {
         return a[tR];
     }
 
-}
+};
+
+//  Thanks, stackOverflow!
+
+Date.prototype.ISO_8601_string = function() {
+    var yyyy = this.getFullYear().toString();
+    var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
+    var dd  = this.getDate().toString();
+    return yyyy + "-" + (mm[1]?mm:"0"+mm[0]) + "-" + (dd[1]?dd:"0"+dd[0]); // padding
+};
+
+Date.prototype.BART_string = function() {
+    var hh = this.getHours().toString();
+    var ii = this.getMinutes().toString();
+
+    return this.ISO_8601_string() + " " + (hh[1]?hh:"0"+hh[0]) + ":" + (ii[1]?ii:"0"+ii[0]);
+
+};

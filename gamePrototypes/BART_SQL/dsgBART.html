@@ -1,0 +1,69 @@
+<!--
+
+Temp URL:   http://localhost:8888/bart/dsgBART.html
+
+    Here is the URL...
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/dsgBART.html
+
+    or locally,
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost:63342/data-science-games/gamePrototypes/BART_SQL/dsgBART.html
+
+
+    http://localhost/~tim/gamePrototypes/bart/dsgBART.html
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='dsgBART.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="../common/jquery.js" language="javascript"></script>
+
+
+    <!-- Our game source -->
+    <script src="bartManager.js" language="JavaScript"></script>
+    <script src="bartOptions.js" language="JavaScript"></script>
+    <script src="bartCODAPConnector.js" language="JavaScript"></script>
+
+
+    <title>Data Science Game - BART</title>
+</head>
+<body>
+<button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
+<br><br>
+
+<fieldset id="getDataBlock">
+    <legend>Specify data</legend>
+    <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>all trips at
+    <input id="timeControl" type="time">(Doesn't work in IE or FFox)<br>
+
+    <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/>only trips to
+    <select id="arrivalSelector"></select> (20 minute window)<br>
+
+    <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/>only trips from
+    <select id="departureSelector"></select> (20 minute window)<br>
+
+    <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
+</fieldset>
+
+<p id="query"></p>
+<p id="result"></p>
+<p id="status">waiting...</p>
+
+</body>
+
+<script language="JavaScript">
+    bartManager.initialize();
+
+
+
+</script>
+</html>

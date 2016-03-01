@@ -50,7 +50,7 @@ var codapHelper = {
   },
 
   openCase: function (iCollectionName, iValues, iCallback) {
-    console.log("In openCase");
+    console.log("Open a new case in " + iCollectionName);
     if( iValues && !Array.isArray( iValues))
       iValues = [iValues];
     this.codapPhone.call({
@@ -64,20 +64,38 @@ var codapHelper = {
     )
   },
 
-  closeCase: function (iCollectionName, iValues, iCaseID) {
-    console.log("In closeCase");
+    openParentCase: function (iCollectionName, iValues, iParentID, iCallback) {
+        console.log("Opening a case in parent collection " + iCollectionName + ", case " + iParentID);
+        if( iValues && !Array.isArray( iValues))
+            iValues = [iValues];
+        this.codapPhone.call({
+                action: 'openCase',
+                args: {
+                    collection: iCollectionName,
+                    values: iValues
+                }
+            },
+            iCallback
+        )
+    },
+
+    closeCase: function (iCollectionName, iValues, iCaseID) {
+    console.log("Close case " + iCaseID + " in " + iCollectionName);
     if( iValues && !Array.isArray( iValues))
       iValues = [iValues];
-    this.codapPhone.call({
-      action: 'closeCase',
-      args: {
-        collection: iCollectionName,
-        values: iValues,
-        caseID: iCaseID
-      }
-    }, function () {
-      console.log("closeCase")
-    });
+    this.codapPhone.call(
+        {
+          action: 'closeCase',
+          args: {
+            collection: iCollectionName,
+            values: iValues,
+            caseID: iCaseID
+          }
+        },
+        function () {
+          console.log("closeCase")
+        }
+    );
   }
 
 };
