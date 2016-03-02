@@ -274,7 +274,7 @@ epiManager = {
             case "saveState":
                 //  here we construct the "state" to be restored
                 console.log("eeps saving...");
-                var tState = {
+                var tState = {      //  get "saveObject"s for each area of the program. Critters and Locations are part of the model.
                     epiManager : epiManager.getSaveObject(),
                     epiGeography : epiGeography.getSaveObject(),
                     epiMalady : epiMalady.getSaveObject(),
@@ -310,6 +310,10 @@ epiManager = {
         }
     },
 
+    /**
+     * Make the object we need to restore THIS object (the epiManager)
+     * @returns {{version: *, gameNumber: *, gameInProgress: *, CODAPConnector: (*|{myIndex: *, currentLocationIndex: number, destLocIndex: number, x: *, y: *, speed: *, moving: *, motivation: (*|{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}), activity: *, health: *, elapsedSick: *, infectious: *, infected: *, incubationTime: *, antibodies: *, name: *, eyeColor: *, borderColor: *, baseTemperature: *}|{pRowsInGrid: *, pColumnsInGrid: *, kPixelsWide: *, kPixelsTall: *}|{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}|{pMaladyNumber: *, pMaladyName: *, pAverageSecondsToInfection: *, pDiseaseDurationInSeconds: *, pIncubationInSeconds: *, pSickSecondsToGameEnd: *, pTotalElapsedSecondsToGameEnd: *, pMaladyNameList: *}|{gameCaseID: *, gameNumber: *, gameCollectionName: *})}}
+     */
     getSaveObject: function() {
         var tSaveObject = {
             version : this.version,
@@ -323,6 +327,10 @@ epiManager = {
         return tSaveObject;
     },
 
+    /**
+     * restore the epiManager from the saved object
+     * @param iObject       the saved object
+     */
     restoreFrom: function( iObject ) {
         this.initializeComponent( );
 

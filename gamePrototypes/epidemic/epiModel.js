@@ -9,7 +9,7 @@
 
  Author:   Tim Erickson
 
- Copyright (c) 2015 by The Concord Consortium, Inc. All rights reserved.
+ Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -88,6 +88,10 @@ epiModel = {
         epiMalady.initMalady( );
     },
 
+    /**
+     * Check if the end conditions are met: enough "sick seconds" or total elapsed seconds.
+     * @returns {*}
+     */
     endCheck : function() {
         var tEnd = null;
 
@@ -100,6 +104,13 @@ epiModel = {
         return tEnd;
     },
 
+    /**
+     * Update to mark iCritter as selected
+     *
+     * @param iCritter      which Critter to select
+     * @param iReplace      if true, iCritter is now the only thing selected
+     *                      if false, add iCritter to the set of selected Critters
+     */
     selectCritter :  function(iCritter, iReplace) {
         if (iReplace) epiManager.clearSelection();
         iCritter.selected = true;
@@ -118,7 +129,7 @@ epiModel = {
         tCritter.currentLocation = tLocation;
         tCritter.destLoc = null;
         tLocation.addCritter( tCritter );
-        tCritter.activity = Location.mainActivities[ tLocation.locType ];
+        tCritter.activity = Location.mainActivities[ tLocation.locType ];       //      do whatever they do here :)
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
         //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
         //  (Why are they invalid?)
@@ -157,6 +168,10 @@ epiModel = {
         }
     },
 
+    /**
+     * Get an object containg the information you need to see how many are sick, etc.
+     * @returns {{totalElapsed: string, numberSick: number}}
+     */
     sicknessReport : function() {
         var totElapsed = 0;
         var nSick = 0;
@@ -195,6 +210,10 @@ epiModel = {
 
     },
 
+    /**
+     * Make an object we can use to restore the model. Note that Critters and Locations are covered in this.arraySaveObject()
+     * @returns {{numberOfCritters: *, elapsed: *, nMoves: *, malady: *, critters: *, locations: *}}
+     */
     getSaveObject: function() {
         var tSaveObject = {
             numberOfCritters : this.numberOfCritters,
@@ -208,6 +227,10 @@ epiModel = {
         return tSaveObject;
     },
 
+    /**
+     * Restore the model from the "saveObject". Note how we handle Locations ad Critters
+     * @param iObject
+     */
     restoreFrom: function( iObject ) {
         this.initialize( );     //  clean up all vars, esp critters and locations, now empty
 
@@ -234,6 +257,12 @@ epiModel = {
         );
     },
 
+    /**
+     * Critters and Locations are arrays. Each class has save and restore, so we simply loop.
+     * This creates an array of those "save objects"
+     * @param array
+     * @returns {Array}
+     */
     arraySaveObject : function( array ) {
         var aResult = [];
 
@@ -245,6 +274,10 @@ epiModel = {
         return aResult;
     },
 
+    /**
+     * Restore each of the objects in the array. Called from epiModel.restoreFrom()
+     * @param obj
+     */
     arrayRestoreFromObject : function ( obj ) {
         var aResult = [];
 

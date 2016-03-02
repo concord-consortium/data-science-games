@@ -37,9 +37,13 @@ var Location = function( index ) {
     this.toxic = false;     //  for location-based toxic maladies
 };
 
+/**
+ * Set basic properties of the Location; depends on index.
+ * @param index
+ */
 Location.prototype.setLocationProperties = function( index ) {
 
-    this.critters = new Set();
+    this.critters = new Set();          //  each Location has a Set of Critters
     var tLocInfo = epiGeography.newLocationInfoByIndex( index );
 
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
@@ -56,29 +60,6 @@ Location.prototype.setLocationProperties = function( index ) {
 
 };
 
-Location.prototype.getSaveObject = function() {
-    var tSaveObject = {
-        myIndex : this.myIndex,
-        locType : this.locType,
-        baseFill : this.baseFill,
-        toxic : this.toxic,
-    };
-    return tSaveObject;
-};
-
-/**
- * Restore an existing Location from its object representation.
- * It already has the corrrect index; that's done in epiModel's restore.
- * There, it made a new Location( el.myIndex ) so position, row, col, and INDEX are all correct.
- * Here, we just adjust what kind of Location it is, and its base color.
- * @param iObject
- */
-Location.prototype.restoreFrom = function( iObject ) {
-
-    this.locType = iObject.locType;
-    this.baseFill = iObject.baseFill;
-    this.toxic = iObject.toxic;
-};
 
 /**
  * Update the location. This is where we would grow grass, etc.
@@ -168,6 +149,34 @@ Location.prototype.addCritter = function( critter ) {
 Location.prototype.removeCritter = function( c ) {
     this.critters.delete( c );
     this.update();
+};
+
+/**
+ * Construct an object we can use to restore this Location
+ * @returns {{myIndex: *, locType: *, baseFill: *, toxic: *}}
+ */
+Location.prototype.getSaveObject = function() {
+    var tSaveObject = {
+        myIndex : this.myIndex,
+        locType : this.locType,
+        baseFill : this.baseFill,
+        toxic : this.toxic,
+    };
+    return tSaveObject;
+};
+
+/**
+ * Restore an existing Location from its object representation.
+ * It already has the corrrect index; that's done in epiModel's restore.
+ * There, it made a new Location( el.myIndex ) so position, row, col, and INDEX are all correct.
+ * Here, we just adjust what kind of Location it is, and its base color.
+ * @param iObject
+ */
+Location.prototype.restoreFrom = function( iObject ) {
+
+    this.locType = iObject.locType;
+    this.baseFill = iObject.baseFill;
+    this.toxic = iObject.toxic;
 };
 
 /**

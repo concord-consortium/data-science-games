@@ -87,6 +87,10 @@ EpiCODAPConnector.prototype.doEventRecord = function(values ) {
 
 };
 
+/**
+ * Construct the JSON object that initGame() sends to CODAP
+ * @returns {{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}}
+ */
 EpiCODAPConnector.getInitSimObject = function() {
     var tColorMapObject = { };
 
@@ -156,6 +160,10 @@ EpiCODAPConnector.getInitSimObject = function() {
     return oInitSimObject;
 };
 
+/**
+ * Construct the object this connector will need to be restored
+ * @returns {{gameCaseID: *, gameNumber: *, gameCollectionName: *}}
+ */
 EpiCODAPConnector.prototype.getSaveObject = function() {
     var tState = {
         gameCaseID : this.gameCaseID,
@@ -167,6 +175,7 @@ EpiCODAPConnector.prototype.getSaveObject = function() {
 };
 
 /**
+ * Restore this connector object from the stored object
  * @param iObject   object containing the property values.
  */
 EpiCODAPConnector.prototype.restoreFrom = function( iObject ) {
@@ -184,6 +193,6 @@ EpiCODAPConnector.prototype.restoreFrom = function( iObject ) {
  */
 codapHelper.initSim(
     EpiCODAPConnector.getInitSimObject(),
-    epiManager.epiDoCommand
+    epiManager.epiDoCommand         //  the callback needed
 );
 

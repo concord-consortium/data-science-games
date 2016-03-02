@@ -53,6 +53,9 @@ epiMalady = {
         this.pMaladyName = this.pMaladyNameList[ tDiseaseChoice ];
     },
 
+    /**
+     * Initialize this malady, largely based on the maladyNumber set in pickMalady (in response to user choice)
+     */
     initMalady : function() {
 
         console.log("Initializing malady #" + this.pMaladyNumber);
@@ -102,6 +105,12 @@ epiMalady = {
         }
     },
 
+    /**
+     * Is there a chance of exposure in this Location?
+     * (NOT for toxin in location, but rather infectious Critter)
+     * @param iLocation
+     * @returns {boolean}
+     */
     exposureInLocation : function( iLocation ) {
         var oInfection = false;
 
@@ -112,6 +121,12 @@ epiMalady = {
         return oInfection;
     },
 
+    /**
+     * Knowing that a Critter is exposed, does it get infected?
+     * If so, respond appropriately
+     * @param iCritter
+     * @param dt
+     */
     possiblyInfectExposedCritter : function(iCritter, dt ) {
         //  console.log( iCritter.name + " exposed in " + iCritter.currentLocation.name);
         var tInfectionProbability = dt / this.pAverageSecondsToInfection;
@@ -139,6 +154,10 @@ epiMalady = {
         }
     },
 
+    /**
+     * Constuct the object we can use to reconstruct this thing
+     * @returns {{pMaladyNumber: *, pMaladyName: *, pAverageSecondsToInfection: *, pDiseaseDurationInSeconds: *, pIncubationInSeconds: *, pSickSecondsToGameEnd: *, pTotalElapsedSecondsToGameEnd: *, pMaladyNameList: *}}
+     */
     getSaveObject: function() {
         var tSaveObject = {
             pMaladyNumber : this.pMaladyNumber,
@@ -154,6 +173,10 @@ epiMalady = {
         return tSaveObject;
     },
 
+    /**
+     * Restore this malady from the saved object
+     * @param iObject       the saved object
+     */
     restoreFrom: function( iObject ) {
         this.pMaladyNumber = iObject.pMaladyNumber;
         this.pMaladyName = iObject.pMaladyName;

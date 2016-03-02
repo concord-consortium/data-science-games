@@ -121,6 +121,10 @@ epiWorldView = {
         this.snapWorld.attr({"viewBox" : tString});
     },
 
+    /**
+     * Set the size of the grid based on the values in epiGeography.
+     * We need this for whne we change to larger or smaller games.
+     */
     setGridSize : function() {
         this.VBHeight = this.VBMaxHeight =  epiGeography.kPixelsTall * epiGeography.pRowsInGrid;
         this.VBWidth = this.VBMaxWidth = epiGeography.kPixelsWide * epiGeography.pColumnsInGrid;
@@ -129,12 +133,17 @@ epiWorldView = {
 
     //  event section. Handles drag.
 
+    /**
+     * Zoom in or out by "factor."
+     * @param factor    How much zoom. < 1.00 == zoom out.
+     * @param event     (may not be present)
+     */
     zoom : function( factor, event ) {
         epiWorldView.VBLeft -= (factor - 1) * (epiWorldView.VBWidth/2);
         epiWorldView.VBTop -= (factor - 1) * ( epiWorldView.VBHeight/2);
         epiWorldView.VBWidth *= factor;
         epiWorldView.VBHeight *= factor;
-        epiWorldView.updateViewBox();
+        epiWorldView.updateViewBox();       //  also pins the view
     },
 
     down : function( e ) {

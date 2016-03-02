@@ -5,7 +5,7 @@
  ==========================================================================
  bartOptions
 
- Main controller for data-science-games.
+ options controller for BART data-science-games.
 
  Author:   Tim Erickson
 

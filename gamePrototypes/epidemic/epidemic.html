@@ -67,6 +67,9 @@
     <title>Epidemic</title>
 </head>
 <body>
+
+<!--        Main big SVG. Called "epiWorldView"         -->
+
 <svg width="400" height="400" viewBox="0 0 1500 1500" id="epiWorldView">
     <defs>
         <linearGradient id="epiGrad" x1="0%" x2="100%" y1="0%" y2="100%">
@@ -79,6 +82,8 @@
     <text x="500" y="500" font-size="60" text-anchor="middle" fill="white">Press "new game"</text>
 </svg>
 
+<!--        Control buttons         -->
+
 <div class="hBox">
         <div class = "imageButton" id="startStop" onclick="epiManager.running ? epiManager.pause() : epiManager.restart();"></div>
         <div class = "textIO" style = "width : 80px">Time: <span id = "timeText">0</span></div>
@@ -88,9 +93,13 @@
         <button id="newGameButton" onclick="epiManager.newGameButtonPressed()">new game</button>
 </div>
 
+<!--    brief text report       -->
+
 <p id="healthReport"></p>
 
 <hr/>
+
+<!--        pink "options" section      -->
 
 <label class="hBox">
     <div class = "vBox options" id = "gameOptions" onclick="epiOptions.optionChange()">

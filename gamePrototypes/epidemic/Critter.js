@@ -189,6 +189,11 @@ Critter.prototype.startMove = function( ) {
     this.headForCenterOfLocation( this.destLoc );
 };
 
+/**
+ * Set the Critter's destination to be the center of the given Location.
+ * When it arrives, adjust the positions of Critters in the Location.
+ * @param iL        destination Location
+ */
 Critter.prototype.headForCenterOfLocation = function(iL )  {
     var tCenter = iL.centerCoordinates();     //  for now, head for center of the loc
     this.destX = tCenter.x;
@@ -239,36 +244,40 @@ Critter.prototype.startJiggleMove = function( iDest ) {
 
 /**
  * Set up initial values for this Critter
- * @param where
+ * @param iLocation     the Location
  */
-Critter.prototype.initialize = function( where ) {
+Critter.prototype.initialize = function( iLocation ) {
     this.name = medNames.newName( );
-    this.currentLocation = where;
-    tLocCenter = where.centerCoordinates();
+    this.currentLocation = iLocation;
+    tLocCenter = iLocation.centerCoordinates();
     this.x = tLocCenter.x;
     this.y = tLocCenter.y;
     this.view.moveTo( this.x, this.y );
     this.motivation = new Motivation( this );
 
-    where.addCritter(this);
+    iLocation.addCritter(this);
 
 };
 
 /**
- * How far is the given location?
- * @param L     the Location in question
+ * How far is the given location from this Critter?
+ * @param iLoc     the Location in question
  * @returns {number}
  */
-Critter.prototype.distanceToLoc = function( L ) {
-    var tLocW = Number(L.snapShape.attr("width"));
-    var tLocH = Number(L.snapShape.attr("height"));
-    var tLocX = Number(L.snapShape.attr("x")) + tLocW/2;
-    var tLocY = Number(L.snapShape.attr("y")) + tLocH/2;
+Critter.prototype.distanceToLoc = function( iLoc ) {
+    var tLocW = Number(iLoc.snapShape.attr("width"));
+    var tLocH = Number(iLoc.snapShape.attr("height"));
+    var tLocX = Number(iLoc.snapShape.attr("x")) + tLocW/2;
+    var tLocY = Number(iLoc.snapShape.attr("y")) + tLocH/2;
     var tdx = tLocX - this.x;
     var tdy = tLocY - this.y;
     return Math.sqrt( tdx * tdx + tdy * tdy);
 };
 
+/**
+ * Construct an Object to be saved; we can use this to completely restore the Critter in restoreFrom()
+ * @returns {{myIndex: *, currentLocationIndex: number, destLocIndex: number, x: *, y: *, speed: *, moving: *, motivation: (*|{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}), activity: *, health: *, elapsedSick: *, infectious: *, infected: *, incubationTime: *, antibodies: *, name: *, eyeColor: *, borderColor: *, baseTemperature: *}}
+ */
 Critter.prototype.getSaveObject =  function() {
     var tSaveObject = {
         myIndex : this.myIndex,
@@ -295,6 +304,10 @@ Critter.prototype.getSaveObject =  function() {
     return tSaveObject;
 };
 
+/**
+ * Completely restore a Critter using the argument
+ * @param iObject       the stored object previously constructed using getSaveObject()
+ */
 Critter.prototype.restoreFrom = function( iObject ) {
 
     this.myIndex = iObject.myIndex;
@@ -337,11 +350,24 @@ Critter.prototype.restoreFrom = function( iObject ) {
 
 };
 
+/**
+ * Very simple toString()
+ * @returns {string}
+ */
 Critter.prototype.toString = function() {
     return "C " + this.myIndex + " mot "
         + this.motivation
     ;
 };
 
+/**
+ * Possible eye colors
+ * @type {string[]}
+ */
 Critter.eyeColors = ["violet", "dodgerblue"];
+
+/**
+ * possible border colors
+ * @type {string[]}
+ */
 Critter.borderColors = ["orange"];

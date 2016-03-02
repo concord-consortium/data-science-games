@@ -133,6 +133,10 @@ Motivation.prototype.toString = function() {
         ;
 };
 
+/**
+ * Construct an object that we can use to restore Motivations.
+ * @returns {{hungry: *, thirsty: *, tired: *}}
+ */
 Motivation.prototype.getSaveObject = function() {
     var tState = {
         hungry : this.hungry,
@@ -145,7 +149,7 @@ Motivation.prototype.getSaveObject = function() {
 
 /**
  * Restore a Critter's motivation.
- * this motivation has already been creted by teh Critter, with itself as the .critter object
+ * this motivation has already been created by the Critter, with itself as the .critter object
  * @param iObject   object containing the property values.
  */
 Motivation.prototype.restoreFrom = function( iObject ) {

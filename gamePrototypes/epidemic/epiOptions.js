@@ -16,6 +16,9 @@ epiOptions = {
     smallGame : false,
 
 
+    /**
+     *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
+     */
     optionChange : function() {
         this.crittersMoveOnTheirOwn = document.getElementById("crittersMoveOnTheirOwn").checked;
         this.dataOnCritterClick = document.getElementById("dataOnCritterClick").checked;
@@ -29,6 +32,10 @@ epiOptions = {
         epiManager.updateScreen();
     },
 
+    /**
+     * Make an object we can use to restore all of the options.
+     * @returns {{crittersMoveOnTheirOwn: *, dataOnCritterClick: *, dataOnArrival: *, dataOnDeparture: *, dataOnGetSick: *, showCarrier: *, endlessGame: *, smallGame: *}}
+     */
     getSaveObject: function() {
         var tSaveObject = {
             crittersMoveOnTheirOwn : this.crittersMoveOnTheirOwn,
@@ -43,6 +50,10 @@ epiOptions = {
         return tSaveObject;
     },
 
+    /**
+     *  Restore all of the options from the "save object"
+     * @param iObject
+     */
     restoreFrom: function( iObject ) {
 
         document.getElementById("crittersMoveOnTheirOwn").checked = iObject.crittersMoveOnTheirOwn;

@@ -132,7 +132,7 @@ CritterView.prototype.update = function ( ) {
 };
 
 /**
- * Just move me to x, y.
+ * Just move me to x, y. No animation
  * @param xx
  * @param yy
  */
@@ -147,6 +147,11 @@ CritterView.prototype.moveTo = function( xx, yy ) {
  * @type {number}
  */
 CritterView.overallViewSize = 30;
+
+/**
+ * Other class variables for the view
+ * @type {string}
+ */
 CritterView.kUsualBackgroundColor = "yellow";
 CritterView.kCarrierBackgroundColor = "black";
 CritterView.kSickBorderColor = "gray";

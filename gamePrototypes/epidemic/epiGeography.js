@@ -148,6 +148,10 @@ epiGeography = {
         this.pColumnsInGrid = iRows;
     },
 
+    /**
+     * Make the object that can be used to restore this
+     * @returns {{pRowsInGrid: *, pColumnsInGrid: *, kPixelsWide: *, kPixelsTall: *}}
+     */
     getSaveObject: function() {
         var tSaveObject = {
             pRowsInGrid : this.pRowsInGrid,
@@ -158,6 +162,10 @@ epiGeography = {
         return tSaveObject;
     },
 
+    /**
+     * restore from the saved object
+     * @param iObject
+     */
     restoreFrom: function( iObject ) {
         this.pRowsInGrid = iObject.pRowsInGrid;
         this.pColumnsInGrid = iObject.pColumnsInGrid;
