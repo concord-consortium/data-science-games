@@ -96,6 +96,10 @@ bartCODAPConnector.prototype.closeGame = function( iData ) {
     this.gameCaseID = 0;     //  so we know there is no open case
 };
 
+/**
+ * Create a new case in the middle-in-the-hierarchy "bucket" collection in the BART game.
+ * @param iCallback
+ */
 bartCODAPConnector.prototype.newBucketCase = function( iCallback ) {
     console.log("New bucket...");
     this.bucketNumber += 1;
@@ -125,6 +129,10 @@ bartCODAPConnector.prototype.doExitRecord = function(values ) {
 
 };
 
+/**
+ * Create the initSimObject that initSim needs.
+ * @returns {{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}}
+ */
 bartCODAPConnector.getInitSimObject = function() {
 
     var oInitSimObject = {

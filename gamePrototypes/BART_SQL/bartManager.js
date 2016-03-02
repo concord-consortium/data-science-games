@@ -20,13 +20,25 @@ bartManager = {
     dataChoice : null,      //  byTime, byArrival, ...
 
 
+    /**
+     * USer has pressed the button to get data.
+     * @param e     The mouse event
+     */
     getDataButtonPressed : function(e) {
 
         this.getDataSearchCriteria();   //  make sure we have current values
-        this.doBucketOfData(  );
-        this.fixUI();
+        this.doBucketOfData(  );        //  actually get the data
+        this.fixUI();                   //  update what we see
     },
 
+
+    /**
+     * Read the UI controls and set up properties so that the data search will be correct.
+     * Especially, read the time and deal with all the screwiness:
+     *      convert to an actual DateTime
+     *      calculate decimal hours, taking after-midnight times into account
+     *  Also gets the names (abbr6's) of the stations.
+     */
     getDataSearchCriteria : function() {
         //  what way do we want the data?
         this.dataChoice =   $("input:radio[name=dataChoice]:checked" ).val();   //  jQuery wizardry to find chosen among radio buttons
@@ -54,6 +66,10 @@ bartManager = {
         this.departureStation = $("#departureSelector").val();
     },
 
+    /**
+     * User pressed the new game button, but when we're playing, that button is for aborting a game.
+     * So this routine figures out whether to call the newGame() or endGame("abort") methods.
+     */
     newGameButtonPressed : function() {
         if (this.playing) {
             this.endGame("abort")
@@ -64,6 +80,10 @@ bartManager = {
         this.fixUI();
     },
 
+    /**
+     * Called when a new game is starting,
+     * created the top-level "game' case, and records the ID for the case.
+     */
     newGame: function ( ) {
         this.connector.newGameCase(
             function( iResult ) {
@@ -72,9 +92,13 @@ bartManager = {
                 this.playing = true;
                 this.fixUI();
             }.bind(this)
-        );       //  make a new game case
+        );
     },
 
+    /**
+     * Called whenever a game ends.
+     * @param iReason   why the game ended, a string, e.g., "aborted" "won" "lost"
+     */
     endGame: function ( iReason ) {
         this.connector.closeGame( { result: iReason });
 
@@ -82,6 +106,9 @@ bartManager = {
     },
 
 
+    /**
+     * Start up the simulation. Called once on reload.
+     */
     initialize : function() {
         this.dataMinute = 13;
         this.dataHour = 10;
@@ -93,6 +120,9 @@ bartManager = {
     },
 
 
+    /**
+     * Adjust the UI with regard to disabled controls and visibility. Called whenever things could change.
+     */
     fixUI : function() {
         var timeString = TEEUtils.padIntegerToTwo(this.dataHour) + ":" + TEEUtils.padIntegerToTwo(this.dataMinute);
         $('#timeControl').val(timeString);
@@ -111,6 +141,17 @@ bartManager = {
         //  here we could write a longer description of what you will get if you press get data.
     },
 
+    /**
+     * assembles the "POST" string that $.ajax() needs to communicate the variables php needs to assemble
+     * the MySQL query that will get us our data.
+     *
+     * A finished string might be something like
+     *      ?c=byArrival&stn1=Orinda&startTime=2015-09-30 10:00:00&stopTime=2015-09-30 11:00:00
+     *
+     *
+     *
+     * @returns {string}
+     */
     assembleQueryDataString : function() {
 
         var tStartTime = new Date(this.dataDateTime.getTime());
@@ -146,6 +187,17 @@ bartManager = {
         return dataString;
     },
 
+    /**
+     * Called from getDataButtonPressed()
+     * Called when we need more data from the database.
+     * Variables about what data we want have already been set.
+     *
+     *  This is a cascade of functions, some of which are asynchronous.
+     *  (1) Create the "bucket" case, the parent of all the individual observations
+     *  (2) doQuery: if successful, actually POST the information to the .php feed (bartManager.kBaseURL)
+     *  (3) weGotData( iData ): if successful, process the array, each element using...
+     *  (4) processExits : extract the individual data values from the record and create a new "leaf" case
+     */
     doBucketOfData : function() {
         var tDataString = this.assembleQueryDataString();
         var theData;
@@ -204,6 +256,10 @@ bartManager = {
 
     },
 
+    /**
+     *  Use $.ajax() to get the list of stations from the database,
+     *  then use those names to populate the menus that need stations
+     */
     makeOptionsFromStationsDB : function() {
         $.ajax({
             type :  "post",
