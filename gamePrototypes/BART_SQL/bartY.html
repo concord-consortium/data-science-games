@@ -1,0 +1,97 @@
+<!--
+
+==========================================================================
+dsgBART.html
+
+HTML for BART aggregate data.
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+Temp URL:   http://localhost:8888/bart/dsgBART.html
+
+    Here is the URL...
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/dsgBART.html
+
+    or locally,
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost:63342/data-science-games/gamePrototypes/BART_SQL/barty.html
+
+
+    http://localhost/~tim/gamePrototypes/bart/dsgBART.html
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='dsgBART.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="../common/jquery.js" language="javascript"></script>
+
+
+    <!-- Our game source -->
+    <script src="bartyManager.js" language="JavaScript"></script>
+    <script src="bartOptions.js" language="JavaScript"></script>
+    <script src="bartYCODAPConnector.js" language="JavaScript"></script>
+
+
+    <title>Data Science Game - BART (by hour)</title>
+</head>
+<body>
+<button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
+<br><br>
+
+<fieldset id="getDataBlock">
+    <legend>Specify data</legend>
+    Date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)<br>
+    Hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
+
+    <!--
+    <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one hour, all stations<br>
+    -->
+
+    <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/>only trips to
+    <select id="arrivalSelector"></select> (one day)<br>
+
+    <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/>only trips from
+    <select id="departureSelector"></select> (one day)<br>
+
+    <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
+</fieldset>
+
+<p>
+    <span id="query">PHP info.</span><br>
+    <span id="result"></span><br>
+    <span id="status">Ready.</span>
+</p>
+
+</body>
+
+<script language="JavaScript">
+    bartManager.initialize();
+
+
+
+</script>
+</html>
