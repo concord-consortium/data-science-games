@@ -124,7 +124,7 @@ Critter.prototype.updateHealth = function( dt ) {
         if (epiOptions.dataOnGetSick) epiManager.emitCritterData( this, "got sick");
         this.incubationTime = null;
 
-        if (epiMalady.pMaladyNumber == 3) {
+        if (epiMalady.pMaladyNumber == 3) {     //  todo: consider making constants for maladies
             this.infectious = false;
         }
     }
@@ -185,7 +185,7 @@ Critter.prototype.setNewDest = function( ) {
  * then uses epiModel.doArrival as a callback.
  */
 Critter.prototype.startMove = function( ) {
-    this.doDeparture( this.currentLocation ,"migration");
+    this.doDeparture( this.currentLocation ,"migration");   //  todo: use string constants for case-creation reasons
     this.headForCenterOfLocation( this.destLoc );
 };
 
@@ -223,7 +223,7 @@ Critter.prototype.doDeparture = function( iToLoc, iReason ) {
         epiManager.emitCritterData( this, iReason); //  must do before currentLocation changes
 
     this.currentLocation = null;    //  is this a good idea??
-    if (iToLoc) iToLoc.removeCritter( this );
+    if (iToLoc) iToLoc.removeCritter( this );   //  todo: why do we do this with iToLoc? shouldn't it be from?
 
 };
 
@@ -336,6 +336,7 @@ Critter.prototype.restoreFrom = function( iObject ) {
     this.baseTemperature = iObject.baseTemperature;
 
     this.view = new CritterView( this ); // todo: eliminate all old views on restore
+    //  todo: make it so that the Critter does not own its model. At least don't restore it here.
 
     var tCurrentLocationIndex = iObject.currentLocationIndex;
     if (tCurrentLocationIndex >= 0) {

@@ -136,7 +136,7 @@ bartCODAPConnector.prototype.doHourRecord = function(values ) {
 bartCODAPConnector.getInitSimObject = function() {
 
     var oInitSimObject = {
-        name: 'BART',
+        name: 'BART-Year',
         version : bartManager.version,
         dimensions: {width: 500, height: 256},
         collections: [  // There are two collections: a parent and a child

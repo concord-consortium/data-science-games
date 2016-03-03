@@ -45,7 +45,7 @@ var CritterView = function( c ) {
 
     this.selectionCircle = this.snapShape.circle(0, 0, critRad - 3);
     this.selectionCircle.attr({
-        stroke : "white",
+        stroke : "white",       //  todo: make a const
         fill :"transparent",
         strokeWidth : 5
     });
