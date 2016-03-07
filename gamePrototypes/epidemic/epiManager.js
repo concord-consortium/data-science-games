@@ -36,7 +36,10 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    version: "vPre-003d",
+    kVersion: "vPre-003d",
+    kCrittersInBigWorld : 49,
+    kCrittersInSmallWorld : 20,
+
     UI : {},
     gameNumber: 0,
     CODAPConnector: null,
@@ -86,11 +89,11 @@ epiManager = {
     newGame: function () {
         if (epiOptions.smallGame) {
             epiGeography.setGridSize( 5 );
-            epiModel.numberOfCritters = 20;
+            epiModel.numberOfCritters = epiManager.kCrittersInSmallWorld;
         }
         else {
             epiGeography.setGridSize( 10 );
-            epiModel.numberOfCritters = 49;
+            epiModel.numberOfCritters = epiManager.kCrittersInBigWorld;
         }
 
         this.gameNumber += 1;
@@ -165,14 +168,15 @@ epiManager = {
         this.draggingCritter = false;
 
         // todo: consider moving the rest to epiModel
-        var tDepartureLoc = iCritter.currentLocation;
-        var tArrivalLoc = epiModel.coordsToLocation(iX, iY);
-        if (tDepartureLoc != tArrivalLoc) { //  kludge because click gave us a move
-            if (tArrivalLoc) {
-                iCritter.doDeparture(tDepartureLoc, "dragged");
+        var tFromRowCol = iCritter.where;
+        var tToRowCol = epiGeography.rowColFromCoordinates(iX, iY);
+        if (tFromRowCol != tToRowCol) { //  kludge because click gave us a move
+            if (tToRowCol) {
+                iCritter.whither = tToRowCol;
+                iCritter.doDeparture( "dragged");
                 epiModel.doArrival({
                     critter: iCritter,
-                    atLocation: tArrivalLoc
+                    atRowCol: tToRowCol
                 });
                 epiModel.nMoves += 1;
             }
@@ -257,8 +261,15 @@ epiManager = {
         this.UI.maladyChoiceDiv = document.getElementById("maladyChoiceDiv");
         this.UI.smallGameDiv = document.getElementById("smallGameDiv");
 
+
         this.CODAPConnector = new EpiCODAPConnector();
         medNames.initialize();
+        epiMalady.initialize();
+        epiOptions.optionChange();
+        /*
+        var tMaladyOptionsString = epiMalady.optionsString().bind(epiMalady);
+        $("#maladyChoice").empty().append( tMaladyOptionsString );
+*/
         epiWorldView.initialize();
         epiWorldView.model = epiModel;
         this.updateScreen();
@@ -343,7 +354,5 @@ epiManager = {
         this.CODAPConnector.restoreFrom( iObject.CODAPConnector );
 
     }
-
-
 };
 

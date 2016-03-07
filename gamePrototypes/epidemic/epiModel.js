@@ -66,20 +66,23 @@ epiModel = {
          * Create all the Locations. Use the index to determine where it is, etc.
          */
         for (var i = 0; i < epiGeography.numberOfLocations(); i++ ) {   //  todo: figure out if we have to eliminate these when the game ends!
-            var L = new Location( i );
-            this.locations.push( L );   // todo: fix so it's not a coincidence that the index is the index :)
+            var tL = new Location( i );
+            this.locations.push( tL );
         }
 
         /**
          * Create all the Critters.
          */
         for (var i = 0; i < this.numberOfCritters; i++) {       //  todo: do we have to eliminate these on game end??
-            var tC = new Critter( i );
+            var tC = new Critter( i );      //  i becomes Critter.myIndex
 
             var tLoc = TEEUtils.pickRandomItemFrom(this.locations);
-            tC.initialize( tLoc );
-
+            var tRowCol = tLoc.rowCol;
+            tC.initialize( tRowCol );
             this.critters.push( tC );    //  add critter to our local array
+
+            tLoc.addCritter( i );      //  add critter index to the location
+
         }
 
         //  pick a malady
@@ -118,18 +121,22 @@ epiModel = {
 
     /**
      * A Critter arrives at a new Location.
-     * @param o { critter; c, atLocation: L}
+     * @param o { critter; c, atRowCol: iRC}
      */
-    doArrival: function( o ) {      //  epiModel.doArrival({ critter; c, atLocation: L} );
+    doArrival: function( o ) {      //  epiModel.doArrival({ critter; c, atRowCol: iRC} );
         var tCritter = o.critter;
-        var tLocation = o.atLocation;
+        var iRC = o.atRowCol;
         tCritter.moving = false;
-        tCritter.x = tCritter.view.snapShape.attr("x");
-        tCritter.y = tCritter.view.snapShape.attr("y");
-        tCritter.currentLocation = tLocation;
-        tCritter.destLoc = null;
-        tLocation.addCritter( tCritter );
-        tCritter.activity = Location.mainActivities[ tLocation.locType ];       //      do whatever they do here :)
+        tCritter.xy = {
+            x: tCritter.view.snapShape.attr("x"),
+            y: tCritter.view.snapShape.attr("y")
+        };
+        tCritter.where = iRC;
+        tCritter.whither = null;
+
+        var tNewLocation = epiGeography.locationFromRowCol(iRC);
+        tNewLocation.addCritter( tCritter.myIndex );
+        tCritter.activity = Location.mainActivities[ tNewLocation.locType ];       //      do whatever they do here :)
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
         //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
         //  (Why are they invalid?)
@@ -142,7 +149,7 @@ epiModel = {
      */
     infect: function( dt ) {
         switch( epiMalady.pMaladyNumber ) {
-            case 0:
+            case epiMalady.kIntroMaladyAsymptomaticCarrier:
                 this.infect0( dt );
                 break;
             default:
@@ -155,17 +162,17 @@ epiModel = {
      * Does infection for disease #0. todo: move to epiMalady
      * @param dt
      */
-    infect0 : function( dt ) {
-        var i;
-        for (i = 0; i < this.locations.length; i++) {
-            var tLocation = this.locations[i];
-            var tInfectionInLocation = (epiMalady.exposureInLocation( tLocation ) || tLocation.toxic);
-            if (tInfectionInLocation) {
-                tLocation.critters.forEach(function(c) {
-                    epiMalady.possiblyInfectExposedCritter( c, dt )
-                });
+    infect0: function (dt) {
+
+        epiModel.locations.forEach(function (loc) {
+            tInfectionHere = (epiMalady.exposureInLocation(loc) || loc.toxic);
+            if (tInfectionHere) {
+                loc.critterIndices.forEach(function (iCrIndex) {
+                    var tCritter = epiModel.critters[iCrIndex];
+                    epiMalady.possiblyInfectExposedCritter(tCritter, dt)
+                })
             }
-        }
+        })
     },
 
     /**
@@ -200,14 +207,10 @@ epiModel = {
      * Suitable for new game or a restore from a file.
      */
     initialize : function() {
-
-        this.critters.forEach( function(c) { c.currentLocation = null;}); //    break pointer loop
-
         this.elapsed = 0;
         this.nMoves = 0;
         this.locations = [];
         this.critters = [];
-
     },
 
     /**

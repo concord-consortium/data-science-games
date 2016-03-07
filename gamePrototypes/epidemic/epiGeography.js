@@ -6,7 +6,7 @@
 
  Author:   Tim Erickson
 
- Copyright (c) 2015 by The Concord Consortium, Inc. All rights reserved.
+ Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -42,13 +42,10 @@ epiGeography = {
     kPixelsWide: 100,       //  width in game pixels of one CELL
     kPixelsTall: 100,
 
-    row: 0,
-    col: 0,
-
     colLetters : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
 
-    newLocationInfoByIndex: function( index ) {
-        var tSnapSVGShape = this.theShape( index );
+    newLocationInfoByRowCol: function( iRowCol ) {
+        var tSnapSVGShape = this.theShape( iRowCol );
         var tRole = TEEUtils.pickRandomItemFrom( Location.locTypes );
         var tColor = Location.colors[tRole];
 
@@ -62,34 +59,63 @@ epiGeography = {
                 height: tSnapSVGShape.attr("height")
             }
         );
-        var tName = this.colLetters[ this.col ] + (this.row + 1);
+        var tName = this.colLetters[ iRowCol.col ] + ( iRowCol.row + 1);
 
         //   todo: figure out how to set the order of a categorical so that we don't have to use a numeric column.
         return {
             snap: tSnapSVGShape,
             bg: tBackgroundSnap,
             locType: tRole,
-            name: tName,
-            row: this.row,
-            col: this.col
+            name: tName
         };
     },
 
-    /**
+    rowColFromIndex : function( i ) {
+        var tRow = Math.floor( i / this.pColumnsInGrid );    //  row from 0 to 9 (or 4)
+        var tCol = i % this.pColumnsInGrid;                  //  col from 0 to 9
+        return { row : tRow, col : tCol };
+    },
+
+    indexFromRowCol : function(iRowCol) {
+        var result =  iRowCol.row * this.pColumnsInGrid + iRowCol.col;
+        if (result >= this.numberOfLocations() ) return null;    //  error
+        return result;
+    },
+
+    topLeftFromRowCol : function( iRowCol ) {
+        var tTop = iRowCol.row * this.kPixelsTall;
+        var tLeft = iRowCol.col * this.kPixelsWide;
+        return { top : tTop, left : tLeft };
+    },
+
+
+    centerFromRowCol: function ( iRowCol ) {
+        var tY = (iRowCol.row + 0.5) * this.kPixelsTall;
+        var tX = (iRowCol.col + 0.5) * this.kPixelsWide;
+        return { x : tX, y : tY };
+    },
+
+    locationFromRowCol : function( iRowCol ) {
+        var index = this.indexFromRowCol( iRowCol );
+        return epiModel.locations[ index ];
+    },
+
+    rowColString : function( rowCol ) {
+        return "[" + rowCol.row + " | " + rowCol.col + "]";
+
+    },
+
+/**
      * Create the (Snap.svg) shape of the cell (Location). this is the "paper."
      * The contents of the location get filled in later (in Location, for exmaple)
      * @param index
      */
-    theShape: function( index ) {
-        this.row = this.pRowsInGrid - Math.floor( index / this.pColumnsInGrid ) - 1;    //  row from 0 to 9
-        this.col = index % this.pColumnsInGrid;                                         //  col from 0 to 9
-
-        var tLeft = this.col * this.kPixelsWide;
-        var tTop = (this.row) * this.kPixelsTall;
+    theShape: function( iRowCol ) {
+        var tTopLeft = this.topLeftFromRowCol( iRowCol );
 
         var tOuterSVG = Snap( this.kPixelsWide, this.kPixelsTall);      //  Make new snap SVG Elemenrt
-        tOuterSVG.attr("x", tLeft.toString());
-        tOuterSVG.attr("y", tTop.toString());
+        tOuterSVG.attr("x", tTopLeft.left.toString());
+        tOuterSVG.attr("y", tTopLeft.top.toString());
         return tOuterSVG;
     },
 
@@ -113,12 +139,12 @@ epiGeography = {
     },
 
     /**
-     * Convert game coordinates to the Location index
-     * @param iX    x in GAME coordinates (0,1000-ish)
+     *
+     * @param iX
      * @param iY
-     * @returns {number}    index of Location. Starts lower left, left to right then bottom to top
+     * @returns {number}
      */
-    coordToLocationIndex: function( iX, iY) {
+    rowColFromCoordinates: function( iX, iY) {
 
         // first, pin to the active rectangle
 
@@ -131,10 +157,47 @@ epiGeography = {
         //  Now figure out which row or column we're in
 
         var tCol = Math.floor( iX / this.kPixelsWide),
-            tRow = this.pRowsInGrid - Math.floor( iY / this.kPixelsTall ) - 1;
-        var result =  tRow * this.pColumnsInGrid + tCol;
+            tRow = Math.floor( iY / this.kPixelsTall );
 
-        if (result < 0 || result >= this.numberOfLocations()) result = null;
+        return {row : tRow, col : tCol };
+    },
+
+    /**
+     * How far is the given location from this Critter?
+     * @param iLoc     the Location in question
+     * @returns {number}
+     */
+    distanceByRowCol: function ( iFrom, iTo ) {
+        var tToXY = epiGeography.centerFromRowCol( iTo );
+        var tFromXY = epiGeography.centerFromRowCol( iFrom );
+        var tdx = tToXY.x - tFromXY.x;
+        var tdy = tToXY.y - tFromXY.y;
+        return Math.sqrt(tdx * tdx + tdy * tdy);
+    },
+
+    distanceToClosestSuitableLocationType : function( iWhere, iLocType ) {
+        var tClosestDistance = Number.MAX_VALUE;
+
+        epiModel.locations.forEach( function(loc) {
+            if (loc.locType == iLocType) {
+                var tDist = epiGeography.distanceByRowCol( iWhere, loc.rowCol);
+                if (tDist < tClosestDistance) tClosestDistance = tDist;
+            }
+        })
+
+        return tClosestDistance;
+    },
+
+    allSuitableRowColsWithin: function (iWhere, iLocType, iDistanceLimit) {
+        var result = [];
+
+        epiModel.locations.forEach(
+            function (loc) {
+                if (loc.locType == iLocType) {
+                    var tDist = epiGeography.distanceByRowCol(iWhere, loc.rowCol);
+                    if (tDist <= iDistanceLimit) result.push(loc.rowCol);
+                }
+            });
 
         return result;
     },

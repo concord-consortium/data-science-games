@@ -36,7 +36,31 @@ epiMalady = {
     pSickSecondsToGameEnd : 200,
     pTotalElapsedSecondsToGameEnd : 180,        //  todo: change display to count down
 
-    pMaladyNameList : ["Thrisp", "Dog Fever", "Alban's Bloat", "Arthemia"], //  todo: populate the DOM menu from this
+    kIntroMaladyAsymptomaticCarrier : 0,
+    kSimpleMaladyInfectiousWithIncubation : 1,
+    kToxicMaladyWater : 2,
+    kComplexMaladyInfectiousWhileAsymptomatic : 3,
+
+    maladyNameObject : null,
+
+
+    initialize : function() {
+        this.maladyNameObject = {
+            0: "Thrisp", 1: "Dog Fever", 2: "Alban's Bloat", 3: "Arthemia" //  todo: populate the DOM menu from this
+        }
+
+    },
+
+    optionsString : function() {
+        var result = "";
+
+        Object.keys(this.maladyNameObject).forEach( function (theKey) {
+            var theName = this.maladyNameObject[theKey];
+            result += "<option value = " + theKey + ">" + theName + "</option>";
+        })
+
+        return result;
+    },
 
     /**
      * Set the malady ID parameters
@@ -50,7 +74,7 @@ epiMalady = {
         }      //  "surprise me"
 
         this.pMaladyNumber = tDiseaseChoice;
-        this.pMaladyName = this.pMaladyNameList[ tDiseaseChoice ];
+        this.pMaladyName = this.maladyNameObject[ tDiseaseChoice ];
     },
 
     /**
@@ -62,7 +86,7 @@ epiMalady = {
         var tCritterCarrier = TEEUtils.pickRandomItemFrom( epiModel.critters ); //  pick possible carrier
 
         switch( this.pMaladyNumber ) {
-            case 0:
+            case this.kIntroMaladyAsymptomaticCarrier:
                 this.pDiseaseDurationInSeconds = 50;
                 this.pAverageSecondsToInfection = 2;
                 this.pIncubationInSeconds = 0;
@@ -70,7 +94,7 @@ epiMalady = {
                 tCritterCarrier.antibodies = 1.0;
                 break;
 
-            case 1:
+            case this.kSimpleMaladyInfectiousWithIncubation:
                 this.pDiseaseDurationInSeconds = 40;
                 this.pAverageSecondsToInfection = 5;
                 this.pIncubationInSeconds = 20;         //  ah! Incubation period!
@@ -78,7 +102,7 @@ epiMalady = {
                 tCritterCarrier.antibodies = 1.0;
                 break;
 
-            case 2: //  toxic location
+            case this.kToxicMaladyWater: //  toxic location
                 this.pDiseaseDurationInSeconds = 40;
                 this.pAverageSecondsToInfection = 1;
                 this.pIncubationInSeconds = 10;
@@ -90,7 +114,7 @@ epiMalady = {
                 tLoc.toxic = true;
                 break;
 
-            case 3:     //      victims are infectious while they are incubating
+            case this.kComplexMaladyInfectiousWhileAsymptomatic:     //      victims are infectious while they are incubating
                 this.pDiseaseDurationInSeconds = 40;
                 this.pAverageSecondsToInfection = 10;
                 this.pIncubationInSeconds = 20;
@@ -114,8 +138,9 @@ epiMalady = {
     exposureInLocation : function( iLocation ) {
         var oInfection = false;
 
-        iLocation.critters.forEach(function(c) {    //  note: not .some() because critters is a Set
-            if (c.infectious) oInfection = true;
+        iLocation.critterIndices.forEach(function(iCrIndex) {    //  note: not .some() because critters is a Set
+            var tCritter = epiModel.critters[ iCrIndex ];
+            if (tCritter.infectious) oInfection = true;
         });
 
         return oInfection;
@@ -128,24 +153,25 @@ epiMalady = {
      * @param dt
      */
     possiblyInfectExposedCritter : function(iCritter, dt ) {
-        //  console.log( iCritter.name + " exposed in " + iCritter.currentLocation.name);
+
         var tInfectionProbability = dt / this.pAverageSecondsToInfection;
         if (Math.random() < tInfectionProbability) {
             if (iCritter.health == 1 && iCritter.antibodies == 0.0 && !iCritter.infected) {
                 iCritter.infected = true;
                 iCritter.incubationTime = 0.0;
-                console.log( iCritter.name + " infected in " + iCritter.currentLocation.name);
+                var tLocName = epiGeography.locationFromRowCol( iCritter.where).name;
+                console.log( iCritter.name + " infected in " + tLocName);
             }
             switch (this.pMaladyNumber) {
-                case 0:
+                case this.kIntroMaladyAsymptomaticCarrier:
                     if (iCritter.infectious) iCritter.health = 1;       //  in this disease, the carrier is asymptomatic
                     break;
-                case 1:
+                case this.kSimpleMaladyInfectiousWithIncubation:
                     if (iCritter.infectious) iCritter.health = 1;       //  in this disease, the carrier is asymptomatic
                     break;
-                case 2:
+                case this.kToxicMaladyWater:
                     break;
-                case 3:
+                case this.kComplexMaladyInfectiousWhileAsymptomatic:
                     if (iCritter.health == 1 && iCritter.infected) {
                         iCritter.infectious = true;
                     }

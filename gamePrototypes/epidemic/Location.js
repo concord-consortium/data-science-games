@@ -31,8 +31,8 @@
  * @constructor
  */
 var Location = function( index ) {
-    this.myIndex = index;
-    this.setLocationProperties( this.myIndex );
+    this.rowCol = epiGeography.rowColFromIndex( index );
+    this.setLocationProperties( this.rowCol );
 
     this.toxic = false;     //  for location-based toxic maladies
 };
@@ -41,18 +41,16 @@ var Location = function( index ) {
  * Set basic properties of the Location; depends on index.
  * @param index
  */
-Location.prototype.setLocationProperties = function( index ) {
+Location.prototype.setLocationProperties = function( iRowCol ) {
 
-    this.critters = new Set();          //  each Location has a Set of Critters
-    var tLocInfo = epiGeography.newLocationInfoByIndex( index );
+    this.critterIndices = new Set();          //  each Location has a Set of Critters
+    var tLocInfo = epiGeography.newLocationInfoByRowCol( iRowCol );
 
     this.snapShape = tLocInfo.snap;      //  Containing SVG Snap element
     this.bgShape = tLocInfo.bg;        //      a Snap element: the background square. It has the color.
     this.locType = tLocInfo.locType;
     this.baseFill = Location.colors[ this.locType ];
     this.name = tLocInfo.name;
-    this.row = tLocInfo.row;
-    this.col = tLocInfo.col;
     this.snapText = this.snapShape.text(10, 90, this.name);
     this.snapText.attr({fill: "white"});
 
@@ -67,7 +65,7 @@ Location.prototype.setLocationProperties = function( index ) {
  * @param dt
  */
 Location.prototype.update = function( dt ) {
-    //var tNCrit = this.critters.size;
+    //var tNCrit = this.critterIndices.size;
     //this.snapText.attr({text : tNCrit == "0" ? this.name : this.name + ": " + tNCrit});
 
     if (this.toxic && epiOptions.showCarrier) {
@@ -83,20 +81,19 @@ Location.prototype.update = function( dt ) {
  * @returns {{x: number, y: number}}    GLOBAL game coordinates for this Critter
  */
 Location.prototype.globalParkingCoordinates = function( index ) {
-    var tNCritters = this.critters.size;
-    var n = Math.ceil(Math.sqrt(tNCritters));    // arrage in a square, this many on a side
+    var tNCritters = this.critterIndices.size;
+    var tTopLeft = epiGeography.topLeftFromRowCol( this.rowCol );
+    var n = Math.ceil(Math.sqrt(tNCritters));    // arrange in a square, this many on a side
 
-    if (index >= tNCritters) console.log("index " + index + " nCritt " + tNCritters);
-    //n = 1;
-    //index = 0;
+    if (index >= tNCritters) console.log("ALERT! index " + index + " nCritt " + tNCritters);
 
-    var row = Math.floor(index / n);
-    var col = index % n;
-    var w = Number(this.snapShape.attr("width"));
-    var h = Number(this.snapShape.attr("height"));
+    var rowInside = Math.floor(index / n);      //  zero based
+    var colInside = index % n;
+    var w = epiGeography.kPixelsWide;
+    var h = epiGeography.kPixelsTall;
 
-    var xx = w/n/2 + col * (w/n) + Number(this.snapShape.attr("x"));
-    var yy = h/n/2 + row * (h/n) + Number(this.snapShape.attr("y"));
+    var xx = w/n/2 + colInside * (w/n) + tTopLeft.left;
+    var yy = h/n/2 + rowInside * (h/n) + tTopLeft.top;
 
     return {        //  coordinates of upper LHC of the CRITTER's view.
         x: xx - CritterView.overallViewSize/2 ,
@@ -104,40 +101,36 @@ Location.prototype.globalParkingCoordinates = function( index ) {
     };
 };
 
-/**
- * Get center coordinates for this Location
- * @returns {{x: number, y: number}}
- */
-Location.prototype.centerCoordinates = function() {
-    var tx = Number(this.snapShape.attr("x"));
-    var ty = Number(this.snapShape.attr("y"));
-    tx += Number(this.snapShape.attr("width"))/2;
-    ty += Number(this.snapShape.attr("height"))/2;
-
-    return( {x:tx, y:ty});
-};
 
 /**
  * Add a Critter to our list.
  * Called when a new Critter arrives; this causes all other Critters to adjust their formation
  * @param critter
  */
-Location.prototype.addCritter = function( critter ) {
-    this.critters.add( critter ); //  now the number of critters is correct
+Location.prototype.addCritter = function( iCrIndex ) {
+    this.critterIndices.add( iCrIndex ); //  now the number of critters is correct
 
-   this.indexInSet = 0;
+    var tDebugCritter = epiModel.critters[ iCrIndex ];
+
+    console.log("Adding " + tDebugCritter.name + " to " + epiGeography.rowColString( this.rowCol ));
 
     //  give all my critters a new location within the Location
 
+    var iSetIndex = 0;  //  need to do this because this.critterIndices is a snap.svg SET.
 
-    this.critters.forEach(
-        //  anonymous function called for each critter
-        function( cr ) {
-            var tDestination = this.globalParkingCoordinates( this.indexInSet );  //  todo: fix this so it uses the index within the set of critters
-            cr.startJiggleMove( tDestination );
-            this.indexInSet++;
+    this.critterIndices.forEach(
+        /**
+         * Called for each critter index in this Location's list
+         * @param icr   the index of the critter in the epiModel's list
+         */
+        function( icr ) {
+            var tCritter = epiModel.critters[icr];
+            var tDestination = this.globalParkingCoordinates( iSetIndex );
+            console.log("Prepping jiggle for " + tCritter.name + " to " + JSON.stringify(tDestination));
+            tCritter.startJiggleMove( tDestination );
+            iSetIndex++;
         },
-        this
+        this       //    second argument is the "this" object for the loop
     );
     this.update();
 };
@@ -147,7 +140,7 @@ Location.prototype.addCritter = function( critter ) {
  * @param c
  */
 Location.prototype.removeCritter = function( c ) {
-    this.critters.delete( c );
+    this.critterIndices.delete( c );
     this.update();
 };
 
@@ -158,6 +151,7 @@ Location.prototype.removeCritter = function( c ) {
 Location.prototype.getSaveObject = function() {
     var tSaveObject = {
         myIndex : this.myIndex,
+        critterIndices : this.critterIndices,
         locType : this.locType,
         baseFill : this.baseFill,
         toxic : this.toxic,
@@ -175,6 +169,7 @@ Location.prototype.getSaveObject = function() {
 Location.prototype.restoreFrom = function( iObject ) {
 
     this.locType = iObject.locType;
+    this.critterIndices = iObject.critterIndices;
     this.baseFill = iObject.baseFill;
     this.toxic = iObject.toxic;
 };

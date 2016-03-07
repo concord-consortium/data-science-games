@@ -45,7 +45,7 @@ var CritterView = function( c ) {
 
     this.selectionCircle = this.snapShape.circle(0, 0, critRad - 3);
     this.selectionCircle.attr({
-        stroke : "white",       //  todo: make a const
+        stroke : CritterView.kSelectionColor,
         fill :"transparent",
         strokeWidth : 5
     });
@@ -97,7 +97,7 @@ var CritterView = function( c ) {
             //  todo: use CTM. See onDragEnd, below. That way we could highlight droppable Locations
             var tVPDX = iDX * epiWorldView.VBWidth / Number(epiWorldView.actualWidth),
                 tVPDY = iDY * epiWorldView.VBHeight / Number(epiWorldView.actualHeight);
-            this.moveTo( tStartX + tVPDX, tStartY + tVPDY);
+            this.moveTo( {x : tStartX + tVPDX, y : tStartY + tVPDY});
 
             // todo: epiManager.handleMoveOfCritter();
         },
@@ -128,17 +128,16 @@ CritterView.prototype.update = function ( ) {
         this.bgCircle.attr({fill: CritterView.kUsualBackgroundColor});
     }
 
-    this.selectionCircle.attr({stroke : (this.critter.selected) ? "white" : "transparent"});
+    this.selectionCircle.attr({stroke : (this.critter.selected) ? CritterView.kSelectionColor : "transparent"});
 };
 
 /**
  * Just move me to x, y. No animation
- * @param xx
- * @param yy
+ * @param xy
  */
-CritterView.prototype.moveTo = function( xx, yy ) {
+CritterView.prototype.moveTo = function( xy ) {
     this.snapShape.attr({
-        x : xx, y: yy
+        x : xy.x, y: xy.y
     })
 };
 
@@ -155,4 +154,5 @@ CritterView.overallViewSize = 30;
 CritterView.kUsualBackgroundColor = "yellow";
 CritterView.kCarrierBackgroundColor = "black";
 CritterView.kSickBorderColor = "gray";
+CritterView.kSelectionColor = "white";
 

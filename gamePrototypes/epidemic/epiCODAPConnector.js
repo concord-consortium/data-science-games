@@ -104,7 +104,7 @@ EpiCODAPConnector.getInitSimObject = function() {
 
     var oInitSimObject = {
         name: 'Epidemic',
-        version : epiManager.version,
+        version : epiManager.kVersion,
         dimensions: {width: 404, height: 600},
         collections: [  // There are two collections: a parent and a child
             {
@@ -151,7 +151,6 @@ EpiCODAPConnector.getInitSimObject = function() {
                     {name: "location", type: 'categorical'},
                     {name: 'row', type: 'categorical'},
                     {name: 'col', type: 'categorical'}
-
                 ]
             }
         ]

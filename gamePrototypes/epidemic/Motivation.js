@@ -31,13 +31,10 @@
  * @param c
  * @constructor
  */
-var Motivation = function( c ) {
-    this.critter = c;
-
+var Motivation = function(  ) {
     this.hungry = 1.7 * Math.random();
     this.thirsty = 1.7 * Math.random();
     this.tired = 0.2 * Math.random();
-
 };
 
 
@@ -46,9 +43,7 @@ var Motivation = function( c ) {
  * For example, make it hungrier if it is not eating.
  * @param dt
  */
-Motivation.prototype.update = function (dt) {
-
-    var tLocation = this.critter.currentLocation;
+Motivation.prototype.update = function (dt, iActivity, iLocType) {
 
     this.hungry += dt / 10;
     this.thirsty += dt / 10;
@@ -57,44 +52,26 @@ Motivation.prototype.update = function (dt) {
     /**
      * Alter the internal values depending on the activity
      */
-    switch (this.critter.activity) {
+    switch (iActivity) {
         case "eating":
-            this.hungry -= tLocation.locType === "food" ? dt : dt / 5;
-            if (this.hungry < 0) this.critter.activity = null;
+            this.hungry -= iLocType === "food" ? dt : dt / 5;
+            if (this.hungry < 0) iActivity = null;
             break;
         case "drinking":
-            this.thirsty -= tLocation.locType === "water" ? dt : dt / 5;
-            if (this.thirsty < 0) this.critter.activity = null;
+            this.thirsty -= iLocType === "water" ? dt : dt / 5;
+            if (this.thirsty < 0) iActivity = null;
             break;
         case "resting":
-            this.tired -= tLocation.locType === "dwelling" ? dt : dt / 5;
-            if (this.tired < 0) this.critter.activity = null;
+            this.tired -= iLocType === "dwelling" ? dt : dt / 5;
+            if (this.tired < 0) iActivity = null;
             break;
         default:
             break;
     };
+
+    return iActivity;
 };
 
-/**
- * returns the urgency at the current location
- */
-Motivation.prototype.urgencyHere = function() {
-    var tLocation = this.critter.currentLocation;
-    switch( tLocation.locType ) {
-        case "food":
-            return this.hungry;
-            break;
-        case "water":
-            return this.thirsty;
-            break;
-        case "dwelling":
-            return this.tired;
-            break;
-        default:
-            break;
-    };
-    return null;
-};
 
 /**
  * Determine this critter's most urgent need, and supplies an object that
