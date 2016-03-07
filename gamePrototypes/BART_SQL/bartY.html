@@ -51,7 +51,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
 
     <!-- Our game source -->
-    <script src="bartyManager.js" language="JavaScript"></script>
+    <script src="bartYManager.js" language="JavaScript"></script>
     <script src="bartOptions.js" language="JavaScript"></script>
     <script src="bartYCODAPConnector.js" language="JavaScript"></script>
 
@@ -62,20 +62,20 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
 <br><br>
 
-<fieldset id="getDataBlock">
+<fieldset id="getDataBlock" onchange="bartManager.fixDataSelectionText()">
     <legend>Specify data</legend>
-    Date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)<br>
-    Hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
+    date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)
+    hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
+    from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
 
     <!--
     <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one hour, all stations<br>
     -->
 
-    <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/>only trips to
-    <select id="arrivalSelector"></select> (one day)<br>
+    <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
+    <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
+    <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
 
-    <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/>only trips from
-    <select id="departureSelector"></select> (one day)<br>
 
     <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
 </fieldset>

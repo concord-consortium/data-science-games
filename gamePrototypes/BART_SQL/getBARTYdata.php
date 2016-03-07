@@ -101,7 +101,7 @@ $pass = "root";
 */
 
 //  the variable list part of the (long) BART query
-$varList = "X.seq AS id, X.date, X.hour, X.count, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
+$varList = "X.id AS id, X.date, X.hour, X.count, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
             "exitT.abbr6 AS endAt, exitT.region AS endReg";
 
 //  How the JOIN clauses have to be
@@ -136,14 +136,26 @@ switch ($command) {
         break;
 
     case "byTime":
-    case "byArrival":
-    case "byDeparture":
-        $startTime = $_POST["start"];
-        $stopTime = $_POST["end"];
         $timeRange = " WHERE date = '" . $dataDate . "' AND hour = '" . $dataHour . "'";
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        break;
 
-        $query = "SELECT " . $varList . " FROM exits AS X " . $joinList . $timeRange . $stationClause;
+    case "byRoute":
+        $timeRange = " WHERE date = '" . $dataDate . "'";
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        break;
 
+    case "byArrival":
+        $timeRange = " WHERE date = '" . $dataDate . "'";
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        break;
+
+    case "byDeparture":
+        $timeRange = " WHERE date = '" . $dataDate . "'";
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        break;
+
+    default:
         break;
 }
 

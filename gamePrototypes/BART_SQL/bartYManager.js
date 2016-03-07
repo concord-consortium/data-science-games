@@ -86,6 +86,7 @@ bartManager = {
             this.newGame();
 
         }
+        this.fixDataSelectionText();
         this.fixUI();
     },
 
@@ -115,18 +116,6 @@ bartManager = {
     },
 
 
-    /**
-     * Start up the simulation. Called once on reload.
-     */
-    initialize : function() {
-        this.connector = new bartCODAPConnector( "games", "buckets" );
-        $("#dateControl").val( this.kBaseDateString );
-        $("#hourControl").val( this.kBaseHour );
-
-        this.makeOptionsFromStationsDB();
-        this.fixUI();
-    },
-
 
     /**
      * Adjust the UI with regard to disabled controls and visibility. Called whenever things could change.
@@ -149,6 +138,14 @@ bartManager = {
         //  here we could write a longer description of what you will get if you press get data.
     },
 
+    fixDataSelectionText : function() {
+        var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
+        var tDepartureStationName = $("#departureSelector").find('option:selected').text();
+        $("#byRouteItemText").html("from <strong>" + tDepartureStationName + "</strong> to <strong>" + tArrivalStationName + "</strong> (one day)");
+        $("#byDepartureItemText").html("from <strong>" + tDepartureStationName + "</strong> to any station (one day)");
+        $("#byArrivalItemText").html("from any station to <strong>" + tArrivalStationName + "</strong> (one day)");
+    },
+
     /**
      * assembles the "POST" string that $.ajax() needs to communicate the variables php needs to assemble
      * the MySQL query that will get us our data.
@@ -168,6 +165,11 @@ bartManager = {
         switch (this.dataChoice) {
             case "byTime":
                 //  tEndTime.setTime(tEndTime.getTime() + 10 * 60 * 1000);   //   one minute later
+                break;
+
+            case "byRoute":
+                stationClauseString = "&stn1=" + this.arrivalStation;   //  the abbr6 of that station
+                stationClauseString += "&stn0=" + this.departureStation ;   //  the abbr6 of that station
                 break;
 
             case "byArrival":
@@ -254,6 +256,19 @@ bartManager = {
         }
 
     },
+
+    /**
+     * Start up the simulation. Called once on reload.
+     */
+    initialize : function() {
+        this.connector = new bartCODAPConnector( "games", "buckets" );
+        $("#dateControl").val( this.kBaseDateString );
+        $("#hourControl").val( this.kBaseHour );
+
+        this.makeOptionsFromStationsDB();
+        this.fixUI();
+    },
+
 
     /**
      *  Use $.ajax() to get the list of stations from the database,

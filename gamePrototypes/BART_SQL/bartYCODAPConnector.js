@@ -101,7 +101,6 @@ bartCODAPConnector.prototype.closeGame = function( iData ) {
  * @param iCallback
  */
 bartCODAPConnector.prototype.newBucketCase = function( iCallback ) {
-    console.log("New bucket...");
     this.bucketNumber += 1;
 
     codapHelper.createCase(
@@ -138,7 +137,7 @@ bartCODAPConnector.getInitSimObject = function() {
     var oInitSimObject = {
         name: 'BART-Year',
         version : bartManager.version,
-        dimensions: {width: 500, height: 256},
+        dimensions: {width: 555, height: 270},
         collections: [  // There are two collections: a parent and a child
             {
                 name: 'games',
