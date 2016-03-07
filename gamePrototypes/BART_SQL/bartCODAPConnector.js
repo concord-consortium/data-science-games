@@ -138,7 +138,7 @@ bartCODAPConnector.getInitSimObject = function() {
     var oInitSimObject = {
         name: 'BART',
         version : bartManager.version,
-        dimensions: {width: 500, height: 256},
+        dimensions: {width: 555, height: 360},
         collections: [  // There are two collections: a parent and a child
             {
                 name: 'games',

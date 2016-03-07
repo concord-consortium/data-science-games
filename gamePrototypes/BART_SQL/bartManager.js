@@ -1,3 +1,4 @@
+/*
 ==========================================================================
 bartManager.js
 
@@ -19,6 +20,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
     See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================
+*/
 /**
  * Created by tim on 2/23/16.
  */
@@ -29,7 +31,7 @@ var bartManager;
 
 bartManager = {
 
-    version :  "002a",
+    version :  "003",
     kBaseURL :  "http://localhost:8888/bart/getBARTdata.php",   //  "getBARTdata.php"   //  todo : set to release URL
     kBaseDateString : "Wed Sep 30 2015 00:00:00 GMT-0700 (PDT)",
     baseDate : null,
