@@ -41,6 +41,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 <head>
     <meta charset="UTF-8">
     <link rel='stylesheet' type='text/css' href='dsgBART.css'/>
+    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
@@ -48,6 +49,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
     <script src="../common/TEEUtils.js" language="javascript"></script>
     <script src="../common/jquery.js" language="javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 
     <!-- Our game source -->
@@ -55,36 +57,97 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     <script src="bartOptions.js" language="JavaScript"></script>
     <script src="bartYCODAPConnector.js" language="JavaScript"></script>
 
-
     <title>Data Science Game - BART (by hour)</title>
+
+    <script>
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+    </script>
+
 </head>
 <body>
-<button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
-<br><br>
 
-<fieldset id="getDataBlock" onchange="bartManager.fixDataSelectionText()">
-    <legend>Specify data</legend>
-    date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)
-    hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
-    from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
+<div id="tabs">
+    <ul>
+        <li><a href="#dataTab">Data</a></li>
+        <li><a href="#backgroundTab">Background</a></li>
+        <li><a href="#hintsTab">Hints</a></li>
+        <li><a href="#mapTab">Map</a></li>
+        <li><a href="#debugTab">Debugging</a></li>
+    </ul>
+    <div id="dataTab">
 
-    <!--
-    <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one hour, all stations<br>
-    -->
+        <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button> &#x2190; No actual game yet, but press for access.
+        <br><br>
 
-    <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
-    <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
-    <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
+        <fieldset id="getDataBlock" onchange="bartManager.fixDataSelectionText()">
+            <legend>Specify data</legend>
+            date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)
+            hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
+            from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
+
+            <!--
+            <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one hour, all stations<br>
+            -->
+
+            <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
 
 
-    <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
-</fieldset>
+            <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
+        </fieldset>
 
-<p>
-    <span id="query">PHP info.</span><br>
-    <span id="result"></span><br>
-    <span id="status">Ready.</span>
-</p>
+        <p>
+            <span id="result"></span> <span id="status">Ready.</span>
+        </p>
+    </div>
+
+    <div id="backgroundTab">
+
+        <p>This setup gives you a window into data on about 120 million BART exits in 2015.
+            Each record represents one hour at a station,
+            recording how many people exited that station during the hour from each of the
+            other stations in the BART system.</p>
+        <p>Useful Variables</p>
+        <ul>
+            <li><strong>hours</strong>: decimal time of exit. Use this instead of <strong>time</strong>.
+                At this time, we do NOT have time of entry.</li>
+            <li><strong>startAt</strong>: station where the passenger entered the system</li>
+            <li><strong>endAt</strong>: station where the passenger left the system</li>
+            <li><strong>startReg, endReg</strong>: regions for start and end.
+                These might make some graphs simpler. "City" is SF but not downtown.</li>
+            <li><strong>ticket</strong>: Tourists buy magnetics, they're not Clipper natives.
+                BART employees use this thing called BOSC.</li>
+
+        </ul>
+        <p>Thanks to Pam Herhold, BART, for access!</p>
+
+    </div>
+    <div id="hintsTab">
+        <p>One way to start:</p>
+        <ol>
+            <li>Click <strong>new game</strong>.  </li>
+            <li>Make sure "only trips to Orinda" is selected. Click <strong>get data</strong>.</li>
+            <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like. </li>
+            <li>Click <strong>Graph</strong>. A blank graph appears. Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
+            <li>Drag <strong>ticket</strong> to the middle of the graph. </li>
+            <li>Try dragging other attributes to various axes.</li>
+
+        </ol>
+        <p>That should get you started. Oh: to start over, just reload the page.</p>
+    </div>
+    <div id="mapTab">
+        <img src="https://www.bart.gov/sites/all/themes/bart_desktop/img/system-map.gif">
+
+    </div>
+    <div id="debugTab">
+        <span id="query">PHP info.</span><br>
+
+    </div>
+
+</div>
 
 </body>
 

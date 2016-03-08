@@ -30,11 +30,13 @@ var bartManager;
 bartManager = {
 
     version :  "001",
+    daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     kBaseURL :  "http://localhost:8888/bart/getBARTYdata.php",   //  "getBARTYdata.php"   //  todo : set to release URL
     kBaseDateString : "2015-04-15",
     kBaseHour : 15,
     dataDate : null,        //  date time format we are using
     dataHour : 15,
+
     connector : null,
     playing : false,
     arrivalStation : null,  //  the 6-letter abbreviation
@@ -241,16 +243,22 @@ bartManager = {
 
         function processHours( ex ) {       //[ id = ex.id, hours (calculated), time = ex.exitTime, ex.origin, ex.destination, ex.ticket ]
 
+            var tDate = new Date( ex.date + " GMT-0800" );      //  overestimate to be sure of getting the right day of week
+            var tDay = tDate.getDay();      //  day of week, Sunday = 0, etc.
+            var tDOY = TEEUtils.dateStringToDOY( ex.date );
+
             bartManager.connector.doHourRecord(
                 [
-                    ex.id,
-                    ex.date,
+                    tDOY + ex.hour / 24,
+                    bartManager.daysOfWeek[ tDay ],
                     ex.hour,
                     ex.count,
                     ex.startAt,
                     ex.endAt,
                     ex.startReg,
-                    ex.endReg
+                    ex.endReg,
+                    ex.id,
+                    ex.date
                 ]
             )
         }
@@ -261,6 +269,7 @@ bartManager = {
      * Start up the simulation. Called once on reload.
      */
     initialize : function() {
+
         this.connector = new bartCODAPConnector( "games", "buckets" );
         $("#dateControl").val( this.kBaseDateString );
         $("#hourControl").val( this.kBaseHour );
@@ -288,15 +297,16 @@ bartManager = {
                     }
                 )
                 $("#arrivalSelector").empty().append(result);   // put them into the DOM
-                $("#arrivalSelector").val("Orinda");   // put them into the DOM
+                $("#arrivalSelector").val("Orinda");   // choose default value
 
                 $("#departureSelector").empty().append(result);   // put them into the DOM
-                $("#departureSelector").val("SFO");   // put them into the DOM
+                $("#departureSelector").val("Embarc");   // choose default value
 
             }
         });
 
     },
+
 
     bartDoCommand : function() {
 

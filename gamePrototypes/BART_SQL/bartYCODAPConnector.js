@@ -23,11 +23,6 @@
  ==========================================================================
 
 
- */
-
-
-/*
-
 CASE STRUCTURE:
 
 games
@@ -37,13 +32,13 @@ games
     buckets (of data)
         bucketNumber
 
-        exits (individual microdata)
-            id
-            hours
-            tim
+        hours (count by origin and destination, per hour)
+
+            time variables
+            count
             origin
             destination
-            ticket
+            id, etc
  */
 
 
@@ -137,7 +132,7 @@ bartCODAPConnector.getInitSimObject = function() {
     var oInitSimObject = {
         name: 'BART-Year',
         version : bartManager.version,
-        dimensions: {width: 555, height: 270},
+        dimensions: {width: 555, height: 380},
         collections: [  // There are two collections: a parent and a child
             {
                 name: 'games',
@@ -174,8 +169,18 @@ bartCODAPConnector.getInitSimObject = function() {
                 },
                 // The child collection specification:
                 attrs: [
-                    {name: "id", type: 'numeric', precision: 0},
-                    {name: "date", type: 'categorical'},
+                    {name: "doy", type: 'numeric', precision: 4},
+                    {name: "day", type : 'categorical',
+                        colormap : {
+                            "Sun" : "green",
+                            "Mon" : "orange",
+                            "Tue" : "coral",
+                            "Wed" : "gold",
+                            "Thu" : "goldenrod",
+                            "Fri" : "lightsalmon",
+                            "Sat" : "limegreen",
+                        }
+                    },
                     {name: "hour", type: 'numeric', precision : 0},
                     {name: "count", type: 'numeric', precision : 0},
                     {name: "startAt", type: 'categorical'},
@@ -201,7 +206,10 @@ bartCODAPConnector.getInitSimObject = function() {
                             "Oakland" : "green",
                             "East Bay" : "dodgerblue"
                         }
-                    }
+                    },
+                    {name: "id", type: 'numeric', precision: 0},
+                    {name: "date", type: 'categorical'}
+
                 ]
             }
 
