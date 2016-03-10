@@ -84,10 +84,9 @@ function console_log( $data ){
 
 /*
 //      eeps at bluehost version
-$dbname = "denofinq_bart";
-$user = "denofinq_bart";
-$pass = "gr6ose6ro";
-
+$dbname = "denofinq_barty";
+$user = "denofinq_dsg";
+$pass = "dsg%37X";
 */
 
 //  tim's macbook version
@@ -99,6 +98,8 @@ $pass = "root";
 /*
 
 */
+
+$now =  date(DATE_RFC2822);
 
 //  the variable list part of the (long) BART query
 $varList = "X.id AS id, X.date, X.hour, X.count, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
@@ -128,7 +129,7 @@ if (isset($_POST["stn1"])) {
     $stationClause .= " AND exitT.abbr6 = '" . $stn1 . "'";
 }
 
-
+$orderClause = " ORDER BY date, hour";
 
 switch ($command) {
     case "getStations":
@@ -137,22 +138,26 @@ switch ($command) {
 
     case "byTime":
         $timeRange = " WHERE date = '" . $dataDate . "' AND hour = '" . $dataHour . "'";
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
         break;
 
     case "byRoute":
-        $timeRange = " WHERE date = '" . $dataDate . "'";
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        $stamp = strtotime($dataDate);
+        $stamp += 7 * 86400;
+        $dataDatePlusSeven = date('Y-m-d', $stamp);
+        $timeRange = " WHERE date >= '" . $dataDate . "' AND date < '" . $dataDatePlusSeven . "' ";
+       $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
         break;
 
     case "byArrival":
-        $timeRange = " WHERE date = '" . $dataDate . "'";
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        if ($dataHour > 18) $dataHour = 18;
+        $timeRange = " WHERE date = '" . $dataDate . "' AND  hour >= " . $dataHour . " AND hour < " . ($dataHour + 6);
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
         break;
 
     case "byDeparture":
-        $timeRange = " WHERE date = '" . $dataDate . "'";
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause;
+        $timeRange = " WHERE date = '" . $dataDate . "' AND  hour >= " . $dataHour . " AND hour < " . ($dataHour + 6);
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
         break;
 
     default:
@@ -160,11 +165,10 @@ switch ($command) {
 }
 
 
-file_put_contents("bartdebug.txt", "\n\nPT: " . implode(" | ",$_POST) , FILE_APPEND);
-file_put_contents("bartdebug.txt", "\nQQ: " . $query , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n\n" . $now . " PT: " . implode(" | ",$_POST) , FILE_APPEND);
 
 $query = stripcslashes( $query );
-file_put_contents("bartdebug.txt", "\n----\nQQ: " . $query , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n----\n" . $now . " QQ: " . $query , FILE_APPEND);
 
 $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
 $rows = CODAP_MySQL_getQueryResult($DBH, $query);

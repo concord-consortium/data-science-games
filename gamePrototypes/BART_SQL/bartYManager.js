@@ -29,9 +29,9 @@ var bartManager;
 
 bartManager = {
 
-    version :  "001",
+    version :  "002-",
     daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    kBaseURL :  "http://localhost:8888/bart/getBARTYdata.php",   //  "getBARTYdata.php"   //  todo : set to release URL
+    kBaseURL :  "http://localhost:8888/bart/getBARTYdata.php",   //  "getBARTYdata.php",   //  todo : set to release URL
     kBaseDateString : "2015-04-15",
     kBaseHour : 15,
     dataDate : null,        //  date time format we are using
@@ -97,6 +97,7 @@ bartManager = {
      * created the top-level "game' case, and records the ID for the case.
      */
     newGame: function ( ) {
+        meeting.setMeetingValues();     //   initialize the meeting location
         this.connector.newGameCase(
             function( iResult ) {
                 this.connector.gameCaseID = iResult.caseID;   //  set gameCaseID on callback
@@ -130,9 +131,9 @@ bartManager = {
 
         if (this.playing) {
             $("#getDataBlock").prop("disabled", false);
-            //  $("#getDataBlock").show();
+            $(".options").hide();
         } else {
-            //$("#getDataBlock").hide();
+            $(".options").show();
             $("#getDataBlock").prop("disabled", true);
         }
 
@@ -143,10 +144,13 @@ bartManager = {
     fixDataSelectionText : function() {
         var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
         var tDepartureStationName = $("#departureSelector").find('option:selected').text();
-        $("#byRouteItemText").html("from <strong>" + tDepartureStationName + "</strong> to <strong>" + tArrivalStationName + "</strong> (one day)");
-        $("#byDepartureItemText").html("from <strong>" + tDepartureStationName + "</strong> to any station (one day)");
-        $("#byArrivalItemText").html("from any station to <strong>" + tArrivalStationName + "</strong> (one day)");
+        $("#byRouteItemText").html("from <strong>" + tDepartureStationName
+            + "</strong> to <strong>" + tArrivalStationName + "</strong> (one week)");
+        $("#byDepartureItemText").html("from <strong>"
+            + tDepartureStationName + "</strong> to any station (six hours)");
+        $("#byArrivalItemText").html("from any station to <strong>" + tArrivalStationName + "</strong> (six hours)");
     },
+
 
     /**
      * assembles the "POST" string that $.ajax() needs to communicate the variables php needs to assemble
@@ -154,12 +158,9 @@ bartManager = {
      *
      * A finished string might be something like
      *      ?c=byArrival&stn1=Orinda&startTime=2015-09-30 10:00:00&stopTime=2015-09-30 11:00:00
-     *
-     *
-     *
      * @returns {string}
      */
-    assembleQueryDataString : function() {
+    assembleQueryDataString : function(  ) {
 
         var dataString = "c=" + this.dataChoice;
         var stationClauseString = "";
@@ -208,9 +209,10 @@ bartManager = {
      *  (4) processExits : extract the individual data values from the record and create a new "leaf" case
      */
     doBucketOfData : function() {
-        var tDataString = this.assembleQueryDataString();
+        var tDataString = this.assembleQueryDataString(  );
         var theData;
-        this.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case
+        var tRememberedDateHour = null;
+        this.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case. bucketCaseCreated is the callback.
 
         function bucketCaseCreated( iResult ) {
             if (iResult.success) {
@@ -233,34 +235,86 @@ bartManager = {
         }
 
         function weGotData(iData) {
+            $("#status").text("parsing data from eeps...");
             theData = JSON.parse( iData );
-            if (theData.length) $("#result").html("Got data!");
-            else $("#result").html("No data");
+            if (theData.length) $("#result").html("Got data! ");
+            else $("#result").html("No data. ");
             $("#status").text("loading data into CODAP...");
+            tRememberedDateHour = null;
             theData.forEach( processHours );
             $("#status").text("Ready.");
         }
 
+
         function processHours( ex ) {       //[ id = ex.id, hours (calculated), time = ex.exitTime, ex.origin, ex.destination, ex.ticket ]
 
-            var tDate = new Date( ex.date + " GMT-0800" );      //  overestimate to be sure of getting the right day of week
-            var tDay = tDate.getDay();      //  day of week, Sunday = 0, etc.
-            var tDOY = TEEUtils.dateStringToDOY( ex.date );
+            /*
+             Here, in BARTY, we need to (temporarily) set it up so a time period, an hour, is superordinate to the rest of the data.
+             We could arrange this by making a MySQL query that would restrict to that time period, and then issue a new query if we have a new hour,
+             but I don't want to do that because really we should get it all and make the user reorganize the data.
+             But that's not working yet, so HERE, where we get ALL the data, we will organize the incoming data by hour and make both levels of the hierarchy.
 
-            bartManager.connector.doHourRecord(
-                [
-                    tDOY + ex.hour / 24,
-                    bartManager.daysOfWeek[ tDay ],
-                    ex.hour,
-                    ex.count,
-                    ex.startAt,
-                    ex.endAt,
-                    ex.startReg,
-                    ex.endReg,
-                    ex.id,
-                    ex.date
-                ]
-            )
+             So we will detect a change by looking for a change in (ex.date + ex.hour).
+
+             */
+
+            var tThisDate = ex.date;
+            var tThisHour = ex.hour
+            var tThisDateHour = tThisDate + tThisHour;
+
+            if (tThisDateHour != tRememberedDateHour) { //  new dateHour, gotta make a new "hours" record
+                tRememberedDateHour = tThisDateHour;
+
+                var tDay = TEEUtils.dateStringToDayOfWeek( ex.date, " GMT-0800");
+                var tDOY = TEEUtils.dateStringToDOY(ex.date) + ex.hour/24;
+                var tValues = [tDOY, bartManager.daysOfWeek[ tDay ], ex.hour, ex.date];
+
+                bartManager.connector.newHourCase(tValues, hourCaseCreated);
+            }
+
+            function hourCaseCreated( iResult ) {
+                if (iResult.success) {
+                    bartManager.connector.hourCaseID = iResult.caseID;   //  set bucketCaseID on callback
+                    processDataFromThisHour( tThisDateHour, iResult.caseID );
+                } else {
+                    console.log("Failed to create hour case for " + tThisDateHour + ".");
+                }
+            }
+
+            function processDataFromThisHour( iParentDateHour, iCaseID ) {
+
+                theData.forEach( function( oneHour ) {
+                    var tThisDateHour = oneHour.date + oneHour.hour;
+                    if (tThisDateHour == iParentDateHour) {
+
+                        var tDay = TEEUtils.dateStringToDayOfWeek( oneHour.date, " GMT-0800");
+
+                        var tAdjustedCount = meeting.adjustCount(
+                            oneHour.startAt,
+                            oneHour.endAt,
+                            tDay,           //      the index of the weekday
+                            oneHour.hour,
+                            oneHour.count
+                        );
+
+                        if (tAdjustedCount != oneHour.count) {
+                            console.log("Adjust count from " + oneHour.count + " to " + tAdjustedCount);
+                        }
+                        bartManager.connector.doDataRecord(
+                            [
+                                tAdjustedCount,
+                                oneHour.startAt,
+                                oneHour.endAt,
+                                oneHour.startReg,
+                                oneHour.endReg,
+                                oneHour.id
+                            ],
+                            iCaseID         //      case ID for the "hours" parent case
+                        )
+                    }
+
+                })
+            }
         }
 
     },
@@ -270,14 +324,72 @@ bartManager = {
      */
     initialize : function() {
 
-        this.connector = new bartCODAPConnector( "games", "buckets" );
+        this.connector = new bartCODAPConnector( "games", "buckets", "hours" );
         $("#dateControl").val( this.kBaseDateString );
         $("#hourControl").val( this.kBaseHour );
 
         this.makeOptionsFromStationsDB();
+
+        //  set up game options
+        this.makeMeetingLocationOptions();
+        this.makeWeekdaysOptions();
+        this.makeMeetingTimeOptions();
+        this.makeMeetingSizeOptions();
+
         this.fixUI();
     },
 
+    makeMeetingTimeOptions : function() {
+        var result = "";
+        meeting.possibleTimes.forEach(
+            function( t ) {
+                result += "<option value='"+t+"'>" + t +":00 </option>";
+            }
+        )
+        $('#meetingTimeSelector').empty().append( result );
+        $('#meetingTimeSelector').append( "<option value='-1' disabled>————</option>" );
+        $('#meetingTimeSelector').append( "<option value='0'>Surprise me</option>" );
+        $('#meetingTimeSelector').val(14);
+    },
+
+    makeMeetingSizeOptions : function() {
+        var result = "";
+        meeting.possibleSizes.forEach(
+            function( s ) {
+                result += "<option value='"+s+"'>" + s +" people </option>";
+            }
+        )
+        $('#meetingSizeSelector').empty().append( result );
+        $('#meetingSizeSelector').append( "<option value='-1' disabled>————</option>" );
+        $('#meetingSizeSelector').append( "<option value='0'>Surprise me</option>" );
+        $('#meetingSizeSelector').val(160);
+    },
+
+    makeMeetingLocationOptions : function() {
+
+        var result = "";
+        Object.keys(meeting.possibleStations).forEach(
+            function( iAbbr6 ) {
+                result += "<option value='"+iAbbr6+"'>" + meeting.possibleStations[iAbbr6] +"</option>";
+            }
+        )
+        $('#meetingLocationSelector').empty().append( result );
+        $('#meetingLocationSelector').append( "<option value='-1' disabled>————</option>" );
+        $('#meetingLocationSelector').append( "<option value='0'>Surprise me</option>" );
+    },
+
+    makeWeekdaysOptions : function() {
+        var result = "";
+        this.daysOfWeek.forEach(
+            function( iDay, index ) {
+                result += "<option value='"+ index +"'>" + iDay +"</option>";
+            }
+        )
+        $('#meetingDaySelector').empty().append( result );
+        $('#meetingDaySelector').append( "<option value='-1' disabled>————</option>" );
+        $('#meetingDaySelector').append( "<option value='0'>Surprise me</option>" );
+        $('#meetingDaySelector').val( 2 );      //  default to Tuesday
+    },
 
     /**
      *  Use $.ajax() to get the list of stations from the database,

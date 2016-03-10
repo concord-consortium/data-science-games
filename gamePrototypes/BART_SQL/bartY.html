@@ -26,7 +26,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
     Here is the URL...
 
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/dsgBART.html
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/bartY.html
 
     or locally,
     http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost:63342/data-science-games/gamePrototypes/BART_SQL/barty.html
@@ -56,6 +56,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     <script src="bartYManager.js" language="JavaScript"></script>
     <script src="bartOptions.js" language="JavaScript"></script>
     <script src="bartYCODAPConnector.js" language="JavaScript"></script>
+    <script src="meetingGame.js" language="JavaScript"></script>
 
     <title>Data Science Game - BART (by hour)</title>
 
@@ -74,11 +75,12 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <li><a href="#backgroundTab">Background</a></li>
         <li><a href="#hintsTab">Hints</a></li>
         <li><a href="#mapTab">Map</a></li>
+        <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debugging</a></li>
     </ul>
     <div id="dataTab">
 
-        <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button> &#x2190; No actual game yet, but press for access.
+        <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
         <br><br>
 
         <fieldset id="getDataBlock" onchange="bartManager.fixDataSelectionText()">
@@ -112,15 +114,13 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
             other stations in the BART system.</p>
         <p>Useful Variables</p>
         <ul>
-            <li><strong>hours</strong>: decimal time of exit. Use this instead of <strong>time</strong>.
-                At this time, we do NOT have time of entry.</li>
+            <li><strong>count</strong>: Number of exits during that hour.
+            <li><strong>doy</strong>: decimal day of year. Use for time.</li>
+            <li><strong>day</strong>: weekday.</li>
             <li><strong>startAt</strong>: station where the passenger entered the system</li>
             <li><strong>endAt</strong>: station where the passenger left the system</li>
             <li><strong>startReg, endReg</strong>: regions for start and end.
                 These might make some graphs simpler. "City" is SF but not downtown.</li>
-            <li><strong>ticket</strong>: Tourists buy magnetics, they're not Clipper natives.
-                BART employees use this thing called BOSC.</li>
-
         </ul>
         <p>Thanks to Pam Herhold, BART, for access!</p>
 
@@ -129,11 +129,11 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <p>One way to start:</p>
         <ol>
             <li>Click <strong>new game</strong>.  </li>
-            <li>Make sure "only trips to Orinda" is selected. Click <strong>get data</strong>.</li>
+            <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
             <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like. </li>
-            <li>Click <strong>Graph</strong>. A blank graph appears. Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
-            <li>Drag <strong>ticket</strong> to the middle of the graph. </li>
-            <li>Try dragging other attributes to various axes.</li>
+            <li>Click <strong>Graph</strong>. A mixed-up graph appears. Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
+            <li>Drag <strong>count</strong> to the vertical axis. </li>
+            <li>Try dragging other attributes to various axes -- or to the middle of the graph. </li>
 
         </ol>
         <p>That should get you started. Oh: to start over, just reload the page.</p>
@@ -142,8 +142,17 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <img src="https://www.bart.gov/sites/all/themes/bart_desktop/img/system-map.gif">
 
     </div>
+    <div id="optionsTab">
+        <div  class="options">
+            Day: <select id="meetingDaySelector"></select><br>
+            Location: <select id="meetingLocationSelector"></select><br>
+            Time: <select id="meetingTimeSelector"></select><br>
+            Size: <select id="meetingSizeSelector"></select><br>
+        </div>
+    </div>
     <div id="debugTab">
         <span id="query">PHP info.</span><br>
+        <span id="secret"></span>
 
     </div>
 

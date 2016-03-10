@@ -32,13 +32,18 @@ games
     buckets (of data)
         bucketNumber
 
-        hours (count by origin and destination, per hour)
+    Times (day + hour)
+        day
+         hour
+         day of week
+         doy
 
-            time variables
-            count
-            origin
-            destination
-            id, etc
+    data (count by origin and destination)
+
+        count
+        origin
+        destination
+        id, etc
  */
 
 
@@ -46,13 +51,15 @@ games
  * A  manager class responsible for connecting to the CODAP environment
  * @constructor
  */
-var bartCODAPConnector = function(  iGameCollectionName, iBucketCollectionName) {
+var bartCODAPConnector = function(  iGameCollectionName, iBucketCollectionName, iHourCollectionName) {
     this.gameCaseID = 0;
     this.bucketCaseID = 0;
+    this.hourCaseID = 0;
     this.gameNumber = 0;
     this.bucketNumber = 0;
     this.gameCollectionName = iGameCollectionName;
     this.bucketCollectionName = iBucketCollectionName;
+    this.hourCollectionName = iHourCollectionName;
 };
 
 /**
@@ -109,16 +116,32 @@ bartCODAPConnector.prototype.newBucketCase = function( iCallback ) {
 
 };
 
+/**
+ * Create a new case in the penultimate-in-the-hierarchy "hour" collection in the BART-Y game.
+ * @param the list of values that define this case
+ * @param iCallback
+ */
+bartCODAPConnector.prototype.newHourCase = function( iValues, iCallback ) {
+    this.bucketNumber += 1;
+
+    codapHelper.createCase(
+        this.hourCollectionName,
+        iValues,            // date, hour, doy, etc.
+        this.bucketCaseID,        //  3d argument is the parent case ID
+        iCallback
+    );
+
+};
 
 /**
- * Emit an "hour" case, low level in the hierarchy.
+ * Emit a "data" case, lowest level in the hierarchy.
  * @param values
  */
-bartCODAPConnector.prototype.doHourRecord = function(values ) {
+bartCODAPConnector.prototype.doDataRecord = function(values, iParentID ) {
     codapHelper.createCase(
-        'hours',
+        'data',
         values,
-        this.bucketCaseID
+        iParentID
     ); // no callback.
 
 };
@@ -132,7 +155,7 @@ bartCODAPConnector.getInitSimObject = function() {
     var oInitSimObject = {
         name: 'BART-Year',
         version : bartManager.version,
-        dimensions: {width: 555, height: 380},
+        dimensions: {width: 500, height: 380},
         collections: [  // There are two collections: a parent and a child
             {
                 name: 'games',
@@ -160,14 +183,17 @@ bartCODAPConnector.getInitSimObject = function() {
                 ],
                 childAttrName: "hour"
             },
+
+            //          HOURS level
+            //          doy, day, hour, date
+
             {
                 name: 'hours',
                 labels: {
                     singleCase: "hour",
                     pluralCase: "hours",
-                    setOfCasesWithArticle: "an hour"
+                    setOfCasesWithArticle: "an hour of data"
                 },
-                // The child collection specification:
                 attrs: [
                     {name: "doy", type: 'numeric', precision: 4},
                     {name: "day", type : 'categorical',
@@ -182,6 +208,22 @@ bartCODAPConnector.getInitSimObject = function() {
                         }
                     },
                     {name: "hour", type: 'numeric', precision : 0},
+                    {name: "date", type: 'categorical'}
+                ],
+                childAttrName: "datum"
+            },
+
+            //          DATA level
+
+            {
+                name: 'data',
+                labels: {
+                    singleCase: "datum",
+                    pluralCase: "data",
+                    setOfCasesWithArticle: "an hour's worth of data"
+                },
+                // The child collection specification:
+                attrs: [
                     {name: "count", type: 'numeric', precision : 0},
                     {name: "startAt", type: 'categorical'},
                     {name: "endAt", type: 'categorical'},
@@ -207,8 +249,7 @@ bartCODAPConnector.getInitSimObject = function() {
                             "East Bay" : "dodgerblue"
                         }
                     },
-                    {name: "id", type: 'numeric', precision: 0},
-                    {name: "date", type: 'categorical'}
+                    {name: "id", type: 'numeric', precision: 0}
 
                 ]
             }
