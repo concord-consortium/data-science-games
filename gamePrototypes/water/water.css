@@ -1,0 +1,78 @@
+
+
+body {
+    background-color: lightblue;
+}
+
+input {
+    text-align: right;
+}
+
+/* ID options */
+
+#options   {
+    background-color: #fae7e9;
+}
+
+/*		BOX CLASSES		*/
+
+.hBox	{
+    display: flex;
+    flex-direction: row;
+    /*display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	horizontal;
+    -moz-box-orient:	horizontal;
+    box-orient:	horizontal;*/
+}
+
+.vBox	{
+    display: flex;
+    flex-direction: column;
+    /*
+    display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	vertical;
+    -moz-box-orient:	vertical;
+    box-orient:	vertical;
+    */
+}
+
+.textIO {
+    background-color: yellowgreen;
+    margin: 2px;
+    padding: 2px;
+    font-family: sans-serif;
+    font-size: 7pt;
+    color: white;
+}
+
+
+tabs-min {
+    background: transparent;
+    border: none;
+}
+tabs-min .ui-widget-header {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #c0c0c0;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+}
+tabs-min .ui-tabs-nav .ui-state-default {
+    background: transparent;
+    border: none;
+}
+tabs-min .ui-tabs-nav .ui-state-active {
+    background: transparent url(img/uiTabsArrow.png) no-repeat bottom center;
+    border: none;
+}
+tabs-min .ui-tabs-nav .ui-state-default a {
+    color: #c0c0c0;
+}
+tabs-min .ui-tabs-nav .ui-state-active a {
+    color: #459e00;
+}
