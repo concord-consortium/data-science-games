@@ -221,10 +221,6 @@ Critter.prototype.doDeparture = function( iReason ) {
     epiGeography.locationFromRowCol(this.where).removeCritter( this.myIndex );
     this.where = null;
 
-    //  todo: see if we can eliminate the condition. Because of drag drop??
-    if ( this.whither ) {
-        epiGeography.locationFromRowCol(this.whither).removeCritter( this.myIndex );
-    }   //  todo: why do we do this with whither? shouldn't it be where?
 
 };
 
@@ -329,7 +325,7 @@ Critter.prototype.restoreFrom = function( iObject ) {
     this.baseTemperature = iObject.baseTemperature;
 
     this.view = new CritterView( this ); // todo: eliminate all old views on restore
-    //  todo: make it so that the Critter does not own its model. At least don't restore it here.
+    //  todo: make it so that the Critter does not own its view. At least don't restore it here.
 
     this.where = iObject.where;
     this.whither = iObject.whither;

@@ -36,7 +36,7 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    kVersion: "vPre-003d",
+    kVersion: "v-004",
     kCrittersInBigWorld : 49,
     kCrittersInSmallWorld : 20,
 
@@ -227,7 +227,7 @@ epiManager = {
      */
     emitCritterData: function (theCritter, eventType) {
 
-        var tLocName = (theCritter.currentLocation) ? theCritter.currentLocation.name : "transit";
+        var tLocName = (theCritter.where) ? epiGeography.locationFromRowCol(theCritter.where).name : "transit";
         this.CODAPConnector.doEventRecord([
             epiModel.elapsed,
             theCritter.name,
@@ -237,8 +237,8 @@ epiManager = {
             theCritter.eyeColor,
             eventType,
             tLocName,
-            (theCritter.currentLocation) ? theCritter.currentLocation.row + 1 : "",
-            (theCritter.currentLocation) ? theCritter.currentLocation.col + 1 : ""
+            (theCritter.where) ? theCritter.where.row + 1 : "",
+            (theCritter.where) ? theCritter.where.col + 1 : ""
         ]);
     },
 

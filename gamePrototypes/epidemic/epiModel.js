@@ -289,7 +289,7 @@ epiModel = {
         var aResult = [];
 
         obj.forEach( function ( o ) {   //  o is the storage object for a critetr or location
-            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thihg to restore from? Do I have to pass in the restore function?
+            var tThing = o.restoreFrom()    // todo: messed up here . How do I know which thing to restore from? Do I have to pass in the restore function?
         });
     }
 };

@@ -95,12 +95,10 @@ EpiCODAPConnector.getInitSimObject = function() {
     var tColorMapObject = { };
 
     var i;
-    //  todo: redo this as a forEach()
 
-    for (i = 0; i < Critter.eyeColors.length; i++) {
-        var color = Critter.eyeColors[i];
-        tColorMapObject[ color ] = color;
-    };
+    Critter.eyeColors.forEach( function(iColor) {
+        tColorMapObject[ iColor ] = iColor;
+    })
 
     var oInitSimObject = {
         name: 'Epidemic',
