@@ -230,6 +230,10 @@ epiModel = {
         return tSaveObject;
     },
 
+    coordsToLocation: function( iX, iY) {
+        return this.locations[ epiGeography.coordToLocationIndex( iX, iY)];
+    },
+
     /**
      * Restore the model from the "saveObject". Note how we handle Locations ad Critters
      * @param iObject
