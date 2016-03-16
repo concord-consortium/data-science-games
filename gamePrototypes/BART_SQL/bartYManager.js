@@ -336,7 +336,7 @@ bartManager = {
 
             var tCountEstimate = bartManager.estimateCount( iQT, bartManager.queryData );
 
-            bartManager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00";   //  temporary
+            bartManager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
             bartManager.fixUI();        //  temporary
 
             if (tCountEstimate <= 1500) {
