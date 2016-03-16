@@ -83,20 +83,38 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
         <br><br>
 
-        <fieldset id="getDataBlock" onchange="bartManager.fixDataSelectionText()">
-            <legend>Specify data</legend>
-            date: <input id="dateControl" type="date">(Doesn't work in IE or FFox)
-            hour: <input id="hourControl" type="number" min="0" max="23" step="1" maxlength="2"><br>
+        <fieldset id="getDataBlock" onchange="bartManager.dataSelectionChanged()">
+            <legend>Specify data (don't use IE or FFox)</legend>
+            date: <input id="dateControl" type="date">
+            <select id="numberOfDaysControl">
+                <option value="1" >1</option>
+                <option value="7" >7</option>
+                <option value="30" >30</option>
+            </select>d.
+
+            <span id="timeDescription"></span>
+            <br>
+            <span id="useWeekdayItemText"></span>
+            <input type="checkbox" id="useWeekday">
+            <span id="useHoursItemText">use hour:</span>
+            <input type="checkbox" id="useHour">
+            <div id="hourControl"></div>    <!--    the hour range slider -->
+
+            <br>
             from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
+            <br><button id="showPricesButton" onclick="bartManager.showPricesButtonPressed()">show prices</button>
 
-            <!--
-            <input type="radio" name="dataChoice" id="byTimeItem" value="byTime" checked/>one hour, all stations<br>
-            -->
+        </fieldset>
+        <br>
+        <fieldset id="showPricesBlock">
+            <legend>Prices appear here</legend>
+            <span id="dataIntervalStatement"></span>
+            <br><br>
 
-            <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="betweenAnyItem" value="betweenAny" checked/><span id="betweenAnyItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
-
+            <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
 
             <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
         </fieldset>

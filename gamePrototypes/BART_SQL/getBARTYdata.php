@@ -99,19 +99,46 @@ $pass = "root";
 
 */
 
-$now =  date(DATE_RFC2822);
+file_put_contents("bartdebug.txt", "\n\n in PHP " . date(DATE_RFC2822) . " post is: " . implode(" | ",$_POST) , FILE_APPEND);
 
-//  the variable list part of the (long) BART query
-$varList = "X.id AS id, X.date, X.hour, X.count, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
-            "exitT.abbr6 AS endAt, exitT.region AS endReg";
-
-//  How the JOIN clauses have to be
-$joinList = "JOIN stations AS entryT ON (entryT.abbr2 = X.origin) " .
-            "JOIN stations AS exitT ON (exitT.abbr2 = X.destination) " ;
+$now =  date(DATE_RFC2822);     //  for debug purposes
 
 $command = $_POST["c"];     //  this is the overall command, the only required part of the POST
-$dataDate = $_POST["d"];
-$dataHour = $_POST["h"];
+$what = $_POST["w"];
+
+if (isset($_POST["d0"])) {
+    $d0 = $_POST["d0"];
+    $d1 = $_POST["d1"];
+    $dateRange = " ( Bdate BETWEEN '" . $d0 . "' AND '" . $d1 . "' ) ";   //  note inclusive
+} else {
+    $dateRange = "";
+}
+
+if (isset($_POST["h0"])) {
+    $h0 = $_POST["h0"];
+    $h1 = $_POST["h1"];
+    $hourRange = " AND ( hour BETWEEN " . $h0 . " AND " . (intval($h1) - 1) . " ) ";    //  note inclusive
+} else {
+    $hourRange = "";
+}
+
+if (isset($_POST["dow"])) {
+    $dow = $_POST["dow"];               //      numerical day of week Sun = 1 in MySQL (Sun = 0 is js)
+    $dowClause = " AND DAYOFWEEK( Bdate ) = " . (intval($dow) + 1) . " ";
+} else {
+    $dowClause = " ";
+}
+
+//  the variable list part of the (long) BART query
+$varList = "X.id AS id, X.Bdate, DAYOFWEEK(X.Bdate) as dow, X.hour, " .
+            "X.passengers, entryT.abbr6 AS startAt, entryT.region AS startReg, " .
+            "exitT.abbr6 AS endAt, exitT.region AS endReg";
+
+if ($what == "counts") $varList = "COUNT(*)";
+
+//  How the JOIN clauses have to be
+$joinList = "\nJOIN stations AS entryT ON (entryT.abbr2 = X.origin) " .
+            "JOIN stations AS exitT ON (exitT.abbr2 = X.destination) " ;
 
 $stationClause = "";
 
@@ -119,45 +146,44 @@ $stationClause = "";
 
 if (isset($_POST["stn0"])) {
     $stn0 = $_POST["stn0"];
-    $stationClause .= " AND entryT.abbr6 = '" . $stn0 . "'";
+    $stationClause .= "AND entryT.abbr6 = '" . $stn0 . "'";
 }
 
 //  destination station
 
 if (isset($_POST["stn1"])) {
     $stn1 = $_POST["stn1"];
-    $stationClause .= " AND exitT.abbr6 = '" . $stn1 . "'";
+    $stationClause .= "AND exitT.abbr6 = '" . $stn1 . "'";
 }
 
-$orderClause = " ORDER BY date, hour";
+$orderClause = "\nORDER BY Bdate, hour";
+
+
+//  todo: include weekdays
 
 switch ($command) {
     case "getStations":
         $query = "select name, abbr6 from stations";
         break;
 
-    case "byTime":
-        $timeRange = " WHERE date = '" . $dataDate . "' AND hour = '" . $dataHour . "'";
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
+    case "betweenAny":
+        $timeRange = $dateRange . $hourRange;
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . "\nWHERE " . $timeRange . $dowClause . "\n" . $stationClause . $orderClause;
         break;
 
     case "byRoute":
-        $stamp = strtotime($dataDate);
-        $stamp += 7 * 86400;
-        $dataDatePlusSeven = date('Y-m-d', $stamp);
-        $timeRange = " WHERE date >= '" . $dataDate . "' AND date < '" . $dataDatePlusSeven . "' ";
-       $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
+        $timeRange = $dateRange . $hourRange;
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . "\nWHERE " . $timeRange . $dowClause . "\n" . $stationClause . $orderClause;
         break;
 
     case "byArrival":
-        if ($dataHour > 18) $dataHour = 18;
-        $timeRange = " WHERE date = '" . $dataDate . "' AND  hour >= " . $dataHour . " AND hour < " . ($dataHour + 6);
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
+        $timeRange = $dateRange . $hourRange;
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . "\nWHERE " . $timeRange . $dowClause . "\n" . $stationClause . $orderClause;
         break;
 
     case "byDeparture":
-        $timeRange = " WHERE date = '" . $dataDate . "' AND  hour >= " . $dataHour . " AND hour < " . ($dataHour + 6);
-        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . $timeRange . $stationClause . $orderClause;
+        $timeRange = $dateRange . $hourRange;
+        $query = "SELECT " . $varList . " FROM hours AS X " . $joinList . "\nWHERE " . $timeRange . $dowClause . "\n" . $stationClause . $orderClause;
         break;
 
     default:
@@ -165,14 +191,19 @@ switch ($command) {
 }
 
 
-file_put_contents("bartdebug.txt", "\n\n" . $now . " PT: " . implode(" | ",$_POST) , FILE_APPEND);
 
 $query = stripcslashes( $query );
-file_put_contents("bartdebug.txt", "\n----\n" . $now . " QQ: " . $query , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n----\n" . date(DATE_RFC2822) . " submitting query: " . $query , FILE_APPEND);
 
+//  connect to the database
 $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
+
+//  submit the query and receive the results
 $rows = CODAP_MySQL_getQueryResult($DBH, $query);
-file_put_contents("bartdebug.txt", "\n    " . count($rows) . " row(s)" , FILE_APPEND);
+
+file_put_contents("bartdebug.txt", "\n    " . date(DATE_RFC2822) . " " . $command . "  got " . count($rows) . " row(s)" , FILE_APPEND);
+
+//  actually get the data back to the javascript:
 echo json_encode($rows);
 
 
