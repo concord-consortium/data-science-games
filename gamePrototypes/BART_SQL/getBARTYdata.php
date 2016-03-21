@@ -156,7 +156,7 @@ if (isset($_POST["stn1"])) {
     $stationClause .= "AND exitT.abbr6 = '" . $stn1 . "'";
 }
 
-$orderClause = "\nORDER BY Bdate, hour";
+$orderClause = "";      //      "\nORDER BY Bdate, hour";
 
 
 //  todo: include weekdays

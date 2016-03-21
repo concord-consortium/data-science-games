@@ -1,6 +1,6 @@
 /**
  ==========================================================================
-bartManager.js
+bartYManager.js
 
 overall controller for BART microdata.
 
@@ -24,12 +24,10 @@ limitations under the License.
  */
 
 
-var bartManager;
+var bart = {};
 
-
-bartManager = {
-
-    version :  "002-",
+bart.constants = {
+    version :  "002a",
     daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     queryTypes : ["byArrival", "byDeparture", "byRoute", "betweenAny"],
     kBaseURL :  "http://localhost:8888/bart/getBARTYdata.php",   //  "getBARTYdata.php",   //  todo : set to release URL
@@ -39,8 +37,27 @@ bartManager = {
 
     kGetData : "data",
     kGetCounts : "counts",
+    kRegionColorMap : {
+        "Peninsula" : "purple",
+        "City" : "red",
+        "Downtown" : "orange",
+        "Oakland" : "green",
+        "East Bay" : "dodgerblue"
+    },
+    kWeekdayColorMap : {
+        "Sun" : "green",
+        "Mon" : "orange",
+        "Tue" : "coral",
+        "Wed" : "gold",
+        "Thu" : "goldenrod",
+        "Fri" : "lightsalmon",
+        "Sat" : "limegreen",
+    }
+}
 
-    connector : null,
+
+bart.manager = {
+
     playing : false,
 
     queryData : {},
@@ -49,75 +66,18 @@ bartManager = {
 
 
     /**
-     * USer has pressed the button to get data.
-     * @param e     The mouse event
-     */
-    getDataButtonPressed : function(e) {
-
-        this.getDataSearchCriteria();   //  make sure we have current values
-        this.doBucketOfData(  );        //  actually get the data
-        this.fixUI();                   //  update what we see
-    },
-
-    showPricesButtonPressed : function() {
-        this.getDataSearchCriteria();   //  make sure we have current values
-        this.doCaseCounts();
-
-        this.fixUI();
-    },
-
-    dataSelectionChanged : function()   {
-        this.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
-        };
-
-        this.fixUI();
-    },
-
-    hourControlSlides : function( event, ui) {
-        this.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
-        };
-
-        this.queryData.h0 = ui.values[0];
-        this.queryData.h1 = ui.values[1];
-        this.fixUI();
-    },
-
-    /**
-     * User pressed the new game button, but when we're playing, that button is for aborting a game.
-     * So this routine figures out whether to call the newGame() or endGame("abort") methods.
-     */
-    newGameButtonPressed : function() {
-        if (this.playing) {
-            this.endGame("abort")
-        } else {
-            this.newGame();
-
-        }
-        this.fixDataSelectionText();
-        this.fixUI();
-    },
-
-    /**
      * Called when a new game is starting,
      * created the top-level "game' case, and records the ID for the case.
      */
     newGame: function ( ) {
         meeting.setMeetingValues();     //   initialize the meeting location
-        this.connector.newGameCase(
+        bart.connector.newGameCase(
             function( iResult ) {
-                this.connector.gameCaseID = iResult.caseID;   //  set gameCaseID on callback
+                bart.connector.gameCaseID = iResult.caseID;   //  set gameCaseID on callback
                 console.log("Game case ID set to " + iResult.caseID);
-                this.playing = true;
-                this.fixUI();
-            }.bind(this)
+                bart.manager.playing = true;
+                bart.ui.fixUI();
+            }.bind(this)    //  todo: maybe remove bind
         );
     },
 
@@ -126,35 +86,12 @@ bartManager = {
      * @param iReason   why the game ended, a string, e.g., "aborted" "won" "lost"
      */
     endGame: function ( iReason ) {
-        this.connector.closeGame( { result: iReason });
+        bart.connector.closeGame( { result: iReason });
 
         this.playing = false;
     },
 
 
-
-    /**
-     * Adjust the UI with regard to disabled controls and visibility. Called whenever things could change.
-     */
-    fixUI : function() {
-        //  var timeString = TEEUtils.padIntegerToTwo(this.dataHour) + ":" + TEEUtils.padIntegerToTwo(this.dataMinute);
-        //  $('#timeControl').val(timeString);
-
-        this.fixDataSelectionText();
-
-        $("#newGameButton").text( this.playing ? "abort game" : "new game");
-
-        if (this.playing) {
-            $("#getDataButton").prop("disabled", false);
-            $(".options").hide();
-        } else {
-            $(".options").show();
-            $("#getDataButton").prop("disabled", true);
-        }
-
-
-        //  here we could write a longer description of what you will get if you press get data.
-    },
 
     /**
      * Read the UI controls and set up properties so that the data search will be correct.
@@ -177,62 +114,8 @@ bartManager = {
         var tD1 = new Date( tD0.getTime() + tDt);
         this.queryData.d1 = tD1.ISO_8601_string();
 
-
+        return this.queryData;
     },
-
-    fixDataSelectionText : function() {
-
-        this.getDataSearchCriteria();
-
-        //  Whole names of selected stations
-        var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
-        var tDepartureStationName = $("#departureSelector").find('option:selected').text();
-
-        //  time description text.
-        var tEndHour = this.queryData.h1 - 1;
-        var tWeekdayText = bartManager.daysOfWeek[ this.queryData.weekday ];
-        var tHoursText = "from " + this.queryData.h0 + ":00 to " + tEndHour + ":59";
-        if (this.queryData.h0 == this.queryData.h1) tHoursText = " zero time interval; no data";
-        var tTimeDescriptionText = " Any day, all day.";
-
-        //  fix the weekday text
-        var tWeekdayBoxLabel = this.queryData.useWeekday
-            ? tWeekdayText + " only. Deselect for any day:"
-            : "Select to search " + tWeekdayText + " only:";
-
-        //  fix the hours text
-        var tHoursBoxLabel = this.queryData.useHour
-            ? "Using hour range. Deslect for whole day: "
-            : "Searching whole day. Select to use hours: ";
-
-        $("#useHoursItemText").text( tHoursBoxLabel );
-        $("#useWeekdayItemText").text( tWeekdayBoxLabel );
-        $("#timeDescription").text(
-            (this.queryData.useWeekday ? tWeekdayText + " only, " : "Any day, ")
-            + (this.queryData.useHour ? tHoursText + "." : "all day.")
-        );
-
-        //  assemble "data interval statement"
-
-        var tSearchTime = (this.queryData.d0 == this.queryData.d1)
-            ? this.queryData.d0
-            : this.queryData.d0 + " to " + this.queryData.d1;
-        tSearchTime += ", ";
-
-        if (this.queryData.useWeekday) tSearchTime += tWeekdayText + " only, "
-        tSearchTime += (this.queryData.useHour ? tHoursText : " all day");
-
-        $("#dataIntervalStatement").text( tSearchTime );
-
-        $("#betweenAnyItemText").html("between any two stations " + this.possibleCosts["betweenAny"]);
-        $("#byRouteItemText").html("from <strong>" + tDepartureStationName
-            + "</strong> to <strong>" + tArrivalStationName + "</strong> " + this.possibleCosts["byRoute"]);
-        $("#byDepartureItemText").html("from <strong>"
-            + tDepartureStationName + "</strong> to any station " + this.possibleCosts["byDeparture"]);
-        $("#byArrivalItemText").html("from any station to <strong>"
-            + tArrivalStationName + "</strong> " + this.possibleCosts["byArrival"]);
-    },
-
 
 
     /**
@@ -249,11 +132,11 @@ bartManager = {
         var tStationClauseString = "";
 
         switch (iWhat) {
-            case this.kGetData:
+            case bart.constants.kGetData:
                 dataString += "&w=data";
                 break;
 
-            case this.kGetCounts:
+            case bart.constants.kGetCounts:
                 dataString += "&w=counts";
                 break;
         }
@@ -329,20 +212,20 @@ bartManager = {
     doCaseCounts : function() {
         var theData;
 
-        this.queryTypes.forEach( function( iQT ) {
-            bartManager.caseCounts[ iQT ] = null;   //  set dirty
+        bart.constants.queryTypes.forEach( function( iQT ) {
+            bart.manager.caseCounts[ iQT ] = null;   //  set dirty
 
-            var tDataString = bartManager.assembleQueryDataString( iQT, bartManager.kGetCounts );
+            var tDataString = bart.manager.assembleQueryDataString( iQT, bart.constants.kGetCounts );
 
-            var tCountEstimate = bartManager.estimateCount( iQT, bartManager.queryData );
+            var tCountEstimate = bart.manager.estimateCount( iQT, bart.manager.queryData );
 
-            bartManager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
-            bartManager.fixUI();        //  temporary
+            bart.manager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
+            bart.ui.fixUI();        //  temporary
 
             if (tCountEstimate <= 1500) {
                 $.ajax({
                     type: "post",
-                    url: bartManager.kBaseURL,
+                    url: bart.constants.kBaseURL,
                     data: tDataString,
                     success: weGotPrice
                 });
@@ -352,27 +235,27 @@ bartManager = {
                     var tKeys = Object.keys(jData);
 
                     var tCount = Number(jData[tKeys[0]]);
-                    bartManager.caseCounts[iQT] = tCount;
-                    bartManager.possibleCosts[iQT] = "$ " + tCount + ".00";
+                    bart.manager.caseCounts[iQT] = tCount;
+                    bart.manager.possibleCosts[iQT] = "$ " + tCount + ".00";
 
-                    bartManager.fixUI();
+                    bart.ui.fixUI();
 
                     //  todo: fix the following loop, not working as of 2016-03-14
 
-                    if (bartManager.queryTypes.every(function (iQT) {
-                            bartManager.caseCounts[iQT] >= 0;
+                    if (bart.constants.queryTypes.every(function (iQT) {
+                            bart.manager.caseCounts[iQT] >= 0;
                         })) {
                         console.log("All case counts retrieved");
                     }
                 }
             } else {
-                bartManager.possibleCosts[iQT] = "too expensive";
-                bartManager.fixUI();
+                bart.manager.possibleCosts[iQT] = "too expensive";
+                bart.ui.fixUI();
 
                 //  todo: fix the following loop, not working as of 2016-03-14
 
-                if (bartManager.queryTypes.every(function (iQT) {
-                        bartManager.caseCounts[iQT] >= 0;
+                if (bart.constants.queryTypes.every(function (iQT) {
+                        bart.manager.caseCounts[iQT] >= 0;
                     })) {
                     console.log("All case counts retrieved");
                 }
@@ -388,7 +271,7 @@ bartManager = {
      *
      *  This is a cascade of functions, some of which are asynchronous.
      *  (1) Create the "bucket" case, the parent of all the individual observations
-     *  (2) doQuery: if successful, actually POST the information to the .php feed (bartManager.kBaseURL)
+     *  (2) doQuery: if successful, actually POST the information to the .php feed (bart.constants.kBaseURL)
      *  (3) weGotData( iData ): if successful, process the array, each element using...
      *  (4) processHours : extract the individual data values from the record and create a new "leaf" case
      */
@@ -396,11 +279,11 @@ bartManager = {
         var tDataString = this.assembleQueryDataString( this.queryData.c, this.kGetData );
         var theData;
         var tRememberedDateHour = null;
-        this.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case. bucketCaseCreated is the callback.
+        bart.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case. bucketCaseCreated is the callback.
 
         function bucketCaseCreated( iResult ) {
             if (iResult.success) {
-                bartManager.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
+                bart.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
                 console.log("Bucket case ID set to " + iResult.caseID);
                 doQuery( );
             } else {
@@ -412,7 +295,7 @@ bartManager = {
             $("#status").text("getting data from eeps...");
             $.ajax({
                 type :  "post",
-                url :   bartManager.kBaseURL,
+                url :   bart.constants.kBaseURL,
                 data :  tDataString,
                 success: weGotData
             });
@@ -421,216 +304,89 @@ bartManager = {
         function weGotData(iData) {
             $("#status").text("parsing data from eeps...");
             theData = JSON.parse( iData );
-            if (theData.length) $("#result").html("Got data! ");
-            else $("#result").html("No data. ");
+            $("#result").text( (theData.length) ? " Got " + theData.length + " records! " : "No data. ");
             $("#status").text("loading data into CODAP...");
             tRememberedDateHour = null;
-            theData.forEach( processHours );
-            $("#status").text("Ready.");
-        }
 
+            var     reorganizedData = {};
+            theData.forEach( reorganizeByHour );
 
-        function processHours( ex ) {       //[ id = ex.id, hours (calculated), time = ex.exitTime, ex.origin, ex.destination, ex.ticket ]
+            //  now data are reoganized by hour
 
-            /*
-            *****   Called once for each record returned from the DB.  *******
+            $("#status").text("Data reorganized.");
 
-             Here, in BARTY, we need to (temporarily) set it up so a time period, an hour,
-             is superordinate to the rest of the data.
-             We could arrange this by making a MySQL query that would restrict to that time period,
-             and then issue a new query if we have a new hour,
-             but I don't want to do that because really we should get it all and make the user reorganize the data.
-             But that's not working yet, so HERE, where we get ALL the data,
-             we will organize the incoming data by hour and make both levels of the hierarchy.
+            Object.keys( reorganizedData ).forEach( function( iKey ) {
+                var tHourObject = reorganizedData[iKey];
+                storeOneHour( tHourObject );
+            } );
 
-             So we will detect a change by looking for a change in (ex.date + ex.hour).
+            function reorganizeByHour( iRec ) {
+                var tThisDate = iRec.Bdate;
+                var tThisHour = iRec.hour;
+                var tThisDateHour = tThisDate + tThisHour;  //  must be a string or number
 
-             */
+                if ( !(tThisDateHour in reorganizedData) ) {    //  make a new key
+                    var tDay = iRec.dow - 1;
+                    var tDOY = TEEUtils.dateStringToDOY(iRec.Bdate) + iRec.hour/24;
+                    var tHourValuesArray = [ tDOY, bart.constants.daysOfWeek[ tDay ], iRec.hour, iRec.Bdate ];
 
-            var tThisDate = ex.Bdate;
-            var tThisHour = ex.hour;
-            var tThisDateHour = tThisDate + tThisHour;
-
-            if (tThisDateHour != tRememberedDateHour) { //  new dateHour, gotta make a new "hours" record
-                tRememberedDateHour = tThisDateHour;
-
-                var tDay = ex.dow - 1;
-                var tDOY = TEEUtils.dateStringToDOY(ex.Bdate) + ex.hour/24;
-                var tValues = [tDOY, bartManager.daysOfWeek[ tDay ], ex.hour, ex.Bdate];
-
-                bartManager.connector.newHourCase(tValues, hourCaseCreated);
-            }
-
-            function hourCaseCreated( iResult ) {
-                if (iResult.success) {
-                    bartManager.connector.hourCaseID = iResult.caseID;   //  set hourCaseID on callback
-                    processDataFromThisHour( tThisDateHour, iResult.caseID );
-                } else {
-                    console.log("Failed to create hour case for " + tThisDateHour + ".");
+                    reorganizedData[tThisDateHour] = { hourValues : tHourValuesArray, dataValues : [] }; //  create new elemnt in the object
                 }
-            }
 
-            /**
-             * At the moment, we're going through the entire iData array again for every hour,
-             * looking for all the children that belong.
-             * @param iParentDateHour
-             * @param iCaseID
-             */
-            function processDataFromThisHour( iParentDateHour, iCaseID ) {
+                var tDataValuesArray = getDataArrayFromThisRecord( iRec );
+                reorganizedData[tThisDateHour].dataValues.push(tDataValuesArray);
+            };
 
-                theData.forEach( function( oneHour ) {
-                    var tThisDateHour = oneHour.Bdate + oneHour.hour;
-                    if (tThisDateHour == iParentDateHour) {
+            function storeOneHour( iHourObject ) {
+                var tHourDataValues = iHourObject.hourValues;      //      get the data array that needs to be stored
+                bart.connector.newHourCase(tHourDataValues, hourCaseCreated );  //  store it
 
-                        var tAdjustedCount = meeting.adjustCount(
-                            oneHour.startAt,
-                            oneHour.endAt,
-                            oneHour.dow - 1,           //      the index of the weekday
-                            oneHour.hour,
-                            oneHour.passengers
-                        );
-
-                        if (tAdjustedCount != oneHour.passengers) {
-                            console.log("Adjust count from " + oneHour.passengers + " to " + tAdjustedCount);
-                        }
-                        bartManager.connector.doDataRecord(
-                            [
-                                tAdjustedCount,
-                                oneHour.startAt,
-                                oneHour.endAt,
-                                oneHour.startReg,
-                                oneHour.endReg,
-                                oneHour.id
-                            ],
-                            iCaseID         //      case ID for the "hours" parent case
-                        )
+                function hourCaseCreated( iResult ) {
+                    if (iResult.success) {
+                        iHourObject.hourCaseID = iResult.caseID;   //  set hourCaseID on callback
+                        processDataFromThisHour(  );
+                    } else {
+                        console.log("Failed to create hour case for " + tThisDateHour + ".");
                     }
+                }
 
-                })
+                function processDataFromThisHour(  ) {
+                    var tDataArray = iHourObject.dataValues;
+
+                    tDataArray.forEach( function( iOneDataValuesArray ) {
+                        bart.connector.doDataRecord( iOneDataValuesArray, iHourObject.hourCaseID);
+                    });
+                };
+
             }
+
+
+
+
+            function getDataArrayFromThisRecord( iRec ) {
+
+                var tAdjustedCount = meeting.adjustCount(
+                    iRec.startAt,
+                    iRec.endAt,
+                    iRec.dow - 1,           //      the index of the weekday
+                    iRec.hour,
+                    iRec.passengers
+                );
+
+                if (tAdjustedCount != iRec.passengers) {
+                    console.log("Adjust count from " + iRec.passengers + " to " + tAdjustedCount);
+                }
+                return [
+                    tAdjustedCount,
+                    iRec.startAt,
+                    iRec.endAt,
+                    iRec.startReg,
+                    iRec.endReg,
+                    iRec.id
+                ]
+            }
+
         }
-
-    },
-
-    /**
-     * Start up the simulation. Called once on reload.
-     */
-    initialize : function() {
-
-        this.connector = new bartCODAPConnector( "games", "buckets", "hours" );
-        $("#dateControl").val( this.kBaseDateString );
-
-        //  set up hours control
-
-        this.queryData.h0 = this.kBaseH0;
-        this.queryData.h1 = this.kBaseH1;
-
-        $("#hourControl").slider({
-            range : true,
-            min : 4,
-            max : 24,
-            values : [ this.queryData.h0, this.queryData.h1 ],
-            slide : bartManager.hourControlSlides.bind(bartManager),
-            step : 1
-        });
-
-
-        //  get menu items for a list of stations
-        this.makeOptionsFromStationsDB();
-
-        //  set up game options -- possible meeting parameters and menus
-        this.makeMeetingLocationOptions($('#meetingLocationSelector'));
-        this.makeWeekdaysOptions($('#meetingDaySelector'));
-        this.makeMeetingTimeOptions($('#meetingTimeSelector'));
-        this.makeMeetingSizeOptions($('#meetingSizeSelector'));
-
-        this.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
-        };
-
-        this.fixUI();
-    },
-
-    makeMeetingTimeOptions : function( iSelector ) {
-        var result = "";
-        meeting.possibleTimes.forEach(
-            function( t ) {
-                result += "<option value='"+t+"'>" + t +":00 </option>";
-            }
-        );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
-        iSelector.val(14);
-    },
-
-    makeMeetingSizeOptions : function( iSelector ) {
-        var result = "";
-        meeting.possibleSizes.forEach(
-            function( s ) {
-                result += "<option value='"+s+"'>" + s +" people </option>";
-            }
-        );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
-        iSelector.val(160);
-    },
-
-    makeMeetingLocationOptions : function( iSelector ) {
-
-        var result = "";
-        Object.keys(meeting.possibleStations).forEach(
-            function( iAbbr6 ) {
-                result += "<option value='"+iAbbr6+"'>" + meeting.possibleStations[iAbbr6] +"</option>";
-            }
-        );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
-    },
-
-    makeWeekdaysOptions : function( iSelector ) {
-        var result = "";
-        this.daysOfWeek.forEach(
-            function( iDay, index ) {
-                result += "<option value='"+ index +"'>" + iDay +"</option>";
-            }
-        )
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
-        iSelector.val( 2 );      //  default to Tuesday
-    },
-
-    /**
-     *  Use $.ajax() to get the list of stations from the database,
-     *  then use those names to populate the menus that need stations
-     */
-    makeOptionsFromStationsDB : function() {
-        $.ajax({
-            type :  "post",
-            url :   bartManager.kBaseURL,
-            data :  "c=getStations",
-            success: function( iData ) {
-                var result = "";
-                var theStations = JSON.parse( iData );
-                theStations.forEach(
-                    function (sta)  {
-                        result += "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
-                    }
-                )
-                $("#arrivalSelector").empty().append(result);   // put them into the DOM
-                $("#arrivalSelector").val("Orinda");   // choose default value
-
-                $("#departureSelector").empty().append(result);   // put them into the DOM
-                $("#departureSelector").val("Embarc");   // choose default value
-
-            }
-        });
 
     },
 
@@ -639,3 +395,52 @@ bartManager = {
 
     }
 };
+
+/**
+ * Start up the simulation. Called once on reload.
+ */
+bart.initialize = function() {
+
+    this.connector = new bartCODAPConnector( "games", "buckets", "hours" );
+    $("#dateControl").val( bart.constants.kBaseDateString );
+    /*
+     $("#dateControl").datepicker({
+     minDate : "2015-04-01",             //  todo: pass in a date, when we figur out how to cope with the time zone!
+     maxDate : "2015-09-30"
+     });
+     */
+
+    //  set up hours control
+
+    this.manager.queryData.h0 = this.constants.kBaseH0;
+    this.manager.queryData.h1 = this.constants.kBaseH1;
+
+    $("#hourControl").slider({
+        range : true,
+        min : 0,
+        max : 24,
+        values : [ this.manager.queryData.h0, this.manager.queryData.h1 ],
+        slide : bart.ui.hourControlSlides.bind(this),
+        step : 1
+    });
+
+
+    //  get menu items for a list of stations
+    this.ui.makeOptionsFromStationsDB();
+
+    //  set up game options -- possible meeting parameters and menus
+    this.ui.makeMeetingLocationOptions($('#meetingLocationSelector'));
+    this.ui.makeWeekdaysOptions($('#meetingDaySelector'));
+    this.ui.makeMeetingTimeOptions($('#meetingTimeSelector'));
+    this.ui.makeMeetingSizeOptions($('#meetingSizeSelector'));
+
+    this.manager.possibleCosts = {
+        "betweenAny" : "$ ?.??",
+        "byRoute" : "$ ?.??",
+        "byDeparture" : "$ ?.??",
+        "byArrival" : "$ ?.??"
+    };
+
+    this.ui.fixUI();
+}
+

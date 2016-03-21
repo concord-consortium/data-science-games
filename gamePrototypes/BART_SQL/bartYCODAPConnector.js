@@ -57,6 +57,7 @@ var bartCODAPConnector = function(  iGameCollectionName, iBucketCollectionName, 
     this.hourCaseID = 0;
     this.gameNumber = 0;
     this.bucketNumber = 0;
+    this.hourNumber = 0;
     this.gameCollectionName = iGameCollectionName;
     this.bucketCollectionName = iBucketCollectionName;
     this.hourCollectionName = iHourCollectionName;
@@ -122,7 +123,7 @@ bartCODAPConnector.prototype.newBucketCase = function( iCallback ) {
  * @param iCallback
  */
 bartCODAPConnector.prototype.newHourCase = function( iValues, iCallback ) {
-    this.bucketNumber += 1;
+    this.hourNumber += 1;
 
     codapHelper.createCase(
         this.hourCollectionName,
@@ -154,7 +155,7 @@ bartCODAPConnector.getInitSimObject = function() {
 
     var oInitSimObject = {
         name: 'BART-Year',
-        version : bartManager.version,
+        version : bart.constants.version,
         dimensions: {width: 500, height: 380},
         collections: [  // There are two collections: a parent and a child
             {
@@ -179,7 +180,7 @@ bartCODAPConnector.getInitSimObject = function() {
                     setOfCasesWithArticle: "a bucket of data"
                 },
                 attrs: [
-                    {name: "bucketNo", type: 'numeric', precision: 0}
+                    {name: "bucketNo", type: 'categorical'}
                 ],
                 childAttrName: "hour"
             },
@@ -196,17 +197,7 @@ bartCODAPConnector.getInitSimObject = function() {
                 },
                 attrs: [
                     {name: "doy", type: 'numeric', precision: 4},
-                    {name: "day", type : 'categorical',
-                        colormap : {
-                            "Sun" : "green",
-                            "Mon" : "orange",
-                            "Tue" : "coral",
-                            "Wed" : "gold",
-                            "Thu" : "goldenrod",
-                            "Fri" : "lightsalmon",
-                            "Sat" : "limegreen",
-                        }
-                    },
+                    {name: "day", type : 'categorical', colormap : bart.constants.kWeekdayColorMap},
                     {name: "hour", type: 'numeric', precision : 0},
                     {name: "date", type: 'categorical'}
                 ],
@@ -227,28 +218,8 @@ bartCODAPConnector.getInitSimObject = function() {
                     {name: "count", type: 'numeric', precision : 0},
                     {name: "startAt", type: 'categorical'},
                     {name: "endAt", type: 'categorical'},
-                    {
-                        name: "startReg",
-                        type: 'categorical',
-                        colormap : {
-                            "Peninsula" : "purple",
-                            "City" : "red",
-                            "Downtown" : "orange",
-                            "Oakland" : "green",
-                            "East Bay" : "dodgerblue"
-                        }
-                    },
-                    {
-                        name: "endReg",
-                        type: 'categorical',
-                        colormap : {
-                            "Peninsula" : "purple",
-                            "City" : "red",
-                            "Downtown" : "orange",
-                            "Oakland" : "green",
-                            "East Bay" : "dodgerblue"
-                        }
-                    },
+                    {name: "startReg", type: 'categorical', colormap : bart.constants.kRegionColorMap },
+                    {name: "endReg",   type: 'categorical', colormap : bart.constants.kRegionColorMap },
                     {name: "id", type: 'numeric', precision: 0}
 
                 ]
@@ -288,6 +259,6 @@ bartCODAPConnector.prototype.restoreFrom = function( iObject ) {
  */
 codapHelper.initSim(
     bartCODAPConnector.getInitSimObject(),
-    bartManager.bartDoCommand
+    bart.manager.bartDoCommand
 );
 

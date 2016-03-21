@@ -54,6 +54,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
     <!-- Our game source -->
     <script src="bartYManager.js" language="JavaScript"></script>
+    <script src="bart.ui.js" language="JavaScript"></script>
     <script src="bartOptions.js" language="JavaScript"></script>
     <script src="bartYCODAPConnector.js" language="JavaScript"></script>
     <script src="meetingGame.js" language="JavaScript"></script>
@@ -73,17 +74,17 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     <ul>
         <li><a href="#dataTab">Data</a></li>
         <li><a href="#backgroundTab">Background</a></li>
-        <li><a href="#hintsTab">Hints</a></li>
+        <li><a href="#scenarioTab">Scenario</a></li>
         <li><a href="#mapTab">Map</a></li>
         <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debugging</a></li>
     </ul>
     <div id="dataTab">
 
-        <button id="newGameButton" onclick="bartManager.newGameButtonPressed()">new game</button>
+        <button id="newGameButton" onclick="bart.ui.newGameButtonPressed()">new game</button>
         <br><br>
 
-        <fieldset id="getDataBlock" onchange="bartManager.dataSelectionChanged()">
+        <fieldset id="getDataBlock" onchange="bart.ui.dataSelectionChanged()">
             <legend>Specify data (don't use IE or FFox)</legend>
             date: <input id="dateControl" type="date">
             <select id="numberOfDaysControl">
@@ -102,7 +103,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
             <br>
             from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
-            <br><button id="showPricesButton" onclick="bartManager.showPricesButtonPressed()">show prices</button>
+            <br><button id="showPricesButton" onclick="bart.ui.showPricesButtonPressed()">show prices</button>
 
         </fieldset>
         <br>
@@ -116,7 +117,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
             <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
 
-            <br><button id="getDataButton" onclick="bartManager.getDataButtonPressed()">get data</button>
+            <br><button id="getDataButton" onclick="bart.ui.getDataButtonPressed()">get data</button>
         </fieldset>
 
         <p>
@@ -130,10 +131,12 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
             Each record represents one hour at a station,
             recording how many people exited that station during the hour from each of the
             other stations in the BART system.</p>
+        <p>As of version 002, data extend from 20156-04-01 to 2015-09-30</p>
         <p>Useful Variables</p>
         <ul>
             <li><strong>count</strong>: Number of exits during that hour.
             <li><strong>doy</strong>: decimal day of year. Use for time.</li>
+            <li><strong>hour</strong>: The integer hour out of 24.</li>
             <li><strong>day</strong>: weekday.</li>
             <li><strong>startAt</strong>: station where the passenger entered the system</li>
             <li><strong>endAt</strong>: station where the passenger left the system</li>
@@ -143,17 +146,38 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <p>Thanks to Pam Herhold, BART, for access!</p>
 
     </div>
-    <div id="hintsTab">
-        <p>One way to start:</p>
+    <div id="scenarioTab">
+        <p>You are trying to find a meeting in the Bay Area, and you have only BART data to do it with.
+            You know the meeting is near a BART station. You know it's at the same time very week.</p>
+        <p>Before you press <strong>new game</strong>, check out the <strong>Options</strong> tab.
+        </p>
+        <p>Use that to set up the game.</p>
+        <ul>
+            <li>Begin by using the defaults (Orinda, Tuesday, 2 PM, 160 people). So you know the answer.</li>
+            <li>See if you can make a graph that shows the meeting in the BART data.</li>
+            <ul>
+                <li>Notice that the controls let you define what data to get, for example, what date and for what hours.</li>
+                <li>Notice that you can learn the cost of your data.
+                    <b>Eventually, you will have to confirm your purchase.</b></li>
+            </ul>
+            <li>When you have that nailed, set the time to "surprise me" and play another game.
+                See if you can figure out the time.</li>
+            <li>Gradually move up to other attributes or even to combinations!</li>
+        </ul>
+        <h2>Hints</h2>
+        <p>If you're stuck about making a graph with the default options:</p>
         <ol>
-            <li>Click <strong>new game</strong>.  </li>
+            <li>Make sure a Tuesday is selected, such as April 14.</li>
             <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
             <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like. </li>
-            <li>Click <strong>Graph</strong>. A mixed-up graph appears. Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
-            <li>Drag <strong>count</strong> to the vertical axis. </li>
+            <li>Click <strong>Graph</strong>. A mixed-up graph appears.
+                Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
+            <li>Drag <strong>count</strong> to the vertical axis. You should see a bump at 2 PM.</li>
             <li>Try dragging other attributes to various axes -- or to the middle of the graph. </li>
 
         </ol>
+        <p>Notice that we "knew" Embarcadero would be a good sourse. In reality, you don't know that.
+            How would you figure it out?</p>
         <p>That should get you started. Oh: to start over, just reload the page.</p>
     </div>
     <div id="mapTab">
@@ -179,7 +203,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 </body>
 
 <script language="JavaScript">
-    bartManager.initialize();
+    bart.initialize();
 
 
 
