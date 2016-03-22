@@ -84,6 +84,26 @@ var     TEEUtils = {
         var tL = a.length;
         var tR = Math.floor(Math.random() * tL);
         return a[tR];
+    },
+
+    dateStringToDOY : function( iString ) {
+        var dateArray = iString.split( "-" );
+        var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+        var mn = Number(dateArray[1]);
+        var dn = Number(dateArray[2]);
+        var yn = Number(dateArray[0]);
+        var leapThing = yn % 4 == 0 ? 1 : 0;
+
+        var dayOfYear = dayCount[mn - 1] + dn;
+        if(mn > 1) dayOfYear += leapThing;
+        return dayOfYear;
+
+    },
+
+    dateStringToDayOfWeek : function(iString, iTimeZoneString) {
+        var tTempDate = new Date(iString + " " + iTimeZoneString);
+        var tDay = tTempDate.getDay();      //  day of week, Sunday = 0, etc.
+        return tDay;
     }
 
 };
@@ -103,4 +123,10 @@ Date.prototype.BART_string = function() {
 
     return this.ISO_8601_string() + " " + (hh[1]?hh:"0"+hh[0]) + ":" + (ii[1]?ii:"0"+ii[0]);
 
+};
+
+Date.prototype.isLeapYear = function() {
+    var year = this.getFullYear();
+    if((year & 3) != 0) return false;
+    return ((year % 100) != 0 || (year % 400) == 0);
 };
