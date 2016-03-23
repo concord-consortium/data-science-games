@@ -31,19 +31,35 @@ steb.worldView = {
 
     flush : function() {
         this.paper.clear();
+        this.makeBackground();
     },
 
     addStebber : function( iStebberView, iLocation ) {
-        this.paper.append( iStebberView.paper).attr({
-            x : iLocation.x,
-            y : iLocation.y
+        iStebberView.paper.attr({
+            x : iLocation.x - steb.constants.stebberViewSize/2,
+            y : iLocation.y - steb.constants.stebberViewSize/2
         });
+        this.paper.append( iStebberView.paper);
+    },
+
+    removeStebberView : function( iStebberView )    {
+        iStebberView.paper.remove(  );
+        //  need to remove the StebberView object??
+    },
+
+    makeBackground : function() {
+        this.paper.rect(0, 0, 1000, 1000).attr({
+            fill: "dodgerblue"
+        })
+
     },
 
     initialize : function() {
         this.paper = Snap(document.getElementById("stebSnapWorld"));
         this.paper.attr({
             viewBox : "0 0 1000 1000"
-        })
+        });
+
+        this.makeBackground();
     }
 }

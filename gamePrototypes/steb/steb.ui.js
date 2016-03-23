@@ -36,6 +36,13 @@ steb.ui = {
         this.timeDisplay.text( Math.round(steb.model.elapsed) );
     },
 
+    clickStebber : function( iStebberView )    {
+        steb.model.removeStebber( iStebberView.stebber );
+        steb.worldView.removeStebberView( iStebberView );
+        steb.model.reproduce();
+
+        steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
+    },
 
     newGameButtonPressed : function() {
         if (steb.manager.playing) {

@@ -31,12 +31,19 @@ var StebberView = function( iStebber ) {
     this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
     var tRadius = steb.constants.stebberViewSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
+    var tColorString = iStebber.colorString();
+
     this.paper.attr({ viewBox : tVBText});
 
     this.selectionCircle = this.paper.circle(0, 0, tRadius);
     this.selectionCircle.attr({
         stroke : null,
-        fill : "gray"
+        fill : tColorString
     });
+
+    this.selectionCircle.click(function() {
+        steb.ui.clickStebber( this )
+    }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
+
 
 }

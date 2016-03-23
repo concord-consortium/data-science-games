@@ -26,12 +26,20 @@
  */
 
 
-var Stebber = function( ) {
-    this.color = [8, 8, 8];
+var Stebber = function( iColor ) {
+    this.color = iColor ? iColor : [8, 8, 8];
     this.location = {
         x : Math.round(1000 * Math.random()),
         y : Math.round(1000 * Math.random())
     };
 
 
+};
+
+Stebber.prototype.colorString = function() {
+    var r = this.color[0] * 16 + this.color[0];
+    var g = this.color[1] * 16 + this.color[1];
+    var b = this.color[2] * 16 + this.color[2];
+
+    return Snap.rgb( r, g, b );
 };
