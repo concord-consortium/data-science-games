@@ -1,0 +1,69 @@
+/* class options */
+
+.options   {
+    background-color: #ecc;
+    padding: 4px;
+}
+.gameOptions   {
+    background-color: #fee;
+    padding: 4px;
+}
+
+.imageButton    {
+    background-image: url('../art/pause.png');
+    background-size: 100% 100%;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+/* option IDs */
+
+/*  button etc stuff */
+
+#allDataButton {
+    background-color: #0a9a87;
+    color: white;
+}
+
+#newGameButton {
+    background-color: darkgray;
+    color: white;
+    position: absolute;
+    right:  12px;
+}
+
+/*		BOX CLASSES		*/
+
+.hBox	{
+    display: flex;
+    flex-direction: row;
+    /*display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	horizontal;
+    -moz-box-orient:	horizontal;
+    box-orient:	horizontal;*/
+}
+
+.vBox	{
+    display: flex;
+    flex-direction: column;
+    /*
+    display:	-webkit-box;
+    display:	-moz-box;
+    display:	box;
+    -webkit-box-orient:	vertical;
+    -moz-box-orient:	vertical;
+    box-orient:	vertical;
+    */
+}
+
+.textIO {
+    background-color: yellowgreen;
+    margin: 2px;
+    padding: 2px;
+    font-family: sans-serif;
+    font-size: 7pt;
+    color: white;
+}
