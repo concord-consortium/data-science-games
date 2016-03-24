@@ -31,9 +31,12 @@ var StebberView = function( iStebber ) {
     this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
     var tRadius = steb.constants.stebberViewSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
-    var tColorString = iStebber.colorString();
+    var tColorString = StebberView.colorString( iStebber.color );
 
-    this.paper.attr({ viewBox : tVBText});
+    this.paper.attr({
+        viewBox : tVBText,
+        class : "StebberView"
+    });
 
     this.selectionCircle = this.paper.circle(0, 0, tRadius);
     this.selectionCircle.attr({
@@ -41,9 +44,43 @@ var StebberView = function( iStebber ) {
         fill : tColorString
     });
 
-    this.selectionCircle.click(function() {
-        steb.ui.clickStebber( this )
+    //  set up the click handler
+
+    this.selectionCircle.click(function( iEvent ) {
+        steb.ui.clickStebber( this, iEvent )
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
-
-
 }
+
+StebberView.prototype.startMoving = function() {
+    var tAnimationObject = {
+        x : this.stebber.whither.x - steb.constants.stebberViewSize/2,
+        y : this.stebber.whither.y - steb.constants.stebberViewSize/2
+    };
+
+
+    var tHere = {
+        x : Number(this.paper.attr("x")) + steb.constants.stebberViewSize/2,
+        y : Number(this.paper.attr("y")) + steb.constants.stebberViewSize/2
+    };
+
+    var tTime = steb.model.distanceBetween( tHere, this.stebber.whither ) / steb.constants.stebberSpeed;
+
+    this.paper.animate(
+        tAnimationObject,
+        tTime * 1000,
+        null,       //  mina.easeinout,
+        function() {
+            this.stebber.animationArrival();
+            this.startMoving();
+        }.bind(this)
+    );
+}
+
+
+StebberView.colorString = function( iColor ) {
+    var r = iColor[0] * 16 + iColor[0];
+    var g = iColor[1] * 16 + iColor[1];
+    var b = iColor[2] * 16 + iColor[2];
+
+    return Snap.rgb( r, g, b );
+};

@@ -33,8 +33,7 @@ steb.manager = {
 
     makeStebberView : function( iSteb ) {
         var tStebView = new StebberView( iSteb );
-        steb.worldView.addStebber( tStebView, iSteb.location );
-
+        steb.worldView.installStebberView( tStebView );
     },
 
     animate: function (timestamp) {
@@ -52,13 +51,16 @@ steb.manager = {
 
     pause : function() {
         this.running = false;
+        steb.worldView.stopEverybody();
     },
 
     restart : function() {
         this.running = true;
         this.previous = null;
+        steb.worldView.startEverybody();
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
+
 
     newGame : function() {
         this.time = 0;
@@ -66,12 +68,15 @@ steb.manager = {
         steb.model.newGame();
 
         this.playing = true;
+        steb.connector.newGameCase( );
         this.restart();
     },
 
     endGame : function( iReason ) {
+        steb.worldView.stopEverybody();
         this.playing = false;
         this.running = false;
+        steb.connector.finishGameCase( iReason );
     },
 
     stebDoCommand : function() {

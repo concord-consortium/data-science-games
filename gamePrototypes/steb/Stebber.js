@@ -26,20 +26,22 @@
  */
 
 
-var Stebber = function( iColor ) {
+var Stebber = function( iColor, iWhere ) {
     this.color = iColor ? iColor : [8, 8, 8];
-    this.location = {
-        x : Math.round(1000 * Math.random()),
-        y : Math.round(1000 * Math.random())
-    };
+    this.where = iWhere;
+    this.setWhither();
+};
 
+Stebber.prototype.setWhither = function() {
+    this.whither = steb.model.randomPlace();
+};
+
+Stebber.prototype.runFrom = function( iPoint ) {
 
 };
 
-Stebber.prototype.colorString = function() {
-    var r = this.color[0] * 16 + this.color[0];
-    var g = this.color[1] * 16 + this.color[1];
-    var b = this.color[2] * 16 + this.color[2];
+Stebber.prototype.animationArrival = function() {
+    this.where = this.whither;
+    this.setWhither();
+}
 
-    return Snap.rgb( r, g, b );
-};

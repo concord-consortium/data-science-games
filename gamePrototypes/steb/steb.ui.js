@@ -34,12 +34,24 @@ steb.ui = {
 
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
         this.timeDisplay.text( Math.round(steb.model.elapsed) );
+
+        var tDebugText = steb.model.stebbers.length + " stebbers, "
+            + steb.worldView.stebberViews.length + " views.";
+
+        $("#debugText").text( tDebugText );
     },
 
-    clickStebber : function( iStebberView )    {
-        steb.model.removeStebber( iStebberView.stebber );
-        steb.worldView.removeStebberView( iStebberView );
-        steb.model.reproduce();
+    clickStebber : function( iStebberView, iEvent )    {
+
+        var tPoint = steb.worldView.viewBoxCoordsFrom( iEvent );
+
+        if (steb.manager.running) {
+            steb.worldView.stopEverybody();
+            steb.model.removeStebber(iStebberView.stebber);
+            steb.worldView.removeStebberView(iStebberView);
+            steb.model.reproduce();
+            steb.worldView.startEverybody();
+        }
 
         steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
     },
@@ -64,5 +76,6 @@ steb.ui = {
         this.startStopButton = document.getElementById("startStop");
         this.newGameButton = $("#newGameButton");
         this.timeDisplay = $("#timeDisplay");
+        this.stebWorldViewElement = document.getElementById("stebSnapWorld");
     }
 }
