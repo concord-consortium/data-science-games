@@ -34,6 +34,7 @@ steb.ui = {
 
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
         this.timeDisplay.text( Math.round(steb.model.elapsed) );
+        this.mealDisplay.text( Math.round(steb.model.meals) );
 
         var tDebugText = steb.model.stebbers.length + " stebbers, "
             + steb.worldView.stebberViews.length + " views.";
@@ -42,6 +43,7 @@ steb.ui = {
     },
 
     clickStebber : function( iStebberView, iEvent )    {
+
 
         var tPoint = steb.worldView.viewBoxCoordsFrom( iEvent );
 
@@ -52,6 +54,8 @@ steb.ui = {
             steb.model.reproduce();
             steb.worldView.startEverybody();
         }
+
+        if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
 
         steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
     },
@@ -76,6 +80,7 @@ steb.ui = {
         this.startStopButton = document.getElementById("startStop");
         this.newGameButton = $("#newGameButton");
         this.timeDisplay = $("#timeDisplay");
+        this.mealDisplay = $("#mealDisplay");
         this.stebWorldViewElement = document.getElementById("stebSnapWorld");
     }
 }

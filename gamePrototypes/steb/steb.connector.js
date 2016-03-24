@@ -28,10 +28,14 @@
 
 steb.connector = {
     gameCaseID: 0,
+    bucketCaseID: 0,
     gameNumber: 0,
+    bucketNumber: 0,
     gameCollectionName: "games",
+    bucketCollectionName: "buckets",
+    stebberCollectionName: "stebbers",
 
-    newGameCase: function ( ) {
+    newGameCase: function () {
 
         this.gameNumber += 1;
 
@@ -43,11 +47,12 @@ steb.connector = {
             ],
             function (iResult) {
                 this.gameCaseID = iResult.caseID;
+                steb.manager.emitPopulationData();  //      to get data at beginning of game
             }.bind(this)
         );
     },
 
-    finishGameCase : function( iResult ) {
+    finishGameCase: function (iResult) {
         codapHelper.closeCase(
             this.gameCollectionName,
             [
@@ -59,6 +64,33 @@ steb.connector = {
         this.gameCaseID = 0;     //  so we know there is no open case
     },
 
+    /**
+     * Create a new case in the middle-in-the-hierarchy "bucket" collection in the BART game.
+     * @param iCallback
+     */
+    newBucketCase : function( iValues, iCallback ) {
+        this.bucketNumber += 1;     //  not currently stored
+
+        codapHelper.createCase(
+            this.bucketCollectionName,
+            iValues,
+            this.gameCaseID,        //  3d argument is the parent case ID
+            iCallback               //  needed to figure out the bucket case ID
+        );
+    },
+
+/**
+     * Emit an "event" case, low level in the hierarchy.
+     * @param values
+     */
+    doStebberRecord : function( iValues ) {
+        codapHelper.createCase(
+            this.stebberCollectionName,
+            iValues,
+            this.bucketCaseID
+        ); // no callback.
+    },
+
 getInitSimObject: function () {
 
         var oInitSimObject = {
@@ -67,7 +99,7 @@ getInitSimObject: function () {
             dimensions: {width: 380, height: 500},
             collections: [  // There are two collections: a parent and a child
                 {
-                    name: 'games',
+                    name: this.gameCollectionName,
                     labels: {
                         singleCase: "game",
                         pluralCase: "games",
@@ -78,20 +110,33 @@ getInitSimObject: function () {
                         {name: "gameNo", type: 'categorical'},
                         {name: "result", type: 'categorical'}
                     ],
-                    childAttrName: "event"
+                    childAttrName: "bucket"
                 },
                 {
-                    name: 'events',
+                    name: this.bucketCollectionName,
                     labels: {
-                        singleCase: "event",
-                        pluralCase: "events",
-                        setOfCasesWithArticle: "a set of events"
+                        singleCase: "bucket",
+                        pluralCase: "buckets",
+                        setOfCasesWithArticle: "a bucket of data"
+                    },
+                    // The bucket collection spec:
+                    attrs: [
+                        {name: "meals", type: 'categorical'}
+                    ],
+                    childAttrName: "stebber"
+                },
+                {
+                    name: this.stebberCollectionName,
+                    labels: {
+                        singleCase: "stebber",
+                        pluralCase: "stebbers",
+                        setOfCasesWithArticle: "a set of stebbers"
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "time", type: 'numeric', unit: 'seconds', precision: 1},
-                        {name: "name", type: 'categorical'},
-                        {name: 'col', type: 'categorical'}
+                        {name: "red", type: 'numeric', precision : 0},
+                        {name: "green", type: 'numeric', precision : 0},
+                        {name: "blue", type: 'numeric', precision : 0}
                     ]
                 }
             ]

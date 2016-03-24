@@ -83,9 +83,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 <div id="tabs">
     <ul>
         <li><a href="#worldTab">World</a></li>
-        <li><a href="#backgroundTab">Background</a></li>
+        <li><a href="#instructionsTab">How To</a></li>
+        <li><a href="#backgroundTab">About</a></li>
         <li><a href="#optionsTab">Options</a></li>
-        <li><a href="#debugTab">Debugging</a></li>
+        <li><a href="#debugTab">Debug</a></li>
     </ul>
     <div id="worldTab">
         <svg id="stebSnapWorld" width="300" height="300">
@@ -95,15 +96,31 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         </svg>
         <div class="hBox">
             <div class = "imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>
-            <div class = "textIO" style = "width : 80px">Time: <span id = "timeDisplay">0</span></div>
+            <div class = "textIO" style = "width : 90px">
+                t = <span id = "timeDisplay">0</span>
+                m = <span id = "mealDisplay">0</span>
+            </div>
+            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
             <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
+        </div>
+        <div class = "hBox">
             <span id="shortStatus"></span>
+
         </div>
 
     </div>
+    <div id="instructionsTab">
+        <p>Eat the circles.
+            We need to encourage "predators" to eat the most obvious ones
+            as opposed to the closest. </p>
+        <p>Data are collected every ten meals, or whenever you press Data.</p>
+    </div>
     <div id="backgroundTab">
+        <p>Evolution simulation about protective coloration. You are the predator.</p>
+        <p>Based on the old, offline "Stebbins Game."</p>
     </div>
     <div id="optionsTab">
+        <p>None yet</p>
     </div>
     <div id="debugTab">
         <span id="debugText"></span>

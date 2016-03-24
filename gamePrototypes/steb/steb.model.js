@@ -30,6 +30,7 @@ steb.model = {
 
     stebbers : null,
     elapsed : null,
+    meals : null,
 
     reproduce : function()   {
         var tParent = TEEUtils.pickRandomItemFrom( this.stebbers );
@@ -44,6 +45,7 @@ steb.model = {
     newGame : function() {
         this.stebbers = [];
         this.elapsed = 0;
+        this.meals = 0;
 
         for (var i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
             this.addNewStebberBasedOn( null );
@@ -69,6 +71,7 @@ steb.model = {
     },
 
     removeStebber : function( iStebber ) {
+        this.meals += 1;
         var tKilledColor = StebberView.colorString( iStebber.color );
         var tIndex = this.stebbers.indexOf( iStebber );
         this.stebbers.splice( tIndex, 1 );

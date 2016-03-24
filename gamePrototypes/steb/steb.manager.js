@@ -61,7 +61,6 @@ steb.manager = {
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
 
-
     newGame : function() {
         this.time = 0;
         steb.worldView.flush();
@@ -77,6 +76,33 @@ steb.manager = {
         this.playing = false;
         this.running = false;
         steb.connector.finishGameCase( iReason );
+    },
+
+    emitPopulationData : function() {
+
+        var tBucketValues = [ steb.model.meals ];       //  only meals atm
+        steb.connector.newBucketCase( tBucketValues, bucketCreated );
+
+        function bucketCreated( iResult ) {
+            if (iResult.success) {
+                steb.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
+                console.log("Bucket case ID set to " + iResult.caseID);
+
+                //  now process each "leaf"
+
+                steb.model.stebbers.forEach( function( iSteb ) {
+                    var tValues = [
+                        iSteb.color[0],
+                        iSteb.color[1],
+                        iSteb.color[2]
+                    ];
+                    steb.connector.doStebberRecord( tValues );
+                });
+            } else {
+                console.log("Failed to create bucket case.");
+            }
+        }
+
     },
 
     stebDoCommand : function() {

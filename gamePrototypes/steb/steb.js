@@ -36,7 +36,7 @@ steb.initialize = function() {
 
 steb.constants = {
     version : "000",
-    initialNumberOfStebbers : 20,   //  10,
+    initialNumberOfStebbers : 12,   //  10,
     stebberViewSize : 80,       //  100,
     stebberSpeed : 100.0       //  100.0
 };

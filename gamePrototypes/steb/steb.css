@@ -1,5 +1,9 @@
 /* class options */
 
+body {
+    font-size : 70%
+}
+
 .options   {
     background-color: #ecc;
     padding: 4px;
