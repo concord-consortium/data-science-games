@@ -64,6 +64,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="steb.manager.js" language="JavaScript"></script>
     <script src="steb.ui.js" language="JavaScript"></script>
     <script src="steb.model.js" language="JavaScript"></script>
+    <script src="steb.options.js" language="JavaScript"></script>
     <script src="steb.connector.js" language="JavaScript"></script>
     <script src="steb.worldView.js" language="JavaScript"></script>
 
@@ -109,19 +110,30 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         </div>
 
     </div>
+
+
     <div id="instructionsTab">
-        <p>Eat the circles.
+        <p>Eat the circles. They're called "Stebbers."
             We need to encourage "predators" to eat the most obvious ones
             as opposed to the closest. </p>
+        <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>
         <p>Data are collected every ten meals, or whenever you press Data.</p>
     </div>
+
+
     <div id="backgroundTab">
         <p>Evolution simulation about protective coloration. You are the predator.</p>
         <p>Based on the old, offline "Stebbins Game."</p>
     </div>
+
+
     <div id="optionsTab">
-        <p>None yet</p>
+        <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
+            <label><input type="checkbox" id="backgroundCrud" checked>distractors in the background</label>
+        </div>
     </div>
+
+
     <div id="debugTab">
         <span id="debugText"></span>
     </div>

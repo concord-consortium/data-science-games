@@ -67,7 +67,7 @@ steb.manager = {
         steb.model.newGame();
 
         this.playing = true;
-        steb.connector.newGameCase( );
+        steb.connector.newGameCase( JSON.stringify(steb.worldView.backgroundColor));
         this.restart();
     },
 
@@ -91,12 +91,7 @@ steb.manager = {
                 //  now process each "leaf"
 
                 steb.model.stebbers.forEach( function( iSteb ) {
-                    var tValues = [
-                        iSteb.color[0],
-                        iSteb.color[1],
-                        iSteb.color[2]
-                    ];
-                    steb.connector.doStebberRecord( tValues );
+                    steb.connector.doStebberRecord( iSteb.dataValues() );
                 });
             } else {
                 console.log("Failed to create bucket case.");

@@ -29,6 +29,8 @@
 steb.worldView = {
     paper : null,
     stebberViews : [],
+    backgroundColor : null,
+    backgroundColorString : null,
 
     flush : function() {
         this.paper.clear();
@@ -57,11 +59,12 @@ steb.worldView = {
     },
 
     makeBackground : function() {
-        var tColorString = StebberView.colorString(steb.model.randomColor());
-        console.log("New bg: " + tColorString);
+        this.backgroundColor = steb.model.randomColor();
+        this.backgroundColorString = steb.colorString( this.backgroundColor );
+        console.log("New bg: " + this.backgroundColorString);
 
         this.paper.rect(0, 0, 1000, 1000).attr({
-            fill: tColorString
+            fill: this.backgroundColorString
         })
 
     },

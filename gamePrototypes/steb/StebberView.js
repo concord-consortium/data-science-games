@@ -31,7 +31,7 @@ var StebberView = function( iStebber ) {
     this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
     var tRadius = steb.constants.stebberViewSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
-    var tColorString = StebberView.colorString( iStebber.color );
+    var tColorString = steb.colorString( iStebber.color );
 
     this.paper.attr({
         viewBox : tVBText,
@@ -77,10 +77,3 @@ StebberView.prototype.startMoving = function() {
 }
 
 
-StebberView.colorString = function( iColor ) {
-    var r = iColor[0] * 16 + iColor[0];
-    var g = iColor[1] * 16 + iColor[1];
-    var b = iColor[2] * 16 + iColor[2];
-
-    return Snap.rgb( r, g, b );
-};

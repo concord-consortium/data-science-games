@@ -35,7 +35,7 @@ steb.connector = {
     bucketCollectionName: "buckets",
     stebberCollectionName: "stebbers",
 
-    newGameCase: function () {
+    newGameCase: function ( iBgColor ) {
 
         this.gameNumber += 1;
 
@@ -43,6 +43,7 @@ steb.connector = {
             this.gameCollectionName,
             [
                 this.gameNumber,
+                iBgColor,
                 null
             ],
             function (iResult) {
@@ -108,6 +109,7 @@ getInitSimObject: function () {
                     // The parent collection spec:
                     attrs: [
                         {name: "gameNo", type: 'categorical'},
+                        {name: "bgColor", type: 'categorical'},
                         {name: "result", type: 'categorical'}
                     ],
                     childAttrName: "bucket"
@@ -136,7 +138,11 @@ getInitSimObject: function () {
                     attrs: [
                         {name: "red", type: 'numeric', precision : 0},
                         {name: "green", type: 'numeric', precision : 0},
-                        {name: "blue", type: 'numeric', precision : 0}
+                        {name: "blue", type: 'numeric', precision : 0},
+                        {name: "hue", type: 'numeric', precision : 3},
+                        {name: "sat", type: 'numeric', precision : 3},
+                        {name: "value", type: 'numeric', precision : 3},
+                        {name: "id", type: 'numeric', precision : 0}
                     ]
                 }
             ]

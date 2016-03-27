@@ -1,9 +1,9 @@
 /**
- * Created by tim on 3/23/16.
+ * Created by tim on 3/27/16.
 
 
  ==========================================================================
- steb.js in data-science-games.
+ steb.options.js in data-science-games.
 
  Author:   Tim Erickson
 
@@ -26,26 +26,18 @@
  */
 
 
-var steb = {};
 
-steb.initialize = function() {
+steb.options = {
+    backgroundCrud : true,
 
-    this.ui.initialize();
-    this.worldView.initialize();
-};
+    /**
+     *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
+     */
+    optionChange : function() {
+        this.backgroundCrud = document.getElementById("backgroundCrud").checked;
 
-steb.colorString = function( iColor ) {
-    var r = iColor[0] * 16 + iColor[0];
-    var g = iColor[1] * 16 + iColor[1];
-    var b = iColor[2] * 16 + iColor[2];
+        steb.ui.fixUI();
+    }
 
-    return Snap.rgb( r, g, b );
-};
 
-steb.constants = {
-    version : "000a",
-    initialNumberOfStebbers : 12,   //  10,
-    stebberViewSize : 80,       //  100,
-    stebberSpeed : 100.0,       //  100.0
-    worldViewBoxSize : 1000.0
-};
+}

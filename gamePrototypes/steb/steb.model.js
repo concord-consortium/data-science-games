@@ -28,9 +28,10 @@
 
 steb.model = {
 
-    stebbers : null,
+    stebbers : [],
     elapsed : null,
     meals : null,
+    lastStebberNumber : null,
 
     reproduce : function()   {
         var tParent = TEEUtils.pickRandomItemFrom( this.stebbers );
@@ -46,6 +47,7 @@ steb.model = {
         this.stebbers = [];
         this.elapsed = 0;
         this.meals = 0;
+        this.lastStebberNumber = 0;
 
         for (var i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
             this.addNewStebberBasedOn( null );
@@ -55,6 +57,7 @@ steb.model = {
     addNewStebberBasedOn : function( iStebber ) {
 
         var tColor, tWhere;
+        this.lastStebberNumber += 1;
 
         if (iStebber ) {
             tColor = this.mutateColor( iStebber.color );
@@ -64,7 +67,7 @@ steb.model = {
             tWhere = this.randomPlace();
         }
 
-        var tSteb = new Stebber( tColor, tWhere );
+        var tSteb = new Stebber( tColor, tWhere, this.lastStebberNumber );
         steb.manager.makeStebberView( tSteb );  //  the view knows about the model
         this.stebbers.push( tSteb );            //  we keep the model Stebber in our array
 
@@ -72,7 +75,7 @@ steb.model = {
 
     removeStebber : function( iStebber ) {
         this.meals += 1;
-        var tKilledColor = StebberView.colorString( iStebber.color );
+        var tKilledColor = steb.colorString( iStebber.color );
         var tIndex = this.stebbers.indexOf( iStebber );
         this.stebbers.splice( tIndex, 1 );
     },
@@ -81,8 +84,8 @@ steb.model = {
 
     randomPlace : function() {
         return {
-            x : Math.round(1000 * Math.random()),
-            y : Math.round(1000 * Math.random())
+            x : Math.round(steb.constants.worldViewBoxSize * Math.random()),
+            y : Math.round(steb.constants.worldViewBoxSize * Math.random())
         }
     },
 
@@ -91,7 +94,6 @@ steb.model = {
         var dy = p1.y - p2.y;
         var tDistance = Math.sqrt( dx * dx + dy * dy );
 
-        //  console.log("From " + p1.x + ", " + p1.y + " to " + p2.x + ", " + p2.y + " is " + Math.round(tDistance));
         return tDistance;
     },
 
@@ -101,7 +103,7 @@ steb.model = {
         var oArray = [];
 
         for (var i = 0; i < 3; i++) {
-            var tRan = TEEUtils.pickRandomItemFrom([4,5,6,7,8,9,10]);
+            var tRan = TEEUtils.pickRandomItemFrom([3,4,5,6,7,8,9,10,11,12]);
             oArray.push( tRan );
         }
         return oArray;
@@ -111,14 +113,14 @@ steb.model = {
         var oColor = [];
 
         iColor.forEach( function(c) {
-            c += TEEUtils.pickRandomItemFrom([-2,-1, 0, 1, 2]);
+            c += TEEUtils.pickRandomItemFrom([-2,-1,-1, 0,0, 1, 1, 2]);
             if (c < 0) c = 0;
             if (c > 15) c = 15;
             oColor.push( c );
         });
 
-        var tStart = StebberView.colorString( iColor );
-        var tEnd = StebberView.colorString( oColor );
+        var tStart = steb.colorString( iColor );
+        var tEnd = steb.colorString( oColor );
 
         console.log("Mutate " + tStart + " to " + tEnd);
         return oColor;

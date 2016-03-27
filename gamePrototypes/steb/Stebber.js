@@ -26,9 +26,10 @@
  */
 
 
-var Stebber = function( iColor, iWhere ) {
+var Stebber = function( iColor, iWhere, iID ) {
     this.color = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
+    this.id = iID;
     this.setWhither();
 };
 
@@ -43,5 +44,21 @@ Stebber.prototype.runFrom = function( iPoint ) {
 Stebber.prototype.animationArrival = function() {
     this.where = this.whither;
     this.setWhither();
+};
+
+Stebber.prototype.dataValues = function() {
+
+    var tSnapColorRecord = Snap.color( steb.colorString( this.color ));
+    var oValues = [
+        tSnapColorRecord.r,
+        tSnapColorRecord.g,
+        tSnapColorRecord.b,
+        tSnapColorRecord.h,
+        tSnapColorRecord.s,
+        tSnapColorRecord.v,
+        this.id
+    ];
+
+    return oValues;
 }
 

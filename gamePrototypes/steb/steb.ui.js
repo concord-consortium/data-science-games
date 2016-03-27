@@ -53,9 +53,9 @@ steb.ui = {
             steb.worldView.removeStebberView(iStebberView);
             steb.model.reproduce();
             steb.worldView.startEverybody();
+            if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
         }
 
-        if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
 
         steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
     },
