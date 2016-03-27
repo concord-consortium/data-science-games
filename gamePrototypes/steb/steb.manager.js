@@ -29,6 +29,7 @@ steb.manager = {
     running : false,
     playing : false,
     previous : null,
+    onTimeout : false,
 
 
     makeStebberView : function( iSteb ) {
@@ -65,9 +66,13 @@ steb.manager = {
         this.time = 0;
         steb.worldView.flush();
         steb.model.newGame();
+        if (steb.options.backgroundCrud) steb.worldView.addCrud();
 
         this.playing = true;
-        steb.connector.newGameCase( JSON.stringify(steb.worldView.backgroundColor));
+        steb.connector.newGameCase(
+            JSON.stringify(steb.worldView.backgroundColor),
+            JSON.stringify(steb.worldView.meanCrudColor)
+        );
         this.restart();
     },
 
@@ -75,7 +80,11 @@ steb.manager = {
         steb.worldView.stopEverybody();
         this.playing = false;
         this.running = false;
-        steb.connector.finishGameCase( iReason );
+        steb.connector.finishGameCase(
+            JSON.stringify(steb.worldView.backgroundColor),
+            JSON.stringify(steb.worldView.meanCrudColor),
+            iReason
+        );
     },
 
     emitPopulationData : function() {

@@ -43,9 +43,14 @@ steb.colorString = function( iColor ) {
 };
 
 steb.constants = {
-    version : "000a",
+    version : "000b",
     initialNumberOfStebbers : 12,   //  10,
     stebberViewSize : 80,       //  100,
     stebberSpeed : 100.0,       //  100.0
-    worldViewBoxSize : 1000.0
+    stebberColorMutationArray : [-2,-1,-1, 0,0, 1, 1, 2],
+    worldViewBoxSize : 1000.0,
+    numberOfCruds : 20,
+    crudSize : 80,
+    crudSpeed : 90.0,
+    crudColorMutationArray : [-.5, -.3, -.1, 0,.1,.3,.5]
 };

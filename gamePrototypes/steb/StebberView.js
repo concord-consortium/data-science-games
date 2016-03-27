@@ -49,7 +49,7 @@ var StebberView = function( iStebber ) {
     this.selectionCircle.click(function( iEvent ) {
         steb.ui.clickStebber( this, iEvent )
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
-}
+};
 
 StebberView.prototype.startMoving = function() {
     var tAnimationObject = {
@@ -74,6 +74,6 @@ StebberView.prototype.startMoving = function() {
             this.startMoving();
         }.bind(this)
     );
-}
+};
 
 

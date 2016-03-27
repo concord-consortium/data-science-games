@@ -29,8 +29,10 @@
 steb.worldView = {
     paper : null,
     stebberViews : [],
+    crudViews : [],
     backgroundColor : null,
     backgroundColorString : null,
+    backgroundRect : null,
 
     flush : function() {
         this.paper.clear();
@@ -39,7 +41,7 @@ steb.worldView = {
 
     installStebberView : function( iStebberView ) {
         var tWhere = iStebberView.stebber.where;
-        this.paper.append( iStebberView.paper);
+        iStebberView.paper.insertAfter( this.backgroundRect);   //  put any new stebbers below any crud, just after bgRect
 
         //  place the view where it actually is on the main paper
 
@@ -56,17 +58,6 @@ steb.worldView = {
         iStebberView.paper.remove(  );
         var tIndex = this.stebberViews.indexOf( iStebberView );
         this.stebberViews.splice( tIndex, 1 );
-    },
-
-    makeBackground : function() {
-        this.backgroundColor = steb.model.randomColor();
-        this.backgroundColorString = steb.colorString( this.backgroundColor );
-        console.log("New bg: " + this.backgroundColorString);
-
-        this.paper.rect(0, 0, 1000, 1000).attr({
-            fill: this.backgroundColorString
-        })
-
     },
 
     stopEverybody : function () {
@@ -103,9 +94,56 @@ steb.worldView = {
     initialize : function() {
         this.paper = Snap(document.getElementById("stebSnapWorld"));
         this.paper.attr({
-            viewBox : "0 0 1000 1000"
+            viewBox : "0 0 " + steb.constants.worldViewBoxSize + " " + steb.constants.worldViewBoxSize
         });
 
         this.makeBackground();
+    },
+
+
+
+    //          BACKGROUND
+
+    backgroundObjects : [],
+
+    makeBackground : function() {
+        this.backgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+        this.backgroundColorString = steb.colorString( this.backgroundColor );
+        console.log("New bg: " + this.backgroundColorString);
+
+        this.backgroundRect = this.paper.rect(
+            0, 0,
+            steb.constants.worldViewBoxSize,
+            steb.constants.worldViewBoxSize).attr({
+            fill: this.backgroundColorString
+        })
+
+    },
+
+    addCrud : function() {
+        this.meanCrudColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+
+        for (var i = 0; i < steb.constants.numberOfCruds; i++) {
+            tCrud = new CrudView( this.meanCrudColor );
+            this.paper.append( tCrud.paper);
+            tCrud.startMoving();
+            this.crudViews.push( tCrud );
+        }
+
+    },
+
+    makeCrud : function( iColorString) {
+        var tPlace = steb.model.randomPlace();
+
+        var tCrud = this.paper.rect( 0, 0, steb.constants.crudSize, steb.constants.crudSize).attr({
+            fill : iColorString,
+            x : tPlace.x,
+            y : tPlace.y
+        });
+        this.backgroundObjects.push( tCrud );
     }
+
+
+
+
 }

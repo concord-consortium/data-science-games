@@ -60,6 +60,21 @@ steb.ui = {
         steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
     },
 
+    clickCrud : function() {
+        steb.manager.onTimeout = true;
+        this.timeOutPaper.attr({
+            visibility : "visible"
+        })
+        steb.worldView.paper.append( this.timeOutPaper );
+
+        window.setTimeout( function() {
+            this.timeOutPaper.remove();
+            steb.manager.onTimeout = false;
+        }.bind(this), 2000);
+
+
+    },
+
     newGameButtonPressed : function() {
         if (steb.manager.playing) {
             steb.manager.endGame("abort");
@@ -76,11 +91,29 @@ steb.ui = {
         this.fixUI();
     },
 
+    makeTimeOutPaper : function() {
+        var oPaper = Snap( steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize);
+        oPaper.rect( 0, 0, steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize).attr({
+            fill: "yellow"
+        });
+        oPaper.text(100,100,"Time out!").attr({
+            fontSize : 100
+        });
+        oPaper.text(100,222,"Eat only circles!").attr({
+            fontSize : 100
+        });
+        oPaper.attr({
+            visibility : "hidden"
+        })
+        return oPaper;
+    },
+
     initialize : function() {
         this.startStopButton = document.getElementById("startStop");
         this.newGameButton = $("#newGameButton");
         this.timeDisplay = $("#timeDisplay");
         this.mealDisplay = $("#mealDisplay");
         this.stebWorldViewElement = document.getElementById("stebSnapWorld");
+        this.timeOutPaper = this.makeTimeOutPaper();
     }
 }

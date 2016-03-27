@@ -50,9 +50,9 @@ Stebber.prototype.dataValues = function() {
 
     var tSnapColorRecord = Snap.color( steb.colorString( this.color ));
     var oValues = [
-        tSnapColorRecord.r,
-        tSnapColorRecord.g,
-        tSnapColorRecord.b,
+        this.color[0],
+        this.color[1],
+        this.color[2],
         tSnapColorRecord.h,
         tSnapColorRecord.s,
         tSnapColorRecord.v,

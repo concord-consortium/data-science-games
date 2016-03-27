@@ -35,7 +35,7 @@ steb.connector = {
     bucketCollectionName: "buckets",
     stebberCollectionName: "stebbers",
 
-    newGameCase: function ( iBgColor ) {
+    newGameCase: function ( iBgColor, iCrudColor ) {
 
         this.gameNumber += 1;
 
@@ -44,6 +44,7 @@ steb.connector = {
             [
                 this.gameNumber,
                 iBgColor,
+                iCrudColor,
                 null
             ],
             function (iResult) {
@@ -53,11 +54,13 @@ steb.connector = {
         );
     },
 
-    finishGameCase: function (iResult) {
+    finishGameCase: function (iBgColor, iCrudColor, iResult) {
         codapHelper.closeCase(
             this.gameCollectionName,
             [
                 this.gameNumber,
+                iBgColor,
+                iCrudColor,
                 iResult
             ],
             this.gameCaseID
@@ -110,6 +113,7 @@ getInitSimObject: function () {
                     attrs: [
                         {name: "gameNo", type: 'categorical'},
                         {name: "bgColor", type: 'categorical'},
+                        {name: "crudColor", type: 'categorical'},
                         {name: "result", type: 'categorical'}
                     ],
                     childAttrName: "bucket"

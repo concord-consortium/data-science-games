@@ -60,10 +60,10 @@ steb.model = {
         this.lastStebberNumber += 1;
 
         if (iStebber ) {
-            tColor = this.mutateColor( iStebber.color );
+            tColor = this.mutateColor( iStebber.color, steb.constants.stebberColorMutationArray );
             tWhere = iStebber.where;
         } else {
-            tColor = this.randomColor( );
+            tColor = this.randomColor( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
             tWhere = this.randomPlace();
         }
 
@@ -99,21 +99,21 @@ steb.model = {
 
     //          COLOR utilities
 
-    randomColor : function() {
+    randomColor : function( iColors ) {
         var oArray = [];
 
         for (var i = 0; i < 3; i++) {
-            var tRan = TEEUtils.pickRandomItemFrom([3,4,5,6,7,8,9,10,11,12]);
+            var tRan = TEEUtils.pickRandomItemFrom( [3,4,5,6,7,8,9,10,11,12] );
             oArray.push( tRan );
         }
         return oArray;
     },
 
-    mutateColor : function( iColor )    {
+    mutateColor : function( iColor, iMutes )    {
         var oColor = [];
 
         iColor.forEach( function(c) {
-            c += TEEUtils.pickRandomItemFrom([-2,-1,-1, 0,0, 1, 1, 2]);
+            c += TEEUtils.pickRandomItemFrom( iMutes );
             if (c < 0) c = 0;
             if (c > 15) c = 15;
             oColor.push( c );
