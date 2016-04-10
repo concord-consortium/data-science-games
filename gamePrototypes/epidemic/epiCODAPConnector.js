@@ -114,11 +114,12 @@ EpiCODAPConnector.getInitSimObject = function() {
                 },
                 // The parent collection spec:
                 attrs: [
-                    {name: "epiNumber", type: 'categorical'},
-                    {name: "moves", type: 'numeric',  precision: 0},
-                    {name: "sickSecs", type: 'numeric', unit: 'seconds', precision: 2},
-                    {name: "elapsed", type: 'numeric', unit: 'seconds', precision: 2},
-                    {name: "result", type: 'categorical'}
+                    {name: "epiNumber", type: 'categorical', description : "epidemic number"},
+                    {name: "moves", type: 'numeric',  precision: 0, description : "how many times you moved a critter"},
+                    {name: "sickSecs", type: 'numeric', unit: 'seconds', precision: 2,
+                        description : "total number of seconds critters were sick"},
+                    {name: "elapsed", type: 'numeric', unit: 'seconds', precision: 2, description : "elapsed seconds"},
+                    {name: "result", type: 'categorical', description : "game result"}
                 ],
                 childAttrName: "event"
             },
@@ -131,24 +132,26 @@ EpiCODAPConnector.getInitSimObject = function() {
                 },
                 // The child collection specification:
                 attrs: [
-                    {name: "time", type: 'numeric', unit: 'seconds', precision: 2},
-                    {name: "name", type: 'categorical'},
+                    {name: "time", type: 'numeric', unit: 'seconds', precision: 2, description : "elapsed seconds"},
+                    {name: "name", type: 'categorical', description : "critter's name"},
                     {
                         name: "result",
                         type: 'categorical',
-                        colormap : { "healthy" : Critter.borderColors[0], "sick" : CritterView.kSickBorderColor }
+                        colormap : { "healthy" : Critter.borderColors[0], "sick" : CritterView.kSickBorderColor },
+                        description : "health status"
                     },
-                    {name: "activity", type: 'categorical', colormap : Location.colorMap},
-                    {name: "temp", type: 'numeric', precision: 1},
+                    {name: "activity", type: 'categorical', colormap : Location.colorMap, description : "what the critter was doing"},
+                    {name: "temp", type: 'numeric', precision: 1, description : "critter's temperature"},
                     {
                         name: "eyeColor",
                         type: 'categorical',
-                        colormap: tColorMapObject
+                        colormap: tColorMapObject,
+                        description : "critter's eye color"
                     },
-                    {name: "recordType", type: 'categorical'},
-                    {name: "location", type: 'categorical'},
-                    {name: 'row', type: 'categorical'},
-                    {name: 'col', type: 'categorical'}
+                    {name: "recordType", type: 'categorical', description : "why this record exists"},
+                    {name: "location", type: 'categorical', description : "location ID"},
+                    {name: 'row', type: 'categorical', description : "location's row"},
+                    {name: 'col', type: 'categorical', description : "location's column"}
                 ]
             }
         ]
