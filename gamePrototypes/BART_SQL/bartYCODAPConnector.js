@@ -196,10 +196,10 @@ bartCODAPConnector.getInitSimObject = function() {
                     setOfCasesWithArticle: "an hour of data"
                 },
                 attrs: [
-                    {name: "doy", type: 'numeric', precision: 4},
-                    {name: "day", type : 'categorical', colormap : bart.constants.kWeekdayColorMap},
-                    {name: "hour", type: 'numeric', precision : 0},
-                    {name: "date", type: 'categorical'}
+                    {name: "doy", type: 'numeric', precision: 4, description : "day of the year"},
+                    {name: "day", type : 'categorical', colormap : bart.constants.kWeekdayColorMap, description : "day of the week"},
+                    {name: "hour", type: 'numeric', precision : 0, description : "hour (24-hour clock)"},
+                    {name: "date", type: 'categorical', description : "the date"}
                 ],
                 childAttrName: "datum"
             },
@@ -215,12 +215,14 @@ bartCODAPConnector.getInitSimObject = function() {
                 },
                 // The child collection specification:
                 attrs: [
-                    {name: "count", type: 'numeric', precision : 0},
-                    {name: "startAt", type: 'categorical'},
-                    {name: "endAt", type: 'categorical'},
-                    {name: "startReg", type: 'categorical', colormap : bart.constants.kRegionColorMap },
-                    {name: "endReg",   type: 'categorical', colormap : bart.constants.kRegionColorMap },
-                    {name: "id", type: 'numeric', precision: 0}
+                    {name: "count", type: 'numeric', precision : 0, description : "number of passengers leaving the system"},
+                    {name: "startAt", type: 'categorical', description : "where these passengers entered BART"},
+                    {name: "endAt", type: 'categorical', description : "where these passengers exited BART"},
+                    {name: "startReg", type: 'categorical', colormap : bart.constants.kRegionColorMap,
+                        description : "region where these passengers entered BART" },
+                    {name: "endReg",   type: 'categorical', colormap : bart.constants.kRegionColorMap,
+                        description : "region where these passengers exited BART" },
+                    {name: "id", type: 'numeric', precision: 0, description : "record ID"}
 
                 ]
             }
