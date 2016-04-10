@@ -121,9 +121,9 @@ if (geigerManager.twoDimensional) {
                     attrs: [
                         {name: "gameNumber", type: 'categorical'},
                         {name: "result", type: 'categorical'},
-                        {name: "dose", type: 'numeric', precision: 0},
-                        {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2},
-                        {name: "sourceY", type: 'numeric', unit: 'meters', precision: 2}
+                        {name: "dose", type: 'numeric', precision: 0, description : "total exposure to radiation"},
+                        {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2, description : "x-coordinate of the source"},
+                        {name: "sourceY", type: 'numeric', unit: 'meters', precision: 2, description : "y-coordinate of the source"}
                     ],
                     childAttrName: "measurement"
                 },
@@ -136,10 +136,10 @@ if (geigerManager.twoDimensional) {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "x", type: 'numeric', unit: 'meters', precision: 2},
-                        {name: "y", type: 'numeric', unit: 'meters', precision: 2},
-                        {name: "distance", type: 'numeric', unit: 'units', precision: 2},
-                        {name: "count", type: 'numeric', precision: 0}
+                        {name: "x", type: 'numeric', unit: 'meters', precision: 2, description : "x-coordinate of the detector"},
+                        {name: "y", type: 'numeric', unit: 'meters', precision: 2, description : "y-coordinate of the detector"},
+                        {name: "distance", type: 'numeric', unit: 'units', precision: 2, description : "distance from the source"},
+                        {name: "count", type: 'numeric', precision: 0, description : "radiation counts during the measurement"}
                     ]
                 }
             ]
@@ -167,8 +167,8 @@ if (geigerManager.twoDimensional) {
                     attrs: [
                         {name: "gameNumber", type: 'categorical'},
                         {name: "result", type: 'categorical'},
-                        {name: "dose", type: 'numeric', precision: 0},
-                        {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2},
+                        {name: "dose", type: 'numeric', precision: 0, description : "total exposure to radiation"},
+                        {name: "sourceX", type: 'numeric', unit: 'meters', precision: 2, description : "x-coordinate of the source"}
                     ],
                     childAttrName: "measurement"
                 },
@@ -181,9 +181,9 @@ if (geigerManager.twoDimensional) {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "x", type: 'numeric', unit: 'meters', precision: 2},
-                        {name: "distance", type: 'numeric', unit: 'units', precision: 2},
-                        {name: "count", type: 'numeric', precision: 0}
+                        {name: "x", type: 'numeric', unit: 'meters', precision: 2, description : "x-coordinate of the detector"},
+                        {name: "distance", type: 'numeric', unit: 'units', precision: 2, description : "distance from the source"},
+                        {name: "count", type: 'numeric', precision: 0, description : "radiation counts during the measurement"}
                     ]
                 }
             ]
