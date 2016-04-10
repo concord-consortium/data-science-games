@@ -47,22 +47,24 @@ steb.manager = {
 
     update : function ( idt ) {
         steb.model.update( idt );
+        steb.worldView.update();
         steb.ui.fixUI();
     },
 
     pause : function() {
         this.running = false;
-        steb.worldView.stopEverybody();
+        //  steb.worldView.stopEverybody();
     },
 
     restart : function() {
         this.running = true;
         this.previous = null;
-        steb.worldView.startEverybody();
+        //  steb.worldView.startEverybody();
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
 
     newGame : function() {
+        steb.options.optionChange();        //  make sure they align with the checkboxes
         this.time = 0;
         steb.worldView.flush();
         steb.model.newGame();

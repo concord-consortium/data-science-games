@@ -29,12 +29,20 @@
 
 steb.options = {
     backgroundCrud : true,
+    delayReproduction : false,
+    reducedMutation : false,
+    flee : true,
+    eldest : false,
 
     /**
      *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
      */
     optionChange : function() {
         this.backgroundCrud = document.getElementById("backgroundCrud").checked;
+        this.delayReproduction = document.getElementById("delayReproduction").checked;
+        this.reducedMutation = document.getElementById("reducedMutation").checked;
+        this.flee = document.getElementById("flee").checked;
+        this.eldest = document.getElementById("eldest").checked;
 
         steb.ui.fixUI();
     }

@@ -30,21 +30,62 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.color = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
-    this.setWhither();
+
+    this.setNewSpeedAndHeading();
 };
 
-Stebber.prototype.setWhither = function() {
-    this.whither = steb.model.randomPlace();
+Stebber.prototype.setNewSpeedAndHeading = function() {
+    this.heading = Math.PI*2 * Math.random();
+    this.timeToChange = 1 + Math.random() * 2;
+    this.speed = steb.constants.baseStebberSpeed;
+    //var tDegrees = Math.round(this.heading * 180.0 / Math.PI);
+    //console.log("New heading " + tDegrees);
+};
+
+Stebber.prototype.update = function( idt ) {
+
+    if (this.speed > steb.constants.baseStebberSpeed) {
+        this.speed -= idt * steb.constants.baseStebberAcceleration;
+    }
+
+    var tDx = this.speed * Math.cos( this.heading ) * idt;
+    var tDy = this.speed * Math.sin( this.heading ) * idt;
+
+    this.where.x += tDx;
+    this.where.y += tDy;
+
+    this.where.x = steb.rangeWrap( this.where.x, 0, steb.constants.worldViewBoxSize);
+    this.where.y = steb.rangeWrap( this.where.y, 0, steb.constants.worldViewBoxSize);
+
+    this.timeToChange -= idt;
+
+    if (this.timeToChange < 0) this.setNewSpeedAndHeading();
+
+    //  debugging
+
+    var tDegrees = Math.round(this.heading * 180.0 / Math.PI);
+    var result = "ID: " + this.id;
+    result += " x, y: " + Math.round(this.where.x) + ", " + Math.round(this.where.y);
+    result += " dx, dy: " + Math.round(1000 * tDx) + ", " + Math.round(1000 * tDy);
+    result += " hdg: " + tDegrees;
+    //  console.log(result);
+
 };
 
 Stebber.prototype.runFrom = function( iPoint ) {
+    if (steb.options.flee) {
+        var dx = this.where.x - iPoint.x;
+        var dy = this.where.y - iPoint.y;
+        var r = Math.sqrt(dx * dx + dy * dy);
 
+        if (r < steb.constants.worldViewBoxSize / 2) {
+            this.heading = Math.atan2(dy, dx);
+            this.speed = 5 * steb.constants.baseStebberSpeed;
+            this.timeToChange = 1 + Math.random() * 2;
+        }
+    }
 };
 
-Stebber.prototype.animationArrival = function() {
-    this.where = this.whither;
-    this.setWhither();
-};
 
 Stebber.prototype.dataValues = function() {
 

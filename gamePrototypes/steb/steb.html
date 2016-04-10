@@ -103,6 +103,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
                 m = <span id = "mealDisplay">0</span>
             </div>
             <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
+            <button id="newBGColorButton" onclick="steb.worldView.mutateBackgroundColor()">mutate bg</button>
             <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
         </div>
         <div class = "hBox">
@@ -133,6 +134,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <div id="optionsTab">
         <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
             <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
+            <label><input type="checkbox" id="delayReproduction" >delay reproduction (wait and do 5)</label>
+            <label><input type="checkbox" id="reducedMutation" >reduced mutation</label>
+            <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
+            <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
         </div>
     </div>
 

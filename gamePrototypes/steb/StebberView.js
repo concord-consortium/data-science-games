@@ -38,6 +38,8 @@ var StebberView = function( iStebber ) {
         class : "StebberView"
     });
 
+    //  draw the stebber
+
     this.selectionCircle = this.paper.circle(0, 0, tRadius);
     this.selectionCircle.attr({
         stroke : null,
@@ -51,29 +53,14 @@ var StebberView = function( iStebber ) {
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
 };
 
-StebberView.prototype.startMoving = function() {
-    var tAnimationObject = {
-        x : this.stebber.whither.x - steb.constants.stebberViewSize/2,
-        y : this.stebber.whither.y - steb.constants.stebberViewSize/2
-    };
-
-
-    var tHere = {
-        x : Number(this.paper.attr("x")) + steb.constants.stebberViewSize/2,
-        y : Number(this.paper.attr("y")) + steb.constants.stebberViewSize/2
-    };
-
-    var tTime = steb.model.distanceBetween( tHere, this.stebber.whither ) / steb.constants.stebberSpeed;
-
-    this.paper.animate(
-        tAnimationObject,
-        tTime * 1000,
-        null,       //  mina.easeinout,
-        function() {
-            this.stebber.animationArrival();
-            this.startMoving();
-        }.bind(this)
-    );
+StebberView.prototype.update = function() {
+    this.moveTo( this.stebber.where );
 };
 
+StebberView.prototype.moveTo = function( iWhere ) {
+    this.paper.attr({
+        x : iWhere.x - steb.constants.stebberViewSize/2,
+        y : iWhere.y - steb.constants.stebberViewSize/2
+    });
 
+}

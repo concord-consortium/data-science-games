@@ -34,12 +34,33 @@ steb.model = {
     lastStebberNumber : null,
 
     reproduce : function()   {
-        var tParent = TEEUtils.pickRandomItemFrom( this.stebbers );
-        this.addNewStebberBasedOn( tParent );
+        if (steb.options.delayReproduction) {
+            if (this.meals % 5 == 0) {
+                for (var i = 0; i < 5; i++) {
+                    var tParent  = this.findParent();
+                    this.addNewStebberBasedOn( tParent );
+                }
+            }
+        } else {
+            var tParent = this.findParent();
+            this.addNewStebberBasedOn( tParent );
+        }
+    },
+
+    findParent : function() {
+        var oParent = TEEUtils.pickRandomItemFrom( this.stebbers );
+        if (steb.options.eldest) {
+            var ix = TEEUtils.pickRandomItemFrom([0,0,0,1,1,2,3,4]);
+            oParent = this.stebbers[ ix ];
+        }
+        return oParent;
     },
 
     update : function ( idt ) {
         this.elapsed += idt;
+        this.stebbers.forEach( function(iStebber) {
+            iStebber.update(idt);
+        })
     },
 
 
@@ -54,22 +75,27 @@ steb.model = {
         }
     },
 
-    addNewStebberBasedOn : function( iStebber ) {
+    addNewStebberBasedOn : function( iParentStebber ) {
 
-        var tColor, tWhere;
+        var tColor, tWhere = {};
         this.lastStebberNumber += 1;
 
-        if (iStebber ) {
-            tColor = this.mutateColor( iStebber.color, steb.constants.stebberColorMutationArray );
-            tWhere = iStebber.where;
+        if (iParentStebber ) {
+            var tMute = steb.options.reducedMutation
+                ? steb.constants.stebberColorReducedMutationArray
+                : steb.constants.stebberColorMutationArray;
+            tColor = this.mutateColor( iParentStebber.color, tMute );
+            tWhere.x = iParentStebber.where.x;
+            tWhere.y = iParentStebber.where.y;
         } else {
             tColor = this.randomColor( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
             tWhere = this.randomPlace();
         }
 
-        var tSteb = new Stebber( tColor, tWhere, this.lastStebberNumber );
-        steb.manager.makeStebberView( tSteb );  //  the view knows about the model
-        this.stebbers.push( tSteb );            //  we keep the model Stebber in our array
+        var tChildStebber = new Stebber( tColor, tWhere, this.lastStebberNumber );
+        tChildStebber.speed = 500.;
+        steb.manager.makeStebberView( tChildStebber );  //  the view knows about the model
+        this.stebbers.push( tChildStebber );            //  we keep the model Stebber in our array
 
     },
 
@@ -80,7 +106,15 @@ steb.model = {
         this.stebbers.splice( tIndex, 1 );
     },
 
-        //      location utilities
+    frightenStebbersFrom : function( iPoint ) {
+        this.stebbers.forEach( function(iStebber) {
+            iStebber.runFrom( iPoint );
+        })
+
+    },
+
+
+    //      location utilities
 
     randomPlace : function() {
         return {
@@ -122,7 +156,7 @@ steb.model = {
         var tStart = steb.colorString( iColor );
         var tEnd = steb.colorString( oColor );
 
-        console.log("Mutate " + tStart + " to " + tEnd);
+        console.log("Mutate " + tStart + " to " + tEnd + " using " + iMutes);
         return oColor;
     }
 }

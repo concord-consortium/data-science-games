@@ -42,15 +42,25 @@ steb.colorString = function( iColor ) {
     return Snap.rgb( r, g, b );
 };
 
+steb.rangeWrap = function( val, lo, hi )    {
+    if (val < lo) val = hi;
+    if (val > hi) val = lo;
+    return val;
+};
+
 steb.constants = {
-    version : "000b",
+    version : "000c",
     initialNumberOfStebbers : 12,   //  10,
     stebberViewSize : 80,       //  100,
-    stebberSpeed : 100.0,       //  100.0
+    //stebberSpeed : 100.0,       //  100.0
     stebberColorMutationArray : [-2,-1,-1, 0,0, 1, 1, 2],
+    stebberColorReducedMutationArray : [-1, -.5, -.5, 0,0,.5, .5, 1],
     worldViewBoxSize : 1000.0,
     numberOfCruds : 20,
     crudSize : 80,
     crudSpeed : 90.0,
-    crudColorMutationArray : [-.5, -.3, -.1, 0,.1,.3,.5]
+    crudColorMutationArray : [-.8, -.4, -.1, 0,.1,.4,.8],
+
+    baseStebberSpeed : 100.0,
+    baseStebberAcceleration : 600.0,
 };

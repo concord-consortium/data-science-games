@@ -98,7 +98,7 @@ steb.connector = {
 getInitSimObject: function () {
 
         var oInitSimObject = {
-            name: 'Epidemic',
+            name: 'Stebbins',
             version: steb.constants.version,
             dimensions: {width: 380, height: 500},
             collections: [  // There are two collections: a parent and a child
@@ -112,7 +112,7 @@ getInitSimObject: function () {
                     // The parent collection spec:
                     attrs: [
                         {name: "gameNo", type: 'categorical'},
-                        {name: "bgColor", type: 'categorical'},
+                        {name: "bgColor", type: 'categorical', description : "[red, green, blue] of the background"},
                         {name: "crudColor", type: 'categorical'},
                         {name: "result", type: 'categorical'}
                     ],
@@ -127,7 +127,7 @@ getInitSimObject: function () {
                     },
                     // The bucket collection spec:
                     attrs: [
-                        {name: "meals", type: 'categorical'}
+                        {name: "meals", type: 'categorical', description : 'how many stebbers you have eaten'}
                     ],
                     childAttrName: "stebber"
                 },
@@ -140,10 +140,10 @@ getInitSimObject: function () {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "red", type: 'numeric', precision : 0},
-                        {name: "green", type: 'numeric', precision : 0},
-                        {name: "blue", type: 'numeric', precision : 0},
-                        {name: "hue", type: 'numeric', precision : 3},
+                        {name: "red", type: 'numeric', precision : 1, description : "how much red (0 to 16)"},
+                        {name: "green", type: 'numeric', precision : 1, description : "how much red (0 to 16)"},
+                        {name: "blue", type: 'numeric', precision : 1, description : "how much green (0 to 16)"},
+                        {name: "hue", type: 'numeric', precision : 3, description : "how much blue (0 to 16)"},
                         {name: "sat", type: 'numeric', precision : 3},
                         {name: "value", type: 'numeric', precision : 3},
                         {name: "id", type: 'numeric', precision : 0}

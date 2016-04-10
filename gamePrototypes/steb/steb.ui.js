@@ -44,16 +44,15 @@ steb.ui = {
 
     clickStebber : function( iStebberView, iEvent )    {
 
-
         var tPoint = steb.worldView.viewBoxCoordsFrom( iEvent );
 
+
         if (steb.manager.running) {
-            steb.worldView.stopEverybody();
             steb.model.removeStebber(iStebberView.stebber);
             steb.worldView.removeStebberView(iStebberView);
             steb.model.reproduce();
-            steb.worldView.startEverybody();
             if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
+            steb.model.frightenStebbersFrom( tPoint );
         }
 
 
