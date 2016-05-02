@@ -105,6 +105,9 @@ steb.worldView = {
     backgroundObjects : [],
 
     makeBackground : function() {
+        this.backgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+        this.backgroundColorString = steb.makeColorString( this.backgroundColor );
+        console.log("New bg: " + this.backgroundColorString);
 
         this.backgroundRect = this.paper.rect(
             0, 0,

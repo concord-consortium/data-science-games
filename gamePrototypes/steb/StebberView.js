@@ -31,7 +31,10 @@ var StebberView = function( iStebber ) {
     this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
     var tRadius = steb.constants.stebberViewSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
-    var tColorString = steb.colorString( iStebber.color );
+
+    this.trueColor = iStebber.color;
+    this.apparentColor = steb.applyFilter( this.trueColor, steb.model.predatorVision);
+    this.colorString = steb.makeColorString( this.apparentColor );
 
     this.paper.attr({
         viewBox : tVBText,
@@ -43,7 +46,7 @@ var StebberView = function( iStebber ) {
     this.selectionCircle = this.paper.circle(0, 0, tRadius);
     this.selectionCircle.attr({
         stroke : null,
-        fill : tColorString
+        fill : this.colorString
     });
 
     //  set up the click handler

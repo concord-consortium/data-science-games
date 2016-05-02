@@ -32,6 +32,7 @@ steb.model = {
     elapsed : null,
     meals : null,
     lastStebberNumber : null,
+    predatorVision : { red : 1.0, green : 0, blue : 0},
 
     reproduce : function()   {
         if (steb.options.delayReproduction) {
@@ -101,7 +102,7 @@ steb.model = {
 
     removeStebber : function( iStebber ) {
         this.meals += 1;
-        var tKilledColor = steb.colorString( iStebber.color );
+        var tKilledColor = steb.makeColorString( iStebber.color );
         var tIndex = this.stebbers.indexOf( iStebber );
         this.stebbers.splice( tIndex, 1 );
     },
@@ -153,8 +154,8 @@ steb.model = {
             oColor.push( c );
         });
 
-        var tStart = steb.colorString( iColor );
-        var tEnd = steb.colorString( oColor );
+        var tStart = steb.makeColorString( iColor );
+        var tEnd = steb.makeColorString( oColor );
 
         console.log("Mutate " + tStart + " to " + tEnd + " using " + iMutes);
         return oColor;

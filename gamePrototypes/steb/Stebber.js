@@ -89,7 +89,7 @@ Stebber.prototype.runFrom = function( iPoint ) {
 
 Stebber.prototype.dataValues = function() {
 
-    var tSnapColorRecord = Snap.color( steb.colorString( this.color ));
+    var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
     var oValues = [
         this.color[0],
         this.color[1],

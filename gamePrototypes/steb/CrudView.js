@@ -25,16 +25,23 @@
 
  */
 
-
+/**
+ * Note that this is both model and view as it is now
+ *
+ * @param iCrudColor
+ * @constructor
+ */
 var CrudView = function( iCrudColor ) {
     this.where = steb.model.randomPlace();
     this.whither = CrudView.newWhither();
-    var tCrudColor = steb.model.mutateColor( iCrudColor, steb.constants.crudColorMutationArray );
-    this.crudColor = steb.colorString(tCrudColor);
+    this.trueColor = steb.model.mutateColor( iCrudColor, steb.constants.crudColorMutationArray );
+
+    this.apparentColor = steb.applyFilter( this.trueColor, steb.model.predatorVision);
+    this.colorString = steb.makeColorString(this.apparentColor);      //  string
+
     this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);
     var tRadius = steb.constants.crudSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
-    var tColorString = steb.colorString( this.crudColor );
 
     this.paper.attr({
         viewBox : tVBText,
@@ -43,10 +50,11 @@ var CrudView = function( iCrudColor ) {
         y : this.where.y
     });
 
+
     this.selectionShape = this.paper.rect( -tRadius, -tRadius,
         steb.constants.crudSize, steb.constants.crudSize,
         steb.constants.crudSize * 0.4).attr({
-        fill : this.crudColor
+        fill : this.colorString
     })
 
     //  set up the click handler

@@ -34,12 +34,21 @@ steb.initialize = function() {
     this.worldView.initialize();
 };
 
-steb.colorString = function( iColor ) {
+steb.makeColorString = function(iColor ) {
     var r = iColor[0] * 16 + iColor[0];
     var g = iColor[1] * 16 + iColor[1];
     var b = iColor[2] * 16 + iColor[2];
 
     return Snap.rgb( r, g, b );
+};
+
+steb.applyFilter = function (iColor, iFilter) {
+    var tResult = [
+        (iColor[0]) * iFilter.red,
+        (iColor[1]) * iFilter.green,
+        (iColor[2]) * iFilter.blue
+    ];
+    return tResult;
 };
 
 steb.rangeWrap = function( val, lo, hi )    {
@@ -49,10 +58,10 @@ steb.rangeWrap = function( val, lo, hi )    {
 };
 
 steb.constants = {
-    version : "000c",
+    version : "001a",
     initialNumberOfStebbers : 12,   //  10,
     stebberViewSize : 80,       //  100,
-    //stebberSpeed : 100.0,       //  100.0
+    stebberSpeed : 100.0,       //  100.0
     stebberColorMutationArray : [-2,-1,-1, 0,0, 1, 1, 2],
     stebberColorReducedMutationArray : [-1, -.5, -.5, 0,0,.5, .5, 1],
     worldViewBoxSize : 1000.0,
