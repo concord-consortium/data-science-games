@@ -42,14 +42,6 @@ steb.makeColorString = function(iColor ) {
     return Snap.rgb( r, g, b );
 };
 
-steb.applyFilter = function (iColor, iFilter) {
-    var tResult = [
-        (iColor[0]) * iFilter.red,
-        (iColor[1]) * iFilter.green,
-        (iColor[2]) * iFilter.blue
-    ];
-    return tResult;
-};
 
 steb.rangeWrap = function( val, lo, hi )    {
     if (val < lo) val = hi;

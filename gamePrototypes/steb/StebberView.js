@@ -28,13 +28,10 @@
 
 var StebberView = function( iStebber ) {
     this.stebber = iStebber;
+    this.trueColor = iStebber.color;
     this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
     var tRadius = steb.constants.stebberViewSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
-
-    this.trueColor = iStebber.color;
-    this.apparentColor = steb.applyFilter( this.trueColor, steb.model.predatorVision);
-    this.colorString = steb.makeColorString( this.apparentColor );
 
     this.paper.attr({
         viewBox : tVBText,
@@ -43,17 +40,27 @@ var StebberView = function( iStebber ) {
 
     //  draw the stebber
 
-    this.selectionCircle = this.paper.circle(0, 0, tRadius);
-    this.selectionCircle.attr({
+    this.selectionCircle = this.paper.circle(0, 0, tRadius).attr({
         stroke : null,
-        fill : this.colorString
     });
+
+    this.setMyColor();
 
     //  set up the click handler
 
     this.selectionCircle.click(function( iEvent ) {
         steb.ui.clickStebber( this, iEvent )
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
+};
+
+StebberView.prototype.setMyColor = function() {
+    this.apparentColor = steb.model.applyPredatorVision( this.trueColor, steb.model.predatorVision);
+    this.colorString = steb.makeColorString( this.apparentColor );
+
+    this.selectionCircle.attr({
+        fill : this.colorString
+    });
+
 };
 
 StebberView.prototype.update = function() {

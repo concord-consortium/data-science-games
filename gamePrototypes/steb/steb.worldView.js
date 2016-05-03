@@ -98,6 +98,12 @@ steb.worldView = {
         this.makeBackground();
     },
 
+    updateDisplayWithCurrentVisionParameters : function( )  {
+        this.stebberViews.forEach( function(sv) { sv.setMyColor(); } );
+        this.crudViews.forEach( function(sv) { sv.setMyColor(); } );
+        this.setMyColor();
+
+    },
 
 
     //          BACKGROUND
@@ -105,33 +111,38 @@ steb.worldView = {
     backgroundObjects : [],
 
     makeBackground : function() {
-        this.backgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
-        this.backgroundColorString = steb.makeColorString( this.backgroundColor );
-        console.log("New bg: " + this.backgroundColorString);
-
         this.backgroundRect = this.paper.rect(
             0, 0,
             steb.constants.worldViewBoxSize,
             steb.constants.worldViewBoxSize);
+
         this.newBackgroundColor();
     },
 
     newBackgroundColor : function() {
-        this.backgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
-        this.backgroundColorString = steb.colorString( this.backgroundColor );
-        console.log("New bg: " + this.backgroundColorString);
-        this.backgroundRect.attr({fill : this.backgroundColorString});
+        this.trueBackgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+        this.setMyColor();
     },
 
     mutateBackgroundColor : function() {
-        this.backgroundColor = steb.model.mutateColor( this.backgroundColor, [-2, -1, 0, 1, 2]);
-        this.backgroundColorString = steb.colorString( this.backgroundColor );
-        console.log("New bg: " + this.backgroundColorString);
+        this.trueBackgroundColor = steb.model.mutateColor( this.backgroundColor, [-2, -1, 0, 1, 2]);
+        this.setMyColor();
+        console.log("Mutated bg: " + this.backgroundColorString);
+    },
+
+    /**
+     * Make and apply the background color string,
+     * taking the predator's visual filter into effect
+     *
+     */
+    setMyColor : function() {
+        this.backgroundApparentColor = steb.model.applyPredatorVision(this.trueBackgroundColor, steb.model.predatorVision);
+        this.backgroundColorString = steb.makeColorString( this.backgroundApparentColor );
         this.backgroundRect.attr({fill : this.backgroundColorString});
     },
 
     addCrud : function() {
-        this.meanCrudColor = steb.model.mutateColor( this.backgroundColor, [-3, -3, -2, 2, 3, 3]  );
+        this.meanCrudColor = steb.model.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
 
         for (var i = 0; i < steb.constants.numberOfCruds; i++) {
             tCrud = new CrudView( this.meanCrudColor );
@@ -152,8 +163,5 @@ steb.worldView = {
         });
         this.backgroundObjects.push( tCrud );
     }
-
-
-
 
 }

@@ -159,5 +159,21 @@ steb.model = {
 
         console.log("Mutate " + tStart + " to " + tEnd + " using " + iMutes);
         return oColor;
+    },
+
+    applyPredatorVision: function (iColor, iFilter) {
+
+        var tResult = iColor;
+
+        if (steb.options.useVisionParameters) {
+
+            tResult = [
+                (iColor[0]) * iFilter.red,
+                (iColor[1]) * iFilter.green,
+                (iColor[2]) * iFilter.blue
+            ];
+        }
+        return tResult;
     }
+
 }

@@ -34,6 +34,20 @@ steb.options = {
     flee : true,
     eldest : false,
 
+    useVisionParameters : false,
+
+    predatorVisionChange : function() {
+        this.useVisionParameters = document.getElementById("visionUseParameters").checked;
+        var tRed = Number($("#visionRed").val());
+        var tGreen = Number($("#visionGreen").val());
+        var tBlue = Number($("#visionBlue").val());
+
+        steb.model.predatorVision = { red :tRed, green : tGreen, blue : tBlue };
+
+        steb.worldView.updateDisplayWithCurrentVisionParameters( );
+
+    },
+
     /**
      *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
      */

@@ -85,6 +85,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 <div id="tabs">
     <ul>
         <li><a href="#worldTab">World</a></li>
+        <li><a href="#predatorVisionTab">Vision</a></li>
         <li><a href="#instructionsTab">How To</a></li>
         <li><a href="#backgroundTab">About</a></li>
         <li><a href="#optionsTab">Options</a></li>
@@ -107,19 +108,30 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
         </div>
         <div class = "hBox">
-            <span id="shortStatus"></span>
+            <span id="shortStatus"></span><label>
+            <input type="checkbox" id="visionUseParameters" onclick="steb.options.predatorVisionChange()" >use vision parameters</label>
 
         </div>
 
     </div>
 
 
+    <div id="predatorVisionTab">
+        <div class = "vBox options" id = "visionParameters" onclick="steb.options.predatorVisionChange()">
+            Predator Vision Parameters
+            <label><input type="text" id="visionRed" >red (0 to 1)</label>  <!-- todo: make these disappear when vision not in use -->
+            <label><input type="text" id="visionBlue" >blue (0 to 1)</label>
+            <label><input type="text" id="visionGreen" >green (0 to 1)</label>
+        </div>
+
+    </div>
+
     <div id="instructionsTab">
         <p>Eat the circles. They're called "Stebbers."
             We need to encourage "predators" to eat the most obvious ones
             as opposed to the closest. </p>
         <p>Do NOT eat the "Crud." The Crud are round-cornered rectangles,
-        so they look a lot like Stebbers, but they're NOT STEBBERS.</p>
+            so they look a lot like Stebbers, but they're NOT STEBBERS.</p>
         <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>
         <p>Data are collected every ten meals, or whenever you press Data.</p>
     </div>

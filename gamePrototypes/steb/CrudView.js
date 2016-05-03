@@ -36,8 +36,6 @@ var CrudView = function( iCrudColor ) {
     this.whither = CrudView.newWhither();
     this.trueColor = steb.model.mutateColor( iCrudColor, steb.constants.crudColorMutationArray );
 
-    this.apparentColor = steb.applyFilter( this.trueColor, steb.model.predatorVision);
-    this.colorString = steb.makeColorString(this.apparentColor);      //  string
 
     this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);
     var tRadius = steb.constants.crudSize / 2;
@@ -53,9 +51,9 @@ var CrudView = function( iCrudColor ) {
 
     this.selectionShape = this.paper.rect( -tRadius, -tRadius,
         steb.constants.crudSize, steb.constants.crudSize,
-        steb.constants.crudSize * 0.4).attr({
-        fill : this.colorString
-    })
+        steb.constants.crudSize * 0.4);
+
+    this.setMyColor();
 
     //  set up the click handler
 
@@ -63,6 +61,12 @@ var CrudView = function( iCrudColor ) {
         steb.ui.clickCrud( iEvent )
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
 
+};
+
+CrudView.prototype.setMyColor = function() {
+    this.apparentColor = steb.model.applyPredatorVision( this.trueColor, steb.model.predatorVision);
+    this.colorString = steb.makeColorString(this.apparentColor);      //  string
+    this.paper.attr( { fill : this.colorString });
 };
 
 CrudView.prototype.startMoving = function() {
