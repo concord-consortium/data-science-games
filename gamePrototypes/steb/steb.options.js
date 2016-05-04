@@ -35,17 +35,27 @@ steb.options = {
     eldest : false,
 
     useVisionParameters : false,
+    predatorVisionType : null,
 
     predatorVisionChange : function() {
+        this.setPredatorVisionParameters();
+        steb.worldView.updateDisplayWithCurrentVisionParameters( );
+
+    },
+
+    setPredatorVisionParameters : function() {
         this.useVisionParameters = document.getElementById("visionUseParameters").checked;
+        this.predatorVisionType = $('input[name=predatorVisionType]:checked').val();
+
         var tRed = Number($("#visionRed").val());
         var tGreen = Number($("#visionGreen").val());
         var tBlue = Number($("#visionBlue").val());
 
-        steb.model.predatorVision = { red :tRed, green : tGreen, blue : tBlue };
+        steb.model.predatorVisionColorVector = { red :tRed, green : tGreen, blue : tBlue };
+        steb.model.predatorVisionBWFormula = $("#visionFormula").val();
 
-        steb.worldView.updateDisplayWithCurrentVisionParameters( );
-
+        console.log("Options. vector = " + steb.model.predatorVisionColorVector
+            + " formula = " + steb.model.predatorVisionBWFormula);
     },
 
     /**

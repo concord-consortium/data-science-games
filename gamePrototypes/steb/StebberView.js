@@ -44,7 +44,8 @@ var StebberView = function( iStebber ) {
         stroke : null,
     });
 
-    this.setMyColor();
+    //  this.setMyColor();
+    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.trueColor, 0);
 
     //  set up the click handler
 
@@ -54,13 +55,7 @@ var StebberView = function( iStebber ) {
 };
 
 StebberView.prototype.setMyColor = function() {
-    this.apparentColor = steb.model.applyPredatorVision( this.trueColor, steb.model.predatorVision);
-    this.colorString = steb.makeColorString( this.apparentColor );
-
-    this.selectionCircle.attr({
-        fill : this.colorString
-    });
-
+    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.trueColor);
 };
 
 StebberView.prototype.update = function() {

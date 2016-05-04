@@ -116,12 +116,31 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     </div>
 
 
-    <div id="predatorVisionTab">
-        <div class = "vBox options" id = "visionParameters" onclick="steb.options.predatorVisionChange()">
-            Predator Vision Parameters
-            <label><input type="text" id="visionRed" >red (0 to 1)</label>  <!-- todo: make these disappear when vision not in use -->
-            <label><input type="text" id="visionBlue" >blue (0 to 1)</label>
-            <label><input type="text" id="visionGreen" >green (0 to 1)</label>
+    <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">
+        <h2>Predator Vision Parameters</h2>
+        <p>Choose one 'vision method' and then fill in its parameters.</p>
+        <div class="hBox">
+            <input type="radio" name="predatorVisionType" value="dotProduct" checked>
+            <fieldset>
+                <legend>Color response (dot-product method)</legend>
+                <div class="vBox options" id="visionParameters" >
+                    <label><input type="text" id="visionRed" value="1"> red (0 to 1)</label>
+                    <!-- todo: make these disappear when vision not in use -->
+                    <label><input type="text" id="visionGreen" value="0"> green (0 to 1)</label>
+                    <label><input type="text" id="visionBlue" value="0"> blue (0 to 1)</label>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="hBox">
+            <input type="radio" name="predatorVisionType" value="formula">
+
+            <fieldset>
+                <legend> B/W response (formula method)</legend>
+                <label><input type="text" id="visionFormula" value="(R+B+G)/3">formula (use R, G, B)</label>
+                <!-- todo: make these disappear when vision not in use -->
+            </fieldset>
+
         </div>
 
     </div>

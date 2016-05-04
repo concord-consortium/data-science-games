@@ -62,6 +62,8 @@ steb.constants = {
     crudSpeed : 90.0,
     crudColorMutationArray : [-.8, -.4, -.1, 0,.1,.4,.8],
 
+    colorAnimationDuration : 1000,
+
     baseStebberSpeed : 100.0,
     baseStebberAcceleration : 600.0,
 };

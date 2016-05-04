@@ -30,9 +30,9 @@ steb.worldView = {
     paper : null,
     stebberViews : [],
     crudViews : [],
-    backgroundColor : null,
-    backgroundColorString : null,
+    trueBackgroundColor : null,
     backgroundRect : null,
+    meanCrudColor : null,
 
     update : function() {
         this.stebberViews.forEach( function(iSV) {
@@ -101,10 +101,21 @@ steb.worldView = {
     updateDisplayWithCurrentVisionParameters : function( )  {
         this.stebberViews.forEach( function(sv) { sv.setMyColor(); } );
         this.crudViews.forEach( function(sv) { sv.setMyColor(); } );
-        this.setMyColor();
+        this.setBackgroundColor();
 
     },
 
+    //  changing color
+
+    applyPredatorVisionToObject : function(iThing, iTrueColor, iTime) {
+
+        if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
+        var tApparentColor = steb.model.getPredatorVisionColor(iTrueColor);
+        var tColorString = steb.makeColorString( tApparentColor );
+    //  iThing.stop();
+        iThing.animate({ fill : tColorString }, iTime);
+
+    },
 
     //          BACKGROUND
 
@@ -121,13 +132,12 @@ steb.worldView = {
 
     newBackgroundColor : function() {
         this.trueBackgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
-        this.setMyColor();
+        this.setBackgroundColor();
     },
 
     mutateBackgroundColor : function() {
-        this.trueBackgroundColor = steb.model.mutateColor( this.backgroundColor, [-2, -1, 0, 1, 2]);
-        this.setMyColor();
-        console.log("Mutated bg: " + this.backgroundColorString);
+        this.trueBackgroundColor = steb.model.mutateColor( this.trueBackgroundColor, [-2, -1, 0, 1, 2]);
+        this.setBackgroundColor();
     },
 
     /**
@@ -135,10 +145,8 @@ steb.worldView = {
      * taking the predator's visual filter into effect
      *
      */
-    setMyColor : function() {
-        this.backgroundApparentColor = steb.model.applyPredatorVision(this.trueBackgroundColor, steb.model.predatorVision);
-        this.backgroundColorString = steb.makeColorString( this.backgroundApparentColor );
-        this.backgroundRect.attr({fill : this.backgroundColorString});
+    setBackgroundColor : function() {
+        steb.worldView.applyPredatorVisionToObject( this.backgroundRect, this.trueBackgroundColor);
     },
 
     addCrud : function() {

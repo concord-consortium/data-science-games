@@ -32,7 +32,6 @@ steb.model = {
     elapsed : null,
     meals : null,
     lastStebberNumber : null,
-    predatorVision : { red : 1.0, green : 0, blue : 0},
 
     reproduce : function()   {
         if (steb.options.delayReproduction) {
@@ -161,18 +160,51 @@ steb.model = {
         return oColor;
     },
 
-    applyPredatorVision: function (iColor, iFilter) {
+    predatorVisionColorVector : { red : 1.0, green : 0, blue : 0},
+    predatorVisionBWFormula : "(R + B + G)/3",
 
+    getPredatorVisionColor: function (iColor) {
+
+        var tDotProduct = this.predatorVisionColorVector;
         var tResult = iColor;
 
         if (steb.options.useVisionParameters) {
+            if (steb.options.predatorVisionType == "dotProduct") {
+                tResult = [
+                    (iColor[0]) * tDotProduct.red,
+                    (iColor[1]) * tDotProduct.green,
+                    (iColor[2]) * tDotProduct.blue
+                ];
+            }
+            else
+            {
+                tResult = steb.model.convertToGrayUsingRGBFormula(iColor);
+            }
 
-            tResult = [
-                (iColor[0]) * iFilter.red,
-                (iColor[1]) * iFilter.green,
-                (iColor[2]) * iFilter.blue
-            ];
         }
+
+        //  pin the results into [0, 15]
+
+        tResult.forEach( function(c, i) {
+            if (c < 0) tResult[i] = 0;
+            if (c > 15) tResult[i] = 15;
+        });
+
+        return tResult;
+    },
+
+    convertToGrayUsingRGBFormula : function(iColor ) {
+        var tExp = "var R = " + iColor[0] + "; var G = " + iColor[1] + "; var B = " + iColor[2] + ";";
+
+        tExp += this.predatorVisionBWFormula;
+        var tGrayscaleNumber = Number(eval(tExp));
+
+        tResult = [
+            tGrayscaleNumber,
+            tGrayscaleNumber,
+            tGrayscaleNumber
+        ];
+
         return tResult;
     }
 

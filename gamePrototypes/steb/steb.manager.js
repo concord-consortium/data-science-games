@@ -72,7 +72,7 @@ steb.manager = {
 
         this.playing = true;
         steb.connector.newGameCase(
-            JSON.stringify(steb.worldView.backgroundColor),
+            JSON.stringify(steb.worldView.trueBackgroundColor),
             JSON.stringify(steb.worldView.meanCrudColor)
         );
         this.restart();
@@ -83,7 +83,7 @@ steb.manager = {
         this.playing = false;
         this.running = false;
         steb.connector.finishGameCase(
-            JSON.stringify(steb.worldView.backgroundColor),
+            JSON.stringify(steb.worldView.trueBackgroundColor),
             JSON.stringify(steb.worldView.meanCrudColor),
             iReason
         );

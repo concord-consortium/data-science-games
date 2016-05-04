@@ -64,9 +64,7 @@ var CrudView = function( iCrudColor ) {
 };
 
 CrudView.prototype.setMyColor = function() {
-    this.apparentColor = steb.model.applyPredatorVision( this.trueColor, steb.model.predatorVision);
-    this.colorString = steb.makeColorString(this.apparentColor);      //  string
-    this.paper.attr( { fill : this.colorString });
+    steb.worldView.applyPredatorVisionToObject( this.paper, this.trueColor);
 };
 
 CrudView.prototype.startMoving = function() {
