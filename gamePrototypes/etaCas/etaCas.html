@@ -1,0 +1,150 @@
+<!--
+==========================================================================
+
+ * Created by tim on 5/8/16.
+ 
+ 
+ ==========================================================================
+ etaCas.html in data-science-games.t
+HTML wrapper for ....
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+-->
+
+<!--
+Here is the URL...
+
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/etaCas/etaCas.html
+
+or locally,
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/etaCas/etaCas.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!--        stylesheets         -->
+    <link rel='stylesheet' type='text/css' href='etaCas.css'/>
+    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="../common/jquery.js" language="javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <title>Eta Cas</title>
+
+    <!-- Snap -->
+    <script src="../Snap.svg/dist/snap.svg.js"></script>
+
+    <!--            our game source         -->
+
+    <script src="etaCas.js" language="JavaScript"></script>
+    <script src="etaCas.manager.js" language="JavaScript"></script>
+    <script src="etaCas.model.js" language="JavaScript"></script>
+<!--
+    <script src="etaCas.ui.js" language="JavaScript"></script>
+    <script src="etaCas.options.js" language="JavaScript"></script>
+    <script src="etaCas.connector.js" language="JavaScript"></script>
+    <script src="etaCas.sky.js" language="JavaScript"></script>
+-->
+
+    <script src="Star.js" language="JavaScript"></script>
+    <script src="Planet.js" language="JavaScript"></script>
+
+    <script>
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+    </script>
+
+
+</head>
+<body>
+
+<div id="tabs">
+    <!--    list the tabs for this jquery_ui widget -->
+    <ul>
+        <li><a href="#skyTab">Sky</a></li>
+        <li><a href="#instructionsTab">How To</a></li>
+        <li><a href="#backgroundTab">About</a></li>
+        <li><a href="#optionsTab">Options</a></li>
+        <li><a href="#debugTab">Debug</a></li>
+    </ul>
+
+    <!--    Now describe each tab separately, note how the list above references the IDs    -->
+
+    <div id="skyTab">     <!--    The main tab, where the game is     -->
+        <svg id="etaCasSky" width="400" height="200">
+            <rect width="100" height="100" fill="dodgerblue"></rect>
+            <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>
+            <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
+        </svg>
+        <div class="hBox">
+            <div class = "imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>
+            <div class = "textIO" style = "width : 90px">
+                t = <span id = "timeDisplay">0</span>
+                m = <span id = "mealDisplay">0</span>
+            </div>
+            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
+            <button id="newBGColorButton" onclick="steb.worldView.mutateBackgroundColor()">mutate bg</button>
+            <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
+        </div>
+        <div class = "hBox">
+            <span id="shortStatus"></span>
+        </div>
+    </div>
+
+
+
+    <div id="instructionsTab">
+        <p>Instruction to come.</p>
+    </div>
+
+
+    <div id="backgroundTab">
+        <p>You are marooned on a planet.</p>
+    </div>
+
+
+    <div id="optionsTab">
+        <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
+            <label><input type="checkbox" id="fooOption" checked>Sample option</label>
+        </div>
+    </div>
+
+
+    <div id="debugTab">
+        <span id="debugText"></span>
+    </div>
+
+</div>
+
+</body>
+
+<script language="JavaScript">
+    etaCas.initialize();
+</script>
+
+</html>
