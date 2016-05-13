@@ -33,45 +33,57 @@ steb.ui = {
         this.startStopButton.style.backgroundImage = (steb.manager.running) ? "url('../art/pause.png')" : "url('../art/play.png')";
 
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
-        this.timeDisplay.text( Math.round(steb.model.elapsed) );
-        this.mealDisplay.text( Math.round(steb.model.meals) );
 
-        var tDebugText = steb.model.stebbers.length + " stebbers, "
-            + steb.worldView.stebberViews.length + " views.";
+        if (steb.model) {
+            this.timeDisplay.text(Math.round(steb.model.elapsed));
+            this.mealDisplay.text(Math.round(steb.model.meals));
 
-        $("#debugText").text( tDebugText );
+            var tDebugText = steb.model.stebbers.length + " stebbers, "
+                + steb.worldView.stebberViews.length + " views, "
+                + steb.worldView.crudViews.length + " crud.";
+
+            tDebugText = steb.model.stebberColorReport();
+
+            $("#debugText").html(tDebugText);
+            $("#evolutionPoints").text(steb.score.evolutionPoints);
+        }
     },
 
     clickStebber : function( iStebberView, iEvent )    {
 
-        var tPoint = steb.worldView.viewBoxCoordsFrom( iEvent );
-
-
-        if (steb.manager.running) {
-            steb.model.removeStebber(iStebberView.stebber);
-            steb.worldView.removeStebberView(iStebberView);
-            steb.model.reproduce();
-            if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
-            steb.model.frightenStebbersFrom( tPoint );
+        if(!steb.options.automatedPredator) {
+            var tPoint = steb.worldView.viewBoxCoordsFrom(iEvent);
+            steb.manager.eatStebberUsingView(iStebberView);
+            steb.ui.fixUI();
         }
-
-
-        steb.ui.fixUI();        //  note: callback, so "this" is the snap.svg element
     },
 
     clickCrud : function() {
-        steb.manager.onTimeout = true;
-        this.timeOutPaper.attr({
-            visibility : "visible"
-        })
-        steb.worldView.paper.append( this.timeOutPaper );
+        if(!steb.options.automatedPredator) {
 
-        window.setTimeout( function() {
-            this.timeOutPaper.remove();
-            steb.manager.onTimeout = false;
-        }.bind(this), 2000);
+            steb.manager.onTimeout = true;
+            this.timeOutPaper.attr({
+                visibility: "visible"
+            });
 
+            steb.score.crud();
 
+            steb.worldView.paper.append(this.timeOutPaper);
+
+            window.setTimeout(function () {
+                this.timeOutPaper.remove();
+                steb.manager.onTimeout = false;
+            }.bind(this), 2000);
+
+        }
+    },
+
+    clickInWorld : function() {
+        if(!steb.options.automatedPredator) {
+            if (steb.manager.running) {
+                steb.score.clickInWorld();
+            }
+        }
     },
 
     newGameButtonPressed : function() {
@@ -89,6 +101,7 @@ steb.ui = {
         }
         this.fixUI();
     },
+
 
     makeTimeOutPaper : function() {
         var oPaper = Snap( steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize);
@@ -114,5 +127,45 @@ steb.ui = {
         this.mealDisplay = $("#mealDisplay");
         this.stebWorldViewElement = document.getElementById("stebSnapWorld");
         this.timeOutPaper = this.makeTimeOutPaper();
+
+
+
+        $("#redCoefficient").slider({
+            range : false,
+            min : -10,
+            max : 10,
+            values : [ steb.model.predatorVisionBWCoefficientVector.red ],
+            slide : function(e, ui) {
+                steb.model.predatorVisionBWCoefficientVector['red'] = Number( ui.values[0] );
+                steb.options.predatorVisionChange();
+            },
+            step : 1
+        });
+        $("#greenCoefficient").slider({
+            range : false,
+            min : -10,
+            max : 10,
+            values : [ steb.model.predatorVisionBWCoefficientVector.green ],
+            slide : function(e, ui) {
+                steb.model.predatorVisionBWCoefficientVector['green'] = Number( ui.values[0] );
+                steb.options.predatorVisionChange();
+            },
+            step : 1
+        });
+        $("#blueCoefficient").slider({
+            range : false,
+            min : -10,
+            max : 10,
+            values : [ steb.model.predatorVisionBWCoefficientVector.blue ],
+            slide : function(e, ui) {
+                steb.model.predatorVisionBWCoefficientVector['blue'] = Number( ui.values[0] );
+                steb.options.predatorVisionChange();
+            },
+            step : 1
+        });
+
+        steb.options.setPredatorVisionParameters();
+
+
     }
 }

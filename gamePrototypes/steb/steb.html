@@ -64,6 +64,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="steb.manager.js" language="JavaScript"></script>
     <script src="steb.ui.js" language="JavaScript"></script>
     <script src="steb.model.js" language="JavaScript"></script>
+    <script src="steb.score.js" language="JavaScript"></script>
     <script src="steb.options.js" language="JavaScript"></script>
     <script src="steb.connector.js" language="JavaScript"></script>
     <script src="steb.worldView.js" language="JavaScript"></script>
@@ -71,6 +72,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="Stebber.js" language="JavaScript"></script>
     <script src="StebberView.js" language="JavaScript"></script>
     <script src="CrudView.js" language="JavaScript"></script>
+    <script src="steb.predator.js" language="JavaScript"></script>
 
     <script>
         $(function() {
@@ -83,6 +85,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 <body>
 
 <div id="tabs">
+    <!--    list the tabs for this jquery_ui widget -->
     <ul>
         <li><a href="#worldTab">World</a></li>
         <li><a href="#predatorVisionTab">Vision</a></li>
@@ -91,8 +94,14 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debug</a></li>
     </ul>
-    <div id="worldTab">
-        <svg id="stebSnapWorld" width="300" height="300">
+
+    <!--    Now describe each tab separately, note how the list above references the IDs    -->
+
+    <div id="worldTab">     <!--    The main tab, where the game is     -->
+        <div class="hBox">
+            Evolution Points: <div id="evolutionPoints"></div>
+        </div>
+        <svg id="stebSnapWorld" width="300" height="300" onclick="steb.ui.clickInWorld();">
             <rect width="100" height="100" fill="dodgerblue"></rect>
             <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>
             <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
@@ -109,10 +118,9 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         </div>
         <div class = "hBox">
             <span id="shortStatus"></span><label>
-            <input type="checkbox" id="visionUseParameters" onclick="steb.options.predatorVisionChange()" >use vision parameters</label>
-
+            <input type="checkbox" id="visionUseParameters" onclick="steb.options.predatorVisionChange()" >
+                    use vision parameters</label>
         </div>
-
     </div>
 
 
@@ -137,8 +145,13 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
             <fieldset>
                 <legend> B/W response (formula method)</legend>
-                <label><input type="text" id="visionFormula" value="(R+B+G)/3"> formula (use R, G, B)</label>
-                <!-- todo: make these disappear when vision not in use -->
+                <div id="redCoefficient"></div>
+                <div id="redCoeffDisplay"></div>    <!--    the red slider -->
+                <div id="greenCoefficient"></div>
+                <div id="greenCoeffDisplay"></div>    <!--    the green slider -->
+                <div id="blueCoefficient"></div>
+                <div id="blueCoeffDisplay"></div>    <!--    the blue slider -->
+                <div id="visionFormula">foo</div>
             </fieldset>
 
         </div>
@@ -169,6 +182,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <label><input type="checkbox" id="reducedMutation" >reduced mutation</label>
             <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
             <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
+            <label><input type="checkbox" id="automatedPredator" >automated predator</label>
         </div>
     </div>
 

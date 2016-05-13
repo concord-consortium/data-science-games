@@ -32,6 +32,7 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.id = iID;
 
     this.setNewSpeedAndHeading();
+    this.updatePredatorVision();
 };
 
 Stebber.prototype.setNewSpeedAndHeading = function() {
@@ -41,6 +42,23 @@ Stebber.prototype.setNewSpeedAndHeading = function() {
     //var tDegrees = Math.round(this.heading * 180.0 / Math.PI);
     //console.log("New heading " + tDegrees);
 };
+
+Stebber.prototype.updatePredatorVision = function() {
+    this.colorDistanceToBackground = steb.model.colorDistance(
+        steb.model.getPredatorVisionColor(steb.model.trueBackgroundColor),
+        steb.model.getPredatorVisionColor(this.color)
+    );
+
+    if (steb.options.backgroundCrud) {
+        this.colorDistanceToCrud = steb.model.colorDistance(
+            steb.model.getPredatorVisionColor(steb.model.meanCrudColor),
+            steb.model.getPredatorVisionColor(this.color)
+        );
+    } else {
+        this.colorDistanceToCrud = null;
+    }
+};
+
 
 Stebber.prototype.update = function( idt ) {
 
@@ -101,5 +119,11 @@ Stebber.prototype.dataValues = function() {
     ];
 
     return oValues;
+};
+
+Stebber.prototype.toString = function() {
+    var o = "stebber id " + this.id;
+    o += " color : " + JSON.stringify( this.color );
+    return o;
 }
 

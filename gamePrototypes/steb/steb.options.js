@@ -33,29 +33,42 @@ steb.options = {
     reducedMutation : false,
     flee : true,
     eldest : false,
+    automatedPredator : false,
 
     useVisionParameters : false,
     predatorVisionType : null,
 
+    redCoefficient : 1,
+    greenCoefficient : 1,
+    blueCoefficient : 1,
+
     predatorVisionChange : function() {
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
-
     },
 
     setPredatorVisionParameters : function() {
         this.useVisionParameters = document.getElementById("visionUseParameters").checked;
+        if (!this.useVisionParameters ) steb.model.predatorVisionDenominator = 1;   //  avoids nasty zero divide :)
+
         this.predatorVisionType = $('input[name=predatorVisionType]:checked').val();
 
         var tRed = Number($("#visionRed").val());
         var tGreen = Number($("#visionGreen").val());
         var tBlue = Number($("#visionBlue").val());
 
-        steb.model.predatorVisionColorVector = { red :tRed, green : tGreen, blue : tBlue };
-        steb.model.predatorVisionBWFormula = $("#visionFormula").val();
+        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector['red']);
+        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector['green']);
+        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector['blue']);
 
-        console.log("Options. vector = " + steb.model.predatorVisionColorVector
-            + " formula = " + steb.model.predatorVisionBWFormula);
+        steb.model.predatorVisionColorVector = { red :tRed, green : tGreen, blue : tBlue };
+        //  steb.model.predatorVisionBWCoefficientVector is set directly by sliders. See steb.ui.js.initialize().
+
+        console.log("Options. Vision vector = " + steb.model.predatorVisionColorVector
+            + " BW vector = " + steb.model.predatorVisionBWCoefficientVector);
+
+        steb.model.stebbers.forEach(function(s) { s.updatePredatorVision(); });     //  update all stebbers to reflect new vision
+
     },
 
     /**
@@ -67,9 +80,12 @@ steb.options = {
         this.reducedMutation = document.getElementById("reducedMutation").checked;
         this.flee = document.getElementById("flee").checked;
         this.eldest = document.getElementById("eldest").checked;
+        this.automatedPredator = document.getElementById("automatedPredator").checked;
 
         steb.ui.fixUI();
-    }
+    },
+
+
 
 
 }

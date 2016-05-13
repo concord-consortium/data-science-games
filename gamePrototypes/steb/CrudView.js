@@ -26,17 +26,72 @@
  */
 
 /**
- * Note that this is both model and view as it is now
+ * Model class. Its view is CrudView (below)
+ * @param iCrudColor
+ * @constructor
+ */
+var Crud = function(  ) {
+    this.where = steb.model.randomPlace();
+    this.speed = steb.constants.crudSpeed;
+
+    this.trueColor = steb.model.mutateColor(
+        steb.model.meanCrudColor,
+        steb.constants.crudColorMutationArray
+    );
+    this.setNewSpeedAndHeading();
+};
+
+Crud.prototype.setNewSpeedAndHeading = function() {
+    this.heading = Math.PI*2 * Math.random();
+    this.speed = steb.constants.baseCrudSpeed;
+
+    this.timeToChange = 1 + Math.random() * 2;
+};
+
+Crud.prototype.update = function( idt ) {
+
+    if (this.speed > steb.constants.baseCrudSpeed) {
+        this.speed -= idt * steb.constants.baseCrudAcceleration;
+    }
+
+    var tDx = this.speed * Math.cos( this.heading ) * idt;
+    var tDy = this.speed * Math.sin( this.heading ) * idt;
+
+    this.where.x += tDx;
+    this.where.y += tDy;
+
+    this.where.x = steb.rangeWrap( this.where.x, 0, steb.constants.worldViewBoxSize);
+    this.where.y = steb.rangeWrap( this.where.y, 0, steb.constants.worldViewBoxSize);
+
+    this.timeToChange -= idt;
+
+    if (this.timeToChange < 0) this.setNewSpeedAndHeading();
+};
+
+Crud.prototype.runFrom = function( iPoint ) {
+    if (steb.options.flee) {
+        var dx = this.where.x - iPoint.x;
+        var dy = this.where.y - iPoint.y;
+        var r = Math.sqrt(dx * dx + dy * dy);
+
+        if (r < steb.constants.worldViewBoxSize / 2) {
+            this.heading = Math.atan2(dy, dx);
+            this.speed = 5 * steb.constants.baseCrudSpeed;
+            this.timeToChange = 1 + Math.random() * 2;
+        }
+    }
+};
+
+/**
+ * ----------------------------------------------------------------------------
+ * View class for the Crud
  *
  * @param iCrudColor
  * @constructor
  */
-var CrudView = function( iCrudColor ) {
-    this.where = steb.model.randomPlace();
-    this.whither = CrudView.newWhither();
-    this.trueColor = steb.model.mutateColor( iCrudColor, steb.constants.crudColorMutationArray );
+var CrudView = function( iCrud ) {
 
-
+    this.crud = iCrud;
     this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);
     var tRadius = steb.constants.crudSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
@@ -44,16 +99,15 @@ var CrudView = function( iCrudColor ) {
     this.paper.attr({
         viewBox : tVBText,
         class : "CrudView",
-        x : this.where.x,
-        y : this.where.y
+        x : this.crud.where.x,
+        y : this.crud.where.y
     });
-
 
     this.selectionShape = this.paper.rect( -tRadius, -tRadius,
         steb.constants.crudSize, steb.constants.crudSize,
         steb.constants.crudSize * 0.4);
 
-    this.setMyColor();
+    this.setMyColor();      //  apply predator vision
 
     //  set up the click handler
 
@@ -63,45 +117,21 @@ var CrudView = function( iCrudColor ) {
 
 };
 
+CrudView.prototype.update = function() {
+    this.moveTo( this.crud.where );
+};
+
 CrudView.prototype.setMyColor = function() {
-    steb.worldView.applyPredatorVisionToObject( this.paper, this.trueColor);
+    steb.worldView.applyPredatorVisionToObject( this.paper, this.crud.trueColor);
 };
 
-CrudView.prototype.startMoving = function() {
-    var tAnimationObject = {
-        x : this.whither.x - steb.constants.stebberViewSize/2,
-        y : this.whither.y - steb.constants.stebberViewSize/2,
-        rotation : this.whither.rotation
-    };
+CrudView.prototype.moveTo = function( iWhere ) {
+    this.paper.attr({
+        x : iWhere.x - steb.constants.stebberViewSize/2,
+        y : iWhere.y - steb.constants.stebberViewSize/2
+    });
 
-
-    var tHere = {
-        x : Number(this.paper.attr("x")) + steb.constants.stebberViewSize/2,
-        y : Number(this.paper.attr("y")) + steb.constants.stebberViewSize/2
-    };
-
-    var tTime = steb.model.distanceBetween( tHere, this.whither ) / steb.constants.crudSpeed;
-
-    this.paper.animate(
-        tAnimationObject,
-        tTime * 1000,
-        null,       //  mina.easeinout,
-        function() {
-            this.animationArrival();
-            this.startMoving();     //  tail recursion; start moving again.
-        }.bind(this)
-    );
-};
-
-CrudView.prototype.animationArrival = function() {
-    this.where = this.whither;
-    this.whither = CrudView.newWhither();
-};
-
-CrudView.newWhither = function() {
-    var oWhit = steb.model.randomPlace();
-    oWhit.rotation = Math.random() * 360.0;
-    return oWhit;
 }
+
 
 

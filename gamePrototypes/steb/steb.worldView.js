@@ -30,30 +30,44 @@ steb.worldView = {
     paper : null,
     stebberViews : [],
     crudViews : [],
-    trueBackgroundColor : null,
     backgroundRect : null,
-    meanCrudColor : null,
 
     update : function() {
         this.stebberViews.forEach( function(iSV) {
             iSV.update();
         })
+        this.crudViews.forEach( function(iCV) {
+            iCV.update();
+        })
     },
 
-    flush : function() {
+    newGame : function() {
         this.paper.clear();
         this.makeBackground();
+        this.stebberViews = [];
+        this.crudViews = [];
+
+        //  make StebberViews and install them
+
+        steb.model.stebbers.forEach( function( iStebber ) {
+            steb.worldView.installStebberViewFor( iStebber );
+        });
+
+        //  make CrudViews and install
+
+        steb.model.crud.forEach( function(iCrud) {
+            steb.worldView.installCrudViewFor( iCrud );
+        });
     },
 
-    installStebberView : function( iStebberView ) {
-        var tWhere = iStebberView.stebber.where;
-        iStebberView.paper.insertAfter( this.backgroundRect);   //  put any new stebbers below any crud, just after bgRect
+    installStebberViewFor : function( iStebber ) {
+        var tSV = new StebberView( iStebber );
+        tSV.paper.insertAfter( this.backgroundRect);   //  put any new stebbers below any crud, just after bgRect
 
         //  place the view where it actually is on the main paper
+        tSV.moveTo( iStebber.where );
 
-        iStebberView.moveTo( tWhere );
-
-        this.stebberViews.push( iStebberView );
+        this.stebberViews.push( tSV );
     },
 
     removeStebberView : function( iStebberView )    {
@@ -62,21 +76,10 @@ steb.worldView = {
         this.stebberViews.splice( tIndex, 1 );
     },
 
-    stopEverybody : function () {
-        this.stebberViews.forEach( function(iView) {
-            iView.paper.stop();
-            iView.stebber.where = {
-                x : Number(iView.paper.attr("x")) + steb.constants.stebberViewSize/2,
-                y : Number(iView.paper.attr("y")) + steb.constants.stebberViewSize/2
-            }
-
-        } );
-    },
-
-    startEverybody : function() {
-        this.stebberViews.forEach( function(iView) {
-            iView.startMoving();
-        });
+    installCrudViewFor : function( iCrud ) {
+        tCrudView = new CrudView( iCrud );
+        this.paper.append( tCrudView.paper );     //  actually install the view
+        this.crudViews.push( tCrudView );       //  store it in our extra array
     },
 
     viewBoxCoordsFrom : function( iEvent ) {
@@ -95,7 +98,7 @@ steb.worldView = {
             viewBox : "0 0 " + steb.constants.worldViewBoxSize + " " + steb.constants.worldViewBoxSize
         });
 
-        this.makeBackground();
+        //  this.makeBackground();
     },
 
     updateDisplayWithCurrentVisionParameters : function( )  {
@@ -112,31 +115,24 @@ steb.worldView = {
         if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
         var tApparentColor = steb.model.getPredatorVisionColor(iTrueColor);
         var tColorString = steb.makeColorString( tApparentColor );
-    //  iThing.stop();
-        iThing.animate({ fill : tColorString }, iTime);
+        iThing.animate({ fill : tColorString }, iTime); //  animate the color change
 
     },
 
     //          BACKGROUND
-
-    backgroundObjects : [],
 
     makeBackground : function() {
         this.backgroundRect = this.paper.rect(
             0, 0,
             steb.constants.worldViewBoxSize,
             steb.constants.worldViewBoxSize);
-
-        this.newBackgroundColor();
-    },
-
-    newBackgroundColor : function() {
-        this.trueBackgroundColor = steb.model.randomColor( [3,4,5,6,7,8,9,10,11,12] );
         this.setBackgroundColor();
+
     },
+
 
     mutateBackgroundColor : function() {
-        this.trueBackgroundColor = steb.model.mutateColor( this.trueBackgroundColor, [-2, -1, 0, 1, 2]);
+        steb.model.trueBackgroundColor = steb.model.mutateColor( steb.model.trueBackgroundColor, [-2, -1, 0, 1, 2]);
         this.setBackgroundColor();
     },
 
@@ -146,30 +142,7 @@ steb.worldView = {
      *
      */
     setBackgroundColor : function() {
-        steb.worldView.applyPredatorVisionToObject( this.backgroundRect, this.trueBackgroundColor);
-    },
-
-    addCrud : function() {
-        this.meanCrudColor = steb.model.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
-
-        for (var i = 0; i < steb.constants.numberOfCruds; i++) {
-            tCrud = new CrudView( this.meanCrudColor );
-            this.paper.append( tCrud.paper);
-            tCrud.startMoving();
-            this.crudViews.push( tCrud );
-        }
-
-    },
-
-    makeCrud : function( iColorString) {
-        var tPlace = steb.model.randomPlace();
-
-        var tCrud = this.paper.rect( 0, 0, steb.constants.crudSize, steb.constants.crudSize).attr({
-            fill : iColorString,
-            x : tPlace.x,
-            y : tPlace.y
-        });
-        this.backgroundObjects.push( tCrud );
+        steb.worldView.applyPredatorVisionToObject( this.backgroundRect, steb.model.trueBackgroundColor);
     }
 
 }

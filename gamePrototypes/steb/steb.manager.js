@@ -25,6 +25,18 @@
 
  */
 
+/**
+ * This is the main manager (singleton) controller for Stebbins
+ *
+ * @type {{
+ * running: boolean, playing: boolean,
+ * previous: null, onTimeout: boolean,
+ * makeStebberView: steb.manager.makeStebberView, animate: steb.manager.animate,
+ * update: steb.manager.update, pause: steb.manager.pause, restart: steb.manager.restart,
+ * newGame: steb.manager.newGame, endGame: steb.manager.endGame,
+ * emitPopulationData: steb.manager.emitPopulationData, stebDoCommand: steb.manager.stebDoCommand
+ * }}
+ */
 steb.manager = {
     running : false,
     playing : false,
@@ -32,11 +44,10 @@ steb.manager = {
     onTimeout : false,
 
 
-    makeStebberView : function( iSteb ) {
-        var tStebView = new StebberView( iSteb );
-        steb.worldView.installStebberView( tStebView );
-    },
-
+    /**
+     * The animation loop. Calls .update()
+     * @param timestamp
+     */
     animate: function (timestamp) {
         if (!steb.manager.previous)  steb.manager.previous = timestamp;
         var tDt = (timestamp - steb.manager.previous) / 1000.0;
@@ -45,53 +56,87 @@ steb.manager = {
         if (steb.manager.running) window.requestAnimationFrame(steb.manager.animate);
     },
 
+    /**
+     * Update everything; called in the animation loop.
+     * @param idt
+     */
     update : function ( idt ) {
         steb.model.update( idt );
         steb.worldView.update();
+        if (steb.options.automatedPredator) steb.predator.update( idt );
         steb.ui.fixUI();
     },
 
+    /**
+     * Use has pressed the pause button.
+     */
     pause : function() {
         this.running = false;
-        //  steb.worldView.stopEverybody();
     },
 
+    /**
+     * Use has pressed the 'play' button
+     */
     restart : function() {
         this.running = true;
-        this.previous = null;
-        //  steb.worldView.startEverybody();
+        this.previous = null;       //  so we don't make a "dt" that goes all the way back
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
 
+    /**
+     * User has requested a new game.
+     */
     newGame : function() {
         steb.options.optionChange();        //  make sure they align with the checkboxes
         this.time = 0;
-        steb.worldView.flush();
+
         steb.model.newGame();
-        if (steb.options.backgroundCrud) steb.worldView.addCrud();
+        steb.worldView.newGame();
+        steb.predator.newGame();
 
         this.playing = true;
         steb.connector.newGameCase(
-            JSON.stringify(steb.worldView.trueBackgroundColor),
-            JSON.stringify(steb.worldView.meanCrudColor)
+            JSON.stringify(steb.model.trueBackgroundColor),
+            JSON.stringify(steb.model.meanCrudColor)
         );
         this.restart();
     },
 
+    /**
+     * For some reason, the game has ended
+     * @param iReason       the reason (e.g., "won," "aborted")
+     */
     endGame : function( iReason ) {
-        steb.worldView.stopEverybody();
+
         this.playing = false;
         this.running = false;
         steb.connector.finishGameCase(
-            JSON.stringify(steb.worldView.trueBackgroundColor),
-            JSON.stringify(steb.worldView.meanCrudColor),
+            JSON.stringify(steb.model.trueBackgroundColor),
+            JSON.stringify(steb.model.meanCrudColor),
             iReason
         );
     },
 
+    eatStebberUsingView : function( iStebberView ) {
+        if (steb.manager.running) {
+            steb.model.removeStebber(iStebberView.stebber);
+            steb.worldView.removeStebberView(iStebberView);
+            steb.model.reproduce();
+            steb.score.meal();      //  before emitting data
+            if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();
+            steb.model.frightenStebbersFrom( iStebberView.stebber.where );
+        }
+    },
+
+    /**
+     * Create a "bucket" for a set of data, then fill it with data on each of the Stebbers.
+     */
     emitPopulationData : function() {
 
-        var tBucketValues = [ steb.model.meals ];       //  only meals atm
+        var tBucketValues = [
+            steb.model.meals,               //  categorical number of meals
+            steb.score.evolutionPoints      //  current score (evolution points)
+        ];
         steb.connector.newBucketCase( tBucketValues, bucketCreated );
 
         function bucketCreated( iResult ) {
@@ -102,7 +147,7 @@ steb.manager = {
                 //  now process each "leaf"
 
                 steb.model.stebbers.forEach( function( iSteb ) {
-                    steb.connector.doStebberRecord( iSteb.dataValues() );
+                    steb.connector.doStebberRecord( iSteb.dataValues() );   //  emit the Stebber part
                 });
             } else {
                 console.log("Failed to create bucket case.");
@@ -111,6 +156,19 @@ steb.manager = {
 
     },
 
+    addViewForChildStebber : function( iChildStebber ) {
+        steb.worldView.installStebberViewFor( iChildStebber );
+    },
+
+    findRandomStebberView : function() {
+        return TEEUtils.pickRandomItemFrom( steb.worldView.stebberViews )
+    },
+
+    activateTargetReticuleOn : function( iStebberView, iSet ) {
+        iStebberView.targetReticule.attr({
+            stroke : iSet ? "Red" : "transparent"
+        })
+    },
 
     stebDoCommand : function() {
 

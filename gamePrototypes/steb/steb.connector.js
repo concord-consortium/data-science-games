@@ -127,7 +127,8 @@ getInitSimObject: function () {
                     },
                     // The bucket collection spec:
                     attrs: [
-                        {name: "meals", type: 'categorical', description : 'how many stebbers you have eaten'}
+                        {name: "meals", type: 'categorical', description : 'how many stebbers you have eaten'},
+                        {name: "score", type: 'numeric', precision : 1, description : 'evolution score'}
                     ],
                     childAttrName: "stebber"
                 },
