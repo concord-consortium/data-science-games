@@ -33,6 +33,7 @@ var steb = {};  //  the "upper level" central global. It holds steb.manager, ste
  */
 steb.initialize = function() {
 
+    this.constants.captureSlope = 1.0 / (this.constants.certaintyDistance - this.constants.invisibilityDistance);
     this.ui.initialize();
     this.worldView.initialize();
 };
@@ -103,7 +104,11 @@ steb.constants = {
     baseCrudAcceleration : 600.0,
     baseStebberAcceleration : 600.0,
 
-    predatorWaitTime : 0.5,
-    predatorLookTime : 0.4,
-    predatorStalkTime : 1.5,
+    predatorWaitTime : 0.2, //  0.5,
+    predatorLookTime : 0.1, //  0.4,
+    predatorStalkTime : 1.0,
+
+    //  for computing probability of capture based on color distance
+    invisibilityDistance : 1.1,
+    certaintyDistance : 8.0,
 };

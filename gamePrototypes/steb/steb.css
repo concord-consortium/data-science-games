@@ -4,6 +4,9 @@ body {
     font-size : 70%
 }
 
+.ui-slider { display : inline-block; width : 15em; }
+.sliderLabel { display : inline-block; }
+
 .options   {
     background-color: #ecc;
     padding: 4px;
@@ -20,6 +23,25 @@ body {
     height: 16px;
     margin-left: 4px;
     margin-right: 4px;
+}
+
+/*  score text  */
+
+#scoreDiv {
+    font-size : 1.2em;
+    vertical-align: middle;
+}
+#evolutionPoints    {
+    color : #0a9a87;
+    font-size : 1.8em;
+    font-weight: 900;
+    vertical-align: middle;
+}
+#predatorEnergy    {
+    color : tomato;
+    font-weight: 900;
+    font-size : 1.8em;
+    vertical-align: middle;
 }
 /* option IDs */
 

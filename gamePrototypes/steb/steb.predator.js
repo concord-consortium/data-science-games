@@ -37,6 +37,7 @@ steb.predator = {
     newGame : function() {
         this.waitTime = steb.constants.predatorWaitTime;
         this.targetView = null;
+        state : "waiting";
     },
 
     update: function (dt) {
@@ -49,23 +50,21 @@ steb.predator = {
                     break;
 
                 case "looking":
-                    this.findTarget();
-                    var tMealRating = this.evaluateTarget(this.targetView.stebber);
+                    this.findTarget();      //  gets a random stebber VIEW
+                    var tCaptureProbability = this.targetProbability(this.targetView.stebber);
 
-                    if (tMealRating < (1 / steb.model.predatorVisionDenominator))    {//  the critter was invisible
-                        console.log("(pred) Can't see " + tMealRating + ". Invisible.")
+                    if (tCaptureProbability > Math.random()) {
+                        console.log( "Gonna eat " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
+                        steb.manager.activateTargetReticuleOn(this.targetView, true);
+                        this.state = "stalking";
+                        this.waitTime = steb.constants.predatorStalkTime;
+                    } else {
+                        console.log( "Pass on   " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
                         this.releaseTarget();
+                        steb.score.loss();
                         this.waitTime = steb.constants.predatorLookTime;
-                    } else {        //  it's visible. Are we interested?
-                        if( this.interestedInMeal(Number(tMealRating.toFixed(2))) ) {
-                            steb.manager.activateTargetReticuleOn(this.targetView, true);
-                            this.state = "stalking";
-                            this.waitTime = steb.constants.predatorStalkTime;
-                        } else {    //  pass on this meal
-                            this.releaseTarget();
-                            this.waitTime = steb.constants.predatorLookTime;
-                        }
                     }
+
                     break;
 
                 case "stalking":    //  done stalking, now we eat!
@@ -81,6 +80,12 @@ steb.predator = {
         }
     },
 
+    /**
+     * No longer in use
+     *
+     * @param iRate
+     * @returns {boolean}
+     */
     interestedInMeal : function( iRate ) {
         var tMean = 0;
         var oInterested = true;
@@ -109,17 +114,20 @@ steb.predator = {
         this.targetView = null;
     },
 
-    evaluateTarget : function( iTarget ) {
+    targetProbability : function(iTarget ) {
 
         var tDBG = iTarget.colorDistanceToBackground;
         var tDCrud = iTarget.colorDistanceToCrud;
 
-        var oResult = tDBG;
+        var tColorDistance = tDBG;
         if (typeof tDCrud !== 'undefined') {
-            if (tDCrud < oResult) oResult = tDCrud;
+            if (tDCrud < tColorDistance) tColorDistance = tDCrud;
         }
+        tColorDistance *= steb.model.predatorVisionDenominator;
 
-        return oResult;
+        var oProb = (tColorDistance - steb.constants.invisibilityDistance) * steb.constants.captureSlope;
+
+        return oProb;
     }
 
 }

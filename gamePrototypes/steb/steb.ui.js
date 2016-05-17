@@ -46,6 +46,7 @@ steb.ui = {
 
             $("#debugText").html(tDebugText);
             $("#evolutionPoints").text(steb.score.evolutionPoints);
+            $("#predatorEnergy").text(steb.score.predatorEnergy);
         }
     },
 
@@ -134,9 +135,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector.red ],
+            values : [ steb.model.predatorVisionBWCoefficientVector[0] ],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector['red'] = Number( ui.values[0] );
+                steb.model.predatorVisionBWCoefficientVector[0] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
             },
             step : 1
@@ -145,9 +146,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector.green ],
+            values : [ steb.model.predatorVisionBWCoefficientVector[1] ],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector['green'] = Number( ui.values[0] );
+                steb.model.predatorVisionBWCoefficientVector[1] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
             },
             step : 1
@@ -156,9 +157,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector.blue ],
+            values : [ steb.model.predatorVisionBWCoefficientVector[2] ],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector['blue'] = Number( ui.values[0] );
+                steb.model.predatorVisionBWCoefficientVector[2] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
             },
             step : 1

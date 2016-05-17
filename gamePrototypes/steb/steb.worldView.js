@@ -102,10 +102,15 @@ steb.worldView = {
     },
 
     updateDisplayWithCurrentVisionParameters : function( )  {
-        this.stebberViews.forEach( function(sv) { sv.setMyColor(); } );
-        this.crudViews.forEach( function(sv) { sv.setMyColor(); } );
-        this.setBackgroundColor();
-
+        if (steb.manager.playing) {
+            this.stebberViews.forEach(function (sv) {
+                sv.setMyColor();
+            });
+            this.crudViews.forEach(function (sv) {
+                sv.setMyColor();
+            });
+            this.setBackgroundColor();
+        }
     },
 
     //  changing color

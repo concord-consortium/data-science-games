@@ -111,7 +111,7 @@ steb.model = {
         this.meals = 0;         //      number of meals
         this.lastStebberNumber = 0;
 
-        this.trueBackgroundColor = this.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+        this.trueBackgroundColor = this.inventBackgroundColor();
         this.meanCrudColor = this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
 
         //  create a new set of Stebbers.
@@ -125,6 +125,24 @@ steb.model = {
         }
     },
 
+    inventBackgroundColor : function() {
+        var oColor = null;
+        //  oColor = this.randomColor( [3,4,5,6,7,8,9,10,11,12] );
+
+        var tColor = "hsb(" + Math.random() + ", 0.5, 0.7)";
+        var tRGB = Snap.getRGB(tColor);
+        var tNorm = 15/255;
+
+        oColor = [
+            Math.round(tNorm * tRGB.r),
+            Math.round(tNorm * tRGB.g),
+            Math.round(tNorm * tRGB.b)
+        ];
+
+        oColor = this.randomColor( [6,7,8,9] );     //  temp restrict??
+
+        return oColor;
+    },
 
     /**
      * Add a new Stebber to the model.
@@ -221,7 +239,7 @@ steb.model = {
         var oArray = [];
 
         for (var i = 0; i < 3; i++) {
-            var tRan = TEEUtils.pickRandomItemFrom( [3,4,5,6,7,8,9,10,11,12] ); //  not too light or dark
+            var tRan = TEEUtils.pickRandomItemFrom( iColors ); //  not too light or dark
             oArray.push( tRan );
         }
         return oArray;
@@ -261,7 +279,7 @@ steb.model = {
             if (typeof tDCrud !== 'undefined') {
                 tout += " dCrud: " + tDCrud.toFixed(2);
             }
-            tout += "<br>";
+            tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";
 
         });
 
@@ -286,8 +304,8 @@ steb.model = {
 
     //      Predator Vision Section
 
-    predatorVisionColorVector : { red : 1.0, green : 0, blue : 0},
-    predatorVisionBWCoefficientVector : {red : 1, green : 1, blue : 1},
+    predatorVisionColorVector : [1, 0, 0],
+    predatorVisionBWCoefficientVector : [1, 1, 1],
     predatorVisionDenominator : 1,
 
     /**
@@ -304,11 +322,11 @@ steb.model = {
             if (steb.options.predatorVisionType == "dotProduct") {
                 var tDotProduct = this.predatorVisionColorVector;
                 tResult = [
-                    (iColor[0]) * tDotProduct.red,
-                    (iColor[1]) * tDotProduct.green,
-                    (iColor[2]) * tDotProduct.blue
+                    (iColor[0]) * tDotProduct[0],
+                    (iColor[1]) * tDotProduct[1],
+                    (iColor[2]) * tDotProduct[2]
                 ];
-                this.predatorVisionDenominator = tDotProduct.red + tDotProduct.green + tDotProduct.blue;
+                this.predatorVisionDenominator = tDotProduct[0] + tDotProduct[1] + tDotProduct[2];
             }
             else        //  using the BW vector
             {
@@ -331,16 +349,11 @@ steb.model = {
      * @returns {Array}
      */
     convertToGrayUsingRGBFormula : function(iColor ) {
-        var tCoefficients = [
-            this.predatorVisionBWCoefficientVector.red,
-            this.predatorVisionBWCoefficientVector.green,
-            this.predatorVisionBWCoefficientVector.blue
-            ];
 
         var tGrayscaleNumber = 0;
         var tDenom = 0;
 
-        tCoefficients.forEach( function(c, i ) {
+        this.predatorVisionBWCoefficientVector.forEach( function(c, i ) {
             tDenom += Math.abs( c );
             tGrayscaleNumber += (c > 0) ? c * iColor[i] : (iColor[i] - 15) * c;
             });
@@ -350,7 +363,7 @@ steb.model = {
         //  The result is gray. Not necessary to do it this particular way.
         //  Do anything plausible with the tGrayscaleNumber result.
 
-        tResult = [
+        var tResult = [
             tGrayscaleNumber,
             tGrayscaleNumber,
             tGrayscaleNumber

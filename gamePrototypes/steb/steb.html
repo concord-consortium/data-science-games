@@ -42,8 +42,8 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <meta charset="UTF-8">
 
     <!--        stylesheets         -->
-    <link rel='stylesheet' type='text/css' href='steb.css'/>
     <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+    <link rel='stylesheet' type='text/css' href='steb.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
@@ -98,8 +98,8 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <!--    Now describe each tab separately, note how the list above references the IDs    -->
 
     <div id="worldTab">     <!--    The main tab, where the game is     -->
-        <div class="hBox">
-            Evolution Points: <div id="evolutionPoints"></div>
+        <div class="hBox" id="scoreDiv">
+            Evolution Points: <div id="evolutionPoints"></div>&nbsp;Predator Energy: <div id="predatorEnergy"></div>
         </div>
         <svg id="stebSnapWorld" width="300" height="300" onclick="steb.ui.clickInWorld();">
             <rect width="100" height="100" fill="dodgerblue"></rect>
@@ -123,6 +123,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         </div>
     </div>
 
+    <!--        VISION tab      -->
 
     <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">
         <h2>Predator Vision Parameters</h2>
@@ -144,13 +145,14 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <input type="radio" name="predatorVisionType" value="formula">
 
             <fieldset>
-                <legend> B/W response (formula method)</legend>
-                <div id="redCoefficient"></div>
-                <div id="redCoeffDisplay"></div>    <!--    the red slider -->
+                <legend> B/W response (enter coefficients)</legend>
+                <br>
+                <div id="redCoefficient" ></div>
+                <div id="redCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the red slider -->
                 <div id="greenCoefficient"></div>
-                <div id="greenCoeffDisplay"></div>    <!--    the green slider -->
+                <div id="greenCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the green slider -->
                 <div id="blueCoefficient"></div>
-                <div id="blueCoeffDisplay"></div>    <!--    the blue slider -->
+                <div id="blueCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
                 <div id="visionFormula">foo</div>
             </fieldset>
 

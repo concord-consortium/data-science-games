@@ -108,8 +108,28 @@ steb.manager = {
      */
     endGame : function( iReason ) {
 
+        switch( iReason ) {
+            case "abort" :
+                var uri = "art/StebAbort.png";
+                break;
+
+            case "win" :
+                var uri = "art/StebWin.png";
+                break;
+
+            case "loss":
+                var uri = "art/StebLoss.png";
+                break;
+
+            default:
+
+        }
+        if ( uri ) steb.worldView.paper.image( uri, 200, 200, 600, 600 );
+
         this.playing = false;
         this.running = false;
+        this.emitPopulationData();
+
         steb.connector.finishGameCase(
             JSON.stringify(steb.model.trueBackgroundColor),
             JSON.stringify(steb.model.meanCrudColor),
@@ -132,10 +152,11 @@ steb.manager = {
      * Create a "bucket" for a set of data, then fill it with data on each of the Stebbers.
      */
     emitPopulationData : function() {
+        var tScore = steb.options.automatedPredator ? steb.score.predatorEnergy : steb.score.evolutionPoints;
 
         var tBucketValues = [
             steb.model.meals,               //  categorical number of meals
-            steb.score.evolutionPoints      //  current score (evolution points)
+            tScore      //  current score (evolution points or predator energy)
         ];
         steb.connector.newBucketCase( tBucketValues, bucketCreated );
 

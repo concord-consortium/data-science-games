@@ -35,19 +35,44 @@ steb.score = {
     pointsPerSecond : -0.016,
     startingPoints : 10,
 
+    predatorEnergy : null,
+    startingPredatorEnergy : 10,
+    energyPerMeal : 5,
+    energyPerLoss : -1,
+    energyPerVisionChange : -50,
+
+    winningScore : 500,
+
     newGame : function() {
         this.evolutionPoints = this.startingPoints;
+        this.predatorEnergy = this.startingPredatorEnergy;
     },
 
     meal : function() {
         this.evolutionPoints += this.pointsPerMeal - this.pointsPerMiss;
+        this.predatorEnergy += this.energyPerMeal;
+        this.checkEnd();
+    },
+
+    loss : function() {
+        this.predatorEnergy += this.energyPerLoss;
+        this.checkEnd();
     },
 
     crud : function() {
         this.evolutionPoints += this.pointsPerCrud - this.pointsPerMiss;
+        this.checkEnd();
     },
 
     clickInWorld : function() {
         this.evolutionPoints += this.pointsPerMiss;
+        this.checkEnd();
+    },
+
+    checkEnd : function( )  {
+        var tScore = steb.options.automatedPredator ? steb.score.predatorEnergy : steb.score.evolutionPoints;
+
+        if (tScore >= steb.score.winningScore) steb.manager.endGame("win");
+        if (tScore <= 0) steb.manager.endGame("loss");
     }
 }

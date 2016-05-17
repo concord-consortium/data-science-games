@@ -57,15 +57,17 @@ steb.options = {
         var tGreen = Number($("#visionGreen").val());
         var tBlue = Number($("#visionBlue").val());
 
-        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector['red']);
-        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector['green']);
-        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector['blue']);
+        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector[0]);
+        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector[1]);
+        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector[2]);
 
-        steb.model.predatorVisionColorVector = { red :tRed, green : tGreen, blue : tBlue };
+        steb.model.predatorVisionColorVector = [ tRed, tGreen, tBlue ];
         //  steb.model.predatorVisionBWCoefficientVector is set directly by sliders. See steb.ui.js.initialize().
 
-        console.log("Options. Vision vector = " + steb.model.predatorVisionColorVector
-            + " BW vector = " + steb.model.predatorVisionBWCoefficientVector);
+        console.log(
+            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionColorVector )
+            + " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
+        );
 
         steb.model.stebbers.forEach(function(s) { s.updatePredatorVision(); });     //  update all stebbers to reflect new vision
 
