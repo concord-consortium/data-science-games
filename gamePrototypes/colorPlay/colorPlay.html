@@ -1,0 +1,159 @@
+<!--
+
+  ==========================================================================
+ colorPlay.html in data-science-games.
+
+HTML wrapper for ....
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+-->
+<!--
+Here is the URL...
+
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/colorPlay/colorPlay.html
+
+or locally,
+http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/colorPlay/colorPlay.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!--        stylesheets         -->
+    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+    <link rel='stylesheet' type='text/css' href='colorPlay.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="../common/jquery.js" language="javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <title>Stebbins</title>
+
+    <!-- Snap -->
+    <script src="../Snap.svg/dist/snap.svg.js"></script>
+
+    <!--            our game source         -->
+
+    <script src="colorPlay.js" language="JavaScript"></script>
+    <script src="colorPlay.manager.js" language="JavaScript"></script>
+    <script src="colorPlay.ui.js" language="JavaScript"></script>
+
+    <script>
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+    </script>
+
+
+</head>
+<body>
+
+<div id="tabs">
+    <!--    list the tabs for this jquery_ui widget -->
+    <ul>
+        <li><a href="#colorPlay">mess</a></li>
+        <li><a href="#colorMatch">match</a></li>
+        <li><a href="#instructionsTab">instructions</a></li>
+        <li><a href="#backgroundTab">background</a></li>
+        <li><a href="#debugTab">debug</a></li>
+    </ul>
+
+    <!--    Now describe each tab separately, note how the list above references the IDs    -->
+    <!--        MESS tab -->
+
+    <div id="colorPlay">     <!--    The main tab, where the game is     -->
+        <svg width="200" height="200" >
+            <rect width="200" height="100" fill="white"></rect>
+            <rect width="200" height="100" x="0" y="100" fill="black"></rect>
+            <rect width="100" height="100" x="50" y="50" fill="goldenrod" id="colorPlayRect"></rect>
+        </svg>
+        <fieldset>
+            <legend> Color components</legend>
+            <br>
+            <div id="redPlaySlider" ></div>
+            <div id="redValue" class="sliderLabel"></div><br><br>    <!--    the red slider -->
+            <div id="greenPlaySlider"></div>
+            <div id="greenValue" class="sliderLabel"></div><br><br>    <!--    the green slider -->
+            <div id="bluePlaySlider"></div>
+            <div id="blueValue" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
+            <div id="hexValue">#abcdef</div>
+        </fieldset>
+    </div>
+
+    <!--        MATCH tab -->
+
+    <div id="colorMatch">
+        <div id="matchResults"></div>
+        <svg width="200" height="200" >
+            <rect width="200" height="100" fill="white"></rect>
+            <rect width="200" height="100" x="0" y="100" fill="black"></rect>
+            <rect width="50" height="100" x="40" y="50" fill="goldenrod" id="colorMatchTarget"></rect>
+            <rect width="50" height="100" x="110" y="50" fill="blue" id="colorMatchTry"></rect>
+        </svg>
+        <fieldset>
+            <legend> Color components</legend>
+            <br>
+            <div id="redMatchSlider" ></div>
+            <div id="redTryValue" class="sliderLabel"></div><br><br>    <!--    the red slider -->
+            <div id="greenMatchSlider"></div>
+            <div id="greenTryValue" class="sliderLabel"></div><br><br>    <!--    the green slider -->
+            <div id="blueMatchSlider"></div>
+            <div id="blueTryValue" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
+        </fieldset>
+
+        <button id="checkMatchButton" onclick="colorPlay.manager.checkColorMatch()">check match</button>
+        <button id="newMatchButton" onclick="colorPlay.manager.setNewMatchTarget()">new color</button>
+
+    </div>
+
+    <!--        instructions tab      -->
+
+
+    <div id="instructionsTab">
+        <p>Mess (around): Move the sliders and get a feel
+            for how the red, green, and blue numbers affect the color you see. </p>
+        <p>Match: click <b>new color</b>, then use the sliders to try to match the color on the left.</p>
+    </div>
+
+
+    <div id="backgroundTab">
+        <p>Small gamelets to help you understand about color on computer displays.</p>
+    </div>
+
+
+
+    <div id="debugTab">
+        <span id="debugText"></span>
+    </div>
+
+</div>
+
+</body>
+
+<script language="JavaScript">
+    colorPlay.initialize();
+</script>
+
+</html>
