@@ -29,6 +29,7 @@
 spec.model = {
 
     elementalSpectra : [],
+    spectrographGain : 1,
 
     initialize : function() {
         this.setUpElementalSpectra();

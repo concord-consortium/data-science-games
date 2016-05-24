@@ -64,8 +64,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="spec.manager.js" language="JavaScript"></script>
     <script src="spec.ui.js" language="JavaScript"></script>
     <script src="spec.model.js" language="JavaScript"></script>
+<!--
     <script src="spec.options.js" language="JavaScript"></script>
     <script src="spec.connector.js" language="JavaScript"></script>
+-->
 
     <script src="Spectrum.js" language="JavaScript"></script>
     <script src="SpectrumView.js" language="JavaScript"></script>
@@ -93,17 +95,27 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <!--    Now describe each tab separately, note how the list above references the IDs    -->
 
     <div id="spectrographTab">     <!--    Spectrograph     -->
-        <div class="hBox" id="scoreDiv">
-            <label for="source">Source:</label>
-            <select name="source" id="source">
-                <option name="H">Hydrogen</option>
-                <option name="He">Helium</option>
-            </select>
-            <br>
-            <label for="lambdaMin">Low Wavelength (nm):</label> <input type="number" id="lambdaMin" value="400" maxlength="5" max="900" min="300"><br>
-            <label for="lambdaMax">High Wavelength (nm):</label> <input type="number" id="lambdaMax" value="700" maxlength="5" max="900" min="300"><br>
-            <button id="getSpectrum" onclick="spec.manager.getSpectrumButtonPushed()">get spectrum</button>
+        <div class="vBox">
+            <label>Source:
+                <select name="source" id="source">
+                    <option name="H">Hydrogen</option>
+                    <option name="He">Helium</option>
+                </select>
+            </label>
+            <label>
+                Low Wavelength (nm):<input type="number" id="lambdaMin" value="380" maxlength="7" max="700" min="380">
+            </label>
+
+            <label>
+                High Wavelength (nm):<input type="number" id="lambdaMax" value="700" maxlength="7" max="700" min="380">
+            </label>
+            <label>
+                Gain:
+                <div id="spectrographGainSlider"></div>
+                <div id="gainDisplay" class="sliderLabel"></div>
+            </label>
         </div>
+        <button id="getSpectrum" onclick="spec.manager.getSpectrumButtonPushed()">get spectrum</button>
         <svg id="spectrumDisplay" width="300" height="16">
 
         </svg>
@@ -118,6 +130,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
     <div id="optionsTab">
         <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
+            Options will go here.
             <!--
             <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
             -->

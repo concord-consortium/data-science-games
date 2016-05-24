@@ -31,7 +31,7 @@ SpectrumView = function( iPaper ) {
     this.lambdaMax = spec.constants.visibleMax;
     this.nBins = 100;
     this.spectrum = null;
-    this.channels = null;
+    this.channels = [];
     this.displayType = SpectrumView.displayTypes[0];
     this.background = this.paper.rect(0, 0, this.paper.node.clientWidth, this.paper.node.clientHeight).attr({
         fill : "yellow"
@@ -47,7 +47,7 @@ SpectrumView.prototype.setSpectrum = function( iSpectrum ) {
 SpectrumView.prototype.display = function( ) {
 
     var tNChannels = this.channels.length;
-    if (tNChannels > 1) {
+    if (tNChannels > 0) {
         this.paper.clear();
         var tChannelWidthOnDisplay = this.paper.node.clientWidth / (tNChannels);
         switch (this.displayType) {
@@ -55,7 +55,7 @@ SpectrumView.prototype.display = function( ) {
             case "photo":
                 var tLeft = 0;
                 this.channels.forEach( function(ch){
-                    var tBaseColor = 255 * ch.intensity / 100;
+                    var tBaseColor = spec.model.spectrographGain * 255 * ch.intensity / 100;
                     if (tBaseColor > 255) tBaseColor = 255;
                     var tColor = Snap.rgb( tBaseColor, tBaseColor, tBaseColor);
                     this.paper.rect( tLeft, 0, tChannelWidthOnDisplay, this.paper.node.clientHeight).attr({

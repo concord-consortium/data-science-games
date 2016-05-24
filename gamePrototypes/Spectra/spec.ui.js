@@ -1,9 +1,9 @@
 /**
- * Created by tim on 5/23/16.
+ * Created by tim on 5/24/16.
 
 
  ==========================================================================
- spec.js in data-science-games.
+ spec.ui.js in data-science-games.
 
  Author:   Tim Erickson
 
@@ -25,16 +25,33 @@
 
  */
 
-var spec = {
+
+spec.ui = {
+
+    gainSlider : null,
 
     initialize : function() {
-        this.manager.initialize();
-        this.ui.initialize();
+
+        this.gainSlider = $('#spectrographGainSlider');
+
+        this.gainSlider.slider( {
+                min : 1,
+                max : 10,
+                values : 1,
+                step : 1,
+                slide : function(e, ui) {
+                    spec.model.spectrographGain = Number( ui.value );
+                    $('#gainDisplay').text(spec.model.spectrographGain);
+                    spec.manager.mainSpectrumView.display();
+                }
+            }
+        );
+
     }
-}
+};
 
 
-spec.constants = {
-    visibleMin : 380.0,
-    visibleMax : 700.0
-}
+
+/*
+
+ */
