@@ -26,7 +26,11 @@
  */
 
 /**
- * Model class. Its view is CrudView (below)
+ * Note that this file contains both the Crud and CrudView classes.
+ */
+
+/**
+ * Model class. Its view is CrudView (below).
  * @constructor
  */
 var Crud = function(  ) {

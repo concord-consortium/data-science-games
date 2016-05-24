@@ -129,7 +129,7 @@ steb.manager = {
 
         this.playing = false;
         this.running = false;
-        this.emitPopulationData();      //  send data on the remianing Stebbers to CODAP
+        this.emitPopulationData();      //  send data on the remaining Stebbers to CODAP
 
         steb.connector.finishGameCase(  //  and finish the game attributes
             JSON.stringify(steb.model.trueBackgroundColor),
@@ -139,7 +139,7 @@ steb.manager = {
     },
 
     /**
-     * User or the sutomated predator has clicked on a Stebber View, and it's OK to eat it.
+     * User or the automated predator has clicked on a Stebber View, and it's OK to eat it.
      * Then reproduce, account for the score, emit data, and scare things away from the site
      * @param iStebberView
      */

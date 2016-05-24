@@ -97,7 +97,7 @@ steb.ui = {
     },
 
     /**
-     * User clicked in teh world but not on a Stebber or on Crud
+     * User clicked in the world but not on a Stebber or on Crud
      */
     clickInWorld : function() {
         if(!steb.options.automatedPredator) {

@@ -25,6 +25,18 @@
 
  */
 
+/**
+ * Connector singleton, to isolate connections with CODAP
+ *
+ * Three-layer hierarchy
+ * GAME
+ * BUCKET (for a set of Stebbers, has current score, etc). Every 10 "meals"
+ * STEBBERS one case per Stebber, subordinate to the bucket
+ *
+ * @type {{gameCaseID: number, bucketCaseID: number, gameNumber: number, bucketNumber: number, gameCollectionName: string, bucketCollectionName: string, stebberCollectionName: string, newGameCase: steb.connector.newGameCase, finishGameCase: steb.connector.finishGameCase, newBucketCase: steb.connector.newBucketCase, doStebberRecord: steb.connector.doStebberRecord, getInitSimObject: steb.connector.getInitSimObject}}
+ */
+
+/* global steb, codapHelper */
 
 steb.connector = {
     gameCaseID: 0,
@@ -35,6 +47,11 @@ steb.connector = {
     bucketCollectionName: "buckets",
     stebberCollectionName: "stebbers",
 
+    /**
+     * Called when we create a case for a new game
+     * @param iBgColor      the background color (text representation of 3-vector)
+     * @param iCrudColor    the mean Crud color
+     */
     newGameCase: function ( iBgColor, iCrudColor ) {
 
         this.gameNumber += 1;
@@ -54,6 +71,12 @@ steb.connector = {
         );
     },
 
+    /**
+     * Called to rewrite and close a game-level case
+     * @param iBgColor
+     * @param iCrudColor
+     * @param iResult
+     */
     finishGameCase: function (iBgColor, iCrudColor, iResult) {
         codapHelper.closeCase(
             this.gameCollectionName,
@@ -83,11 +106,12 @@ steb.connector = {
         );
     },
 
-/**
+    /**
      * Emit an "event" case, low level in the hierarchy.
+     * One case per Stebber.
      * @param values
      */
-    doStebberRecord : function( iValues ) {
+    doStebberRecord: function (iValues) {
         codapHelper.createCase(
             this.stebberCollectionName,
             iValues,
@@ -95,13 +119,17 @@ steb.connector = {
         ); // no callback.
     },
 
-getInitSimObject: function () {
+    /**
+     * Initializes the data structure.
+     * @returns {{name: string, version: string, dimensions: {width: number, height: number}, collections: *[]}}
+     */
+    getInitSimObject: function () {
 
         var oInitSimObject = {
             name: 'Stebbins',
             version: steb.constants.version,
             dimensions: {width: 380, height: 500},
-            collections: [  // There are two collections: a parent and a child
+            collections: [  // There are three collections: game, bucket, stebber
                 {
                     name: this.gameCollectionName,
                     labels: {
@@ -113,7 +141,7 @@ getInitSimObject: function () {
                     attrs: [
                         {name: "gameNo", type: 'categorical'},
                         {name: "bgColor", type: 'categorical', description : "[red, green, blue] of the background"},
-                        {name: "crudColor", type: 'categorical'},
+                        {name: "crudColor", type: 'categorical', description : "[red, green, blue] of the average Crud"},
                         {name: "result", type: 'categorical'}
                     ],
                     childAttrName: "bucket"
@@ -123,7 +151,7 @@ getInitSimObject: function () {
                     labels: {
                         singleCase: "bucket",
                         pluralCase: "buckets",
-                        setOfCasesWithArticle: "a bucket of data"
+                        setOfCasesWithArticle: "buckets of data"
                     },
                     // The bucket collection spec:
                     attrs: [
@@ -141,10 +169,10 @@ getInitSimObject: function () {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "red", type: 'numeric', precision : 1, description : "how much red (0 to 16)"},
-                        {name: "green", type: 'numeric', precision : 1, description : "how much red (0 to 16)"},
-                        {name: "blue", type: 'numeric', precision : 1, description : "how much green (0 to 16)"},
-                        {name: "hue", type: 'numeric', precision : 3, description : "how much blue (0 to 16)"},
+                        {name: "red", type: 'numeric', precision : 1, description : "how much red (0 to 15)"},
+                        {name: "green", type: 'numeric', precision : 1, description : "how much green (0 to 15)"},
+                        {name: "blue", type: 'numeric', precision : 1, description : "how much blue (0 to 15)"},
+                        {name: "hue", type: 'numeric', precision : 3, description : "hue (0 to 1)"},
                         {name: "sat", type: 'numeric', precision : 3},
                         {name: "value", type: 'numeric', precision : 3},
                         {name: "id", type: 'numeric', precision : 0}

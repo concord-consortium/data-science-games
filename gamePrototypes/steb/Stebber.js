@@ -38,8 +38,8 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.where = iWhere;
     this.id = iID;
 
-    this.setNewSpeedAndHeading();
-    this.updatePredatorVision();
+    this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
+    this.updateColorDistances();    //  todo: do we need this? The view doesn't exist yet, right?
 };
 
 /**
@@ -50,13 +50,13 @@ var Stebber = function( iColor, iWhere, iID ) {
 Stebber.prototype.setNewSpeedAndHeading = function() {
     this.heading = Math.PI*2 * Math.random();
     this.timeToChange = 1 + Math.random() * 2;
-    this.speed = steb.constants.baseStebberSpeed;
+    this.speed = steb.constants.baseStebberSpeed + Math.random() * steb.constants.stebberSpeedRange;
 };
 
 /**
- * Determine this Stebber's color distances based on teh predator's vision parameters.
+ * Determine this Stebber's color distances based on the predator's vision parameters.
  */
-Stebber.prototype.updatePredatorVision = function() {
+Stebber.prototype.updateColorDistances = function() {
     this.colorDistanceToBackground = steb.model.colorDistance(
         steb.model.getPredatorVisionColor(steb.model.trueBackgroundColor),
         steb.model.getPredatorVisionColor(this.color)
@@ -74,7 +74,7 @@ Stebber.prototype.updatePredatorVision = function() {
 
 /**
  * Update the position and speed
- * @param idt
+ * @param idt   seconds in interval
  */
 Stebber.prototype.update = function( idt ) {
 
@@ -110,7 +110,7 @@ Stebber.prototype.runFrom = function( iPoint ) {
     if (steb.options.flee) {
         var dx = this.where.x - iPoint.x;
         var dy = this.where.y - iPoint.y;
-        var r = Math.sqrt(dx * dx + dy * dy);
+        var r = Math.sqrt(dx * dx + dy * dy);   //  todo: use distance routine
 
         //  but only if you're reasonably close to the place.
         //  todo: make this wrap on the torus so you run if you're just over the edge.
@@ -123,7 +123,7 @@ Stebber.prototype.runFrom = function( iPoint ) {
 };
 
 /**
- * Prepare an array of values for output to CODAP
+ * Prepare an array of values for output to CODAP   //  todo: explain why we can use .color
  * @returns {*[]}
  */
 Stebber.prototype.dataValues = function() {

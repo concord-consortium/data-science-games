@@ -98,8 +98,9 @@ steb.constants = {
 
     colorAnimationDuration : 1000,  //  ms when the apparent color changes
 
-    baseCrudSpeed : 120.0,  //  pixels per second
-    baseStebberSpeed : 80.0,    //  pixels per second
+    baseCrudSpeed : 80.0,  //  pixels per second
+    baseStebberSpeed : 110.0,    //  pixels per second
+    stebberSpeedRange : 40.0,    //  pixels per second
     baseCrudAcceleration : 600.0,
     baseStebberAcceleration : 600.0,
 

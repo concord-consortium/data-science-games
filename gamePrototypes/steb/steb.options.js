@@ -77,7 +77,7 @@ steb.options = {
             + " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
         );
 
-        steb.model.stebbers.forEach(function(s) { s.updatePredatorVision(); });     //  update all stebbers to reflect new vision
+        steb.model.stebbers.forEach(function(s) { s.updateColorDistances(); });     //  update all stebbers to reflect new vision
 
     },
 

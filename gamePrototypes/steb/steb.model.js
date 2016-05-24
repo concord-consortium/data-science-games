@@ -203,10 +203,10 @@ steb.model = {
     frightenStebbersFrom : function( iPoint ) {
         this.stebbers.forEach( function(iStebber) {
             iStebber.runFrom( iPoint );
-        })
+        });
         this.crud.forEach( function(iCrud) {
             iCrud.runFrom( iPoint );
-        })
+        });
     },
 
 
@@ -261,13 +261,9 @@ steb.model = {
 
         iColor.forEach( function(c) {
             c += TEEUtils.pickRandomItemFrom( iMutes );
-            if (c < 0) c = 0;
-            if (c > 15) c = 15;
+            c = steb.rangePin(c, 0, 15);
             oColor.push( c );
         });
-
-        var tStart = steb.makeColorString( iColor );
-        var tEnd = steb.makeColorString( oColor );
 
         return oColor;
     },
@@ -295,31 +291,6 @@ steb.model = {
         return tout;
     },
 
-    /**
-     * How far is the Stebber from the background in color distance?
-     * @param iTarget   the target, ordinarily a Stebber
-     * @returns {*}
-     */
-    colorDistanceToBackgroundForPredator : function( iTarget ) {
-        var tDistance = steb.model.colorDistance(
-            steb.model.getPredatorVisionColor(steb.model.trueBackgroundColor),
-            steb.model.getPredatorVisionColor(iTarget.color)
-        );
-        return tDistance;
-    },
-
-    /**
-     * How far is the target from the (mean) Crud in color distance?
-     * @param iTarget   the target, ordinarily a Stebber
-     * @returns {*}
-     */
-    colorDistanceToCrudForPredator : function( iTarget ) {
-        var tDistance = steb.model.colorDistance(
-            steb.model.getPredatorVisionColor(steb.model.meanCrudColor),
-            steb.model.getPredatorVisionColor(iTarget.color)
-        );
-        return tDistance;
-    },
 
     //      Predator Vision Section
 

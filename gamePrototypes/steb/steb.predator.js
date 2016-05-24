@@ -122,7 +122,7 @@ steb.predator = {
         }
         //  tColorDistance is now the SMALLER of the distance to BG and to Crud
 
-        tColorDistance *= steb.model.predatorVisionDenominator; //  not clear if this is right.
+        tColorDistance *= steb.model.predatorVisionDenominator; //  todo: not clear if this is right.
 
         //  now we convert that distance to a probability. It's a linear function based on
         //  the two key values here. See steb.js for the definitions of these constants.
