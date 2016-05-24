@@ -25,25 +25,38 @@
 
  */
 
-
+/**
+ * Singleton embodying the automated predator's behavior
+ *
+ * @type {{where: null, state: string, targetView: null, waitTime: null, memory: Array, newGame: steb.predator.newGame, update: steb.predator.update, interestedInMeal: steb.predator.interestedInMeal, findTarget: steb.predator.findTarget, releaseTarget: steb.predator.releaseTarget, targetProbability: steb.predator.targetProbability}}
+ */
 steb.predator = {
-    where : null,
+    where : null,           //  location
     state : "waiting",      //  looking, stalking, eating
 
     targetView : null,
-    waitTime : null,
+    waitTime : null,        //  ongoing timer. gets decremented as time passes.
     memory : [],
 
+    /**
+     * Start the predator
+     */
     newGame : function() {
         this.waitTime = steb.constants.predatorWaitTime;
         this.targetView = null;
         state : "waiting";
     },
 
+    /**
+     * Time has passed for the predator.
+     * @param dt
+     */
     update: function (dt) {
-        this.waitTime -= dt;
-        if (this.waitTime <= 0) {
+        this.waitTime -= dt;        //  decrement waitTime
+
+        if (this.waitTime <= 0) {   //  we are at the end of the current phase. Change state and act accordingly.
             switch (this.state) {
+
                 case "waiting":
                     this.state = "looking";
                     this.waitTime = steb.constants.predatorLookTime;
@@ -51,29 +64,28 @@ steb.predator = {
 
                 case "looking":
                     this.findTarget();      //  gets a random stebber VIEW
-                    var tCaptureProbability = this.targetProbability(this.targetView.stebber);
+                    var tCaptureProbability = this.targetProbability(this.targetView.stebber);  //  find probablility
 
-                    if (tCaptureProbability > Math.random()) {
+                    if (tCaptureProbability > Math.random()) {      //  beat the probability. We will eat it (in a bit)
                         console.log( "Gonna eat " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
-                        steb.manager.activateTargetReticuleOn(this.targetView, true);
+                        steb.manager.activateTargetReticuleOn(this.targetView, true);   //  turn on the red box
                         this.state = "stalking";
                         this.waitTime = steb.constants.predatorStalkTime;
                     } else {
                         console.log( "Pass on   " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
-                        this.releaseTarget();
-                        steb.score.loss();
-                        this.waitTime = steb.constants.predatorLookTime;
+                        this.releaseTarget();   //  give up on this Stebber
+                        steb.score.loss();      //  lose points
+                        this.waitTime = steb.constants.predatorLookTime;    //  reset the clock
                     }
-
                     break;
 
                 case "stalking":    //  done stalking, now we eat!
-                    steb.manager.eatStebberUsingView(this.targetView);
-                    steb.manager.activateTargetReticuleOn( this.targetView, false );
+                    steb.manager.eatStebberUsingView(this.targetView);  //  actually eat.
+                    steb.manager.activateTargetReticuleOn( this.targetView, false );    //  deactivate the reticule
                     this.state = "waiting";
-                    this.waitTime = steb.constants.predatorWaitTime;
+                    this.waitTime = steb.constants.predatorWaitTime;    //  reset clock for this state.
 
-                    this.releaseTarget();
+                    this.releaseTarget();   //  redundant? todo: decide if this is necessary.
                     break;
 
             }       //      end switch on state
@@ -81,39 +93,24 @@ steb.predator = {
     },
 
     /**
-     * No longer in use
-     *
-     * @param iRate
-     * @returns {boolean}
+     * Get a random target
      */
-    interestedInMeal : function( iRate ) {
-        var tMean = 0;
-        var oInterested = true;
-
-        if (this.memory.length == 0) {  //  first one, and we're interested.
-            this.memory.push( iRate );
-        } else {
-            var tSum = this.memory.reduce(function(a,b) {return a + b});
-            tMean = tSum /  this.memory.length;
-            this.memory.push( iRate );
-            if (this.memory.length > 6) this.memory.shift();    //  push old ones out
-            if (iRate < (tMean - 0.5)) oInterested = false;
-        }
-
-        var tMessage = "(pred) Look at " + iRate + " v " + tMean.toFixed(2) + " from [" + this.memory.toString() + "]";
-        tMessage += oInterested ? " Yum!" : "I'll wait."
-        console.log( tMessage );
-        return oInterested;
-    },
-
     findTarget : function() {
         this.targetView = steb.manager.findRandomStebberView( );
     },
 
+    /**
+     * Set the target view to null.
+     */
     releaseTarget : function() {
         this.targetView = null;
     },
 
+    /**
+     * Calculate the target probabilty.
+     * @param iTarget   the Stebber associated with the target view
+     * @returns {number}    probability
+     */
     targetProbability : function(iTarget ) {
 
         var tDBG = iTarget.colorDistanceToBackground;
@@ -123,7 +120,12 @@ steb.predator = {
         if (typeof tDCrud !== 'undefined') {
             if (tDCrud < tColorDistance) tColorDistance = tDCrud;
         }
-        tColorDistance *= steb.model.predatorVisionDenominator;
+        //  tColorDistance is now the SMALLER of the distance to BG and to Crud
+
+        tColorDistance *= steb.model.predatorVisionDenominator; //  not clear if this is right.
+
+        //  now we convert that distance to a probability. It's a linear function based on
+        //  the two key values here. See steb.js for the definitions of these constants.
 
         var oProb = (tColorDistance - steb.constants.invisibilityDistance) * steb.constants.captureSlope;
 

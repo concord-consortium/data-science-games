@@ -25,20 +25,29 @@
 
  */
 
-
+/**
+ * Singleton controller class to manage UI machinery for Stebbers
+ *
+ * @type {{fixUI: steb.ui.fixUI, clickStebber: steb.ui.clickStebber, clickCrud: steb.ui.clickCrud, clickInWorld: steb.ui.clickInWorld, newGameButtonPressed: steb.ui.newGameButtonPressed, pauseButtonPressed: steb.ui.pauseButtonPressed, makeTimeOutPaper: steb.ui.makeTimeOutPaper, initialize: steb.ui.initialize}}
+ */
 steb.ui = {
 
     fixUI : function() {
         $("#shortStatus").html(steb.manager.playing ? "game in progress" : "no game");
-        this.startStopButton.style.backgroundImage = (steb.manager.running) ? "url('../art/pause.png')" : "url('../art/play.png')";
+        this.startStopButton.style.backgroundImage  //  machinery for the play/pause button
+            = (steb.manager.running)
+            ? "url('../art/pause.png')"
+            : "url('../art/play.png')";
 
+        //  correct title for new/abort game button
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
 
+        //  display ongoing score and time
         if (steb.model) {
             this.timeDisplay.text(Math.round(steb.model.elapsed));
             this.mealDisplay.text(Math.round(steb.model.meals));
 
-            var tDebugText = steb.model.stebbers.length + " stebbers, "
+            var tDebugText = steb.model.stebbers.length + " stebbers, " //  and debug info
                 + steb.worldView.stebberViews.length + " views, "
                 + steb.worldView.crudViews.length + " crud.";
 
@@ -50,35 +59,46 @@ steb.ui = {
         }
     },
 
+    /**
+     * Cope with a click on a Stebber
+     * This click handler is set up in the StebberView constructor
+     * @param iStebberView  the view that got clicked
+     * @param iEvent    the mouse event
+     */
     clickStebber : function( iStebberView, iEvent )    {
 
-        if(!steb.options.automatedPredator) {
-            var tPoint = steb.worldView.viewBoxCoordsFrom(iEvent);
+        if(!steb.options.automatedPredator) {       //  for now, only works if the predator is not automated
             steb.manager.eatStebberUsingView(iStebberView);
             steb.ui.fixUI();
         }
     },
 
+    /**
+     * Cope with a click on Crud. Much simpler!
+     * We go "on timeout" for a period of time as a punishment
+     * Only works (for now) if there is no automated predator
+     */
     clickCrud : function() {
         if(!steb.options.automatedPredator) {
 
-            steb.manager.onTimeout = true;
-            this.timeOutPaper.attr({
-                visibility: "visible"
-            });
+            steb.manager.onTimeout = true;  //  we go "on timeout"
 
-            steb.score.crud();
+            steb.score.crud();  //  update the score due to crud click
 
-            steb.worldView.paper.append(this.timeOutPaper);
+            steb.worldView.paper.append(this.timeOutPaper); //  make the time out message appear
 
             window.setTimeout(function () {
-                this.timeOutPaper.remove();
-                steb.manager.onTimeout = false;
-            }.bind(this), 2000);
+                this.timeOutPaper.remove();     //  remove from the DOM when we're done
+                steb.manager.onTimeout = false; //  and reset the flag
+            }.bind(this),
+                steb.constants.timeOutTime);    //  two seconds by default
 
         }
     },
 
+    /**
+     * User clicked in teh world but not on a Stebber or on Crud
+     */
     clickInWorld : function() {
         if(!steb.options.automatedPredator) {
             if (steb.manager.running) {
@@ -87,6 +107,9 @@ steb.ui = {
         }
     },
 
+    /**
+     * User asks for a new game
+     */
     newGameButtonPressed : function() {
         if (steb.manager.playing) {
             steb.manager.endGame("abort");
@@ -96,6 +119,9 @@ steb.ui = {
         this.fixUI();
     },
 
+    /**
+     * User presses pause
+     */
     pauseButtonPressed : function() {
         if (steb.manager.playing) {
             steb.manager.running ? steb.manager.pause() : steb.manager.restart();
@@ -103,7 +129,9 @@ steb.ui = {
         this.fixUI();
     },
 
-
+    /**
+     * Draw the "time out" message.
+     */
     makeTimeOutPaper : function() {
         var oPaper = Snap( steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize);
         oPaper.rect( 0, 0, steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize).attr({
@@ -116,20 +144,25 @@ steb.ui = {
             fontSize : 100
         });
         oPaper.attr({
-            visibility : "hidden"
+            visibility : "visible"
         })
         return oPaper;
     },
 
+    /**
+     * Initialize the UI.
+     */
     initialize : function() {
+        //  make members for many of the UI elements
         this.startStopButton = document.getElementById("startStop");
         this.newGameButton = $("#newGameButton");
         this.timeDisplay = $("#timeDisplay");
         this.mealDisplay = $("#mealDisplay");
         this.stebWorldViewElement = document.getElementById("stebSnapWorld");
-        this.timeOutPaper = this.makeTimeOutPaper();
+        this.timeOutPaper = this.makeTimeOutPaper().remove();
 
 
+        //  set up the sliders. This seems to be the way you do it in jquery-ui
 
         $("#redCoefficient").slider({
             range : false,
@@ -165,8 +198,7 @@ steb.ui = {
             step : 1
         });
 
-        steb.options.setPredatorVisionParameters();
-
+        steb.options.setPredatorVisionParameters();     //  this reads the values on the vision panel
 
     }
 }

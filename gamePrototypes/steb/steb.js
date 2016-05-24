@@ -87,28 +87,29 @@ steb.constants = {
     initialNumberOfStebbers : 12,   //  12,
     numberOfCruds : 20,          //  20
 
-    stebberColorMutationArray : [-2,-1,-1, 0, 0, 1, 1, 2],
-    stebberColorReducedMutationArray : [-1, -.5, -.5, 0,0,.5, .5, 1],
-    crudColorMutationArray : [-.8, -.4, -.1, 0,.1,.4,.8],
+    stebberColorMutationArray : [-2,-1,-1, 0, 0, 1, 1, 2],      //  how much Stebber children vary from their parents
+    stebberColorReducedMutationArray : [-1, -.5, -.5, 0,0,.5, .5, 1],   //  same if reduced mutation option selected
+    crudColorMutationArray : [-.8, -.4, -.1, 0,.1,.4,.8],   //  how mcuh Crud varies from its original mean
 
-    worldViewBoxSize : 1000.0,
+    worldViewBoxSize : 1000.0,  //  size of the coordinate system (viewBox)
 
     stebberViewSize : 100,       //  100,
     crudSize : 100,
-    crudSpeed : 90.0,
 
-    colorAnimationDuration : 1000,
+    colorAnimationDuration : 1000,  //  ms when the apparent color changes
 
-    baseCrudSpeed : 120.0,
-    baseStebberSpeed : 80.0,
+    baseCrudSpeed : 120.0,  //  pixels per second
+    baseStebberSpeed : 80.0,    //  pixels per second
     baseCrudAcceleration : 600.0,
     baseStebberAcceleration : 600.0,
 
-    predatorWaitTime : 0.2, //  0.5,
-    predatorLookTime : 0.1, //  0.4,
-    predatorStalkTime : 1.0,
+    predatorWaitTime : 0.2, //  0.5,    //  How long to wait after a meal before looking
+    predatorLookTime : 0.1, //  0.4,    //  How long it takes to evaluate (and maybe lose) potential prey
+    predatorStalkTime : 1.0,        //  how long you "stalk" prey before eating it.
 
     //  for computing probability of capture based on color distance
-    invisibilityDistance : 1.1,
-    certaintyDistance : 8.0,
+    invisibilityDistance : 1.1, //  color distance at which the probability of capture is zero.
+    certaintyDistance : 8.0,    //  color distance at which the probability of capture is 1.0
+
+    timeOutTime : 2000      //      ms to wait when you click on a Crud
 };

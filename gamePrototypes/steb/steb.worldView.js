@@ -25,25 +25,37 @@
 
  */
 
-
+/**
+ * Singleton: the large, main view
+ *
+ * @type {{paper: null, stebberViews: Array, crudViews: Array, backgroundRect: null, update: steb.worldView.update, newGame: steb.worldView.newGame, installStebberViewFor: steb.worldView.installStebberViewFor, removeStebberView: steb.worldView.removeStebberView, installCrudViewFor: steb.worldView.installCrudViewFor, viewBoxCoordsFrom: steb.worldView.viewBoxCoordsFrom, initialize: steb.worldView.initialize, updateDisplayWithCurrentVisionParameters: steb.worldView.updateDisplayWithCurrentVisionParameters, applyPredatorVisionToObject: steb.worldView.applyPredatorVisionToObject, makeBackground: steb.worldView.makeBackground, mutateBackgroundColor: steb.worldView.mutateBackgroundColor, setBackgroundColor: steb.worldView.setBackgroundColor}}
+ */
 steb.worldView = {
-    paper : null,
-    stebberViews : [],
-    crudViews : [],
-    backgroundRect : null,
+    paper : null,       //          its SVG paper
+    stebberViews : [],  //      array of views of the stebbers
+    crudViews : [],     //      array of views of the Crud
+    backgroundRect : null,  //  the background rectangle
 
+    /**
+     * Update this view.
+     * Do so by updating all the child views -- stebbers and crud
+     */
     update : function() {
         this.stebberViews.forEach( function(iSV) {
             iSV.update();
-        })
+        });
+
         this.crudViews.forEach( function(iCV) {
             iCV.update();
         })
     },
 
+    /**
+     * Start a new game.
+     */
     newGame : function() {
-        this.paper.clear();
-        this.makeBackground();
+        this.paper.clear();         //      remove all its children.
+        this.makeBackground();      //      make the background first
         this.stebberViews = [];
         this.crudViews = [];
 
@@ -60,47 +72,56 @@ steb.worldView = {
         });
     },
 
+    /**
+     * Make a single Stebber view.
+     * Called on new game, and any time you reproduce.
+     * @param iStebber  the (model) Stebber
+     */
     installStebberViewFor : function( iStebber ) {
         var tSV = new StebberView( iStebber );
         tSV.paper.insertAfter( this.backgroundRect);   //  put any new stebbers below any crud, just after bgRect
 
-        //  place the view where it actually is on the main paper
-        tSV.moveTo( iStebber.where );
+        tSV.moveTo( iStebber.where );   //  place the view where it actually is on the main paper
 
-        this.stebberViews.push( tSV );
+        this.stebberViews.push( tSV );  //  add thi snew view to the array
     },
 
+    /**
+     * Remove a Stebber view (because of being eaten)
+     * @param iStebberView
+     */
     removeStebberView : function( iStebberView )    {
-        iStebberView.paper.remove(  );
+        iStebberView.paper.remove(  );          //  remove it from the view hierarchy
         var tIndex = this.stebberViews.indexOf( iStebberView );
-        this.stebberViews.splice( tIndex, 1 );
+        this.stebberViews.splice( tIndex, 1 );      //  remove it from the array
     },
 
+    /**
+     * Make a new Crud view and install it.
+     * @param iCrud the model Crud
+     */
     installCrudViewFor : function( iCrud ) {
         tCrudView = new CrudView( iCrud );
-        this.paper.append( tCrudView.paper );     //  actually install the view
+        this.paper.append( tCrudView.paper );     //  actually install the view. Goes on top.
         this.crudViews.push( tCrudView );       //  store it in our extra array
     },
 
-    viewBoxCoordsFrom : function( iEvent ) {
-        var tPoint = steb.ui.stebWorldViewElement.createSVGPoint();
-        tPoint.x = iEvent.clientX;
-        tPoint.y = iEvent.clientY;
-        var CTM = steb.ui.stebWorldViewElement.getScreenCTM();  //iEvent.target.getScreenCTM();
-        if ( CTM = CTM.inverse() ) tPoint = tPoint.matrixTransform( CTM );
-
-        return tPoint;
-    },
-
+    /**
+     * Start up the view machinery
+     */
     initialize : function() {
-        this.paper = Snap(document.getElementById("stebSnapWorld"));
+        this.paper = Snap(document.getElementById("stebSnapWorld"));    //    create the underlying svg "paper"
+
+        //  now set this paper's "view box" By default "0 0 1000 1000"
         this.paper.attr({
             viewBox : "0 0 " + steb.constants.worldViewBoxSize + " " + steb.constants.worldViewBoxSize
         });
-
-        //  this.makeBackground();
     },
 
+    /**
+     * Vision parameters have been changed.
+     * So change the apparent colors of the background, stebbers, and crud.
+     */
     updateDisplayWithCurrentVisionParameters : function( )  {
         if (steb.manager.playing) {
             this.stebberViews.forEach(function (sv) {
@@ -113,8 +134,15 @@ steb.worldView = {
         }
     },
 
-    //  changing color
 
+    /**
+     * Change the apparent color of a miscellaneous object.
+     * Called by StebberView, CrudView, etc.
+     * TO make it look cool, we animate the color change.
+     * @param iThing    whose color we're changing
+     * @param iTrueColor    the original, true color of the object
+     * @param iTime     Optional: how long it takes to animate the color. We use 0 for new objects (e.g., newborn Stebbers).
+     */
     applyPredatorVisionToObject : function(iThing, iTrueColor, iTime) {
 
         if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
@@ -126,16 +154,21 @@ steb.worldView = {
 
     //          BACKGROUND
 
+    /**
+     * Create the background
+     */
     makeBackground : function() {
         this.backgroundRect = this.paper.rect(
             0, 0,
-            steb.constants.worldViewBoxSize,
+            steb.constants.worldViewBoxSize,        //  full size. Cover the world view.
             steb.constants.worldViewBoxSize);
-        this.setBackgroundColor();
+        this.setBackgroundColor();      //  and give it a color
 
     },
 
-
+    /**
+     * Change the background color on demand. This is really for debugging.
+     */
     mutateBackgroundColor : function() {
         steb.model.trueBackgroundColor = steb.model.mutateColor( steb.model.trueBackgroundColor, [-2, -1, 0, 1, 2]);
         this.setBackgroundColor();
@@ -144,7 +177,6 @@ steb.worldView = {
     /**
      * Make and apply the background color string,
      * taking the predator's visual filter into effect
-     *
      */
     setBackgroundColor : function() {
         steb.worldView.applyPredatorVisionToObject( this.backgroundRect, steb.model.trueBackgroundColor);

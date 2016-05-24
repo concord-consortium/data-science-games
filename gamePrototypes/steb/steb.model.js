@@ -54,17 +54,19 @@ steb.model = {
      * Perform reproduction in the Stebber set
      */
     reproduce : function()   {
+        var tParent = null;
+        var tChild = null;
         if (steb.options.delayReproduction) {
             if (this.meals % 5 == 0) {
                 for (var i = 0; i < 5; i++) {
-                    var tParent  = this.findParent();
-                    var tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
+                    tParent  = this.findParent();
+                    tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
                     steb.manager.addViewForChildStebber( tChild )
                 }
             }
         } else {
-            var tParent = this.findParent();
-            var tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
+            tParent = this.findParent();
+            tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
             steb.manager.addViewForChildStebber( tChild )
         }
     },
@@ -91,7 +93,7 @@ steb.model = {
         this.elapsed += idt;
         this.stebbers.forEach( function(iStebber) {
             iStebber.update(idt);
-        })
+        });
         this.crud.forEach( function(iCrud) {
             iCrud.update(idt);
         })
@@ -115,20 +117,23 @@ steb.model = {
         this.meanCrudColor = this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
 
         //  create a new set of Stebbers.
-        for (var i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
+        var i = 0;
+        for (i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
             this.addNewStebberBasedOn( null );
         }
 
         //  create a new set of Crud.
-        for (var i = 0; i < steb.constants.numberOfCruds; i++) {
+        for (i = 0; i < steb.constants.numberOfCruds; i++) {
             this.crud.push( new Crud() );
         }
     },
 
+    /**
+     * Come up with a suitable color for the background.
+     * @returns {*}
+     */
     inventBackgroundColor : function() {
         var oColor = null;
-        //  oColor = this.randomColor( [3,4,5,6,7,8,9,10,11,12] );
-
         var tColor = "hsb(" + Math.random() + ", 0.5, 0.7)";
         var tRGB = Snap.getRGB(tColor);
         var tNorm = 15/255;
@@ -148,9 +153,10 @@ steb.model = {
      * Add a new Stebber to the model.
      * Called from newGame() AND from reproduce()
      *
-     * Note: if you pass in null (as this.newGame() does) this adds a Stebber with random properties
+     * Note: if you pass in null (as this.newGame() does) this adds a Stebber with random properties.
+     * Suitable for the beginning of the game.
      *
-     * @param iParentStebber    the parent Stebber (therefore the one on which the new Stebber is based.)
+     * @param iParentStebber    the (optional) parent Stebber (therefore the one on which the new Stebber is based.)
      * @returns {Stebber}
      */
     addNewStebberBasedOn : function( iParentStebber ) {
@@ -165,13 +171,13 @@ steb.model = {
             tColor = this.mutateColor( iParentStebber.color, tMute );
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
-        } else {
+        } else {    //  beginning of the game, no parent
             tColor = this.randomColor( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
             tWhere = this.randomPlace();
         }
 
         var tChildStebber = new Stebber( tColor, tWhere, this.lastStebberNumber );
-        tChildStebber.setNewSpeedAndHeading();
+        tChildStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
         this.stebbers.push( tChildStebber );            //  we keep the model Stebber in our array
 
         return tChildStebber;
@@ -179,19 +185,19 @@ steb.model = {
 
 
 
-/**
+    /**
      * Find the  Stebber in question and eliminate it.
      * @param iStebber  the Stebber to be axed
      */
     removeStebber : function( iStebber ) {
         this.meals += 1;
-        var tKilledColor = steb.makeColorString( iStebber.color );
+        var tKilledColor = steb.makeColorString( iStebber.color );  //  todo: use in future dataset
         var tIndex = this.stebbers.indexOf( iStebber );
         this.stebbers.splice( tIndex, 1 );
     },
 
     /**
-     * Predation at the point, all Stebbers run away from it.
+     * Predation at the point, all Stebbers and Crud run away from it.
      * @param iPoint    the (local) point where predation occurred
      */
     frightenStebbersFrom : function( iPoint ) {
@@ -201,7 +207,6 @@ steb.model = {
         this.crud.forEach( function(iCrud) {
             iCrud.runFrom( iPoint );
         })
-
     },
 
 
@@ -239,7 +244,7 @@ steb.model = {
         var oArray = [];
 
         for (var i = 0; i < 3; i++) {
-            var tRan = TEEUtils.pickRandomItemFrom( iColors ); //  not too light or dark
+            var tRan = TEEUtils.pickRandomItemFrom( iColors );
             oArray.push( tRan );
         }
         return oArray;
@@ -267,6 +272,10 @@ steb.model = {
         return oColor;
     },
 
+    /**
+     * Text debugging information about all the Stebbers.
+     * @returns {string}
+     */
     stebberColorReport : function() {
         var     tout = "bg: " + JSON.stringify(steb.model.trueBackgroundColor) +
             " crud: " + JSON.stringify(steb.model.meanCrudColor) + "<br>";
@@ -286,6 +295,11 @@ steb.model = {
         return tout;
     },
 
+    /**
+     * How far is the Stebber from the background in color distance?
+     * @param iTarget   the target, ordinarily a Stebber
+     * @returns {*}
+     */
     colorDistanceToBackgroundForPredator : function( iTarget ) {
         var tDistance = steb.model.colorDistance(
             steb.model.getPredatorVisionColor(steb.model.trueBackgroundColor),
@@ -294,6 +308,11 @@ steb.model = {
         return tDistance;
     },
 
+    /**
+     * How far is the target from the (mean) Crud in color distance?
+     * @param iTarget   the target, ordinarily a Stebber
+     * @returns {*}
+     */
     colorDistanceToCrudForPredator : function( iTarget ) {
         var tDistance = steb.model.colorDistance(
             steb.model.getPredatorVisionColor(steb.model.meanCrudColor),
@@ -304,15 +323,19 @@ steb.model = {
 
     //      Predator Vision Section
 
-    predatorVisionColorVector : [1, 0, 0],
-    predatorVisionBWCoefficientVector : [1, 1, 1],
-    predatorVisionDenominator : 1,
+    /**
+     * Initial values for the predator vision parameters.
+     */
+    predatorVisionColorVector : [1, 0, 0],          //  for the "dot product" scheme. [r, g, b] This is all red.
+    predatorVisionBWCoefficientVector : [1, 1, 1],  //  for the "coefficient" scheme. [r, g, b]. This is straight gray from all three color channels.
+    predatorVisionDenominator : 1,                  //  this gets calculated when needed, but 1 is a good default placeholder.
 
     /**
-     * Find the color of an object as seen by the predator
+     * Find the color of an object as seen by the predator.
+     * Determines which scheme we're using and applies it.
      *
      * @param iColor    actual color of the object
-     * @returns {*}
+     * @returns {*}     apparent color of the object
      */
     getPredatorVisionColor: function (iColor) {
 
@@ -328,12 +351,11 @@ steb.model = {
                 ];
                 this.predatorVisionDenominator = tDotProduct[0] + tDotProduct[1] + tDotProduct[2];
             }
-            else        //  using the BW vector
+            else        //  using the BW vector coefficients
             {
                 tResult = steb.model.convertToGrayUsingRGBFormula(iColor);
             }
         }
-
 
         //  pin the results into [0, 15]
 
@@ -343,10 +365,17 @@ steb.model = {
     },
 
     /**
-     * Apply the formula (this.predatorVisionBWFormula) to the input color to get the color that the predator sees
+     * Apply the coefficients to the input color to get the (grayscale) color that the predator sees
      * Called by this.getPredatorVisionColor
+     *
+     * The algorithm: Add up the absolute values of the coeffs to get a denominator. (tDenom)
+     * At the same time, multiply the coefficient by either...
+     * ...the color value, if the coefficent is positive, or
+     * ...(the color value - 15) if it's negative. This will give a positive number in (coeff is < 0)
+     * Add those up, and divide the total by tDenom, resulting in a number between 0 and 15.
+     *
      * @param iColor        input color
-     * @returns {Array}
+     * @returns {Array}     the seen color
      */
     convertToGrayUsingRGBFormula : function(iColor ) {
 
@@ -372,6 +401,13 @@ steb.model = {
         return tResult;
     },
 
+    /**
+     * the color distance. For now, it's just Euclidean in straight RGB color space.
+     * No luminance adjustments or anything like that.
+     * @param iColor1
+     * @param iColor2
+     * @returns {number}
+     */
     colorDistance : function( iColor1, iColor2 ) {
         var tD2 = (iColor1[0] - iColor2[0]) * (iColor1[0] - iColor2[0]) +
             (iColor1[1] - iColor2[1]) * (iColor1[1] - iColor2[1]) +

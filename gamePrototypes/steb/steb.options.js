@@ -42,11 +42,19 @@ steb.options = {
     greenCoefficient : 1,
     blueCoefficient : 1,
 
+    /**
+     * User changed the vision params on the panel.
+     * Therefore find out what those chnages were,
+     * and make the world reflect them!
+     */
     predatorVisionChange : function() {
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
     },
 
+    /**
+     * Set the underlying predator vision params based on the settings in the vision panel.
+     */
     setPredatorVisionParameters : function() {
         this.useVisionParameters = document.getElementById("visionUseParameters").checked;
         if (!this.useVisionParameters ) steb.model.predatorVisionDenominator = 1;   //  avoids nasty zero divide :)
@@ -86,8 +94,4 @@ steb.options = {
 
         steb.ui.fixUI();
     },
-
-
-
-
 }

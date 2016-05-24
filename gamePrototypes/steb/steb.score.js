@@ -25,7 +25,10 @@
 
  */
 
-
+/**
+ * Singleton with many small methods for updateing the score
+ * @type {{evolutionPoints: null, pointsPerCrud: number, pointsPerMeal: number, pointsPerMiss: number, pointsPerSecond: number, startingPoints: number, predatorEnergy: null, startingPredatorEnergy: number, energyPerMeal: number, energyPerLoss: number, energyPerVisionChange: number, winningScore: number, newGame: steb.score.newGame, meal: steb.score.meal, loss: steb.score.loss, crud: steb.score.crud, clickInWorld: steb.score.clickInWorld, checkEnd: steb.score.checkEnd}}
+ */
 steb.score = {
 
     evolutionPoints : null,
@@ -48,27 +51,42 @@ steb.score = {
         this.predatorEnergy = this.startingPredatorEnergy;
     },
 
+    /**
+     * Stebber gets eaten. Yum!
+     */
     meal : function() {
         this.evolutionPoints += this.pointsPerMeal - this.pointsPerMiss;
         this.predatorEnergy += this.energyPerMeal;
         this.checkEnd();
     },
 
+    /**
+     * Lost lock on a Stebber
+     */
     loss : function() {
         this.predatorEnergy += this.energyPerLoss;
         this.checkEnd();
     },
 
+    /**
+     * user clicks on Crud
+     */
     crud : function() {
         this.evolutionPoints += this.pointsPerCrud - this.pointsPerMiss;
         this.checkEnd();
     },
 
+    /**
+     * User clicks but misses everything
+     */
     clickInWorld : function() {
         this.evolutionPoints += this.pointsPerMiss;
         this.checkEnd();
     },
 
+    /**
+     * Check to see if the game is over after we updated the score
+     */
     checkEnd : function( )  {
         var tScore = steb.options.automatedPredator ? steb.score.predatorEnergy : steb.score.evolutionPoints;
 

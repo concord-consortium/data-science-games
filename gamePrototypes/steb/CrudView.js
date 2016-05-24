@@ -27,12 +27,11 @@
 
 /**
  * Model class. Its view is CrudView (below)
- * @param iCrudColor
  * @constructor
  */
 var Crud = function(  ) {
     this.where = steb.model.randomPlace();
-    this.speed = steb.constants.crudSpeed;
+    this.speed = steb.constants.baseCrudSpeed;
 
     this.trueColor = steb.model.mutateColor(
         steb.model.meanCrudColor,
@@ -41,6 +40,10 @@ var Crud = function(  ) {
     this.setNewSpeedAndHeading();
 };
 
+/**
+ * Give this Crud new speed and heading.
+ * Reset this.timeToChange.
+ */
 Crud.prototype.setNewSpeedAndHeading = function() {
     this.heading = Math.PI*2 * Math.random();
     this.speed = steb.constants.baseCrudSpeed;
@@ -48,6 +51,11 @@ Crud.prototype.setNewSpeedAndHeading = function() {
     this.timeToChange = 1 + Math.random() * 2;
 };
 
+/**
+ * Update position and velocity;
+ * also decrement the this.timeToChange timer.
+ * @param idt
+ */
 Crud.prototype.update = function( idt ) {
 
     if (this.speed > steb.constants.baseCrudSpeed) {
@@ -65,9 +73,14 @@ Crud.prototype.update = function( idt ) {
 
     this.timeToChange -= idt;
 
-    if (this.timeToChange < 0) this.setNewSpeedAndHeading();
+    if (this.timeToChange < 0) this.setNewSpeedAndHeading();    //  after this time, new speed
 };
 
+/**
+ * Crud flows away from the given point
+ * (the location of a meal)
+ * @param iPoint
+ */
 Crud.prototype.runFrom = function( iPoint ) {
     if (steb.options.flee) {
         var dx = this.where.x - iPoint.x;
@@ -86,28 +99,30 @@ Crud.prototype.runFrom = function( iPoint ) {
  * ----------------------------------------------------------------------------
  * View class for the Crud
  *
- * @param iCrudColor
+ * @param iCrud    the model Crud we're viewing.
  * @constructor
  */
 var CrudView = function( iCrud ) {
 
-    this.crud = iCrud;
-    this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);
+    this.crud = iCrud;      //  its model
+    this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);   //  the SVG "paper"
     var tRadius = steb.constants.crudSize / 2;
     var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
 
-    this.paper.attr({
+    this.paper.attr({       //  the overall data for this view
         viewBox : tVBText,
-        class : "CrudView",
+        class : "CrudView",     //  so we can select it with a DOM selector
         x : this.crud.where.x,
         y : this.crud.where.y
     });
 
-    this.selectionShape = this.paper.rect( -tRadius, -tRadius,
+    this.selectionShape = this.paper.rect(          //  the round-cornered visible shape
+        -tRadius, -tRadius,
         steb.constants.crudSize, steb.constants.crudSize,
-        steb.constants.crudSize * 0.4);
+        steb.constants.crudSize * 0.4               //  the radius of the corners.
+    );
 
-    this.setMyColor();      //  apply predator vision
+    this.setMyColor();      //  apply predator vision. See function below.
 
     //  set up the click handler
 
@@ -117,21 +132,31 @@ var CrudView = function( iCrud ) {
 
 };
 
+/**
+ * To update this view, simply move to the location.
+ */
 CrudView.prototype.update = function() {
     this.moveTo( this.crud.where );
 };
 
+/**
+ *  Called above.
+ */
 CrudView.prototype.setMyColor = function() {
     steb.worldView.applyPredatorVisionToObject( this.paper, this.crud.trueColor);
 };
 
+/**
+ * Actually move the Crud to the new location
+ * @param iWhere
+ */
 CrudView.prototype.moveTo = function( iWhere ) {
     this.paper.attr({
         x : iWhere.x - steb.constants.stebberViewSize/2,
         y : iWhere.y - steb.constants.stebberViewSize/2
     });
 
-}
+};
 
 
 
