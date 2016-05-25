@@ -25,7 +25,27 @@
 
  */
 
+/* global colorPlay, $ */
+
 colorPlay.manager = {
+
+    inSession : false,
+
+    doSession : function() {
+        this.inSession = !this.inSession;
+
+        //  create new session
+        if (this.inSession) {
+          colorPlay.connect.startSessionCase();
+            colorPlay.manager.setNewMatchTarget();
+        } else {
+
+            //  close existing session
+
+            colorPlay.connect.finishSessionCase();
+        }
+        colorPlay.ui.fixUI();
+    },
 
     setNewMatchTarget : function() {
         colorPlay.model.matchTargetColor = {
@@ -40,8 +60,14 @@ colorPlay.manager = {
 
     checkColorMatch : function() {
         $("#matchResults").text(colorPlay.ui.colorCompareMessage( colorPlay.model.matchTargetColor, colorPlay.model.matchTryColor));
+
+        colorPlay.connect.doGuessRecord( colorPlay.model.dataValues());     //  output guesses
+    },
+
+    doCommand : function() {
+
     }
-}
+};
 
 colorPlay.model = {
     playColor : null,
@@ -64,5 +90,16 @@ colorPlay.model = {
             green : 128,
             blue : 128
         };
+    },
+
+    dataValues : function() {
+        return [
+            this.matchTargetColor.red,
+            this.matchTargetColor.green,
+            this.matchTargetColor.blue,
+            this.matchTryColor.red,
+            this.matchTryColor.green,
+            this.matchTryColor.blue
+        ];
     }
-}
+};

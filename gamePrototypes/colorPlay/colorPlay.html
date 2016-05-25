@@ -59,9 +59,11 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="colorPlay.js" language="JavaScript"></script>
     <script src="colorPlay.manager.js" language="JavaScript"></script>
     <script src="colorPlay.ui.js" language="JavaScript"></script>
+    <script src="colorPlay.connect.js" language="JavaScript"></script>
 
     <script>
         $(function() {
+            colorPlay.initialize();
             $( "#tabs" ).tabs();
         });
     </script>
@@ -106,13 +108,16 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
     <div id="colorMatch">
         <div id="matchResults"></div>
-        <svg width="200" height="200" >
-            <rect width="200" height="100" fill="white"></rect>
-            <rect width="200" height="100" x="0" y="100" fill="black"></rect>
-            <rect width="50" height="100" x="40" y="50" fill="goldenrod" id="colorMatchTarget"></rect>
-            <rect width="50" height="100" x="110" y="50" fill="blue" id="colorMatchTry"></rect>
-        </svg>
-        <fieldset>
+        <div class="hBox">
+            <svg width="200" height="200" >
+                <rect width="200" height="100" fill="white"></rect>
+                <rect width="200" height="100" x="0" y="100" fill="black"></rect>
+                <rect width="50" height="100" x="40" y="50" fill="goldenrod" id="colorMatchTarget"></rect>
+                <rect width="50" height="100" x="110" y="50" fill="blue" id="colorMatchTry"></rect>
+            </svg>
+            <button id="sessionButton" onclick="colorPlay.manager.doSession()" style="height: 2em;">start session</button>
+        </div>
+        <fieldset id="matchControls">
             <legend> Color components</legend>
             <br>
             <div id="redMatchSlider" ></div>
@@ -121,10 +126,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <div id="greenTryValue" class="sliderLabel"></div><br><br>    <!--    the green slider -->
             <div id="blueMatchSlider"></div>
             <div id="blueTryValue" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
-        </fieldset>
-
         <button id="checkMatchButton" onclick="colorPlay.manager.checkColorMatch()">check match</button>
         <button id="newMatchButton" onclick="colorPlay.manager.setNewMatchTarget()">new color</button>
+        </fieldset>
+
 
     </div>
 
@@ -151,9 +156,5 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 </div>
 
 </body>
-
-<script language="JavaScript">
-    colorPlay.initialize();
-</script>
 
 </html>

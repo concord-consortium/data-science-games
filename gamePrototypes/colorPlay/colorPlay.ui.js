@@ -25,8 +25,15 @@
 
  */
 
+/* global colorPlay, $, Snap */
+
 
 colorPlay.ui = {
+
+    fixUI : function() {
+        $("#sessionButton").text( colorPlay.manager.inSession ? "end session" : "new session");
+        $("#matchControls").css("visibility" , colorPlay.manager.inSession ? "visible" : "hidden");
+    },
 
     update : function() {
         var tMatchColor = Snap.rgb(
@@ -65,6 +72,7 @@ colorPlay.ui = {
             fill : tMatchTargetColor
         });
 
+        this.fixUI();
     },
 
     initialize : function() {

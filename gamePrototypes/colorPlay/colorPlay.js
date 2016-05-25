@@ -33,5 +33,9 @@ colorPlay = {
         colorPlay.model.initialize();
         colorPlay.ui.initialize();
         colorPlay.ui.update();
+    },
+
+    constants : {
+        version : "001a"
     }
 }
