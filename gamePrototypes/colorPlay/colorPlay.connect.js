@@ -138,7 +138,8 @@ colorPlay.connect = {
                         {name: "blue", type: 'numeric', precision : 0, description : 'true blue color'},
                         {name: "red_G", type: 'numeric', precision : 0, description : 'guess red color'},
                         {name: "green_G", type: 'numeric', precision : 0, description : 'guess green color'},
-                        {name: "blue_G", type: 'numeric', precision : 0, description : 'guess blue color'}
+                        {name: "blue_G", type: 'numeric', precision : 0, description : 'guess blue color'},
+                        {name: "dRed", type: 'numeric', precision: 0, formula : "red_G - red", editable : true,  description : 'error in red'}
                     ],
                     childAttrName: "guess"
                 },

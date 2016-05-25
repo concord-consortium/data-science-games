@@ -99,7 +99,8 @@ colorPlay.model = {
             this.matchTargetColor.blue,
             this.matchTryColor.red,
             this.matchTryColor.green,
-            this.matchTryColor.blue
+            this.matchTryColor.blue,
+            null
         ];
     }
 };
