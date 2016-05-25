@@ -25,6 +25,8 @@
 
  */
 
+/* global steb, Snap, StebberView, CrudView  */
+
 /**
  * Singleton: the large, main view
  *
@@ -35,6 +37,7 @@ steb.worldView = {
     stebberViews : [],  //      array of views of the stebbers
     crudViews : [],     //      array of views of the Crud
     backgroundRect : null,  //  the background rectangle
+    selectedStrokeColor : "white",   //  color for the stroke of selected Stebbers
 
     /**
      * Update this view.
@@ -47,7 +50,7 @@ steb.worldView = {
 
         this.crudViews.forEach( function(iCV) {
             iCV.update();
-        })
+        });
     },
 
     /**
@@ -101,7 +104,7 @@ steb.worldView = {
      * @param iCrud the model Crud
      */
     installCrudViewFor : function( iCrud ) {
-        tCrudView = new CrudView( iCrud );
+        var tCrudView = new CrudView( iCrud );
         this.paper.append( tCrudView.paper );     //  actually install the view. Goes on top.
         this.crudViews.push( tCrudView );       //  store it in our extra array
     },
@@ -182,4 +185,4 @@ steb.worldView = {
         steb.worldView.applyPredatorVisionToObject( this.backgroundRect, steb.model.trueBackgroundColor);
     }
 
-}
+};

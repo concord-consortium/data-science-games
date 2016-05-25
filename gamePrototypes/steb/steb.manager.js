@@ -25,6 +25,8 @@
 
  */
 
+/* global steb, Snap, console, TEEUtils */
+
 /**
  * This is the main manager (singleton) controller for Stebbins
  *
@@ -50,11 +52,13 @@ steb.manager = {
      * @param timestamp
      */
     animate: function (timestamp) {
-        if (!steb.manager.previous)  steb.manager.previous = timestamp;
+        if (!steb.manager.previous) { steb.manager.previous = timestamp; }
         var tDt = (timestamp - steb.manager.previous) / 1000.0;
         steb.manager.previous = timestamp;
         steb.manager.update(tDt);
-        if (steb.manager.running) window.requestAnimationFrame(steb.manager.animate);
+        if (steb.manager.running) {
+            window.requestAnimationFrame(steb.manager.animate);
+        }
     },
 
     /**
@@ -64,7 +68,7 @@ steb.manager = {
     update : function ( idt ) {
         steb.model.update( idt );
         steb.worldView.update();
-        if (steb.options.automatedPredator) steb.predator.update( idt );
+        if (steb.options.automatedPredator) { steb.predator.update( idt ); }
         steb.ui.fixUI();
     },
 
@@ -109,23 +113,27 @@ steb.manager = {
      */
     endGame : function( iReason ) {
 
+        var uri;
+
         switch( iReason ) {
             case "abort" :
-                var uri = "art/StebAbort.png";
+                uri = "art/StebAbort.png";
                 break;
 
             case "win" :
-                var uri = "art/StebWin.png";
+                uri = "art/StebWin.png";
                 break;
 
             case "loss":
-                var uri = "art/StebLoss.png";
+                uri = "art/StebLoss.png";
                 break;
 
             default:
 
         }
-        if ( uri ) steb.worldView.paper.image( uri, 200, 200, 600, 600 );
+        if ( uri ) {
+            steb.worldView.paper.image( uri, 200, 200, 600, 600 );
+        }
 
         this.playing = false;
         this.running = false;
@@ -136,6 +144,12 @@ steb.manager = {
             JSON.stringify(steb.model.meanCrudColor),
             iReason
         );
+    },
+
+    selectStebberByID : function(id) {
+        steb.model.stebbers.forEach( function(s) {
+            s.selected = (s.id === id) ;
+        });
     },
 
     /**
@@ -149,7 +163,9 @@ steb.manager = {
             steb.worldView.removeStebberView(iStebberView);     //  remove its view
             steb.model.reproduce();     //      reproduce (from the remaining stebbers)
             steb.score.meal();      //  before emitting data
-            if (steb.model.meals % 10 == 0) steb.manager.emitPopulationData();  //  every 10 meals.
+            if (steb.model.meals % 10 === 0) {
+                steb.manager.emitPopulationData();
+            }  //  every 10 meals.
             steb.model.frightenStebbersFrom( iStebberView.stebber.where );
         }
     },
@@ -200,7 +216,7 @@ steb.manager = {
      * @returns {*}
      */
     findRandomStebberView : function() {
-        return TEEUtils.pickRandomItemFrom( steb.worldView.stebberViews )
+        return TEEUtils.pickRandomItemFrom( steb.worldView.stebberViews );
     },
 
     /**
@@ -211,8 +227,8 @@ steb.manager = {
      */
     activateTargetReticuleOn : function( iStebberView, iSet ) {
         iStebberView.targetReticule.attr({
-            stroke : iSet ? "Red" : "transparent"
-        })
+            stroke : iSet ? "red" : "transparent"
+        });
     },
 
     /**
@@ -221,4 +237,4 @@ steb.manager = {
     stebDoCommand : function() {
 
     }
-}
+};

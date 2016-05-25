@@ -21,9 +21,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==========================================================================
-
-
  */
+
+/* global steb */
 
 /**
  * Singleton embodying the automated predator's behavior
@@ -44,7 +44,7 @@ steb.predator = {
     newGame : function() {
         this.waitTime = steb.constants.predatorWaitTime;
         this.targetView = null;
-        state : "waiting";
+        this.state = "waiting";
     },
 
     /**
@@ -67,12 +67,12 @@ steb.predator = {
                     var tCaptureProbability = this.targetProbability(this.targetView.stebber);  //  find probablility
 
                     if (tCaptureProbability > Math.random()) {      //  beat the probability. We will eat it (in a bit)
-                        console.log( "Gonna eat " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
+                        //  console.log( "Gonna eat " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
                         steb.manager.activateTargetReticuleOn(this.targetView, true);   //  turn on the red box
                         this.state = "stalking";
                         this.waitTime = steb.constants.predatorStalkTime;
                     } else {
-                        console.log( "Pass on   " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
+                        //  console.log( "Pass on   " + this.targetView.stebber + ". Prob = " + tCaptureProbability.toFixed(3));
                         this.releaseTarget();   //  give up on this Stebber
                         steb.score.loss();      //  lose points
                         this.waitTime = steb.constants.predatorLookTime;    //  reset the clock
@@ -118,7 +118,7 @@ steb.predator = {
 
         var tColorDistance = tDBG;
         if (typeof tDCrud !== 'undefined') {
-            if (tDCrud < tColorDistance) tColorDistance = tDCrud;
+            if (tDCrud < tColorDistance) {tColorDistance = tDCrud;}
         }
         //  tColorDistance is now the SMALLER of the distance to BG and to Crud
 
@@ -132,4 +132,4 @@ steb.predator = {
         return oProb;
     }
 
-}
+};

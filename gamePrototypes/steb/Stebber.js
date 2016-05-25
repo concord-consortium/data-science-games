@@ -21,9 +21,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==========================================================================
-
-
  */
+
+/* global steb, Snap */
 
 /**
  * Class for Stebbers (model)
@@ -37,6 +37,7 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.color = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
+    this.selected = false;
 
     this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
     this.updateColorDistances();    //  todo: do we need this? The view doesn't exist yet, right?
@@ -98,7 +99,7 @@ Stebber.prototype.update = function( idt ) {
     this.timeToChange -= idt;
 
     // see if we need to change direction
-    if (this.timeToChange < 0) this.setNewSpeedAndHeading();    //  this resets this.timeToChange
+    if (this.timeToChange < 0) { this.setNewSpeedAndHeading(); }   //  this resets this.timeToChange
 
 };
 
@@ -129,7 +130,7 @@ Stebber.prototype.runFrom = function( iPoint ) {
 Stebber.prototype.dataValues = function() {
 
     var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
-    var oValues = [
+    return [
         this.color[0],
         this.color[1],
         this.color[2],
@@ -138,8 +139,6 @@ Stebber.prototype.dataValues = function() {
         tSnapColorRecord.v,
         this.id
     ];
-
-    return oValues;
 };
 
 /**
@@ -150,5 +149,5 @@ Stebber.prototype.toString = function() {
     var o = "stebber id " + this.id;
     o += " color : " + JSON.stringify( this.color );
     return o;
-}
+};
 

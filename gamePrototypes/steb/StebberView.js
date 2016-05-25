@@ -22,8 +22,9 @@
  limitations under the License.
  ==========================================================================
 
-
  */
+
+/* global steb, Snap */
 
 /**
  * Class for Stebber Views
@@ -57,7 +58,8 @@ var StebberView = function( iStebber ) {
     //  draw the stebber on top.
 
     this.selectionCircle = this.paper.circle(0, 0, tRadius).attr({
-        stroke : null
+        strokeWidth : 10,
+        stroke : "transparent"
     });
 
     //  the fill color depends on how the predator sees. Set in this method:
@@ -66,7 +68,7 @@ var StebberView = function( iStebber ) {
     //  set up the click handler
 
     this.selectionCircle.click(function( iEvent ) {
-        steb.ui.clickStebber( this, iEvent )
+        steb.ui.clickStebber( this, iEvent );
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
 
 };
@@ -84,6 +86,13 @@ StebberView.prototype.setMyColor = function() {
  */
 StebberView.prototype.update = function() {
     this.moveTo( this.stebber.where );
+
+    //  set the circle's stroke according to the selected property
+
+    var tStroke = this.stebber.selected ? steb.worldView.selectedStrokeColor : "transparent";
+    this.selectionCircle.attr({
+       stroke : tStroke
+    });
 };
 
 /**

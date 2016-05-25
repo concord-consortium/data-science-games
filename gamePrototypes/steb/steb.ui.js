@@ -25,6 +25,8 @@
 
  */
 
+/* global steb, Snap, TEEUtils, console, $ */
+
 /**
  * Singleton controller class to manage UI machinery for Stebbers
  *
@@ -34,10 +36,10 @@ steb.ui = {
 
     fixUI : function() {
         $("#shortStatus").html(steb.manager.playing ? "game in progress" : "no game");
-        this.startStopButton.style.backgroundImage  //  machinery for the play/pause button
-            = (steb.manager.running)
-            ? "url('../art/pause.png')"
-            : "url('../art/play.png')";
+        this.startStopButton.style.backgroundImage  = //  machinery for the play/pause button
+            (steb.manager.running) ?
+                "url('../art/pause.png')" :
+                "url('../art/play.png')";
 
         //  correct title for new/abort game button
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
@@ -47,9 +49,9 @@ steb.ui = {
             this.timeDisplay.text(Math.round(steb.model.elapsed));
             this.mealDisplay.text(Math.round(steb.model.meals));
 
-            var tDebugText = steb.model.stebbers.length + " stebbers, " //  and debug info
-                + steb.worldView.stebberViews.length + " views, "
-                + steb.worldView.crudViews.length + " crud.";
+            var tDebugText = steb.model.stebbers.length + " stebbers, " + //  and debug info
+                steb.worldView.stebberViews.length + " views, " +
+                steb.worldView.crudViews.length + " crud.";
 
             tDebugText = steb.model.stebberColorReport();
 
@@ -71,6 +73,11 @@ steb.ui = {
             steb.manager.eatStebberUsingView(iStebberView);
             steb.ui.fixUI();
         }
+    },
+
+    selectOldestStebber : function() {
+        var tID = steb.model.stebbers[0].id;
+        steb.manager.selectStebberByID( tID );
     },
 
     /**
@@ -123,9 +130,8 @@ steb.ui = {
      * User presses pause
      */
     pauseButtonPressed : function() {
-        if (steb.manager.playing) {
-            steb.manager.running ? steb.manager.pause() : steb.manager.restart();
-        }
+        if (steb.manager.playing && steb.manager.running) { steb.manager.pause();
+        } else {steb.manager.restart( );}
         this.fixUI();
     },
 
@@ -145,7 +151,7 @@ steb.ui = {
         });
         oPaper.attr({
             visibility : "visible"
-        })
+        });
         return oPaper;
     },
 
@@ -201,4 +207,4 @@ steb.ui = {
         steb.options.setPredatorVisionParameters();     //  this reads the values on the vision panel
 
     }
-}
+};

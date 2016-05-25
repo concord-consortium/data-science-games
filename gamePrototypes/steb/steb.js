@@ -25,6 +25,7 @@
 
  */
 
+/* global Snap */
 
 var steb = {};  //  the "upper level" central global. It holds steb.manager, steb.constants, etc.
 
@@ -33,7 +34,8 @@ var steb = {};  //  the "upper level" central global. It holds steb.manager, ste
  */
 steb.initialize = function() {
 
-    this.constants.captureSlope = 1.0 / (this.constants.certaintyDistance - this.constants.invisibilityDistance);
+    this.constants.captureSlope =       //  compute the slope for the capture probability function
+        1.0 / (this.constants.certaintyDistance - this.constants.invisibilityDistance);
     this.ui.initialize();
     this.worldView.initialize();
 };
@@ -58,8 +60,8 @@ steb.makeColorString = function(iColor ) {
  * @returns {*} the wrapped value
  */
 steb.rangeWrap = function( val, lo, hi )    {
-    if (val < lo) val = hi;
-    if (val > hi) val = lo;
+    if (val < lo) {val = hi;}
+    if (val > hi) {val = lo;}
     return val;
 };
 
@@ -72,8 +74,8 @@ steb.rangeWrap = function( val, lo, hi )    {
  */
 
 steb.rangePin = function( val, lo, hi )    {
-    if (val < lo) val = lo;
-    if (val > hi) val = hi;
+    if (val < lo) {val = lo;}
+    if (val > hi) {val = hi;}
     return val;
 };
 
@@ -88,8 +90,8 @@ steb.constants = {
     numberOfCruds : 20,          //  20
 
     stebberColorMutationArray : [-2,-1,-1, 0, 0, 1, 1, 2],      //  how much Stebber children vary from their parents
-    stebberColorReducedMutationArray : [-1, -.5, -.5, 0,0,.5, .5, 1],   //  same if reduced mutation option selected
-    crudColorMutationArray : [-.8, -.4, -.1, 0,.1,.4,.8],   //  how mcuh Crud varies from its original mean
+    stebberColorReducedMutationArray : [-1, -0.5, -0.5, 0, 0, 0.5, 0.5, 1],   //  same if reduced mutation option selected
+    crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how mcuh Crud varies from its original mean
 
     worldViewBoxSize : 1000.0,  //  size of the coordinate system (viewBox)
 
