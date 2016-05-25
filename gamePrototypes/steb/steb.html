@@ -34,6 +34,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
 or locally,
 http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
+
+locally, new API:
+http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
+
 -->
 
 <!DOCTYPE html>
@@ -46,8 +50,11 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <link rel='stylesheet' type='text/css' href='steb.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
-    <script src="../common/iframe-phone.js" language="javascript"></script>
+<!--
     <script src="../common/codap_helper.js" language="javascript"></script>
+-->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
 
     <script src="../common/TEEUtils.js" language="javascript"></script>
     <script src="../common/jquery.js" language="javascript"></script>
@@ -66,7 +73,10 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="steb.model.js" language="JavaScript"></script>
     <script src="steb.score.js" language="JavaScript"></script>
     <script src="steb.options.js" language="JavaScript"></script>
+<!--
     <script src="steb.connector.js" language="JavaScript"></script>
+-->
+    <script src="steb.connectNewAPI.js" language="JavaScript"></script>
     <script src="steb.worldView.js" language="JavaScript"></script>
 
     <script src="Stebber.js" language="JavaScript"></script>

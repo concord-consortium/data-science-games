@@ -45,6 +45,7 @@ steb.manager = {
     playing : false,    //  as opposed to bewteen games
     previous : null,    //  the "previous" time for computing dt for animation
     onTimeout : false,  //  are we "on timeout" for clicking Crud?
+    gameNumber : 0,     //  the game number
 
 
     /**
@@ -94,16 +95,24 @@ steb.manager = {
     newGame : function() {
         steb.options.optionChange();        //  make sure they align with the checkboxes
         this.time = 0;
+        this.gameNumber += 1;
 
         steb.model.newGame();
         steb.worldView.newGame();
         steb.predator.newGame();
 
         this.playing = true;
-        steb.connector.newGameCase(
-            JSON.stringify(steb.model.trueBackgroundColor),
-            JSON.stringify(steb.model.meanCrudColor)
-        );
+
+        //      Make the game case. We pass in an object with name-value pairs...
+
+        steb.connector.newGameCase({
+            gameNo: this.gameNumber,
+            bgColor: JSON.stringify(steb.model.trueBackgroundColor),
+            crudColor: JSON.stringify(steb.model.meanCrudColor)
+        });
+
+        //  and start time!
+
         this.restart();
     },
 
