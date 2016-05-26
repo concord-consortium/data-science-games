@@ -25,24 +25,12 @@ body {
     margin-right: 4px;
 }
 
-/*  score text  */
+/*  sliders */
 
-#scoreDiv {
-    font-size : 1.2em;
-    vertical-align: middle;
+#redSlider, #redMatchSlider {
+    background : red;
 }
-#evolutionPoints    {
-    color : #0a9a87;
-    font-size : 1.8em;
-    font-weight: 900;
-    vertical-align: middle;
-}
-#predatorEnergy    {
-    color : tomato;
-    font-weight: 900;
-    font-size : 1.8em;
-    vertical-align: middle;
-}
+
 /* option IDs */
 
 /*  button etc stuff */

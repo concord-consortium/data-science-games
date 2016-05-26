@@ -77,6 +77,7 @@ colorPlay.ui = {
 
     initialize : function() {
         $("#redPlaySlider").slider({
+            class : "redSlider",
             range : false,
             min : 0,
             max : 255,

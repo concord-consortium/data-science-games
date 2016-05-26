@@ -53,7 +53,7 @@ colorPlay.connect = {
      */
     startSessionCase: function ( ) {
 
-        colorPlay.connect.gameNumber += 1;
+        colorPlay.connect.sessionNumber += 1;
 
         codapHelper.openCase(
             colorPlay.connect.sessionCollectionName,
@@ -139,7 +139,12 @@ colorPlay.connect = {
                         {name: "red_G", type: 'numeric', precision : 0, description : 'guess red color'},
                         {name: "green_G", type: 'numeric', precision : 0, description : 'guess green color'},
                         {name: "blue_G", type: 'numeric', precision : 0, description : 'guess blue color'},
-                        {name: "dRed", type: 'numeric', precision: 0, formula : "red_G - red", editable : true,  description : 'error in red'}
+                        {name: "dRed", type: 'numeric', precision: 0,
+                            formula : "red_G - red", editable : true,  description : 'error in red'},
+                        {name: "dGreen", type: 'numeric', precision: 0,
+                            formula : "green_G - green", editable : true,  description : 'error in green'},
+                        {name: "dBlue", type: 'numeric', precision: 0,
+                            formula : "blue_G - blue", editable : true,  description : 'error in blue'}
                     ],
                     childAttrName: "guess"
                 },
