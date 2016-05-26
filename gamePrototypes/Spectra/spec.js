@@ -35,6 +35,7 @@ var spec = {
 
 
 spec.constants = {
+    version : "000a",
     visibleMin : 380.0,
     visibleMax : 700.0
 }

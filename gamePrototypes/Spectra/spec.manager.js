@@ -25,6 +25,8 @@
 
  */
 
+/* global spec, console, $, Snap, SpectrumView */
+
 spec.manager = {
 
     mainSpectrumView : null,
@@ -35,15 +37,37 @@ spec.manager = {
     },
 
     spectrumParametersChanged : function() {
-        this.mainSpectrumView.invalidate();
+        this.updateSpectrum();
     },
 
-    getSpectrumButtonPushed : function() {
-        this.setSpectrumParams();
-        var tSource = $("#source").val();
-        var tSpectrum = spec.model.getSpectrumFor( tSource );
-        this.mainSpectrumView.setSpectrum( tSpectrum );
+    recordSpectrum : function() {
+        var tSpecName = spec.model.testSpectrum.hasEmissionLines ?
+            spec.model.dischargeTube :
+            "BB " + spec.model.blackbodyTemperature + "K";
+
+        if (this.mainSpectrumView.channels.length > 0) {
+            spec.connect.emitSpectrum( tSpecName );
+        }
     },
+
+
+    updateSpectrum : function() {
+        var tSpectrumType = $('input[name=sourceType]:checked').val();
+        spec.model.dischargeTube = $("#dischargeTubeMenu").val();
+
+        this.setSpectrumParams();
+
+        if (tSpectrumType === "discharge") {
+            spec.model.installDischargeTube(  );
+        } else {
+            spec.model.installBlackbody(  );
+        }
+
+        //  now install it in the view. The view will display it.
+
+        this.mainSpectrumView.setSpectrum( spec.model.testSpectrum );
+    },
+
 
     setSpectrumParams : function() {
         var tLMin = Number($("#lambdaMin").val());
@@ -51,5 +75,9 @@ spec.manager = {
 
         this.mainSpectrumView.lambdaMin = tLMin;
         this.mainSpectrumView.lambdaMax = tLMax;
+    },
+
+    specDoCommand : function() {
+
     }
-}
+};

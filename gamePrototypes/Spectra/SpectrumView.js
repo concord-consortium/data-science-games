@@ -2,6 +2,7 @@
  * Created by tim on 5/23/16.
 
 
+
  ==========================================================================
  SpectrumView.js in data-science-games.
 
@@ -24,8 +25,9 @@
 
 
  */
+/* global spec, Snap, alert */
 
-SpectrumView = function( iPaper ) {
+var SpectrumView = function( iPaper ) {
     this.paper = iPaper;        //      snap.svg paper
     this.lambdaMin = spec.constants.visibleMin;
     this.lambdaMax = spec.constants.visibleMax;
@@ -50,15 +52,20 @@ SpectrumView.prototype.display = function( ) {
     if (tNChannels > 0) {
         this.paper.clear();
         var tChannelWidthOnDisplay = this.paper.node.clientWidth / (tNChannels);
+        var tGraphHeight = this.paper.node.clientHeight;
+        var tLeft;
+
         switch (this.displayType) {
 
             case "photo":
-                var tLeft = 0;
+                tLeft = 0;
                 this.channels.forEach( function(ch){
-                    var tBaseColor = spec.model.spectrographGain * 255 * ch.intensity / 100;
-                    if (tBaseColor > 255) tBaseColor = 255;
-                    var tColor = Snap.rgb( tBaseColor, tBaseColor, tBaseColor);
-                    this.paper.rect( tLeft, 0, tChannelWidthOnDisplay, this.paper.node.clientHeight).attr({
+                    var tBaseIntensity = spec.model.spectrographGain  * ch.intensity / 100;     //  now in [0, 1]
+                    if (tBaseIntensity > 1.0) { tBaseIntensity = 1.0; }
+
+                    var tColor = SpectrumView.intensityAndWavelengthToRGB( tBaseIntensity , ch.min );
+                    //  var tColor = Snap.rgb( tBaseIntensity * 255, tBaseIntensity * 255, tBaseIntensity * 255);
+                    this.paper.rect( tLeft, 0, tChannelWidthOnDisplay, tGraphHeight).attr({
                             fill : tColor
                     });
                     tLeft += tChannelWidthOnDisplay;
@@ -66,6 +73,20 @@ SpectrumView.prototype.display = function( ) {
                 break;
 
             case "rail":
+                tLeft = 0;
+                this.channels.forEach( function(ch){
+                    var tBaseIntensity = spec.model.spectrographGain * ch.intensity / 100;  //  now it's [0,1]
+                    if (tBaseIntensity > 1.0) { tBaseIntensity = 1.0; }
+
+                    var tChannelHeight = tGraphHeight * tBaseIntensity;
+
+                    var tColor = SpectrumView.intensityAndWavelengthToRGB( 1.00 , ch.min );
+                    //  var tColor = Snap.rgb( tBaseIntensity, tBaseIntensity, tBaseIntensity);
+                    this.paper.rect( tLeft, tGraphHeight - tChannelHeight, tChannelWidthOnDisplay, tChannelHeight).attr({
+                        fill : tColor
+                    });
+                    tLeft += tChannelWidthOnDisplay;
+                }.bind(this));
                 break;
 
             default:
@@ -82,3 +103,57 @@ SpectrumView.prototype.invalidate = function() {
 };
 
 SpectrumView.displayTypes = ["photo", "rail"];
+
+SpectrumView.intensityAndWavelengthToRGB = function(iGain, iLambdaNM ) {
+
+    var Red, Green, Blue;
+
+    if((iLambdaNM >= 380) && (iLambdaNM<440)){
+        Red = -(iLambdaNM - 440) / (440 - 380);
+        Green = 0.0;
+        Blue = 1.0;
+    } else if ((iLambdaNM >= 440) && (iLambdaNM<490)){
+        Red = 0.0;
+        Green = (iLambdaNM - 440) / (490 - 440);
+        Blue = 1.0;
+    } else if ((iLambdaNM >= 490) && (iLambdaNM<510)){
+        Red = 0.0;
+        Green = 1.0;
+        Blue = -(iLambdaNM - 510) / (510 - 490);
+    } else if ((iLambdaNM >= 510) && (iLambdaNM<580)){
+        Red = (iLambdaNM - 510) / (580 - 510);
+        Green = 1.0;
+        Blue = 0.0;
+    } else if ((iLambdaNM >= 580) && (iLambdaNM<645)){
+        Red = 1.0;
+        Green = -(iLambdaNM - 645) / (645 - 580);
+        Blue = 0.0;
+    } else if ((iLambdaNM >= 645) && (iLambdaNM<781)){
+        Red = 1.0;
+        Green = 0.0;
+        Blue = 0.0;
+    } else {
+        Red = 0.0;
+        Green = 0.0;
+        Blue = 0.0;
+    }
+
+/*
+    // Let the intensity fall off near the vision limits
+
+    if((Wavelength >= 380) && (Wavelength<420)){
+        factor = 0.3 + 0.7*(Wavelength - 380) / (420 - 380);
+    }else if((Wavelength >= 420) && (Wavelength<701)){
+        factor = 1.0;
+    }else if((Wavelength >= 701) && (Wavelength<781)){
+        factor = 0.3 + 0.7*(780 - Wavelength) / (780 - 700);
+    }else{
+        factor = 0.0;
+    };
+*/
+    Red *= iGain;
+    Green *= iGain;
+    Blue *= iGain;
+
+    return Snap.rgb( 255 * Red, 255 * Green, 255* Blue );
+};

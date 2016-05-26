@@ -25,27 +25,40 @@
 
  */
 
+/* global Spectrum, Line, spec */
 
 spec.model = {
 
     elementalSpectra : [],
     spectrographGain : 1,
+    blackbodyTemperature : 5500,    //  of the testbed blackbody radiator
+    dischargeTube : null,
+    testSpectrum : null,
 
     initialize : function() {
         this.setUpElementalSpectra();
+        this.testSpectrum = new Spectrum();
     },
 
+    installBlackbody : function( ) {
+        this.testSpectrum.hasBlackbody = true;
+        this.testSpectrum.hasEmissionLines = false;
+        this.testSpectrum.blackbodyTemperature = this.blackbodyTemperature;
+    },
 
-    getSpectrumFor : function( iWhat )  {
+    installDischargeTube : function(  )  {
+
+        this.testSpectrum.hasBlackbody = false;
+        this.testSpectrum.hasEmissionLines = true;
         var oSpectrum = null;
 
-        switch( iWhat ) {
+        switch( this.dischargeTube ) {
             case "Hydrogen":
-                oSpectrum = this.elementalSpectra['H'];
+                oSpectrum = this.elementalSpectra.H;
                 break;
 
             case "Helium":
-                oSpectrum = this.elementalSpectra['He'];
+                oSpectrum = this.elementalSpectra.He;
                 break;
 
             case "Sodium":
@@ -57,7 +70,7 @@ spec.model = {
                 break;
         }
 
-        return oSpectrum;
+        this.testSpectrum = oSpectrum;
     },
 
 
@@ -72,13 +85,13 @@ spec.model = {
         tSpectrum.addLine(new Line(410.1734,1,14));
         tSpectrum.addLine(new Line(397.0075,1,6));
         tSpectrum.addLine(new Line(388.9064,1,14));
-        this.elementalSpectra['H'] = tSpectrum;
+        this.elementalSpectra.H = tSpectrum;
 
         //  Helium
         tSpectrum = new Spectrum();         //  http://physics.nist.gov/cgi-bin/ASD/lines1.pl  //   divide intensities by 5
         tSpectrum.addLine(new Line(381.96074,1, 2));
-        tSpectrum.addLine(new Line(383.3554,1,.6));
-        tSpectrum.addLine(new Line(387.1791,1,.2));
+        tSpectrum.addLine(new Line(383.3554,1,0.6));
+        tSpectrum.addLine(new Line(387.1791,1,0.2));
         tSpectrum.addLine(new Line(388.8648,1,100));
         tSpectrum.addLine(new Line(396.47291,1,4));
         tSpectrum.addLine(new Line(402.61914,1,10));
@@ -93,7 +106,7 @@ spec.model = {
         tSpectrum.addLine(new Line(587.5621,1,100));
         tSpectrum.addLine(new Line(587.5966,1,20));
         tSpectrum.addLine(new Line(667.8151,1,20));
-        this.elementalSpectra['He'] = tSpectrum;
+        this.elementalSpectra.He = tSpectrum;
 
     }
-}
+};

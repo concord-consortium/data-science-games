@@ -33,6 +33,7 @@ spec.ui = {
     initialize : function() {
 
         this.gainSlider = $('#spectrographGainSlider');
+        this.tempSlider = $('#blackbodyTempSlider');
 
         this.gainSlider.slider( {
                 min : 1,
@@ -42,7 +43,20 @@ spec.ui = {
                 slide : function(e, ui) {
                     spec.model.spectrographGain = Number( ui.value );
                     $('#gainDisplay').text(spec.model.spectrographGain);
-                    spec.manager.mainSpectrumView.display();
+                    spec.manager.spectrumParametersChanged();
+                }
+            }
+        );
+
+        this.tempSlider.slider( {
+                min : 1000,
+                max : 10000,
+                values : 5500,
+                step : 500,
+                slide : function(e, ui) {
+                    spec.model.blackbodyTemperature = Number( ui.value );
+                    $('#tempDisplay').text(spec.model.blackbodyTemperature);
+                    spec.manager.spectrumParametersChanged();
                 }
             }
         );
