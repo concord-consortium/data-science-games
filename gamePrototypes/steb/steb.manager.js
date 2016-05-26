@@ -198,7 +198,7 @@ steb.manager = {
          */
         function bucketCreated( iResult ) {
             if (iResult.success) {
-                steb.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
+                steb.connector.bucketCaseID = iResult.values[0].id;   //  set bucketCaseID on callback
 
                 //  now process each "leaf"
 

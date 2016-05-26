@@ -58,7 +58,7 @@ steb.connector = {
             { values : iValues },       //  format for new API, no parent.
             function (iResult) {
                 if (iResult.success) {
-                    this.gameCaseID = iResult.caseID;
+                    this.gameCaseID = iResult.values[0].id;
                     steb.manager.emitPopulationData();  //      to get data at beginning of game
                 } else {
                     alert("Error creating new game case");
@@ -133,10 +133,10 @@ steb.connector = {
      * Initialize the data set
      * @returns {{name: string, title: string, description: string, collections: *[]}}
      */
-    getInitDataSetObject: function () {
+    getInitDataSetObject: function ( iDSName, iDSTitle ) {
         return {
-            name: 'Stebbins',
-            title: 'Stebbins',
+            name: iDSName,
+            title: iDSTitle,
             description: 'the Stebbins data set',
             collections: [  // There are three collections: game, bucket, stebber
                 {
@@ -203,7 +203,7 @@ steb.connector = {
  */
 codapHelper.initDataInteractive(
     steb.connector.getInitFrameObject(),
-    steb.connector.getInitDataSetObject(),
+    steb.connector.getInitDataSetObject("LSteb", "Living Stebbers"),
     steb.manager.stebDoCommand         //  the callback needed
 );
 
