@@ -40,6 +40,9 @@
  * convertToGrayUsingRGBFormula: steb.model.convertToGrayUsingRGBFormula
  * }}
  */
+
+/* global steb, Stebber, Crud, TEEUtils, Snap */
+
 steb.model = {
 
     stebbers : [],      //  array of Stebbers
@@ -57,17 +60,17 @@ steb.model = {
         var tParent = null;
         var tChild = null;
         if (steb.options.delayReproduction) {
-            if (this.meals % 5 == 0) {
+            if (this.meals % 5 === 0) {
                 for (var i = 0; i < 5; i++) {
                     tParent  = this.findParent();
                     tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
-                    steb.manager.addViewForChildStebber( tChild )
+                    steb.manager.addViewForChildStebber( tChild );
                 }
             }
         } else {
             tParent = this.findParent();
             tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
-            steb.manager.addViewForChildStebber( tChild )
+            steb.manager.addViewForChildStebber( tChild );
         }
     },
 
@@ -96,7 +99,7 @@ steb.model = {
         });
         this.crud.forEach( function(iCrud) {
             iCrud.update(idt);
-        })
+        });
     },
 
 
@@ -114,7 +117,9 @@ steb.model = {
         this.lastStebberNumber = 0;
 
         this.trueBackgroundColor = this.inventBackgroundColor();
-        this.meanCrudColor = null;
+        this.meanCrudColor = steb.options.backgroundCrud ?
+                this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  ) :
+                null;
 
         //  create a new set of Stebbers.
         var i = 0;
@@ -124,7 +129,6 @@ steb.model = {
 
         //  create a new set of Crud.
         if (steb.options.backgroundCrud) {
-            this.meanCrudColor = this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
             for (i = 0; i < steb.constants.numberOfCruds; i++) {
                 this.crud.push(new Crud());
             }
@@ -168,9 +172,9 @@ steb.model = {
         this.lastStebberNumber += 1;
 
         if (iParentStebber ) {
-            var tMute = steb.options.reducedMutation
-                ? steb.constants.stebberColorReducedMutationArray
-                : steb.constants.stebberColorMutationArray;
+            var tMute = steb.options.reducedMutation ?
+                steb.constants.stebberColorReducedMutationArray :
+                steb.constants.stebberColorMutationArray;
             tColor = this.mutateColor( iParentStebber.color, tMute );
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
@@ -219,7 +223,7 @@ steb.model = {
         return {
             x : Math.round(steb.constants.worldViewBoxSize * Math.random()),
             y : Math.round(steb.constants.worldViewBoxSize * Math.random())
-        }
+        };
     },
 
     /**
@@ -316,7 +320,7 @@ steb.model = {
         var tResult = iColor;
 
         if (steb.options.useVisionParameters) {
-            if (steb.options.predatorVisionType == "dotProduct") {
+            if (steb.options.predatorVisionType === "dotProduct") {
                 var tDotProduct = this.predatorVisionColorVector;
                 tResult = [
                     (iColor[0]) * tDotProduct[0],
@@ -360,7 +364,7 @@ steb.model = {
             tDenom += Math.abs( c );
             tGrayscaleNumber += (c > 0) ? c * iColor[i] : (iColor[i] - 15) * c;
             });
-        tGrayscaleNumber = (tDenom == 0) ? 0 : tGrayscaleNumber / tDenom;
+        tGrayscaleNumber = (tDenom === 0) ? 0 : tGrayscaleNumber / tDenom;
         this.predatorVisionDenominator = tDenom;
 
         //  The result is gray. Not necessary to do it this particular way.
@@ -385,8 +389,8 @@ steb.model = {
     colorDistance : function( iColor1, iColor2 ) {
         var tD2 = (iColor1[0] - iColor2[0]) * (iColor1[0] - iColor2[0]) +
             (iColor1[1] - iColor2[1]) * (iColor1[1] - iColor2[1]) +
-            (iColor1[2] - iColor2[2]) * (iColor1[2] - iColor2[2])
+            (iColor1[2] - iColor2[2]) * (iColor1[2] - iColor2[2]);
         return Math.sqrt( tD2 );
     }
 
-}
+};

@@ -169,9 +169,21 @@ steb.connector = {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "red", type: 'numeric', precision : 1, description : "how much red (0 to 15)"},
-                        {name: "green", type: 'numeric', precision : 1, description : "how much green (0 to 15)"},
-                        {name: "blue", type: 'numeric', precision : 1, description : "how much blue (0 to 15)"},
+                        {name: "red", type: 'numeric', precision : 1,
+                            colormap: {
+                                'attribute-color': 'red'    //
+                            },
+                            description : "how much red (0 to 15)"},
+                        {name: "green", type: 'numeric', precision : 1,
+                            colormap: {
+                                'attribute-color': '#009900'    //  green
+                            },
+                            description : "how much green (0 to 15)"},
+                        {name: "blue", type: 'numeric', precision : 1,
+                            colormap: {
+                                'attribute-color': 'blue'    //
+                            },
+                            description : "how much blue (0 to 15)"},
                         {name: "hue", type: 'numeric', precision : 3, description : "hue (0 to 1)"},
                         {name: "sat", type: 'numeric', precision : 3},
                         {name: "value", type: 'numeric', precision : 3},
