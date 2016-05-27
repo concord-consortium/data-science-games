@@ -29,14 +29,14 @@
 
 colorPlay.manager = {
 
-    inSession : false,
+    inSession: false,
 
-    doSession : function() {
+    doSession: function () {
         this.inSession = !this.inSession;
 
         //  create new session
         if (this.inSession) {
-          colorPlay.connect.startSessionCase();
+            colorPlay.connect.startSessionCase();
             colorPlay.manager.setNewMatchTarget();
         } else {
 
@@ -47,52 +47,53 @@ colorPlay.manager = {
         colorPlay.ui.fixUI();
     },
 
-    setNewMatchTarget : function() {
+    setNewMatchTarget: function () {
         colorPlay.model.matchTargetColor = {
-            red : Math.round(255 * Math.random()),
-            green : Math.round(255 * Math.random()),
-            blue : Math.round(255 * Math.random())
+            red: Math.round(255 * Math.random()),
+            green: Math.round(255 * Math.random()),
+            blue: Math.round(255 * Math.random())
         };
 
         $("#matchResults").html("Click <b>check match</b> when you're ready.");
         colorPlay.ui.update();
     },
 
-    checkColorMatch : function() {
-        $("#matchResults").text(colorPlay.ui.colorCompareMessage( colorPlay.model.matchTargetColor, colorPlay.model.matchTryColor));
+    checkColorMatch: function () {
+        $("#matchResults").text(colorPlay.ui.colorCompareMessage(colorPlay.model.matchTargetColor, colorPlay.model.matchTryColor));
 
-        colorPlay.connect.doGuessRecord( colorPlay.model.dataValues());     //  output guesses
+        colorPlay.connect.doGuessRecord(colorPlay.model.dataValues());     //  output guesses
     },
 
-    doCommand : function() {
+
+    doCommand: function () {
 
     }
 };
 
 colorPlay.model = {
-    playColor : null,
-    matchTargetColor : null,
-    matchTryColor : null,
+    playColor: null,
+    matchTargetColor: null,
+    matchTryColor: null,
 
-    initialize : function() {
+    initialize: function () {
         this.playColor = {
-            red : 128,
-            green : 128,
-            blue : 128
+            red: 128,
+            green: 128,
+            blue: 128
         };
         this.matchTargetColor = {
-            red : 128,
-            green : 128,
-            blue : 128
+            red: 128,
+            green: 128,
+            blue: 128
         };
         this.matchTryColor = {
-            red : 128,
-            green : 128,
-            blue : 128
+            red: 128,
+            green: 128,
+            blue: 128
         };
     },
 
-    dataValues : function() {
+    dataValues: function () {
         return [
             this.matchTargetColor.red,
             this.matchTargetColor.green,

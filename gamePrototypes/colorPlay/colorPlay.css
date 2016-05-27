@@ -29,6 +29,15 @@ body {
 
 #redSlider, #redMatchSlider {
     background : red;
+    background : linear-gradient(to right, black, red);
+}
+#greenSlider, #greenMatchSlider {
+    background : green;
+    background : linear-gradient(to right, black, green);
+}
+#blueSlider, #blueMatchSlider {
+    background : blue;
+    background : linear-gradient(to right, black, blue);
 }
 
 /* option IDs */

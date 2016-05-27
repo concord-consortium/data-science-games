@@ -118,14 +118,28 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <button id="sessionButton" onclick="colorPlay.manager.doSession()" style="height: 2em;">start session</button>
         </div>
         <fieldset id="matchControls">
+
             <legend> Color components</legend>
             <br>
+
+            <!--    the red slider -->
             <div id="redMatchSlider" ></div>
-            <div id="redTryValue" class="sliderLabel"></div><br><br>    <!--    the red slider -->
+            <div id="redTryValue" class="sliderLabel"></div>
+            <button onclick="colorPlay.ui.gimme('red')">gimme red</button>
+            <br><br>
+
+            <!--    the blue slider -->
             <div id="greenMatchSlider"></div>
-            <div id="greenTryValue" class="sliderLabel"></div><br><br>    <!--    the green slider -->
+            <div id="greenTryValue" class="sliderLabel"></div>
+            <button onclick="colorPlay.ui.gimme('green')">gimme green</button>
+            <br><br>
+
+            <!--    the blue slider -->
             <div id="blueMatchSlider"></div>
-            <div id="blueTryValue" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
+            <div id="blueTryValue" class="sliderLabel"></div>
+            <button onclick="colorPlay.ui.gimme('blue')">gimme blue</button>
+            <br><br>
+
         <button id="checkMatchButton" onclick="colorPlay.manager.checkColorMatch()">check match</button>
         <button id="newMatchButton" onclick="colorPlay.manager.setNewMatchTarget()">new color</button>
         </fieldset>

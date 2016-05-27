@@ -25,7 +25,7 @@
 
  */
 
-/* global colorPlay, $, Snap */
+/* global colorPlay, $, Snap, alert */
 
 
 colorPlay.ui = {
@@ -46,6 +46,9 @@ colorPlay.ui = {
         $("#greenValue").text("green = " + colorPlay.model.playColor.green);
         $("#blueValue").text(" blue = " + colorPlay.model.playColor.blue);
         $("#hexValue").text("hex value is " + tMatchColor);
+
+        //  actually update the color of the box! ("play")
+
         $("#colorPlayRect").attr({
             fill : tMatchColor
         });
@@ -65,6 +68,9 @@ colorPlay.ui = {
         $("#redTryValue").text("  red = " + colorPlay.model.matchTryColor.red);
         $("#greenTryValue").text("green = " + colorPlay.model.matchTryColor.green);
         $("#blueTryValue").text(" blue = " + colorPlay.model.matchTryColor.blue);
+
+
+        //  actually update the colors of the boxes! ("match")
         $("#colorMatchTry").attr({
             fill : tMatchTryColor
         });
@@ -73,6 +79,26 @@ colorPlay.ui = {
         });
 
         this.fixUI();
+    },
+
+    gimme: function (iColor) {
+        switch (iColor) {
+            case "red":
+                colorPlay.model.matchTryColor.red = colorPlay.model.matchTargetColor.red;
+                $("#redMatchSlider").slider('values', [colorPlay.model.matchTryColor.red]);
+                break;
+
+            case "green":
+                colorPlay.model.matchTryColor.green = colorPlay.model.matchTargetColor.green;
+                $("#greenMatchSlider").slider('values', [colorPlay.model.matchTryColor.green]);
+                break;
+
+            case "blue":
+                colorPlay.model.matchTryColor.blue = colorPlay.model.matchTargetColor.blue;
+                $("#blueMatchSlider").slider('values', [colorPlay.model.matchTryColor.blue]);
+                break;
+        }
+        colorPlay.ui.update();
     },
 
     initialize : function() {
@@ -115,6 +141,7 @@ colorPlay.ui = {
 
         $("#redMatchSlider").slider({
             range : false,
+            animation : "slow",
             min : 0,
             max : 255,
             values : [ 128 ],
@@ -157,4 +184,4 @@ colorPlay.ui = {
     foo : function() {
         alert("Click!:");
     }
-}
+};
