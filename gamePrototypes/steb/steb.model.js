@@ -114,7 +114,7 @@ steb.model = {
         this.lastStebberNumber = 0;
 
         this.trueBackgroundColor = this.inventBackgroundColor();
-        this.meanCrudColor = this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
+        this.meanCrudColor = null;
 
         //  create a new set of Stebbers.
         var i = 0;
@@ -123,8 +123,11 @@ steb.model = {
         }
 
         //  create a new set of Crud.
-        for (i = 0; i < steb.constants.numberOfCruds; i++) {
-            this.crud.push( new Crud() );
+        if (steb.options.backgroundCrud) {
+            this.meanCrudColor = this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  );
+            for (i = 0; i < steb.constants.numberOfCruds; i++) {
+                this.crud.push(new Crud());
+            }
         }
     },
 
@@ -281,7 +284,7 @@ steb.model = {
             var tDCrud = s.colorDistanceToCrud;
 
            tout += s.id + " " + JSON.stringify(s.color) + " dBG: " + tDBG.toFixed(2);
-            if (typeof tDCrud !== 'undefined') {
+            if (tDCrud) {
                 tout += " dCrud: " + tDCrud.toFixed(2);
             }
             tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";

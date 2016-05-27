@@ -117,7 +117,7 @@ steb.predator = {
         var tDCrud = iTarget.colorDistanceToCrud;
 
         var tColorDistance = tDBG;
-        if (typeof tDCrud !== 'undefined') {
+        if (tDCrud) {
             if (tDCrud < tColorDistance) {tColorDistance = tDCrud;}
         }
         //  tColorDistance is now the SMALLER of the distance to BG and to Crud

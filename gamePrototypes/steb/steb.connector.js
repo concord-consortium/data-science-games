@@ -52,16 +52,16 @@ steb.connector = {
      * @param iBgColor      the background color (text representation of 3-vector)
      * @param iCrudColor    the mean Crud color
      */
-    newGameCase: function ( iBgColor, iCrudColor ) {
+    newGameCase: function ( iValueObject ) {
 
         this.gameNumber += 1;
 
         codapHelper.openCase(
             this.gameCollectionName,
             [
-                this.gameNumber,
-                iBgColor,
-                iCrudColor,
+                iValueObject.gameNo,
+                iValueObject.bgColor,
+                iValueObject.crudColor,
                 null
             ],
             function (iResult) {
