@@ -109,53 +109,95 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
                     <select name="source" id="dischargeTubeMenu" onchange="spec.manager.spectrumParametersChanged();">
                         <option name="H">Hydrogen</option>
                         <option name="He">Helium</option>
+                        <option name="NaI">Sodium</option>
+                        <option name="CaII">Calcium</option>
                     </select>
                 </div>
 
                 <div class="hBox">
                     <input type="radio" name="sourceType" value="blackbody"
                            onchange="spec.manager.spectrumParametersChanged();">
-                    Blackbody temp:
-                    <div id="blackbodyTempSlider"></div>
-                    <div id="tempDisplay" class="tempLabel"></div>
+                    <label>
+                        Blackbody temp:
+                        <div id="labTempSlider" class="ui-slider"></div>
+                        <div id="labTempDisplay" class="sliderLabel"></div>
+                    </label>
                 </div>
 
 
             </fieldset>
 
             <label>
-                Low Wavelength (nm):
-                <input type="number" id="lambdaMin" value="380" maxlength="7" max="700" min="350"
+                Wavelength range (nm):
+                <input type="number" id="lambdaMin" value="380" maxlength="9" max="700" min="350"
+                       onblur="spec.manager.spectrumParametersChanged();">
+                -
+                <input type="number" id="lambdaMax" value="700" maxlength="9" max="700" min="350"
                        onblur="spec.manager.spectrumParametersChanged();">
             </label>
 
             <label>
-                High Wavelength (nm):
-                <input type="number" id="lambdaMax" value="700" maxlength="7" max="700" min="350"
-                       onblur="spec.manager.spectrumParametersChanged();">
-            </label>
-            <label>
                 Gain:
-                <div id="spectrographGainSlider"></div>
+                <div id="labSpectrographGainSlider" class="ui-slider"></div>
                 <div id="gainDisplay" class="sliderLabel"></div>
             </label>
         </div>
         <br>
-        <svg id="spectrumDisplay" width="500" height="24">
+        <svg id="spectrumDisplay" width=400 height="24">
 
         </svg>
-        <button onclick="spec.manager.recordSpectrum();">record spectrum</button>
-    </div>
+        <button onclick="spec.manager.recordSpectrum('lab');">record spectrum</button>
 
 
-    <div id="skyTab">
-        <p>Looking at the sky and getting data will go here.</p>
+        <!--   </div>
+
+           this is whwer we used to split for the sky tab
+           <div id="skyTab">
+
+               -->
+
+        <hr>
+        <h2>Meanwhile, in the sky...</h2>
+
+        <div id="skySpectrumWavelengthRangeLabel">Range</div>
+        <svg id="skySpectrumDisplay" width=400 height="24"></svg>
+        <button onclick="spec.manager.recordSpectrum('sky');">record spectrum</button>
+
+        <fieldset>
+            <legend>New star parameters</legend>
+
+            <label>
+                Blackbody temp:
+                <div id="skyObjectBlackbodyTempSlider" class="ui-slider"></div>
+                <div id="skyObjectBlackbodyTempDisplay" class="sliderLabel"></div>
+            </label>
+            <button onclick="spec.manager.newStellarSpectrum();">Observe new star</button>
+        </fieldset>
+
     </div>
+
 
     <div id="instructionsTab">
-        <p>Make spectrograms!</p>
+        <h2>Make spectrograms!</h2>
+        <p><b>FOR NOW</b>, the "Sky" tab is not working properly.
+        All of its functionality is in the Lab tab.</p>
+        <ul>
+            <li>In the lab (above the line, lab tab),
+            investigate spectra from discharge tubes (emission lines) and continuous blackbody spectra</li>
+            <li>Click <b>record spectrum</b> to send the data from a spectrum to CODAP.</li>
+            <li>Notice how you can change the wavelengths you're looking at.
+                We only really care about the visible spectrum, between 380 and 700 nm.</li>
+            <li>Compare these spectra to a stellar spectrum. You have one to start with.</li>
+            <li>Get a new (random) star by clicking "Observe New Star."</li>
+            <li>See if you can figure out the temperature and recession velocity of the star.</li>
+        </ul>
+
+        <p>We're simplifying spectra, of course. And although you see nice color spectra,
+            your underlying data are from a digital photometer with only 100 channels.</p>
     </div>
 
+
+    <!--            OPTIONS TAB         -->
 
     <div id="optionsTab">
         <div class="vBox options" id="gameOptions" onclick="steb.options.optionChange()">

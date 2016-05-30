@@ -31,11 +31,12 @@ var spec = {
         this.manager.initialize();
         this.ui.initialize();
     }
-}
+};
 
 
 spec.constants = {
-    version : "000a",
-    visibleMin : 380.0,
+    version : "001b",
+    visibleMin : 370.0,
     visibleMax : 700.0
-}
+
+};

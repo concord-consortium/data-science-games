@@ -29,52 +29,70 @@
 
 spec.manager = {
 
-    mainSpectrumView : null,
+    labSpectrumView : null,
+    skySpectrumView : null,
 
     initialize : function() {
         spec.model.initialize();
-        this.mainSpectrumView = new SpectrumView(Snap(document.getElementById("spectrumDisplay")));
+        this.labSpectrumView = new SpectrumView(Snap(document.getElementById("spectrumDisplay")));
+        this.skySpectrumView = new SpectrumView(Snap(document.getElementById("skySpectrumDisplay")));
+        this.newStellarSpectrum();
+        this.spectrumParametersChanged();
     },
 
     spectrumParametersChanged : function() {
-        this.updateSpectrum();
+        this.setSpectrogramWavelengths();       //  read min and max from boxes in the UI
+        this.updateLabSpectrum();
+        this.skySpectrumView.displaySpectrum( spec.model.skySpectrum );
+        this.labSpectrumView.displaySpectrum( spec.model.labSpectrum );
+        spec.ui.fixUI();
     },
 
-    recordSpectrum : function() {
-        var tSpecName = spec.model.testSpectrum.hasEmissionLines ?
-            spec.model.dischargeTube :
-            "BB " + spec.model.blackbodyTemperature + "K";
+    recordSpectrum : function( iWhich ) {
+        if (iWhich === "lab") {
+            var tSpecName = spec.model.labSpectrum.hasEmissionLines ?
+                spec.model.dischargeTube :
+            "BB " + spec.model.labBlackbodyTemperature + "K";
 
-        if (this.mainSpectrumView.channels.length > 0) {
-            spec.connect.emitSpectrum( tSpecName );
+            if (this.labSpectrumView.channels.length > 0) {
+                spec.connect.emitSpectrum(this.labSpectrumView.channels, tSpecName);
+            }
+        } else {
+            if (this.skySpectrumView.channels.length > 0) {
+                spec.connect.emitSpectrum(this.skySpectrumView.channels, "sky");
+            }
         }
     },
 
 
-    updateSpectrum : function() {
+    updateLabSpectrum : function() {
+        //  first, figure out the Lab spectrum
         var tSpectrumType = $('input[name=sourceType]:checked').val();
         spec.model.dischargeTube = $("#dischargeTubeMenu").val();
-
-        this.setSpectrumParams();
 
         if (tSpectrumType === "discharge") {
             spec.model.installDischargeTube(  );
         } else {
             spec.model.installBlackbody(  );
         }
-
-        //  now install it in the view. The view will display it.
-
-        this.mainSpectrumView.setSpectrum( spec.model.testSpectrum );
     },
 
 
-    setSpectrumParams : function() {
+    setSpectrogramWavelengths : function() {
         var tLMin = Number($("#lambdaMin").val());
         var tLMax = Number($("#lambdaMax").val());
 
-        this.mainSpectrumView.lambdaMin = tLMin;
-        this.mainSpectrumView.lambdaMax = tLMax;
+        this.labSpectrumView.lambdaMin = tLMin;
+        this.labSpectrumView.lambdaMax = tLMax;
+        this.skySpectrumView.lambdaMin = tLMin;
+        this.skySpectrumView.lambdaMax = tLMax;
+    },
+
+    newStellarSpectrum : function() {
+        var tMysterySpeed = Math.random() * 5.0e6;
+        var tSpec = spec.model.createStellarSpectrum( spec.model.skyObjectBlackbodyTemperature, tMysterySpeed );
+        spec.model.skySpectrum = tSpec;
+        this.skySpectrumView.displaySpectrum( spec.model.skySpectrum );     //  set and display
     },
 
     specDoCommand : function() {

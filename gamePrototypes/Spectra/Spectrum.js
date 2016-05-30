@@ -32,7 +32,7 @@
  https://en.wikipedia.org/wiki/UBV_photometric_system
  */
 
-/* global $ */
+/* global $, Line, console */
 
 var Spectrum = function() {
     this.lines = [];
@@ -40,11 +40,19 @@ var Spectrum = function() {
     this.hasAbsorptionLines = false;
     this.hasBlackbody = false;
     this.blackbodyTemperature = 0;
-
+    this.speedAway = 0;      //  cm/sec. c is Spectrum.constants.light.
+    this.source = { brightness : 100 };
 };
 
 Spectrum.prototype.addLine = function( iLine ) {
     this.lines.push( iLine );
+};
+
+Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
+    iSpectrum.lines.forEach( function(iLine) {
+        var tLine = new Line(iLine.lambda, iLine.width, iLine.strength * iAmp / 100);
+        this.lines.push( tLine );
+    }.bind(this));
 };
 
 Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
@@ -53,12 +61,23 @@ Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
     //  add the intensity for all emission lines
     if (this.hasEmissionLines) {
         oIntensity = this.lines.reduce(function (total, iLine) {
-            return total + iLine.intensityBetween(iMin, iMax);
-        }, 0);
+            return total + iLine.intensityBetween(iMin, iMax, this.speedAway);
+        }.bind(this), 0);
     }
 
+    //  add any blackbody
     if (this.hasBlackbody) {
-        oIntensity += this.normalizedBlackbodyAtWavelength( (iMin + iMax) / 2.0 );
+        oIntensity += this.normalizedBlackbodyAtWavelength( (iMin + iMax) / 2.0, this.speedAway );
+    }
+
+    //  todo: change this so that stars can have emission and absorption. Later.
+
+    //  reduce using the intensity for all absorption lines
+    if (this.hasAbsorptionLines) {
+        var tReduction = this.lines.reduce(function (total, iLine) {
+            return total + iLine.intensityBetween(iMin, iMax, this.speedAway);
+        }.bind(this), 0);
+        oIntensity *= (100.0 - tReduction) / 100.0;
     }
 
     return oIntensity;
@@ -69,8 +88,9 @@ Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
     var tLambda = iMin;        //  bottom of the interval
     var tResolution = (iMax - iMin) / iNBins;
 
-    while (tLambda < iMax ) {
-        var tI = this.intensityBetween( tLambda, tLambda + tResolution);
+    for ( var i = 0; i < iNBins; i++ ) {
+        tLambda = iMin + i * tResolution;
+        var tI = this.intensityBetween( tLambda, tLambda + tResolution) * this.source.brightness / 100;
         oChannels.push(
             {
                 intensity : tI,
@@ -78,7 +98,6 @@ Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
                 max : tLambda + tResolution
             }
         );
-        tLambda += tResolution;
     }
 
     var dText = "";
@@ -87,10 +106,11 @@ Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
         return dText;
     });
     $("#debugText").text( dText );
+
     return oChannels;
 };
 
-Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda) {
+Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAway) {
     var tLambda =  (iLambda * 1.0e-7);      //  convert nm to cm
 
     var tMaxLambda = Spectrum.constants.wien / this.blackbodyTemperature;       //   in cm. Wien's displacement law.

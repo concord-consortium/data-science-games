@@ -25,18 +25,23 @@
 
  */
 
+/* global spec, Spectrum */
+
 var Line = function(iLambda, iWidth, iStrength) {
     this.lambda = iLambda;
     this.width = iWidth;
     this.strength = iStrength;
 };
 
-Line.prototype.intensityBetween = function( iMin, iMax ) {
+Line.prototype.intensityBetween = function( iMin, iMax, iSpeedAway ) {
     var oIntensity = 0;
 
-    if (this.lambda > iMin && this.lambda <= iMax) {        //  simplest possible
+    var tEffectiveLambda = this.lambda * Spectrum.constants.light / ( Spectrum.constants.light - iSpeedAway);
+    //  var tEffectiveLambda = this.lambda;
+
+    if (tEffectiveLambda > iMin && tEffectiveLambda <= iMax) {        //  simplest possible
         oIntensity = this.strength;
     }
 
     return oIntensity;
-}
+};

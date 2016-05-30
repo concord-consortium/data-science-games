@@ -25,15 +25,24 @@
 
  */
 
+/* global $, spec */
 
 spec.ui = {
 
     gainSlider : null,
 
+    fixUI : function() {
+        var tRangeLabelText = "<b>Spectrum</b> wavelength range " +
+            spec.manager.skySpectrumView.lambdaMin +
+            "-" + spec.manager.skySpectrumView.lambdaMax + " nm."
+        $("#skySpectrumWavelengthRangeLabel").html(tRangeLabelText);
+    },
+
     initialize : function() {
 
-        this.gainSlider = $('#spectrographGainSlider');
-        this.tempSlider = $('#blackbodyTempSlider');
+        this.gainSlider = $('#labSpectrographGainSlider');
+        this.labTempSlider = $('#labTempSlider');
+        this.skyTempSlider = $('#skyObjectBlackbodyTempSlider');
 
         this.gainSlider.slider( {
                 min : 1,
@@ -41,21 +50,34 @@ spec.ui = {
                 values : 1,
                 step : 1,
                 slide : function(e, ui) {
-                    spec.model.spectrographGain = Number( ui.value );
-                    $('#gainDisplay').text(spec.model.spectrographGain);
+                    spec.manager.labSpectrumView.gain = Number( ui.value );
+                    $('#gainDisplay').text(spec.manager.labSpectrumView.gain);
                     spec.manager.spectrumParametersChanged();
                 }
             }
         );
 
-        this.tempSlider.slider( {
+        this.labTempSlider.slider( {
                 min : 1000,
                 max : 10000,
-                values : 5500,
-                step : 500,
+                values : [5500],
+                step : 100,
                 slide : function(e, ui) {
-                    spec.model.blackbodyTemperature = Number( ui.value );
-                    $('#tempDisplay').text(spec.model.blackbodyTemperature);
+                    spec.model.labBlackbodyTemperature = Number( ui.value );
+                    $('#labTempDisplay').text(spec.model.labBlackbodyTemperature);
+                    spec.manager.spectrumParametersChanged();
+                }
+            }
+        );
+
+        this.skyTempSlider.slider( {
+                min : 1000,
+                max : 10000,
+                values : [5500],
+                step : 100,
+                slide : function(e, ui) {
+                    spec.model.skyObjectBlackbodyTemperature = Number( ui.value );
+                    $('#skyObjectBlackbodyTempDisplay').text(spec.model.skyObjectBlackbodyTemperature);
                     spec.manager.spectrumParametersChanged();
                 }
             }

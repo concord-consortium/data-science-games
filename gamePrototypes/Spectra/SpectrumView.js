@@ -32,6 +32,7 @@ var SpectrumView = function( iPaper ) {
     this.lambdaMin = spec.constants.visibleMin;
     this.lambdaMax = spec.constants.visibleMax;
     this.nBins = 100;
+    this.gain = 1.0;
     this.spectrum = null;
     this.channels = [];
     this.displayType = SpectrumView.displayTypes[0];
@@ -40,7 +41,7 @@ var SpectrumView = function( iPaper ) {
     });
 };
 
-SpectrumView.prototype.setSpectrum = function( iSpectrum ) {
+SpectrumView.prototype.displaySpectrum = function(iSpectrum ) {
     this.spectrum = iSpectrum;
     this.channels = this.spectrum.channelize(this.lambdaMin, this.lambdaMax, this.nBins);    //  array of objects { intensity, min, max}
     this.display();
@@ -60,7 +61,7 @@ SpectrumView.prototype.display = function( ) {
             case "photo":
                 tLeft = 0;
                 this.channels.forEach( function(ch){
-                    var tBaseIntensity = spec.model.spectrographGain  * ch.intensity / 100;     //  now in [0, 1]
+                    var tBaseIntensity = this.gain  * ch.intensity / 100;     //  now in [0, 1]
                     if (tBaseIntensity > 1.0) { tBaseIntensity = 1.0; }
 
                     var tColor = SpectrumView.intensityAndWavelengthToRGB( tBaseIntensity , ch.min );
@@ -75,7 +76,7 @@ SpectrumView.prototype.display = function( ) {
             case "rail":
                 tLeft = 0;
                 this.channels.forEach( function(ch){
-                    var tBaseIntensity = spec.model.spectrographGain * ch.intensity / 100;  //  now it's [0,1]
+                    var tBaseIntensity = spec.model.labSpectrographGain * ch.intensity / 100;  //  now it's [0,1]
                     if (tBaseIntensity > 1.0) { tBaseIntensity = 1.0; }
 
                     var tChannelHeight = tGraphHeight * tBaseIntensity;

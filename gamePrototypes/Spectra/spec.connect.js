@@ -39,7 +39,7 @@ spec.connect = {
      * Called when we create a case for a new game
      * @param iName      the name of the spectrum
      */
-    emitSpectrum: function ( iName ) {
+    emitSpectrum: function ( iChannels, iName ) {
 
         this.currentSpectrumName = iName;
         this.spectrumNumber += 1;
@@ -52,7 +52,7 @@ spec.connect = {
             ],
             function (iResult) {
                 this.spectrumCaseID = iResult.caseID;
-                spec.manager.mainSpectrumView.channels.forEach(function (ch) {
+                iChannels.forEach(function (ch) {
                     spec.connect.emitChannel(ch);
                 });
 
@@ -70,7 +70,7 @@ spec.connect = {
         codapHelper.createCase(
             this.channelCollectionName,
             [
-                iChannel.min.toFixed(2),
+                iChannel.min.toFixed(5),
                 iChannel.intensity.toFixed(2)
             ],
             this.spectrumCaseID
@@ -86,7 +86,7 @@ spec.connect = {
         var oInitSimObject = {
             name: this.spectrumCollectionName,
             version: spec.constants.version,
-            dimensions: {width: 580, height: 300},
+            dimensions: {width: 580, height: 400},
             collections: [  // There are two collections: spectra, channels
                 {
                     name: this.spectrumCollectionName,
@@ -111,7 +111,7 @@ spec.connect = {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "lambda", type: 'numeric', precision : 1, description : "wavelength (nm)"},
+                        {name: "lambda", type: 'numeric', precision : 5, description : "wavelength (nm)"},
                         {name: "int", type: 'numeric', precision : 1, description : "intensity"}
                     ]
                 }
