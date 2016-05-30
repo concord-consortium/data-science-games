@@ -37,15 +37,17 @@
  * @type {{gameCaseID: number, bucketCaseID: number, gameNumber: number, bucketNumber: number, gameCollectionName: string, bucketCollectionName: string, stebberCollectionName: string, newGameCase: steb.connector.newGameCase, finishGameCase: steb.connector.finishGameCase, newBucketCase: steb.connector.newBucketCase, doStebberRecord: steb.connector.doStebberRecord, getInitSimObject: steb.connector.getInitSimObject}}
  */
 
-/* global steb, codapHelper, alert */
+/* global steb, codapHelper, alert, console */
 
 steb.connector = {
-    gameCaseID: 0,
+    gameCaseIDInLiving: 0,
+    gameCaseIDInMeals: 0,
     bucketCaseID: 0,
     bucketNumber: 0,
     gameCollectionName: "games",
     bucketCollectionName: "buckets",
     stebberCollectionName: "stebbers",
+    mealCollectionName: "meals",
 
     /**
      * Called when we create a case for a new game
@@ -53,18 +55,39 @@ steb.connector = {
      */
     newGameCase: function ( iValues ) {
 
+        //  first for the living stebber data set
+
         codapHelper.createCase(
             this.gameCollectionName,
             { values : iValues },       //  format for new API, no parent.
             function (iResult) {
                 if (iResult.success) {
-                    this.gameCaseID = iResult.values[0].id;
+                    this.gameCaseIDInLiving = iResult.values[0].id;
                     steb.manager.emitPopulationData();  //      to get data at beginning of game
+                    console.log('Created case ' + this.gameCaseIDInLiving + ' for living');
                 } else {
-                    alert("Error creating new game case");
+                    alert("Error creating new 'Living' game case");
                 }
 
             }.bind(this)
+        );
+
+        //  now for the meals data set
+        //  note we are using the same iValues because the attribute (gameNo) has the same name.
+
+        codapHelper.createCase(
+            this.gameCollectionName,    //  still "games"
+            { values : iValues },       //  format for new API, no parent.
+            function (iResult) {
+                if (iResult.success) {
+                    this.gameCaseIDInMeals = iResult.values[0].id;
+                    console.log('Created case ' + this.gameCaseIDInMeals + ' for meals');
+                } else {
+                    alert("Error creating new 'Meals' game case");
+                }
+
+            }.bind(this),
+            steb.constants.dataSetName_Meals
         );
     },
 
@@ -76,7 +99,7 @@ steb.connector = {
         codapHelper.updateCase(
             this.gameCollectionName,
             {values : { result : iResult }},
-            this.gameCaseID,
+            this.gameCaseIDInLiving,
             null        //  no callback
         );
         this.gameCaseID = 0;     //  so we know there is no open case
@@ -93,7 +116,7 @@ steb.connector = {
         codapHelper.createCase(
             this.bucketCollectionName,
             {
-                parent : this.gameCaseID,
+                parent : this.gameCaseIDInLiving,
                 values : iValues
             },
             iCallback               //  needed to figure out the bucket case ID
@@ -115,6 +138,19 @@ steb.connector = {
         ); // no callback.
     },
 
+    doMealRecord : function( iValues) {
+        codapHelper.createCase(
+            this.mealCollectionName,
+            {
+                parent : this.gameCaseIDInMeals,
+                values : iValues
+            },
+            null,
+            steb.constants.dataSetName_Meals
+        ); // no callback.
+
+    },
+
     /**
      * Initialize the frame structure
      * @returns {{name: string, title: string, version: string, dimensions: {width: number, height: number}}}
@@ -130,13 +166,13 @@ steb.connector = {
     },
 
     /**
-     * Initialize the data set
+     * Initialize the "Living Stebbers" data set
      * @returns {{name: string, title: string, description: string, collections: *[]}}
      */
-    getInitDataSetObject: function ( iDSName, iDSTitle ) {
+    getInitLivingStebberDataSetObject: function (  ) {
         return {
-            name: iDSName,
-            title: iDSTitle,
+            name: steb.constants.dataSetName_Living,
+            title: steb.constants.dataSetName_Living,
             description: 'the Stebbins data set',
             collections: [  // There are three collections: game, bucket, stebber
                 {
@@ -191,6 +227,47 @@ steb.connector = {
                 }
             ]
         };
+    },
+
+
+    getInitStebberMealsDataSetObject: function (  ) {
+        return {
+            name: steb.constants.dataSetName_Meals,
+            title: steb.constants.dataSetName_Meals,
+            description: 'the Stebbins data set',
+            collections: [  // There are three collections: game, bucket, stebber
+                {
+                    name: this.gameCollectionName,
+                    labels: {
+                        singleCase: "game",
+                        pluralCase: "games",
+                        setOfCasesWithArticle: "a set of games"
+                    },
+                    // The parent collection spec:
+                    attrs: [
+                        {name: "gameNo", type: 'categorical'}
+                    ],
+                    childAttrName: "meal"
+                },
+                {
+                    name: this.mealCollectionName,
+                    parent: this.gameCollectionName,
+                    labels: {
+                        singleCase: "meal",
+                        pluralCase: "meals",
+                        setOfCasesWithArticle: "a set of meals"
+                    },
+                    // The child collection specification:
+                    attrs: [
+                        {name: "time", type: 'numeric', precision: 1, description: "what time was the meal?"},
+                        {name: "red", type: 'numeric', precision: 1, description: "how much red (0 to 15)"},
+                        {name: "green", type: 'numeric', precision: 1, description: "how much green (0 to 15)"},
+                        {name: "blue", type: 'numeric', precision: 1, description: "how much blue (0 to 15)"},
+                        {name: "id", type: 'numeric', precision: 0}
+                    ]
+                }
+            ]
+        };
     }
 
 };
@@ -203,7 +280,9 @@ steb.connector = {
  */
 codapHelper.initDataInteractive(
     steb.connector.getInitFrameObject(),
-    steb.connector.getInitDataSetObject("LSteb", "Living Stebbers"),
     steb.manager.stebDoCommand         //  the callback needed
 );
+
+codapHelper.initDataSet( steb.connector.getInitStebberMealsDataSetObject());
+codapHelper.initDataSet( steb.connector.getInitLivingStebberDataSetObject());   //  second one is the default??
 

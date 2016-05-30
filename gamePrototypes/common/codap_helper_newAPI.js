@@ -23,6 +23,9 @@ var codapHelper = {
                     this.initFrameAccomplished = true;
                 }
             }.bind(this));
+    },
+
+    initDataSet : function(iDataSetDescription  ) {
 
     },
 
@@ -52,11 +55,11 @@ var codapHelper = {
 
     },
 
-    createCase: function (iCollectionName, iValuesArray, iCallback) {
-        this.createCases(iCollectionName, iValuesArray, iCallback);
+    createCase: function (iCollectionName, iValuesArray, iCallback, iDataContextName) {
+        this.createCases(iCollectionName, iValuesArray, iCallback, iDataContextName);
     },
 
-    createCases: function (iCollectionName, iValuesArrays, iCallback) {
+    createCases: function (iCollectionName, iValuesArrays, iCallback, iDataContextName) {
         if (this.checkForCODAP()) {
             if (iValuesArrays && !Array.isArray(iValuesArrays)) {
                 iValuesArrays = [iValuesArrays];
@@ -64,7 +67,7 @@ var codapHelper = {
 
             var tCodapPhoneArg = {
                 action: 'create',
-                resource: 'collection[' + iCollectionName + '].case',
+                resource: this.resourceString( iCollectionName, iDataContextName ) + ".case",
                 values: iValuesArrays
             };
 
@@ -86,7 +89,13 @@ var codapHelper = {
         );
     },
 
-
+    resourceString : function( iCollectionName, iDataContextName) {
+        var oResourceString = 'collection[' + iCollectionName + ']';
+        if (typeof iDataContextName !== 'undefined') {
+            oResourceString = 'dataContext[' + iDataContextName + "]." + oResourceString;
+        }
+        return oResourceString;
+    }
 
 };
 

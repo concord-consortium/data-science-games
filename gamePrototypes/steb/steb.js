@@ -86,6 +86,10 @@ steb.rangePin = function( val, lo, hi )    {
  */
 steb.constants = {
     version : "001c",
+
+    dataSetName_Living : "LivingStebbers",
+    dataSetName_Meals : "StebberMeals",
+
     initialNumberOfStebbers : 12,   //  12,
     numberOfCruds : 20,          //  20
 

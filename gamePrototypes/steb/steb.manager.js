@@ -46,6 +46,7 @@ steb.manager = {
     previous : null,    //  the "previous" time for computing dt for animation
     onTimeout : false,  //  are we "on timeout" for clicking Crud?
     gameNumber : 0,     //  the game number
+    stebElapsed : 0.0,      //  elapsed time
 
 
     /**
@@ -67,6 +68,7 @@ steb.manager = {
      * @param idt
      */
     update : function ( idt ) {
+        this.stebElapsed += idt;
         steb.model.update( idt );
         steb.worldView.update();
         if (steb.options.automatedPredator) { steb.predator.update( idt ); }
@@ -94,7 +96,7 @@ steb.manager = {
      */
     newGame : function() {
         steb.options.optionChange();        //  make sure they align with the checkboxes
-        this.time = 0;
+        this.stebElapsed = 0;
         this.gameNumber += 1;
 
         steb.model.newGame();
@@ -168,6 +170,7 @@ steb.manager = {
      */
     eatStebberUsingView : function( iStebberView ) {
         if (steb.manager.running) {
+            steb.manager.emitMealData( iStebberView.stebber );
             steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
             steb.worldView.removeStebberView(iStebberView);     //  remove its view
             steb.model.reproduce();     //      reproduce (from the remaining stebbers)
@@ -210,6 +213,18 @@ steb.manager = {
             }
         }
 
+    },
+
+    emitMealData : function( iStebber ) {
+        var tValues = {
+            time : steb.manager.stebElapsed,
+            red : iStebber.color[0],
+            green : iStebber.color[1],
+            blue : iStebber.color[2],
+            id : iStebber.id
+        };
+
+        steb.connector.doMealRecord( tValues );
     },
 
     /**
