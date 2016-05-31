@@ -76,8 +76,7 @@ steb.ui = {
     },
 
     selectOldestStebber : function() {
-        var tID = steb.model.stebbers[0].id;
-        steb.manager.selectStebberByID( tID );
+        steb.connector.selectStebberInCODAP(steb.model.stebbers[0] );
     },
 
     /**

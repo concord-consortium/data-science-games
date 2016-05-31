@@ -49,6 +49,15 @@ steb.connector = {
     stebberCollectionName: "stebbers",
     mealCollectionName: "meals",
 
+
+    selectStebberInCODAP : function( iStebber ) {
+        codapHelper.selectCasesByIDs( iStebber.caseIDs, steb.constants.dataSetName_meals );
+    },
+
+    getSelectedStebberIDs : function( ) {
+        codapHelper.getSelectionList( steb.constants.dataSetName_meals);
+    },
+
     /**
      * Called when we create a case for a new game
      * @param iValues      object containing values to be stored
@@ -128,14 +137,15 @@ steb.connector = {
      * One case per Stebber.
      * @param {[*]} iValues   the data values to be passed
      */
-    doStebberRecord: function (iValues) {
+    doStebberRecord: function (iValues, iCallback) {
         codapHelper.createCase(
             this.stebberCollectionName,
             {
                 parent : this.bucketCaseID,
                 values : iValues
-            }
-        ); // no callback.
+            },
+            iCallback   //  needed because selection requires case IDs in the new API
+        );
     },
 
     doMealRecord : function( iValues) {

@@ -89,6 +89,22 @@ var codapHelper = {
         );
     },
 
+    selectCasesByIDs: function (IDs, iDataContextName) {
+
+        var tResourceString = "selectionList";
+
+        if (typeof iDataContextName !== 'undefined') {
+            tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
+        }
+
+        this.codapPhone.call({
+            action: 'create',
+            resource: tResourceString,
+            values: IDs
+        });
+    },
+
+
     resourceString : function( iCollectionName, iDataContextName) {
         var oResourceString = 'collection[' + iCollectionName + ']';
         if (typeof iDataContextName !== 'undefined') {

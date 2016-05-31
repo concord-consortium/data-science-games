@@ -25,7 +25,7 @@
 
  */
 
-
+/* global steb, $, console */
 
 steb.options = {
     backgroundCrud : true,
@@ -57,7 +57,7 @@ steb.options = {
      */
     setPredatorVisionParameters : function() {
         this.useVisionParameters = document.getElementById("visionUseParameters").checked;
-        if (!this.useVisionParameters ) steb.model.predatorVisionDenominator = 1;   //  avoids nasty zero divide :)
+        if (!this.useVisionParameters ) { steb.model.predatorVisionDenominator = 1; }    //  avoids nasty zero divide :)
 
         this.predatorVisionType = $('input[name=predatorVisionType]:checked').val();
 
@@ -73,8 +73,8 @@ steb.options = {
         //  steb.model.predatorVisionBWCoefficientVector is set directly by sliders. See steb.ui.js.initialize().
 
         console.log(
-            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionColorVector )
-            + " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
+            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionColorVector ) +
+            " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
         );
 
         steb.model.stebbers.forEach(function(s) { s.updateColorDistances(); });     //  update all stebbers to reflect new vision
@@ -94,4 +94,4 @@ steb.options = {
 
         steb.ui.fixUI();
     },
-}
+};

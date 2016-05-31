@@ -91,6 +91,23 @@ steb.manager = {
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
 
+    showHideSelection: function (iShow) {
+        if (iShow) {
+            var IDs = steb.connector.getSelectedStebberIDs();
+            steb.worldView.stebberViews.forEach( function(sv) {
+                var s = sv.stebber;
+                s.selected = IDs.indexOf(s.caseID) >= 0;
+                sv.update();
+            });
+        } else {
+            steb.worldView.stebberViews.forEach(function (sv) {
+                sv.stebber.selected = false;
+                sv.update();
+            });
+
+        }
+    },
+
     /**
      * User has requested a new game.
      */
@@ -206,12 +223,28 @@ steb.manager = {
                 //  now process each "leaf"
 
                 steb.model.stebbers.forEach( function( iSteb ) {
-                    steb.connector.doStebberRecord( iSteb.dataValues() );   //  emit the Stebber part
+                    steb.connector.doStebberRecord( iSteb.dataValues(), stebberRecordCreated );   //  emit the Stebber part
+
+                    /**
+                     * Callback for creating a  new Stebber record.
+                     * @param jResult   passed back by CODAP
+                     */
+                    function stebberRecordCreated( jResult ) {
+                        if (jResult.success) {
+                            iSteb.caseIDs.push( jResult.values[0].id );
+                            console.log('Stebber ' + iSteb.id + ' has case IDs ' + iSteb.caseIDs.toString());
+                        } else {
+                            console.log("Failed to create stebber case.");
+                        }
+                    }
                 });
             } else {
                 console.log("Failed to create bucket case.");
             }
+
+
         }
+
 
     },
 

@@ -37,6 +37,7 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.color = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
+    this.caseIDs = [];  //  array of case IDs for this Stebber
     this.selected = false;
 
     this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
