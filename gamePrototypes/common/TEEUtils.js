@@ -28,6 +28,15 @@
 
 var     TEEUtils = {
 
+    anyInAny : function( a1, a2 ) {
+        var out = false;
+        a1.forEach( function(e) {
+            if (a2.indexOf(e) >= 0) { out = true; }
+        });
+        return out;
+    },
+
+
     padIntegerToTwo : function( i ) {
         if (i == 0) return "00";
         if (i >= 10) return "" + i;

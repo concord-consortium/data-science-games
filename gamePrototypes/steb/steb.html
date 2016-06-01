@@ -38,6 +38,9 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 locally, new API:
 http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
 
+globally, new API:
+http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/stebNewAPI/steb.html
+
 -->
 
 <!DOCTYPE html>
@@ -117,9 +120,13 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
                 t = <span id = "timeDisplay">0</span>
                 m = <span id = "mealDisplay">0</span>
             </div>
+            <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
+        </div>
+        <div class="hBox">
             <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
             <button id="newBGColorButton" onclick="steb.ui.selectOldestStebber()">oldest</button>
-            <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
+            <button id="selectButton" onclick="steb.manager.showHideSelection(true)">select</button>
+
         </div>
         <div class = "hBox">
             <span id="shortStatus"></span><label>
@@ -166,6 +173,15 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     </div>
 
     <div id="instructionsTab">
+        <h2>What's New</h2>
+        <p>There are now two tables. In the new one, you can plot infomation about the stebbers that get eaten, as a function of time. </p>
+        <p>New selection buttons</p>
+        <ul>
+            <li><b>data</b> output a complete set of data right now</li>
+            <li><b>oldest</b> select the oldest Stebber in CODAP</li>
+            <li><b>select</b> any stebbers selected in CODAP get selected in the game</li>
+        </ul>
+        <h2>The Basics</h2>
         <p>Eat the circles. They're called "Stebbers."
             We need to encourage "predators" to eat the most obvious ones
             as opposed to the closest. </p>

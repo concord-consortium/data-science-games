@@ -92,13 +92,9 @@ steb.manager = {
     },
 
     showHideSelection: function (iShow) {
+        var IDs = [];
         if (iShow) {
-            var IDs = steb.connector.getSelectedStebberIDs();
-            steb.worldView.stebberViews.forEach( function(sv) {
-                var s = sv.stebber;
-                s.selected = IDs.indexOf(s.caseID) >= 0;
-                sv.update();
-            });
+            steb.connector.getSelectedStebberIDs( gotSelectionResult );
         } else {
             steb.worldView.stebberViews.forEach(function (sv) {
                 sv.stebber.selected = false;
@@ -106,6 +102,22 @@ steb.manager = {
             });
 
         }
+
+        function gotSelectionResult( iResult ) {
+
+            if (iResult.success) {
+                IDs = iResult.values;
+                steb.worldView.stebberViews.forEach( function(sv) {
+                    var s = sv.stebber;
+                    s.selected = TEEUtils.anyInAny(s.caseIDs, IDs); //  are ANY of the caseIDs in the list of IDs??
+                    sv.update();
+                });
+
+            } else {
+                console.log('StebConnect: could not get the selection list');
+            }
+        }
+
     },
 
     /**

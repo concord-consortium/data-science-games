@@ -104,6 +104,22 @@ var codapHelper = {
         });
     },
 
+    getSelectionList : function( iDataContextName, iCallback ) {
+        var tResourceString = "selectionList";
+
+        if (typeof iDataContextName !== 'undefined' && iDataContextName !== null) {
+            tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
+        }
+
+        this.codapPhone.call(
+            {
+                action: 'get',
+                resource: tResourceString
+            },
+            iCallback
+        );
+    },
+
 
     resourceString : function( iCollectionName, iDataContextName) {
         var oResourceString = 'collection[' + iCollectionName + ']';

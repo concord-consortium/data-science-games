@@ -289,6 +289,7 @@ steb.model = {
 
            tout += s.id + " " + JSON.stringify(s.color) + " dBG: " + tDBG.toFixed(2);
             if (tDCrud) {
+            if (typeof tDCrud !== 'undefined' && tDCrud !== null) {
                 tout += " dCrud: " + tDCrud.toFixed(2);
             }
             tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";

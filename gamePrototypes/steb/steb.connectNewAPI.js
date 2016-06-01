@@ -54,8 +54,11 @@ steb.connector = {
         codapHelper.selectCasesByIDs( iStebber.caseIDs, steb.constants.dataSetName_meals );
     },
 
-    getSelectedStebberIDs : function( ) {
-        codapHelper.getSelectionList( steb.constants.dataSetName_meals);
+    getSelectedStebberIDs : function( iCallback ) {
+        codapHelper.getSelectionList(
+            steb.constants.dataSetName_meals,
+            iCallback
+        );
     },
 
     /**
@@ -136,6 +139,7 @@ steb.connector = {
      * Emit an "event" case, low level in the hierarchy.
      * One case per Stebber.
      * @param {[*]} iValues   the data values to be passed
+     * @param iCallback the callback function to get iResult
      */
     doStebberRecord: function (iValues, iCallback) {
         codapHelper.createCase(
