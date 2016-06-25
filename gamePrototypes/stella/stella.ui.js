@@ -1,10 +1,9 @@
-
 /**
- * Created by tim on 5/7/16.
+ * Created by tim on 6/24/16.
 
 
  ==========================================================================
- etaCas.model.js in data-science-games.
+ stella.ui.js in data-science-games.
 
  Author:   Tim Erickson
 
@@ -26,25 +25,32 @@
 
  */
 
+/* global $, stella */
 
-etaCas.model = {
+stella.ui = {
 
-    stars : [],
-    now : null,
-    epoch : null,
 
-    newGame : function() {
-        this.makeStars();
-        this.now = new Date(2100, 0);   //  Jan 1 2100
-        this.epoch = new Date(2100, 0);   //  Jan 1 2100
+    fixUI : function() {
+        $("#shortStatus").html(stella.manager.playing ? "game in progress" : "no game");
+
+        //  correct title for new/abort game button
+        this.newGameButton.html( stella.manager.playing ? "abort game" : "new game");
+
     },
 
-    makeStars : function() {
-        for (var i = 0; i < etaCas.constants.nStars; i++) {
-            var tS = new Star();
-            this.stars.push( tS );
+    newGameButtonPressed: function () {
+        if (stella.manager.playing) {
+            stella.manager.endGame("abort");
+        } else {
+            stella.manager.newGame();
         }
+        this.fixUI();
     },
 
-    foo : null
-}
+
+    initialize : function() {
+
+        this.newGameButton = $("#newGameButton");
+    }
+};
+

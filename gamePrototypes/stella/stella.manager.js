@@ -25,19 +25,39 @@
 
  */
 
+/* global $, stella, Planet, Star, console */
 
-etaCas.manager = {
+stella.manager = {
 
+    playing : false,
+    gameNumber : 0,
 
     newGame : function() {
 
-        etaCas.model.newGame();
+        this.gameNumber += 1;
+        stella.model.newGame();     //  make all the stars etc
+        this.playing = true;
+
+        stella.connector.newGameCase({
+            gameNo: this.gameNumber,
+            result : "in progress"
+        });
+
+
+        this.runTests();
+    },
+
+    endGame : function( iReason ) {
+        this.playing = false;
+
+        stella.connector.finishGameCase( iReason );
     },
 
     runTests : function() {
+        var tT = "testing\n";
         var d = $("#debugText");
 
-        var tT = "testing\n";
+/*
         var tSun = new Star();
 
         var tPlanet = new Planet( 1.0, tSun );
@@ -49,13 +69,38 @@ etaCas.manager = {
 
 
         for (var i = 0; i < 100; i++) {
-            var tPosition = etaCas.xyz( tPlanet, etaCas.model.now );
+            var tPosition = stella.xyz( tPlanet, stella.model.now );
             tT += i + "\t" + tPosition.x + "\t" + tPosition.y + "\t" + tPosition.z + "\n";
 
-            etaCas.elapse( 7 * etaCas.constants.msPerDay );
+            stella.elapse( 7 * stella.constants.msPerDay );
 
-        };
+        }
+*/
 
-        d.text( tT );
+        tT = "Stars\nmass, temp, M, mapp, ageMY, x, y, z\n";
+
+        stella.model.stars.forEach( function(iStar ) {
+            tT += iStar.toString() + "\n";
+        });
+
+        d.text( tT );       //  sends that data to debug
+
+    },
+
+    emitStarsData : function() {
+
+        stella.model.stars.forEach( function( iStar ) {
+            var tValues = iStar.dataValues();
+            tValues.date = 1221;
+            stella.connector.doStarRecord( tValues );   //  emit the Stebber part
+        });
+
+    },
+
+    /**
+     * For saving. TBD.
+     */
+    stellaDoCommand : function() {
+
     }
-}
+};

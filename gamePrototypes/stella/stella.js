@@ -25,23 +25,29 @@
 
  */
 
-var     etaCas = {};    //  top level global
+var     stella = {};    //  top level global
 
-etaCas.initialize = function() {
-    etaCas.manager.newGame();
-    etaCas.manager.runTests();
+stella.initialize = function() {
+    stella.ui.initialize();
+    stella.ui.fixUI();
 };
 
-etaCas.constants = {
+stella.constants = {
     version : "000",
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
     solarMass : 1.989e33,       //  grams
     astronomicalUnit : 1.5e13,  //  centimeters
-    parsec : 206265 * etaCas.astronomicalUnit,    //      centimeters
+    parsec : 206265 * stella.astronomicalUnit,    //      centimeters
     msPerDay : 86400000,        //  milliseconds per (Earth) day
 
     nStars : 200,
+    maxStarLogMass : 1.5,
+    minStarLogMass : -1.0,
+
+    //  for now, the universe is a spherical sector, width x width x distance, subtending an angle width / distance.
+    universeWidth : 10,          //  parsecs
+    universeDistance : 100,          //  parsecs
 
     foo : null
 };
@@ -49,10 +55,10 @@ etaCas.constants = {
 //      utilities
 
 
-etaCas.elapse = function( iMS ) {
-    var tMS = etaCas.model.now.getTime();
+stella.elapse = function(iMS ) {
+    var tMS = stella.model.now.getTime();
     tMS += iMS;
-    etaCas.model.now.setTime( tMS );
+    stella.model.now.setTime( tMS );
 };
 
 /**
@@ -61,8 +67,8 @@ etaCas.elapse = function( iMS ) {
  * @param iL2
  * @returns {number}
  */
-etaCas.distance = function( iL1, iL2 ) {
-    return Math.sqrt( (iL1.x-iL2.x) * (iL1.x-iL2.x) + (iL1.y-iL2.y) * (iL1.y-iL2.y) + (iL1.z - iL2.z) * (iL1.z - iL2.z))
+stella.distance = function(iL1, iL2 ) {
+    return Math.sqrt( (iL1.x-iL2.x) * (iL1.x-iL2.x) + (iL1.y-iL2.y) * (iL1.y-iL2.y) + (iL1.z - iL2.z) * (iL1.z - iL2.z));
 };
 
 /**
@@ -71,13 +77,13 @@ etaCas.distance = function( iL1, iL2 ) {
  * @param iDistance Distance in parsecs
  * @returns {number}
  */
-etaCas.apparentMagnitude = function( iAbs, iDistance ) {
+stella.apparentMagnitude = function(iAbs, iDistance ) {
     return iAbs + 5 - 5 * Math.log10( iDistance );
 };
 
-etaCas.xyz = function( iObject, iDate ) {
+stella.xyz = function(iObject, iDate ) {
 
-    var dt = iDate - etaCas.model.epoch;    //  time since epoch in ms.
+    var dt = iDate - stella.model.epoch;    //  time since epoch in ms.
     var motionPerSecond = 360.0 / iObject.period;       //  degrees per second
     var meanLongitude = 0;      //  todo: fix this
 
@@ -94,7 +100,7 @@ etaCas.xyz = function( iObject, iDate ) {
 
     v *= Math.PI / 180.0;   //  convert true anomaly to radians
 
-    r = iObject.a * (1 - iObject.e * iObject.e) / (1 + iObject.e * Math.cos(v));    //  distance in AU
+    var r = iObject.a * (1 - iObject.e * iObject.e) / (1 + iObject.e * Math.cos(v));    //  distance in AU
 
     var relevantAngle = v + p - o;
     var X = r * ( Math.cos(o) * Math.cos(relevantAngle) - Math.sin(o) * Math.sin(relevantAngle) * Math.cos(i) );
@@ -102,4 +108,4 @@ etaCas.xyz = function( iObject, iDate ) {
     var Z = r * Math.sin(relevantAngle) * Math.sin(i);
 
     return {x : X, y : Y, z : Z};
-}
+};

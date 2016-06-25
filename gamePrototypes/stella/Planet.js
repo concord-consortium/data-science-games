@@ -47,9 +47,9 @@ var Planet = function( iSemimajorAxis, iStar ) {
 
     this.star = iStar;          //  what we're orbiting around
 
-    var tDistance = this.a * etaCas.constants.astronomicalUnit;     //  a in centimeters!
+    var tDistance = this.a * stella.constants.astronomicalUnit;     //  a in centimeters!
 
-    this.period = 2 * Math.PI * Math.pow(tDistance, 1.5) / Math.sqrt(etaCas.constants.bigG * this.star.mass );
+    this.period = 2 * Math.PI * Math.pow(tDistance, 1.5) / Math.sqrt(stella.constants.bigG * this.star.mass );
         //  NB: Period is in seconds (because it's cgs)
 };
 
