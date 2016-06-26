@@ -32,7 +32,7 @@
  https://en.wikipedia.org/wiki/UBV_photometric_system
  */
 
-/* global $, console */
+/* global $, console, Line */
 
 var Spectrum = function() {
     this.lines = [];
@@ -78,6 +78,7 @@ Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
             return total + iLine.intensityBetween(iMin, iMax, this.speedAway);
         }.bind(this), 0);
         oIntensity *= (100.0 - tReduction) / 100.0;
+        if (oIntensity < 0) { oIntensity = 0; }
     }
 
     return oIntensity;

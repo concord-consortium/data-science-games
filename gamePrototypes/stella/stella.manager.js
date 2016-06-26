@@ -70,6 +70,18 @@ stella.manager = {
         }
     },
 
+    saveSpectrum : function( iWhich ) {
+        var tSpectrum = stella.model.skySpectrum;
+        var tSpectrumView = stella.ui.skySpectrumView;
+        var tChannels = tSpectrumView.channels;
+        var tTitle = "sky";
+
+        if (tSpectrumView.channels.length > 0) {
+            stella.connector.emitSpectrum(tChannels, tTitle);
+        }
+
+    },
+
     runTests : function() {
         var tT = "testing\n";
         var d = $("#debugText");

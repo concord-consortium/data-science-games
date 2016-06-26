@@ -10,7 +10,7 @@ var codapHelper = {
     initFrameAccomplished: false,
     initDataSetAccomplished: false,
 
-    initDataInteractive: function (iFrameDescription, iDataSetDescription, doCommandFunc) {
+    initDataInteractive: function (iFrameDescription, doCommandFunc) {
         this.codapPhone = new iframePhone.IframePhoneRpcEndpoint(doCommandFunc, "data-interactive", window.parent);
 
         this.codapPhone.call(
@@ -24,6 +24,9 @@ var codapHelper = {
                 }
             }.bind(this));
 
+    },
+
+    initDataSet : function( iDataSetDescription ) {
         this.codapPhone.call(
             {
                 action: 'create',
@@ -43,7 +46,7 @@ var codapHelper = {
             return false;
         }
         else {
-            console.log('CODAP detected. Whew.');
+            //  console.log('CODAP detected. Whew.');
             return true;
         }
 

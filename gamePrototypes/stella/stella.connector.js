@@ -41,6 +41,7 @@
 stella.connector = {
     starCaseID: 0,
     spectrumCaseID: 0,
+    spectrumNumber : 0,
     spectraCollectionName: "spectra",
     catalogCollectionName: "starCatalog",
 
@@ -48,11 +49,11 @@ stella.connector = {
      * Called when we create a case for a new game
      * @param iValues      object containing values to be stored
      */
-    newGameCase: function ( iValues ) {
+    newGameCase: function (iValues) {
 
         codapHelper.createCase(
             this.gameCollectionName,
-            { values : iValues },       //  format for new API, no parent.
+            {values: iValues},       //  format for new API, no parent.
             function (iResult) {
                 if (iResult.success) {
                     this.gameCaseID = iResult.values[0].id;
@@ -69,10 +70,10 @@ stella.connector = {
      * Called to rewrite and close a game-level case
      * @param iResult {string}  result of the game
      */
-    finishGameCase: function ( iResult) {
+    finishGameCase: function (iResult) {
         codapHelper.updateCase(
             this.gameCollectionName,
-            {values : { result : iResult }},
+            {values: {result: iResult}},
             this.gameCaseID,
             null        //  no callback
         );
@@ -84,14 +85,14 @@ stella.connector = {
      * @param iValues {*} Object containing values to be stored
      * @param iCallback     the callback function
      */
-    newBucketCase : function( iValues, iCallback ) {
+    newBucketCase: function (iValues, iCallback) {
         this.bucketNumber += 1;     //  not currently stored
 
         codapHelper.createCase(
             this.bucketCollectionName,
             {
-                parent : this.gameCaseID,
-                values : iValues
+                parent: this.gameCaseID,
+                values: iValues
             },
             iCallback               //  needed to figure out the bucket case ID
         );
@@ -106,11 +107,44 @@ stella.connector = {
         codapHelper.createCase(
             this.catalogCollectionName,
             {
-                parent : this.gameCaseID,      //  this.bucketCaseID,
-                values : iValues
+                parent: this.gameCaseID,      //  this.bucketCaseID,
+                values: iValues
             }
         ); // no callback.
     },
+
+    emitSpectrum: function ( iChannels, iName ) {
+
+        this.currentSpectrumName = iName;
+        this.spectrumNumber += 1;
+
+        codapHelper.createCase(
+            this.spectraCollectionName,
+            [
+                this.spectrumNumber,
+                iName
+            ],
+            function (iResult) {
+                this.spectrumCaseID = iResult.caseID;
+                iChannels.forEach(function (ch) {
+                    stella.connector.emitChannel(ch);
+                });
+
+            }.bind(this)
+        );
+    },
+
+    emitChannel: function ( iChannel ) {
+        codapHelper.createCase(
+            this.channelCollectionName,
+            [
+                iChannel.min.toFixed(5),
+                iChannel.intensity.toFixed(2)
+            ],
+            this.spectrumCaseID
+        ); // no callback.
+    },
+
 
     /**
      * Initialize the frame structure
@@ -132,7 +166,7 @@ stella.connector = {
      */
     getInitStarCatalogObject: function () {
         return {
-            name: 'StellaStarCatalog',
+            name: this.catalogCollectionName,
             title: 'Star Catalog',
             description: 'the Stella star catalog',
             collections: [
@@ -151,8 +185,46 @@ stella.connector = {
                         {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
                         {name: "x", type: 'numeric', precision: 3, description: "angle in x (degrees)"},
                         {name: "y", type: 'numeric', precision: 3, description: "angle in y (degrees)"},
-                        {name: "id", type: 'numeric', precision: 3},
+                        {name: "id", type: 'numeric', precision: 3, description : "Stellar ID string"},
                         {name: "name", type: 'categorical'}
+                    ]
+                }
+            ]
+        };
+    },
+
+    getInitSpectraDataSetObject: function () {
+        return {
+            name: this.spectrumCollectionName,
+            title: 'Spectra',
+            description: 'stellar spectra',
+
+            collections: [  // There are two collections: spectra, channels
+                {
+                    name: this.spectrumCollectionName,
+                    labels: {
+                        singleCase: "spectrum",
+                        pluralCase: "spectra",
+                        setOfCasesWithArticle: "a bunch of spectra"
+                    },
+                    // The parent collection spec:
+                    attrs: [
+                        {name: "specNum", type: 'categorical'},
+                        {name: "name", type: 'categorical', description: "the name of the spectrum"}
+                    ],
+                    childAttrName: "channel"
+                },
+                {
+                    name: this.channelCollectionName,
+                    labels: {
+                        singleCase: "channel",
+                        pluralCase: "channels",
+                        setOfCasesWithArticle: "a spectrum"
+                    },
+                    // The child collection specification:
+                    attrs: [
+                        {name: "lambda", type: 'numeric', precision: 5, description: "wavelength (nm)"},
+                        {name: "int", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
                     ]
                 }
             ]
@@ -169,7 +241,9 @@ stella.connector = {
  */
 codapHelper.initDataInteractive(
     stella.connector.getInitFrameObject(),
-    stella.connector.getInitStarCatalogObject(),
     stella.manager.stellaDoCommand         //  the callback needed
 );
+
+codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject());
+codapHelper.initDataSet(stella.connector.getInitStarCatalogObject());
 
