@@ -69,11 +69,16 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <script src="stella.model.js" language="JavaScript"></script>
     <script src="stella.connector.js" language="JavaScript"></script>
     <script src="stella.ui.js" language="JavaScript"></script>
+    <script src="stella.skyView.js" language="JavaScript"></script>
 <!--
     <script src="stella.options.js" language="JavaScript"></script>
     <script src="stella.sky.js" language="JavaScript"></script>
 -->
 
+    <script src="Line.js" language="JavaScript"></script>
+    <script src="Spectrum.js" language="JavaScript"></script>
+    <script src="SpectrumView.js" language="JavaScript"></script>
+    <script src="ElementalSpectra.js" language="JavaScript"></script>
     <script src="Star.js" language="JavaScript"></script>
     <script src="Planet.js" language="JavaScript"></script>
 
@@ -87,10 +92,13 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
 </head>
 <body>
 
+<span id="starInfo">What star?</span>
+
 <div id="tabs">
     <!--    list the tabs for this jquery_ui widget -->
     <ul>
         <li><a href="#skyTab">Sky</a></li>
+        <li><a href="#spectraTab">Spectra</a></li>
         <li><a href="#instructionsTab">How To</a></li>
         <li><a href="#backgroundTab">About</a></li>
         <li><a href="#optionsTab">Options</a></li>
@@ -99,8 +107,10 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
 
     <!--    Now describe each tab separately, note how the list above references the IDs    -->
 
+    <!--        SKY     -->
+
     <div id="skyTab">     <!--    The main tab, where the game is     -->
-        <svg id="etaCasSky" width="400" height="200">
+        <svg id="stellaSkyView" width="300" height="300">
             <rect width="100" height="100" fill="dodgerblue"></rect>
             <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>
             <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
@@ -119,10 +129,23 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
         </div>
         <div class = "hBox">
             <span id="shortStatus"></span>
+            <input id="pointAtStar" class="textIO" onblur="stella.ui.pointingChanged()"/>
         </div>
     </div>
 
 
+    <!--        SPECTRA     -->
+
+    <div id="spectraTab">
+        <p id="skySpectrumLabel">Spectra here.</p>
+        <svg id="skySpectrumDisplay" width="300" height="24">
+
+        </svg>
+        <p id="labSpectrumLabel">Spectra here.</p>
+        <svg id="labSpectrumDisplay" width="300" height="24">
+
+        </svg>
+    </div>
 
     <div id="instructionsTab">
         <p>Instruction to come.</p>

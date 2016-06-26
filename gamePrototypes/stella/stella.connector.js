@@ -39,12 +39,10 @@
 /* global stella, alert, codapHelper */
 
 stella.connector = {
-    gameCaseID: 0,
     starCaseID: 0,
     spectrumCaseID: 0,
-    gameCollectionName: "games",
     spectraCollectionName: "spectra",
-    starCollectionName: "stars",
+    catalogCollectionName: "starCatalog",
 
     /**
      * Called when we create a case for a new game
@@ -104,9 +102,9 @@ stella.connector = {
      * One case per Star.
      * @param {[*]} iValues   the data values to be passed
      */
-    doStarRecord: function (iValues) {
+    doStarCatalogRecord: function (iValues) {
         codapHelper.createCase(
-            this.starCollectionName,
+            this.catalogCollectionName,
             {
                 parent : this.gameCaseID,      //  this.bucketCaseID,
                 values : iValues
@@ -132,52 +130,22 @@ stella.connector = {
      * Initialize the data set
      * @returns {{name: string, title: string, description: string, collections: *[]}}
      */
-    getInitDataSetObject: function () {
+    getInitStarCatalogObject: function () {
         return {
-            name: 'Stella',
-            title: 'Stella',
-            description: 'the Stella data set',
-            collections: [  // There are three (two) collections: game, bucket, stebber
+            name: 'StellaStarCatalog',
+            title: 'Star Catalog',
+            description: 'the Stella star catalog',
+            collections: [
+
                 {
-                    name: this.gameCollectionName,
-                    labels: {
-                        singleCase: "game",
-                        pluralCase: "games",
-                        setOfCasesWithArticle: "a set of games"
-                    },
-                    // The parent collection spec:
-                    attrs: [
-                        {name: "gameNo", type: 'categorical'},
-                        {name: "result", type: 'categorical'}
-                    ],
-                    childAttrName: "star"       //  was bucket
-                },
-/*
-                {
-                    name: this.bucketCollectionName,
-                    parent: this.gameCollectionName,
-                    labels: {
-                        singleCase: "bucket",
-                        pluralCase: "buckets",
-                        setOfCasesWithArticle: "buckets of data"
-                    },
-                    // The bucket collection spec:
-                    attrs: [
-                        {name: "meals", type: 'categorical', description: 'how many stebbers you have eaten'},
-                        {name: "score", type: 'numeric', precision: 1, description: 'evolution score'}
-                    ],
-                    childAttrName: "stebber"
-                },
-*/
-                {
-                    name: this.starCollectionName,
-                    parent: this.gameCollectionName,    //  this.bucketCollectionName,
+                    name: this.catalogCollectionName,
+                    parent: null,       //  this.gameCollectionName,    //  this.bucketCollectionName,
                     labels: {
                         singleCase: "star",
                         pluralCase: "stars",
-                        setOfCasesWithArticle: "a set of stars"
+                        setOfCasesWithArticle: "star catalog"
                     },
-                    // The child collection specification:
+
                     attrs: [
                         {name: "date", type: 'numeric', precision: 1, description: "date of observation(mjd)"},
                         {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
@@ -201,7 +169,7 @@ stella.connector = {
  */
 codapHelper.initDataInteractive(
     stella.connector.getInitFrameObject(),
-    stella.connector.getInitDataSetObject(),
+    stella.connector.getInitStarCatalogObject(),
     stella.manager.stellaDoCommand         //  the callback needed
 );
 

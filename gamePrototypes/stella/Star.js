@@ -52,6 +52,9 @@ Now the copmpanion, Eta Cassiopeiae B
  * Constructor
  * @constructor
  */
+
+/* global Snap, Spectrum, stella, ElementalSpectra */
+
 var Star = function( iFrustum ) {
     /*
     this.where = { x : 0, y : 0, z : 0 };               //  initially at the origin
@@ -76,6 +79,22 @@ var Star = function( iFrustum ) {
     this.mAbs = 4.85 - 2.5 * this.logLuminosity;
     this.mApp = this.mAbs + 5 * (Math.log10( this.where.z ) - 1);
     this.id = 42;
+
+    this.setUpSpectrum();
+};
+
+Star.prototype.setUpSpectrum = function() {
+    this.spectrum = new Spectrum();
+    this.spectrum.hasAbsorptionLines = true;
+    this.spectrum.hasEmissionLines = false;
+    this.spectrum.hasBlackbody = true;
+    this.spectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
+
+    this.spectrum.addLinesFrom(ElementalSpectra.H, 50);
+    this.spectrum.addLinesFrom(ElementalSpectra.He, 30);
+    this.spectrum.addLinesFrom(ElementalSpectra.NaI, 40);
+    this.spectrum.addLinesFrom(ElementalSpectra.CaII, 30);
+    this.spectrum.addLinesFrom(ElementalSpectra.FeI, 30);
 };
 
 Star.prototype.giantIndex = function(iAge ) {
@@ -119,10 +138,26 @@ Star.prototype.toString = function() {
     return out;
 };
 
+Star.prototype.infoText = function() {
+    var out = this.id + " m = " +  this.mApp.toFixed(2);
 
+    return out;
+};
 
 //      VIEW class
 
-var StarView = function( iStar ) {
+var StarView = function( iStar, iPaper ) {
     this.star = iStar;          //  view knows about the model
+
+    var tRadius = stella.constants.universeWidth / 200;
+    var tGray = 17;
+
+    if (iStar.mApp < -1) {
+        tRadius *= -iStar.mApp;
+    } else {
+        tGray -= iStar.mApp - (-1);
+    }
+
+    var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );
+    iPaper.circle( iStar.where.x, iStar.where.y, tRadius).attr({ fill : tColor});
 };

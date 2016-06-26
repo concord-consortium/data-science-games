@@ -25,11 +25,19 @@
 
  */
 
+/* global ElementalSpectra */
+
 var     stella = {};    //  top level global
 
 stella.initialize = function() {
+    ElementalSpectra.initialize();
     stella.ui.initialize();
-    stella.ui.fixUI();
+};
+
+stella.strings = {
+    notPointingText : "not pointing at a particular star",
+    noSkySpectrum : "point at a star to see its spectrum",
+    noLabSpectrum : "set up equipment to see a lab spectrum",
 };
 
 stella.constants = {
@@ -45,8 +53,8 @@ stella.constants = {
     maxStarLogMass : 1.5,
     minStarLogMass : -1.0,
 
-    //  for now, the universe is a spherical sector, width x width x distance, subtending an angle width / distance.
-    universeWidth : 10,          //  parsecs
+    //  for now, the universe is a spherical sector, width x width x distance, subtending an angle width degrees on a side.
+    universeWidth : 5,              //  degrees
     universeDistance : 100,          //  parsecs
 
     foo : null

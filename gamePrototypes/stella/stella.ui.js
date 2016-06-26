@@ -25,16 +25,37 @@
 
  */
 
-/* global $, stella */
+/* global $, stella, SpectrumView, Snap  */
 
 stella.ui = {
 
 
     fixUI : function() {
-        $("#shortStatus").html(stella.manager.playing ? "game in progress" : "no game");
+
+        this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 
         //  correct title for new/abort game button
         this.newGameButton.html( stella.manager.playing ? "abort game" : "new game");
+
+        //  focusStar label
+        var focusStarText = stella.strings.notPointingText;
+        if (stella.manager.focusStar) {
+            focusStarText = stella.manager.focusStar.infoText();
+        }
+        this.starInfoTextField.text( focusStarText );
+
+        //  spectra labels
+
+        if (this.skySpectrumView.spectrum) {
+            this.skySpectrumLabel.text(this.skySpectrumView.toString());
+        } else {
+            this.skySpectrumLabel.text(stella.strings.noSkySpectrum);
+        }
+        if (this.labSpectrumView.spectrum) {
+            this.labSpectrumLabel.text(this.labSpectrumView.spectrum.toString());
+        } else {
+            this.labSpectrumLabel.text(stella.strings.noLabSpectrum);
+        }
 
     },
 
@@ -47,10 +68,25 @@ stella.ui = {
         this.fixUI();
     },
 
+    pointingChanged : function() {
+        var tText = this.pointAtStarInputField.val();
+        var tStar = stella.model.starFromText( tText );
+        stella.manager.pointAtStar( tStar );
+        this.fixUI();
+    },
+
 
     initialize : function() {
 
         this.newGameButton = $("#newGameButton");
+        this.starInfoTextField = $("#starInfo");
+        this.shortStatusField = $("#shortStatus");
+        this.pointAtStarInputField = $("#pointAtStar");
+
+        this.labSpectrumView = new SpectrumView(Snap(document.getElementById("labSpectrumDisplay")));
+        this.skySpectrumView = new SpectrumView(Snap(document.getElementById("skySpectrumDisplay")));
+        this.labSpectrumLabel = $("#labSpectrumLabel");
+        this.skySpectrumLabel = $("#skySpectrumLabel");
     }
 };
 

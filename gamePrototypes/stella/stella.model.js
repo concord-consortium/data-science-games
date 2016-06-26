@@ -33,16 +33,28 @@ stella.model = {
     stars : [],
     now : null,
     epoch : null,
+    skySpectrum : null,
+    labSpectrum : null,
 
     newGame : function() {
         this.stars = [];
 
-        this.makeStars();
+        this.makeAllStars();
         this.now = new Date(2525, 0);   //  Jan 1 2525
         this.epoch = new Date(2525, 0);   //  Jan 1 2525
     },
 
-    makeStars : function() {
+    starFromText : function(iText) {
+        for (var i = 0; i < this.stars.length; i++) {
+            var s = this.stars[i];
+            if (s.id.includes(iText)) {
+                return s;
+            }
+        }
+        return null;
+    },
+
+    makeAllStars : function() {
 
         var tFrustum = {
             width : stella.constants.universeWidth,
@@ -52,8 +64,8 @@ stella.model = {
         for (var i = 0; i < stella.constants.nStars; i++) {
             var tS = new Star( tFrustum );
             this.stars.push( tS );
-            console.log( tS.toString() );
-        };
+            //  console.log( tS.toString() );
+        }
 
 
         this.stars.sort( function(a,b) {
@@ -61,7 +73,9 @@ stella.model = {
         });
 
         for (var s = 0; s < this.stars.length; s++) {
-            this.stars[s].id = 1000 + s;
+            var tNumber = 1000 + s;
+            this.stars[s].id = "S" + tNumber;
+            this.stars[s].spectrum.source.id = this.stars[s].id;
         }
     },
 

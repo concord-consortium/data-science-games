@@ -25,32 +25,49 @@
 
  */
 
-/* global $, stella, Planet, Star, console */
+/* global $, stella, Planet, Star, SpectrumView, Snap, console */
 
 stella.manager = {
 
     playing : false,
     gameNumber : 0,
+    focusStar : null,
 
     newGame : function() {
 
         this.gameNumber += 1;
         stella.model.newGame();     //  make all the stars etc
         this.playing = true;
-
+        stella.manager.emitStarsData();  //      to get data at beginning of game. Remove if saving game data
+/*
         stella.connector.newGameCase({
             gameNo: this.gameNumber,
             result : "in progress"
         });
-
-
+*/
         this.runTests();
+        stella.skyView.initialize( stella.model );
     },
 
     endGame : function( iReason ) {
         this.playing = false;
 
         stella.connector.finishGameCase( iReason );
+    },
+
+
+    pointAtStar : function( iStar ) {
+        if (iStar) {
+            this.focusStar = iStar;
+            stella.model.skySpectrum = iStar.spectrum;
+            stella.skyView.pointAtStar( this.focusStar );
+            stella.ui.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
+        } else {
+            this.focusStar = null;
+            stella.model.skySpectrum = null;
+            stella.skyView.pointAtStar( null );
+            stella.ui.skySpectrumView.displaySpectrum( null );
+        }
     },
 
     runTests : function() {
@@ -92,7 +109,7 @@ stella.manager = {
         stella.model.stars.forEach( function( iStar ) {
             var tValues = iStar.dataValues();
             tValues.date = 1221;
-            stella.connector.doStarRecord( tValues );   //  emit the Stebber part
+            stella.connector.doStarCatalogRecord( tValues );   //  emit the Stebber part
         });
 
     },
@@ -100,7 +117,8 @@ stella.manager = {
     /**
      * For saving. TBD.
      */
-    stellaDoCommand : function() {
+    stellaDoCommand : function( iCommand, iCallback) {
 
+      console.log( "stellaDoCommand: " + iCommand.message );
     }
 };
