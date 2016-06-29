@@ -53,7 +53,7 @@ spec.connect = {
             function (iResult) {
                 this.spectrumCaseID = iResult.caseID;
                 iChannels.forEach(function (ch) {
-                    spec.connect.emitChannel(ch);
+                    spec.connect.emitSpectrumChannel(ch);
                 });
 
             }.bind(this)

@@ -138,6 +138,7 @@ steb.connector = {
     /**
      * Emit an "event" case, low level in the hierarchy.
      * One case per Stebber.
+     * Called from steb.manager.bucketCreated
      * @param {[*]} iValues   the data values to be passed
      * @param iCallback the callback function to get iResult
      */
