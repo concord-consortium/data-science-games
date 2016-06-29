@@ -28,6 +28,13 @@
 
 var     TEEUtils = {
 
+    /**
+     * Are any of the elements of a1 in a2?
+     *
+     * @param a1    one array
+     * @param a2    the other array
+     * @returns {boolean}   true or false
+     */
     anyInAny : function( a1, a2 ) {
         var out = false;
         a1.forEach( function(e) {
@@ -70,6 +77,19 @@ var     TEEUtils = {
     },
 
     /**
+     * returns a value for the Normal distribution at a particular point
+     * @param x         the x-value
+     * @param mean      mean of the N
+     * @param sd        standard deviation parameter
+     */
+    normal : function(x, mean, sd) {
+        var tDenom = Math.sqrt( 2 * sd * sd * Math.PI );
+        var tExponent = -( x - mean) * (x - mean) / 2 / sd / sd;
+
+        return Math.exp( tExponent ) / tDenom;
+    },
+
+    /**
      * Random normal, Box-Muller transform. Use only one value.
      * @param mean
      * @param sd
@@ -106,7 +126,6 @@ var     TEEUtils = {
         var dayOfYear = dayCount[mn - 1] + dn;
         if(mn > 1) dayOfYear += leapThing;
         return dayOfYear;
-
     },
 
     dateStringToDayOfWeek : function(iString, iTimeZoneString) {
@@ -131,7 +150,6 @@ Date.prototype.BART_string = function() {
     var ii = this.getMinutes().toString();
 
     return this.ISO_8601_string() + " " + (hh[1]?hh:"0"+hh[0]) + ":" + (ii[1]?ii:"0"+ii[0]);
-
 };
 
 Date.prototype.isLeapYear = function() {
