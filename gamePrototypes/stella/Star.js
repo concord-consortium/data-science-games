@@ -62,6 +62,7 @@ var Star = function( iFrustum ) {
     this.mass = 0.97 * stella.constants.solarMass;        //   mass of eta cas
     */
 
+    this.caseID = -1;
 
     var x = Math.random();
     var y = (1 - x) * (1 - x);
@@ -77,10 +78,15 @@ var Star = function( iFrustum ) {
     };
 
     this.mAbs = 4.85 - 2.5 * this.logLuminosity;
-    this.mApp = this.mAbs + 5 * (Math.log10( this.where.z ) - 1);
+    this.mApp = Star.apparentMagnitude( this.mAbs, this.where.z );
     this.id = 42;
 
     this.setUpSpectrum();
+    this.doPhotometry();
+};
+
+Star.apparentMagnitude = function( iAbsoluteMagnitude, iDistance ) {
+    return iAbsoluteMagnitude + 5 * (Math.log10( iDistance ) - 1);
 };
 
 Star.prototype.setUpSpectrum = function() {
@@ -116,12 +122,36 @@ Star.prototype.giantIndex = function(iAge ) {
     return result;
 };
 
+/**
+ * UBV photometry using blackbody.
+ * Assume A0 = 10000K, and all absolute magnites are zero.
+ */
+Star.prototype.doPhotometry = function() {
+    var tTemp = Math.pow(10, this.logTemperature);
+
+    var L_A0_U = Spectrum.blackbodyIntensityAt( stella.constants.lambdaU, 10000 );
+    var L_A0_B = Spectrum.blackbodyIntensityAt( stella.constants.lambdaB, 10000 );
+    var L_A0_V = Spectrum.blackbodyIntensityAt( stella.constants.lambdaV, 10000 );
+    var L_star_U = Spectrum.blackbodyIntensityAt( stella.constants.lambdaU, tTemp );
+    var L_star_B = Spectrum.blackbodyIntensityAt( stella.constants.lambdaB, tTemp );
+    var L_star_V = Spectrum.blackbodyIntensityAt( stella.constants.lambdaV, tTemp );
+
+    this.uAbs = -2.5 * Math.log10( L_star_U / L_A0_U);
+    this.bAbs = -2.5 * Math.log10( L_star_B / L_A0_B);
+    this.vAbs = -2.5 * Math.log10( L_star_V / L_A0_V);
+
+
+};
+
 Star.prototype.dataValues = function() {
     var out = {
         x : this.where.x.toFixed(3),
         y : this.where.y.toFixed(3),
         m : this.mApp.toFixed(2),
-        id : this.id
+        id : this.id,
+        U : Star.apparentMagnitude( this.uAbs, this.where.z ).toFixed(2),
+        B : Star.apparentMagnitude( this.bAbs, this.where.z ).toFixed(2),
+        V : Star.apparentMagnitude( this.vAbs, this.where.z ).toFixed(2)
     };
 
     return out;
@@ -159,5 +189,5 @@ var StarView = function( iStar, iPaper ) {
     }
 
     var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );
-    iPaper.circle( iStar.where.x, iStar.where.y, tRadius).attr({ fill : tColor});
+    iPaper.circle( iStar.where.x, stella.constants.universeWidth - iStar.where.y, tRadius).attr({ fill : tColor});
 };

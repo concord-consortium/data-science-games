@@ -40,7 +40,7 @@ stella.skyView = {
         if (iStar) {
             var x = iStar.where.x;
             var y = iStar.where.y;
-            this.reticleX.attr({ visibility : "visible", y1 : y, y2 : y});
+            this.reticleX.attr({ visibility : "visible", y1 : stella.constants.universeWidth - y, y2 : stella.constants.universeWidth - y});
             this.reticleY.attr({ visibility : "visible", x1 : x, x2 : x});
         } else {
             this.reticleX.attr({ visibility : "hidden"});
@@ -75,13 +75,13 @@ stella.skyView = {
         this.reticleX = this.paper.line(0, 0, stella.constants.universeWidth, 0).attr({
             stroke : "green",
             strokeWidth : 0.05,
-            strokeOpacity : 0.5,
+            strokeOpacity : 0.7,
             visibility : "hidden"
         });
         this.reticleY = this.paper.line(0, 0, 0, stella.constants.universeWidth ).attr({
             stroke : "green",
             strokeWidth : 0.05,
-            strokeOpacity : 0.5,
+            strokeOpacity : 0.7,
             visibility : "hidden"
         });
     }

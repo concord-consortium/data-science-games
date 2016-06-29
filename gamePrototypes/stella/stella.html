@@ -35,9 +35,11 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 or locally,
 http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/stella/stella.html
 
+//  temp
+http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://localhost/~tim/gamePrototypes/stella/stella.html
 
 locally, new API:
-http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/stella/stella.html
+http://codap.concord.org/releases/latest?di=http://localhost/~tim/gamePrototypes/stella/stella.html
 -->
 
 <!DOCTYPE html>
@@ -47,7 +49,8 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
 
     <!--        stylesheets         -->
     <link rel='stylesheet' type='text/css' href='stella.css'/>
-    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+    <link rel='stylesheet' type='text/css'
+          href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
@@ -57,7 +60,8 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <script src="../common/jquery.js" language="javascript"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-    <title>Eta Cas</title>
+    <title>Eta
+    Cas</title>
 
     <!-- Snap -->
     <script src="../Snap.svg/dist/snap.svg.js"></script>
@@ -70,10 +74,10 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <script src="stella.connector.js" language="JavaScript"></script>
     <script src="stella.ui.js" language="JavaScript"></script>
     <script src="stella.skyView.js" language="JavaScript"></script>
-<!--
-    <script src="stella.options.js" language="JavaScript"></script>
-    <script src="stella.sky.js" language="JavaScript"></script>
--->
+    <!--
+        <script src="stella.options.js" language="JavaScript"></script>
+        <script src="stella.sky.js" language="JavaScript"></script>
+    -->
 
     <script src="Line.js" language="JavaScript"></script>
     <script src="Spectrum.js" language="JavaScript"></script>
@@ -83,8 +87,8 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <script src="Planet.js" language="JavaScript"></script>
 
     <script>
-        $(function() {
-            $( "#tabs" ).tabs();
+        $(function () {
+            $("#tabs").tabs();
         });
     </script>
 
@@ -116,18 +120,12 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
             <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
         </svg>
         <div class="hBox">
-            <div class = "imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>
-            <div class = "textIO" style = "width : 90px">
-                t = <span id = "timeDisplay">0</span>
-                m = <span id = "mealDisplay">0</span>
+            <button onclick="stella.manager.newGame()">start</button>
+            <div class="textIO" style="width : 90px">
+                t = <span id="timeDisplay">0</span>
             </div>
-<!--
-            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
-            <button id="newBGColorButton" onclick="steb.worldView.mutateBackgroundColor()">mutate bg</button>
--->
-            <button id="newGameButton" onclick="stella.ui.newGameButtonPressed()">new game</button>
         </div>
-        <div class = "hBox">
+        <div class="hBox">
             <span id="shortStatus"></span>
             <input id="pointAtStar" class="textIO" onblur="stella.ui.pointingChanged()"/>
         </div>
@@ -137,18 +135,68 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <!--        SPECTRA     -->
 
     <div id="spectraTab">
-        <p id="skySpectrumLabel">Spectra here.</p>
-        <div class="hBox">
-        <svg id="skySpectrumDisplay" width="300" height="24">
+        <label>
+            Wavelength range (nm):
+            <input type="number" id="lambdaMin" value="350" maxlength="9" max="700" min="350"
+                   onblur="stella.manager.spectrumParametersChanged();">
+            -
+            <input type="number" id="lambdaMax" value="700" maxlength="9" max="700" min="350"
+                   onblur="stella.manager.spectrumParametersChanged();">
+        </label>
 
-        </svg>
+        <h2 id="skySpectrumLabel">From a Star</h2>
+        <div class="hBox">
+            <svg id="skySpectrumDisplay" width="300" height="64">
+            </svg>
             <button id="saveSkySpectrumButton" onclick="stella.manager.saveSpectrum('sky')">save</button>
         </div>
 
-        <p id="labSpectrumLabel">Spectra here.</p>
-        <svg id="labSpectrumDisplay" width="300" height="24">
+        <div class="vBox">
 
-        </svg>
+            <h2>Lab settings</h2>
+            <fieldset>
+                <legend>Source</legend>
+                <div class="hBox">
+                    <input type="radio" name="sourceType" value="discharge"
+                           onchange="stella.manager.spectrumParametersChanged();" checked>
+                    Discharge tube:
+                    <select name="source" id="dischargeTubeMenu" onchange="stella.manager.spectrumParametersChanged();">
+                        <option name="H">Hydrogen</option>
+                        <option name="He">Helium</option>
+                        <option name="NaI">Sodium</option>
+                        <option name="CaII">Calcium</option>
+                        <option name="CaII">Iron (neutral)</option>
+                    </select>
+                </div>
+
+                <div class="hBox">
+                    <input type="radio" name="sourceType" value="blackbody"
+                           onchange="stella.manager.spectrumParametersChanged();">
+                    <label>
+                        Blackbody temp:
+                        <div id="labTempSlider" class="ui-slider"></div>
+                        <div id="labTempDisplay" class="sliderLabel"></div>
+                    </label>
+                </div>
+
+
+            </fieldset>
+
+
+            <label>
+                Gain:
+                <div id="labSpectrographGainSlider" class="ui-slider"></div>
+                <div id="gainDisplay" class="sliderLabel"></div>
+            </label>
+        </div>
+        <br>
+
+        <h2 id="labSpectrumLabel">From the Lab</h2>
+        <div class="hBox">
+            <svg id="labSpectrumDisplay" width="300" height="64">
+            </svg>
+            <button id="saveLabSpectrumButton" onclick="stella.manager.saveSpectrum('lab')">save</button>
+        </div>
     </div>
 
     <div id="instructionsTab">
@@ -163,11 +211,11 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
 
     <div id="optionsTab">
         options go here
-<!--
-        <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
-            <label><input type="checkbox" id="fooOption" checked>Sample option</label>
-        </div>
--->
+        <!--
+                <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
+                    <label><input type="checkbox" id="fooOption" checked>Sample option</label>
+                </div>
+        -->
     </div>
 
 

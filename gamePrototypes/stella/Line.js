@@ -37,10 +37,14 @@ Line.prototype.intensityBetween = function( iMin, iMax, iSpeedAway ) {
     var oIntensity = 0;
 
     var tEffectiveLambda = this.lambda * Spectrum.constants.light / ( Spectrum.constants.light - iSpeedAway);
-    //  var tEffectiveLambda = this.lambda;
 
-    if (tEffectiveLambda > iMin && tEffectiveLambda <= iMax) {        //  simplest possible
-        oIntensity = this.strength;
+    if ( iMax > tEffectiveLambda - 3 * this.width && iMin < tEffectiveLambda + 3 * this.width) {
+        /*
+        At this point, we really need the integral from iMin to iMax of the intensity function, where the
+         */
+        //if (tEffectiveLambda > iMin && tEffectiveLambda <= iMax) {        //  simplest possible
+            oIntensity = this.strength;
+        //}
     }
 
     return oIntensity;

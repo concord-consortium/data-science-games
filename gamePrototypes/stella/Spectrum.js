@@ -30,6 +30,9 @@
  to be about zero for A0 main sequence stars not affected by interstellar reddening.
 
  https://en.wikipedia.org/wiki/UBV_photometric_system
+
+ We will set type A0 to be 10,000 K, and use that for our zero point for each of the photometric bands.
+ For simplicity, we'll compute it using the blackbody ONLY,
  */
 
 /* global $, console, Line */
@@ -47,6 +50,7 @@ var Spectrum = function() {
 Spectrum.prototype.addLine = function( iLine ) {
     this.lines.push( iLine );
 };
+
 
 Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
     iSpectrum.lines.forEach( function(iLine) {

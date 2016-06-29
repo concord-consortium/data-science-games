@@ -19,14 +19,10 @@ var codapHelper = {
                 resource: 'interactiveFrame',
                 values: iFrameDescription
             }, function (iResult) {
-                if (iResult) {
+                if (iResult.success) {
                     this.initFrameAccomplished = true;
                 }
             }.bind(this));
-    },
-
-    initDataSet : function(iDataSetDescription  ) {
-
     },
 
     initDataSet : function( iDataSetDescription ) {
@@ -35,8 +31,9 @@ var codapHelper = {
                 action: 'create',
                 resource: 'dataContext',
                 values: iDataSetDescription
-            }, function (iResult) {
-                if (iResult) {
+            },
+            function (iResult) {
+                if (iResult.success) {
                     this.initDataSetAccomplished = true;
                 }
             }.bind(this));
@@ -47,9 +44,7 @@ var codapHelper = {
         if (!this.initDataSetAccomplished) {
             window.alert('Please drag my URL to a CODAP document.');
             return false;
-        }
-        else {
-            //  console.log('CODAP detected. Whew.');
+        } else {
             return true;
         }
 
@@ -94,7 +89,7 @@ var codapHelper = {
         var tResourceString = "selectionList";
 
         if (typeof iDataContextName !== 'undefined') {
-            tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
+            tResourceString = 'dataContext\[' + iDataContextName + '].' + tResourceString;
         }
 
         this.codapPhone.call({
@@ -108,7 +103,7 @@ var codapHelper = {
         var tResourceString = "selectionList";
 
         if (typeof iDataContextName !== 'undefined' && iDataContextName !== null) {
-            tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
+            tResourceString = 'dataContext\[' + iDataContextName + '].' + tResourceString;
         }
 
         this.codapPhone.call(
@@ -124,7 +119,7 @@ var codapHelper = {
     resourceString : function( iCollectionName, iDataContextName) {
         var oResourceString = 'collection[' + iCollectionName + ']';
         if (typeof iDataContextName !== 'undefined') {
-            oResourceString = 'dataContext[' + iDataContextName + "]." + oResourceString;
+            oResourceString = 'dataContext\[' + iDataContextName + "]." + oResourceString;
         }
         return oResourceString;
     }

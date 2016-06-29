@@ -52,25 +52,17 @@ stella.ui = {
             this.skySpectrumLabel.text(stella.strings.noSkySpectrum);
         }
         if (this.labSpectrumView.spectrum) {
-            this.labSpectrumLabel.text(this.labSpectrumView.spectrum.toString());
+            this.labSpectrumLabel.text(this.labSpectrumView.toString());
         } else {
             this.labSpectrumLabel.text(stella.strings.noLabSpectrum);
         }
 
     },
 
-    newGameButtonPressed: function () {
-        if (stella.manager.playing) {
-            stella.manager.endGame("abort");
-        } else {
-            stella.manager.newGame();
-        }
-        this.fixUI();
-    },
 
     pointingChanged : function() {
         var tText = this.pointAtStarInputField.val();
-        var tStar = stella.model.starFromText( tText );
+        var tStar = stella.model.starFromTextID( tText );
         stella.manager.pointAtStar( tStar );
         this.fixUI();
     },
@@ -87,6 +79,37 @@ stella.ui = {
         this.skySpectrumView = new SpectrumView(Snap(document.getElementById("skySpectrumDisplay")));
         this.labSpectrumLabel = $("#labSpectrumLabel");
         this.skySpectrumLabel = $("#skySpectrumLabel");
+
+
+        this.gainSlider = $('#labSpectrographGainSlider');
+        this.labTempSlider = $('#labTempSlider');
+
+        this.gainSlider.slider( {
+                min : 1,
+                max : 10,
+                values : 1,
+                step : 1,
+                slide : function(e, ui) {
+                    stella.ui.labSpectrumView.gain = Number( ui.value );
+                    $('#gainDisplay').text(stella.ui.labSpectrumView.gain);
+                    stella.manager.spectrumParametersChanged();
+                }
+            }
+        );
+
+        this.labTempSlider.slider( {
+                min : 1000,
+                max : 10000,
+                values : [5500],
+                step : 100,
+                slide : function(e, ui) {
+                    stella.model.labBlackbodyTemperature = Number( ui.value );
+                    $('#labTempDisplay').text(stella.model.labBlackbodyTemperature);
+                    stella.manager.spectrumParametersChanged();
+                }
+            }
+        );
+
     }
 };
 

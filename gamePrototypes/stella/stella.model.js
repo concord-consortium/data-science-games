@@ -26,7 +26,7 @@
 
  */
 
-/* global stella, Star, console */
+/* global stella, Star, Spectrum, console, ElementalSpectra */
 
 stella.model = {
 
@@ -41,13 +41,23 @@ stella.model = {
 
         this.makeAllStars();
         this.now = new Date(2525, 0);   //  Jan 1 2525
-        this.epoch = new Date(2525, 0);   //  Jan 1 2525
+        this.epoch = new Date(2500, 0);   //  Jan 1 2525
     },
 
-    starFromText : function(iText) {
+    starFromTextID : function(iText) {
         for (var i = 0; i < this.stars.length; i++) {
             var s = this.stars[i];
             if (s.id.includes(iText)) {
+                return s;
+            }
+        }
+        return null;
+    },
+
+    starFromCaseID : function( id ) {
+        for (var i = 0; i < this.stars.length; i++) {
+            var s = this.stars[i];
+            if (s.caseID === id) {
                 return s;
             }
         }
@@ -79,5 +89,47 @@ stella.model = {
         }
     },
 
+    installBlackbody: function () {
+        this.labSpectrum = new Spectrum();
+        this.labSpectrum.hasBlackbody = true;
+        this.labSpectrum.hasEmissionLines = false;
+        this.labSpectrum.blackbodyTemperature = this.labBlackbodyTemperature;
+        this.labSpectrum.source.id = "blackbody at " + this.labSpectrum.blackbodyTemperature + " K";
+        this.labSpectrum.source.shortid = "BB " + this.labSpectrum.blackbodyTemperature + " K";
+    },
+
+    installDischargeTube: function () {
+        this.labSpectrum = new Spectrum();
+
+        this.labSpectrum.hasBlackbody = false;
+        this.labSpectrum.hasEmissionLines = true;
+
+        switch (this.dischargeTube) {
+            case "Hydrogen":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.H, 100);
+                break;
+
+            case "Helium":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.He, 100);
+                break;
+
+            case "Sodium":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.NaI, 100);
+                break;
+
+            case "Calcium":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.CaII, 100);
+                break;
+
+            case "Iron (neutral)":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.FeI, 100);
+                break;
+        }
+        this.labSpectrum.source.id = this.dischargeTube + " " + " tube";
+        this.labSpectrum.source.shortid = this.dischargeTube;
+    },
+
+
     foo : null
 };
+

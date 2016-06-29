@@ -57,6 +57,10 @@ stella.constants = {
     universeWidth : 5,              //  degrees
     universeDistance : 100,          //  parsecs
 
+    lambdaU : 364 * 1.0e-07,      //  for photometry. cm
+    lambdaB : 442 * 1.0e-07,
+    lambdaV : 540 * 1.0e-07,
+
     foo : null
 };
 

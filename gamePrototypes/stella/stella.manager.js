@@ -25,36 +25,23 @@
 
  */
 
-/* global $, stella, Planet, Star, SpectrumView, Snap, console */
+/* global $, stella, Planet, Star, SpectrumView, Snap, console, codapHelper  */
 
 stella.manager = {
 
     playing : false,
-    gameNumber : 0,
     focusStar : null,
 
     newGame : function() {
 
-        this.gameNumber += 1;
         stella.model.newGame();     //  make all the stars etc
         this.playing = true;
-        stella.manager.emitStarsData();  //      to get data at beginning of game. Remove if saving game data
-/*
-        stella.connector.newGameCase({
-            gameNo: this.gameNumber,
-            result : "in progress"
-        });
-*/
+        stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
+
         this.runTests();
         stella.skyView.initialize( stella.model );
+        stella.ui.fixUI();
     },
-
-    endGame : function( iReason ) {
-        this.playing = false;
-
-        stella.connector.finishGameCase( iReason );
-    },
-
 
     pointAtStar : function( iStar ) {
         if (iStar) {
@@ -70,17 +57,6 @@ stella.manager = {
         }
     },
 
-    saveSpectrum : function( iWhich ) {
-        var tSpectrum = stella.model.skySpectrum;
-        var tSpectrumView = stella.ui.skySpectrumView;
-        var tChannels = tSpectrumView.channels;
-        var tTitle = "sky";
-
-        if (tSpectrumView.channels.length > 0) {
-            stella.connector.emitSpectrum(tChannels, tTitle);
-        }
-
-    },
 
     runTests : function() {
         var tT = "testing\n";
@@ -113,17 +89,108 @@ stella.manager = {
         });
 
         d.text( tT );       //  sends that data to debug
-
     },
 
-    emitStarsData : function() {
+    emitInitialStarsData : function() {
 
         stella.model.stars.forEach( function( iStar ) {
             var tValues = iStar.dataValues();
-            tValues.date = 1221;
-            stella.connector.doStarCatalogRecord( tValues );   //  emit the Stebber part
+            tValues.date = stella.model.epoch;
+            stella.connector.emitStarCatalogRecord( tValues, starRecordCreated );   //  emit the Stebber part
+
+            function starRecordCreated(iResult ) {
+                if (iResult.success) {
+                    iStar.caseID = iResult.values[0].id;
+                } else {
+                    console.log("Failed to create case for star " + iStar.id );
+                }
+            }
         });
 
+
+    },
+
+    extractFromWithinBrackets : function( iString ) {
+        if (iString ) {
+            return iString.substring(iString.lastIndexOf("[") + 1, iString.lastIndexOf("]"));
+        } else {
+            return null;
+        }
+    },
+
+    processSelectionFromCODAP : function( iResult ) {
+        if (iResult.success) {
+            iResult.values.forEach( function( iVal ) {
+                var tStar =  stella.model.starFromCaseID( iVal.caseID );
+                stella.manager.pointAtStar( tStar );
+            });
+        stella.ui.fixUI();
+        } else {
+            console.log('Failed to retrive selected case IDs.');
+        }
+    },
+
+    /*
+            SPECTRA SECTION
+
+     */
+
+    spectrumParametersChanged : function() {
+        this.setSpectrogramWavelengths();       //  read min and max from boxes in the UI
+        this.updateLabSpectrum();
+        stella.ui.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
+        stella.ui.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
+        stella.ui.fixUI();
+    },
+
+    saveSpectrum : function( iWhich ) {
+
+        var tSpectrum, tTitle, tSpectrumView, tChannels;
+
+        switch (iWhich) {
+            case "sky":
+                tSpectrum = stella.model.skySpectrum;
+                tSpectrumView = stella.ui.skySpectrumView;
+                tChannels = tSpectrumView.zoomChannels;
+                tTitle = stella.manager.focusStar.id;
+                break;
+
+            case "lab":
+                tSpectrum = stella.model.labSpectrum;
+                tSpectrumView = stella.ui.labSpectrumView;
+                tChannels = tSpectrumView.zoomChannels;
+                tTitle = stella.model.labSpectrum.source.shortid;
+                break;
+
+            default:
+        }
+
+        if (tSpectrumView.channels.length > 0) {
+            stella.connector.emitSpectrum(tChannels, tTitle);
+        }
+
+    },
+
+
+    updateLabSpectrum : function() {
+        //  first, figure out the Lab spectrum
+        var tSpectrumType = $('input[name=sourceType]:checked').val();
+        stella.model.dischargeTube = $("#dischargeTubeMenu").val();
+
+        if (tSpectrumType === "discharge") {
+            stella.model.installDischargeTube(  );
+        } else {
+            stella.model.installBlackbody(  );
+        }
+    },
+
+
+    setSpectrogramWavelengths : function() {
+        var tLMin = Number($("#lambdaMin").val());
+        var tLMax = Number($("#lambdaMax").val());
+
+        stella.ui.labSpectrumView.adjustLimits( tLMin, tLMax);
+        stella.ui.skySpectrumView.adjustLimits( tLMin, tLMax);
     },
 
     /**
@@ -131,6 +198,23 @@ stella.manager = {
      */
     stellaDoCommand : function( iCommand, iCallback) {
 
-      console.log( "stellaDoCommand: " + iCommand.message );
+      console.log( "stellaDoCommand: " + iCommand.action + " " + iCommand.resource );
+        var tCommandObject = "";
+        var tDataSet = stella.manager.extractFromWithinBrackets( iCommand.resource );
+
+        if (iCommand.values) {
+            if (Array.isArray(iCommand.values)) {
+                switch (iCommand.values[0].operation) {
+
+                    // todo: Note that this is set up to work only with the star catalog data set.
+                    case "selectCases":
+                        codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
     }
 };
