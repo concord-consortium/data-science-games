@@ -32,8 +32,11 @@ steb.options = {
     delayReproduction : false,
     reducedMutation : false,
     flee : true,
+    crudFlee : false,
+    crudScurry : true,
     eldest : false,
     automatedPredator : false,
+    fixedInitialStebbers : true,
 
     useVisionParameters : false,
     predatorVisionType : null,
@@ -50,6 +53,11 @@ steb.options = {
     predatorVisionChange : function() {
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
+    },
+
+    predatorTypeChange : function() {
+        var tAutoPredVal = $('input[name=predatorType]:checked').val();
+        this.automatedPredator = (tAutoPredVal === "auto");
     },
 
     /**
@@ -89,8 +97,10 @@ steb.options = {
         this.delayReproduction = document.getElementById("delayReproduction").checked;
         this.reducedMutation = document.getElementById("reducedMutation").checked;
         this.flee = document.getElementById("flee").checked;
+        this.crudFlee = document.getElementById("crudFlee").checked;
+        this.crudScurry = document.getElementById("crudScurry").checked;
         this.eldest = document.getElementById("eldest").checked;
-        this.automatedPredator = document.getElementById("automatedPredator").checked;
+        this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
 
         steb.ui.fixUI();
     },

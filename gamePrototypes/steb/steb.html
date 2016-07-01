@@ -36,10 +36,10 @@ or locally,
 http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
 
 locally, new API:
-http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
+http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://localhost/~tim/gamePrototypes/steb/steb.html
 
 globally, new API:
-http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/stebNewAPI/steb.html
+http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebNewAPI/steb.html
 
 -->
 
@@ -49,11 +49,12 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <meta charset="UTF-8">
 
     <!--        stylesheets         -->
-    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+    <!--<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>-->
+    <link rel='stylesheet' type='text/css' href='http:////code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css'/>
     <link rel='stylesheet' type='text/css' href='steb.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
-    <script src="../common/codap_helper.js" language="javascript"></script>
+    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
     <script src="../common/iframe-phone.js" language="javascript"></script>
 
     <script src="../common/TEEUtils.js" language="javascript"></script>
@@ -73,7 +74,7 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
     <script src="steb.model.js" language="JavaScript"></script>
     <script src="steb.score.js" language="JavaScript"></script>
     <script src="steb.options.js" language="JavaScript"></script>
-    <script src="steb.connector.js" language="JavaScript"></script>
+    <script src="steb.connectNewAPI.js" language="JavaScript"></script>
     <script src="steb.worldView.js" language="JavaScript"></script>
 
     <script src="Stebber.js" language="JavaScript"></script>
@@ -126,18 +127,20 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
             <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
             <button id="newBGColorButton" onclick="steb.ui.selectOldestStebber()">oldest</button>
             <button id="selectButton" onclick="steb.manager.showHideSelection(true)">select</button>
-
-        </div>
-        <div class = "hBox">
-            <span id="shortStatus"></span><label>
+            <span id="shortStatus"></span>
+            <label for="visionUseParameters">| vision: </label>
             <input type="checkbox" id="visionUseParameters" onclick="steb.options.predatorVisionChange()" >
-                    use vision parameters</label>
+        </div>
+        <label for="predatorType">Predator:</label>
+        <div id="predatorType" onchange="steb.options.predatorTypeChange()">
+            <input type="radio" id="manualPredator" name="predatorType" value="manual" checked><label for="manualPredator">manual</label>
+            <input type="radio" id="autoPredator" name="predatorType" value="auto"><label for="autoPredator">auto</label>
         </div>
     </div>
 
     <!--        VISION tab      -->
 
-    <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">
+    <div id="predatorVisionTab" onchange="steb.options.predatorTypeChange()">
         <h2>Predator Vision Parameters</h2>
         <p>Choose one 'vision method' and then fill in its parameters.</p>
         <div class="hBox">
@@ -197,15 +200,19 @@ http://codap.concord.org/~jsandoe/new_di_api/static/dg/en/cert/index.html?di=htt
         <p>Based on the old, offline "Stebbins Game."</p>
     </div>
 
+    <!--        OPTIONS tab      -->
 
     <div id="optionsTab">
         <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
-            <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
+            <label><input type="checkbox" id="backgroundCrud" checked>include Crud. Select before starting game.</label>
+            <hr>
             <label><input type="checkbox" id="delayReproduction" >delay reproduction (wait and do 5)</label>
             <label><input type="checkbox" id="reducedMutation" >reduced mutation</label>
             <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
+            <label><input type="checkbox" id="crudFlee" >crud runs from predation</label>
+            <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>
             <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
-            <label><input type="checkbox" id="automatedPredator" >automated predator</label>
+            <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial colors</label>
         </div>
     </div>
 

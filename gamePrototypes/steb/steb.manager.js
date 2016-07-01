@@ -151,11 +151,11 @@ steb.manager = {
      * For some reason, the game has ended
      * @param iReason       the reason (e.g., "won," "aborted")
      */
-    endGame : function( iReason ) {
+    endGame: function (iReason) {
 
         var uri;
 
-        switch( iReason ) {
+        switch (iReason) {
             case "abort" :
                 uri = "art/StebAbort.png";
                 break;
@@ -171,18 +171,19 @@ steb.manager = {
             default:
 
         }
-        if ( uri ) {
-            steb.worldView.paper.image( uri, 200, 200, 600, 600 );
+        if (uri) {
+            steb.worldView.paper.image(uri, 200, 200, 600, 600);
         }
 
         this.playing = false;
         this.running = false;
         this.emitPopulationData();      //  send data on the remaining Stebbers to CODAP
 
-        steb.connector.finishGameCase(  //  and finish the game attributes
-            JSON.stringify(steb.model.trueBackgroundColor),
-            JSON.stringify(steb.model.meanCrudColor),
-            iReason
+        steb.connector.finishGameCase({ //  and finish the game attributes
+                bgColor: JSON.stringify(steb.model.trueBackgroundColor),
+                crudColor: JSON.stringify(steb.model.meanCrudColor),
+                result: iReason
+            }
         );
     },
 
@@ -262,7 +263,7 @@ steb.manager = {
 
     emitMealData : function( iStebber ) {
         var tValues = {
-            time : steb.manager.stebElapsed,
+            meal : steb.model.meals,
             red : iStebber.color[0],
             green : iStebber.color[1],
             blue : iStebber.color[2],

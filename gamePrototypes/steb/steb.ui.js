@@ -59,6 +59,12 @@ steb.ui = {
             $("#evolutionPoints").text(steb.score.evolutionPoints);
             $("#predatorEnergy").text(steb.score.predatorEnergy);
         }
+
+        //  adjust weird options
+
+        if (steb.options.crudScurry) {
+
+        }
     },
 
     /**
@@ -168,6 +174,10 @@ steb.ui = {
 
 
         //  set up the sliders. This seems to be the way you do it in jquery-ui
+
+        $(function() {
+            $( "#predatorType" ).buttonset();
+        });
 
         $("#redCoefficient").slider({
             range : false,

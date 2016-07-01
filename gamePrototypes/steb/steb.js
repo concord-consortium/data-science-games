@@ -85,10 +85,10 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001d",
+    version : "001e",
 
     dataSetName_Living : "LivingStebbers",
-    dataSetName_Meals : "StebberMeals",
+    dataSetName_Eaten : "EatenStebbers",
 
     initialNumberOfStebbers : 12,   //  12,
     numberOfCruds : 20,          //  20
@@ -96,6 +96,21 @@ steb.constants = {
     stebberColorMutationArray : [-2,-1,-1, 0, 0, 1, 1, 2],      //  how much Stebber children vary from their parents
     stebberColorReducedMutationArray : [-1, -0.5, -0.5, 0, 0, 0.5, 0.5, 1],   //  same if reduced mutation option selected
     crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how mcuh Crud varies from its original mean
+
+    fixedStebberColor : [
+        [4, 4, 8],
+        [4, 12, 8],
+        [12, 4, 8],
+        [12, 12, 8],
+        [4, 8, 4],
+        [4, 8, 12],
+        [12, 8, 4],
+        [12, 8, 12],
+        [8, 4, 4],
+        [8, 4, 12],
+        [8, 12, 4],
+        [8, 12, 12]
+    ],
 
     worldViewBoxSize : 1000.0,  //  size of the coordinate system (viewBox)
 

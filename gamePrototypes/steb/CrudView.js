@@ -29,6 +29,7 @@
  * Note that this file contains both the Crud and CrudView classes.
  */
 
+/* global steb, $, Snap */
 /**
  * Model class. Its view is CrudView (below).
  * @constructor
@@ -50,7 +51,7 @@ var Crud = function(  ) {
  */
 Crud.prototype.setNewSpeedAndHeading = function() {
     this.heading = Math.PI*2 * Math.random();
-    this.speed = steb.constants.baseCrudSpeed;
+    this.speed = steb.constants.baseCrudSpeed * (0.5 + Math.random());
 
     this.timeToChange = 1 + Math.random() * 2;
 };
@@ -77,7 +78,9 @@ Crud.prototype.update = function( idt ) {
 
     this.timeToChange -= idt;
 
-    if (this.timeToChange < 0) this.setNewSpeedAndHeading();    //  after this time, new speed
+    if (this.timeToChange < 0) {        //  after this time, new speed
+        this.setNewSpeedAndHeading();
+    }
 };
 
 /**
@@ -86,16 +89,20 @@ Crud.prototype.update = function( idt ) {
  * @param iPoint
  */
 Crud.prototype.runFrom = function( iPoint ) {
-    if (steb.options.flee) {
+    if (steb.options.crudFlee) {
         var dx = this.where.x - iPoint.x;
         var dy = this.where.y - iPoint.y;
         var r = Math.sqrt(dx * dx + dy * dy);
 
         if (r < steb.constants.worldViewBoxSize / 2) {
             this.heading = Math.atan2(dy, dx);
-            this.speed = 5 * steb.constants.baseCrudSpeed;
+            this.speed = (3 + 3 * Math.random()) * steb.constants.baseCrudSpeed;
             this.timeToChange = 1 + Math.random() * 2;
         }
+    } else if (steb.options.crudScurry ) {
+        this.heading = Math.random() * 2 * Math.PI;
+        this.speed = 5 * steb.constants.baseCrudSpeed;
+        this.timeToChange = 1 + Math.random() * 2;
     }
 };
 
@@ -131,7 +138,7 @@ var CrudView = function( iCrud ) {
     //  set up the click handler
 
     this.selectionShape.click(function( iEvent ) {
-        steb.ui.clickCrud( iEvent )
+        steb.ui.clickCrud( iEvent );
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
 
 };

@@ -41,22 +41,22 @@
 
 steb.connector = {
     gameCaseIDInLiving: 0,
-    gameCaseIDInMeals: 0,
+    gameCaseIDInEaten: 0,
     bucketCaseID: 0,
     bucketNumber: 0,
     gameCollectionName: "games",
     bucketCollectionName: "buckets",
     stebberCollectionName: "stebbers",
-    mealCollectionName: "meals",
+    eatenCollectionName: "meals",
 
 
     selectStebberInCODAP : function( iStebber ) {
-        codapHelper.selectCasesByIDs( iStebber.caseIDs, steb.constants.dataSetName_meals );
+        codapHelper.selectCasesByIDs( iStebber.caseIDs, steb.constants.dataSetName_Eaten );
     },
 
     getSelectedStebberIDs : function( iCallback ) {
         codapHelper.getSelectionList(
-            steb.constants.dataSetName_meals,
+            steb.constants.dataSetName_Eaten,
             iCallback
         );
     },
@@ -81,7 +81,8 @@ steb.connector = {
                     alert("Error creating new 'Living' game case");
                 }
 
-            }.bind(this)
+            }.bind(this),
+            steb.constants.dataSetName_Living
         );
 
         //  now for the meals data set
@@ -92,14 +93,14 @@ steb.connector = {
             { values : iValues },       //  format for new API, no parent.
             function (iResult) {
                 if (iResult.success) {
-                    this.gameCaseIDInMeals = iResult.values[0].id;
-                    console.log('Created case ' + this.gameCaseIDInMeals + ' for meals');
+                    this.gameCaseIDInEaten = iResult.values[0].id;
+                    console.log('Created case ' + this.gameCaseIDInEaten + ' for meals');
                 } else {
                     alert("Error creating new 'Meals' game case");
                 }
 
             }.bind(this),
-            steb.constants.dataSetName_Meals
+            steb.constants.dataSetName_Eaten
         );
     },
 
@@ -107,11 +108,12 @@ steb.connector = {
      * Called to rewrite and close a game-level case
      * @param iResult {string}  result of the game
      */
-    finishGameCase: function ( iResult) {
+    finishGameCase: function ( iValues ) {
         codapHelper.updateCase(
-            this.gameCollectionName,
-            {values : { result : iResult }},
+            { values : iValues },
             this.gameCaseIDInLiving,
+            this.gameCollectionName,
+            steb.constants.dataSetName_Living,
             null        //  no callback
         );
         this.gameCaseID = 0;     //  so we know there is no open case
@@ -131,7 +133,8 @@ steb.connector = {
                 parent : this.gameCaseIDInLiving,
                 values : iValues
             },
-            iCallback               //  needed to figure out the bucket case ID
+            iCallback,              //  needed to figure out the bucket case ID
+            steb.constants.dataSetName_Living
         );
     },
 
@@ -149,19 +152,20 @@ steb.connector = {
                 parent : this.bucketCaseID,
                 values : iValues
             },
-            iCallback   //  needed because selection requires case IDs in the new API
+            iCallback,   //  needed because selection requires case IDs in the new API
+            steb.constants.dataSetName_Living
         );
     },
 
     doMealRecord : function( iValues) {
         codapHelper.createCase(
-            this.mealCollectionName,
+            this.eatenCollectionName,
             {
-                parent : this.gameCaseIDInMeals,
+                parent : this.gameCaseIDInEaten,
                 values : iValues
             },
             null,
-            steb.constants.dataSetName_Meals
+            steb.constants.dataSetName_Eaten
         ); // no callback.
 
     },
@@ -234,9 +238,9 @@ steb.connector = {
                         {name: "red", type: 'numeric', precision: 1, description: "how much red (0 to 15)"},
                         {name: "green", type: 'numeric', precision: 1, description: "how much green (0 to 15)"},
                         {name: "blue", type: 'numeric', precision: 1, description: "how much blue (0 to 15)"},
-                        {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
-                        {name: "sat", type: 'numeric', precision: 3},
-                        {name: "value", type: 'numeric', precision: 3},
+                        //  {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
+                        //  {name: "sat", type: 'numeric', precision: 3},
+                        //  {name: "value", type: 'numeric', precision: 3},
                         {name: "id", type: 'numeric', precision: 0}
                     ]
                 }
@@ -247,8 +251,8 @@ steb.connector = {
 
     getInitStebberMealsDataSetObject: function (  ) {
         return {
-            name: steb.constants.dataSetName_Meals,
-            title: steb.constants.dataSetName_Meals,
+            name: steb.constants.dataSetName_Eaten,
+            title: steb.constants.dataSetName_Eaten,
             description: 'the Stebbins data set',
             collections: [  // There are three collections: game, bucket, stebber
                 {
@@ -265,7 +269,7 @@ steb.connector = {
                     childAttrName: "meal"
                 },
                 {
-                    name: this.mealCollectionName,
+                    name: this.eatenCollectionName,
                     parent: this.gameCollectionName,
                     labels: {
                         singleCase: "meal",
@@ -274,7 +278,7 @@ steb.connector = {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "time", type: 'numeric', precision: 1, description: "what time was the meal?"},
+                        {name: "meal", type: 'numeric', precision: 0, description: "which meal was this?"},
                         {name: "red", type: 'numeric', precision: 1, description: "how much red (0 to 15)"},
                         {name: "green", type: 'numeric', precision: 1, description: "how much green (0 to 15)"},
                         {name: "blue", type: 'numeric', precision: 1, description: "how much blue (0 to 15)"},
@@ -299,5 +303,6 @@ codapHelper.initDataInteractive(
 );
 
 codapHelper.initDataSet( steb.connector.getInitStebberMealsDataSetObject());
+
 codapHelper.initDataSet( steb.connector.getInitLivingStebberDataSetObject());   //  second one is the default??
 

@@ -70,14 +70,12 @@ var codapHelper = {
         }
     },
 
-    updateCase: function (iCollectionName, iValues, iCaseID, iCallback) {
+    updateCase: function (iValues, iCaseID, iCollectionName, iDataContextName, iCallback) {
         console.log("Update case " + iCaseID + " in " + iCollectionName);
-        if (iValues && !Array.isArray(iValues)) {
-            iValues = [iValues];
-        }
+
         this.codapPhone.call({
                 action: 'update',
-                resource: 'collection[' + iCollectionName + "].caseByID[" + iCaseID + "]",
+                resource: this.resourceString( iCollectionName, iDataContextName ) + ".caseByID[" + iCaseID + "]",
                 values: iValues
             },
             iCallback

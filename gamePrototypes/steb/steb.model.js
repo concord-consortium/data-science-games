@@ -122,9 +122,13 @@ steb.model = {
                 null;
 
         //  create a new set of Stebbers.
-        var i = 0;
-        for (i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
-            this.addNewStebberBasedOn( null );
+        if (steb.options.fixedInitialStebbers) {
+            this.makeInitialFixedStebbers();
+        } else {
+            var i = 0;
+            for (i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
+                this.addNewStebberBasedOn(null);
+            }
         }
 
         //  create a new set of Crud.
@@ -190,6 +194,18 @@ steb.model = {
         return tChildStebber;
     },
 
+    makeInitialFixedStebbers : function() {
+        var i, tColor = [], tWhere = {}, tNewStebber;
+
+        for ( i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
+            this.lastStebberNumber += 1;
+            tColor = steb.constants.fixedStebberColor[i];
+            tWhere = this.randomPlace();
+            tNewStebber = new Stebber( tColor, tWhere, this.lastStebberNumber );
+            tNewStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
+            this.stebbers.push( tNewStebber );            //  we keep the model Stebber in our array
+        }
+    },
 
 
     /**
@@ -279,23 +295,24 @@ steb.model = {
      * Text debugging information about all the Stebbers.
      * @returns {string}
      */
-    stebberColorReport : function() {
-        var     tout = "bg: " + JSON.stringify(steb.model.trueBackgroundColor) +
+    stebberColorReport: function () {
+        var tout = "bg: " + JSON.stringify(steb.model.trueBackgroundColor) +
             " crud: " + JSON.stringify(steb.model.meanCrudColor) + "<br>";
 
-        this.stebbers.forEach( function(s) {
-            var tDBG = s.colorDistanceToBackground;
-            var tDCrud = s.colorDistanceToCrud;
+        this.stebbers.forEach(function (s) {
+                var tDBG = s.colorDistanceToBackground;
+                var tDCrud = s.colorDistanceToCrud;
 
-           tout += s.id + " " + JSON.stringify(s.color) + " dBG: " + tDBG.toFixed(2);
-            if (tDCrud) {
-            if (typeof tDCrud !== 'undefined' && tDCrud !== null) {
-                tout += " dCrud: " + tDCrud.toFixed(2);
+                tout += s.id + " " + JSON.stringify(s.color) + " dBG: " + tDBG.toFixed(2);
+                if (tDCrud) {
+                    if (typeof tDCrud !== 'undefined' && tDCrud !== null) {
+                        tout += " dCrud: " + tDCrud.toFixed(2);
+                    }
+                    tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";
+
+                }
             }
-            tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";
-
-        });
-
+        );
         return tout;
     },
 
