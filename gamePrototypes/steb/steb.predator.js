@@ -80,7 +80,7 @@ steb.predator = {
                     break;
 
                 case "stalking":    //  done stalking, now we eat!
-                    steb.manager.eatStebberUsingView(this.targetView);  //  actually eat.
+                    steb.manager.autoPredatorCatchesStebberView(this.targetView);  //  actually eat.
                     steb.manager.activateTargetReticuleOn( this.targetView, false );    //  deactivate the reticule
                     this.state = "waiting";
                     this.waitTime = steb.constants.predatorWaitTime;    //  reset clock for this state.

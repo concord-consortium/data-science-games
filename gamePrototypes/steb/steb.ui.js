@@ -35,7 +35,10 @@
 steb.ui = {
 
     fixUI : function() {
-        $("#shortStatus").html(steb.manager.playing ? "game in progress" : "no game");
+        var tGameType = steb.options.automatedPredator ? "autoplay" : "game" ;
+        var tStatus = steb.manager.playing ? tGameType + " in progress" : "no game";
+        tStatus +=  (steb.manager.running) ? "" : ", paused";
+        $("#shortStatus").html( tStatus );
         this.startStopButton.style.backgroundImage  = //  machinery for the play/pause button
             (steb.manager.running) ?
                 "url('../art/pause.png')" :
@@ -57,14 +60,9 @@ steb.ui = {
 
             $("#debugText").html(tDebugText);
             $("#evolutionPoints").text(steb.score.evolutionPoints);
-            $("#predatorEnergy").text(steb.score.predatorEnergy);
+            $("#predatorPoints").text(steb.score.predatorPoints);
         }
 
-        //  adjust weird options
-
-        if (steb.options.crudScurry) {
-
-        }
     },
 
     /**
@@ -76,13 +74,9 @@ steb.ui = {
     clickStebber : function( iStebberView, iEvent )    {
 
         if(!steb.options.automatedPredator) {       //  for now, only works if the predator is not automated
-            steb.manager.eatStebberUsingView(iStebberView);
+            steb.manager.clickOnStebberView(iStebberView);
             steb.ui.fixUI();
         }
-    },
-
-    selectOldestStebber : function() {
-        steb.connector.selectStebberInCODAP(steb.model.stebbers[0] );
     },
 
     /**
@@ -169,15 +163,18 @@ steb.ui = {
         this.newGameButton = $("#newGameButton");
         this.timeDisplay = $("#timeDisplay");
         this.mealDisplay = $("#mealDisplay");
-        this.stebWorldViewElement = document.getElementById("stebSnapWorld");
         this.timeOutPaper = this.makeTimeOutPaper().remove();
 
-
-        //  set up the sliders. This seems to be the way you do it in jquery-ui
+        //  set up radio button panels
 
         $(function() {
             $( "#predatorType" ).buttonset();
         });
+        $(function() {
+            $( "#visionType" ).buttonset();
+        });
+
+        //  set up the sliders. This seems to be the way you do it in jquery-ui
 
         $("#redCoefficient").slider({
             range : false,

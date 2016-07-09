@@ -68,7 +68,7 @@ var StebberView = function( iStebber ) {
     //  set up the click handler
 
     this.selectionCircle.click(function( iEvent ) {
-        steb.ui.clickStebber( this, iEvent );
+        steb.manager.clickOnStebberView( this, iEvent );
     }.bind(this) );         //  bind so we get the StebberView and not the Snap.svg element
 
 };
@@ -82,14 +82,19 @@ StebberView.prototype.setMyColor = function() {
 };
 
 /**
- * This simply moves the view to the correct location (as set in the Stebber's update() method)
+ * This moves the view to the correct location (as set in the Stebber's update() method)
+ * and then sets the stroke to show selection.
  */
 StebberView.prototype.update = function() {
     this.moveTo( this.stebber.where );
 
     //  set the circle's stroke according to the selected property
+    //  except that if the game is running and on manual, you won't see it.
 
-    var tStroke = this.stebber.selected ? steb.worldView.selectedStrokeColor : "transparent";
+    var tShowSelection = (steb.manager.running && !steb.options.automatedPredator) ?
+        false : this.stebber.selected;
+
+    var tStroke = tShowSelection ? steb.worldView.selectedStrokeColor : "transparent";
     this.selectionCircle.attr({
        stroke : tStroke
     });

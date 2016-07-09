@@ -38,6 +38,7 @@ steb.initialize = function() {
         1.0 / (this.constants.certaintyDistance - this.constants.invisibilityDistance);
     this.ui.initialize();
     this.worldView.initialize();
+    this.colorBoxView.initialize( );
 };
 
 /**
@@ -45,9 +46,9 @@ steb.initialize = function() {
  * @param iColor
  */
 steb.makeColorString = function(iColor ) {
-    var r = iColor[0] * 16 + iColor[0];
-    var g = iColor[1] * 16 + iColor[1];
-    var b = iColor[2] * 16 + iColor[2];
+    var r = iColor[0] * 17;
+    var g = iColor[1] * 17;
+    var b = iColor[2] * 17;
 
     return Snap.rgb( r, g, b );
 };
@@ -85,7 +86,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001e",
+    version : "001f",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",

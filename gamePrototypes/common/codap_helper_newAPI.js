@@ -9,6 +9,7 @@ var codapHelper = {
     codapPhone: null,
     initFrameAccomplished: false,
     initDataSetAccomplished: false,
+    alerted : false,
 
     initDataInteractive: function (iFrameDescription, doCommandFunc) {
         this.codapPhone = new iframePhone.IframePhoneRpcEndpoint(doCommandFunc, "data-interactive", window.parent);
@@ -42,7 +43,10 @@ var codapHelper = {
     checkForCODAP: function () {
 
         if (!this.initDataSetAccomplished) {
-            window.alert('Please drag my URL to a CODAP document.');
+            if (!this.alerted) {
+                window.alert('Please drag my URL to a CODAP document.');
+                this.alerted = true;
+            }
             return false;
         } else {
             return true;
@@ -113,6 +117,9 @@ var codapHelper = {
         );
     },
 
+    sendSaveObject : function( iSaveObject, iCallback) {
+        this.codapPhone.call( iSaveObject, iCallback );
+    },
 
     resourceString : function( iCollectionName, iDataContextName) {
         var oResourceString = 'collection[' + iCollectionName + ']';

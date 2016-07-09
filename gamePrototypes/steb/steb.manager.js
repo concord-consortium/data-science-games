@@ -83,7 +83,7 @@ steb.manager = {
     },
 
     /**
-     * Use has pressed the 'play' button
+     * User has pressed the 'play' button
      */
     restart : function() {
         this.running = true;
@@ -91,22 +91,16 @@ steb.manager = {
         window.requestAnimationFrame(this.animate); //  START UP TIME
     },
 
-    showHideSelection: function (iShow) {
-        var IDs = [];
-        if (iShow) {
-            steb.connector.getSelectedStebberIDs( gotSelectionResult );
-        } else {
-            steb.worldView.stebberViews.forEach(function (sv) {
-                sv.stebber.selected = false;
-                sv.update();
-            });
-
-        }
+    processSelectionFromCODAP: function ( ) {
+        steb.connector.getSelectedStebberIDs( gotSelectionResult );
 
         function gotSelectionResult( iResult ) {
 
             if (iResult.success) {
-                IDs = iResult.values;
+                var tValues = iResult.values;
+                var IDs = [];
+                tValues.forEach( function(tV) { IDs.push( tV.caseID);});
+
                 steb.worldView.stebberViews.forEach( function(sv) {
                     var s = sv.stebber;
                     s.selected = TEEUtils.anyInAny(s.caseIDs, IDs); //  are ANY of the caseIDs in the list of IDs??
@@ -131,6 +125,7 @@ steb.manager = {
         steb.model.newGame();
         steb.worldView.newGame();
         steb.predator.newGame();
+        steb.colorBoxView.newGame();
 
         this.playing = true;
 
@@ -194,22 +189,37 @@ steb.manager = {
     },
 
     /**
-     * User or the automated predator has clicked on a Stebber View, and it's OK to eat it.
+     * User has clicked on a Stebber View, and it's OK to eat it.
+     * @param iStebberView
+     */
+    clickOnStebberView : function(iStebberView, iEvent ) {
+        var tEat = steb.manager.running && !steb.options.automatedPredator;
+        if (tEat) {
+            this.eatStebber( iStebberView );
+        } else {
+            steb.connector.selectStebberInCODAP( iStebberView.stebber );
+        }
+    },
+
+    autoPredatorCatchesStebberView : function(iStebberView ) {
+        this.eatStebber( iStebberView );
+    },
+
+    /**
+     * This stebber view will be eaten.
      * Then reproduce, account for the score, emit data, and scare things away from the site
      * @param iStebberView
      */
-    eatStebberUsingView : function( iStebberView ) {
-        if (steb.manager.running) {
-            steb.manager.emitMealData( iStebberView.stebber );
-            steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
-            steb.worldView.removeStebberView(iStebberView);     //  remove its view
-            steb.model.reproduce();     //      reproduce (from the remaining stebbers)
-            steb.score.meal();      //  before emitting data
-            if (steb.model.meals % 10 === 0) {
-                steb.manager.emitPopulationData();
-            }  //  every 10 meals.
-            steb.model.frightenStebbersFrom( iStebberView.stebber.where );
-        }
+    eatStebber : function( iStebberView )   {
+        steb.manager.emitMealData( iStebberView.stebber );
+        steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
+        steb.worldView.removeStebberView(iStebberView);     //  remove its view
+        steb.model.reproduce();     //      reproduce (from the remaining stebbers)
+        steb.score.meal();      //  upddate score before emitting data
+        if (steb.model.meals % 10 === 0) {
+            steb.manager.emitPopulationData();
+        }  //  every 10 meals.
+        steb.model.frightenStebbersFrom( iStebberView.stebber.where );
     },
 
     /**
@@ -217,7 +227,7 @@ steb.manager = {
      * We do this by default every 10 "meals."
      */
     emitPopulationData : function() {
-        var tScore = steb.options.automatedPredator ? steb.score.predatorEnergy : steb.score.evolutionPoints;
+        var tScore = steb.options.automatedPredator ? steb.score.predatorPoints : steb.score.evolutionPoints;
 
         var tBucketValues = [
             steb.model.meals,               //  categorical number of meals
@@ -264,6 +274,7 @@ steb.manager = {
     emitMealData : function( iStebber ) {
         var tValues = {
             meal : steb.model.meals,
+            score : steb.score.predatorPoints,
             red : iStebber.color[0],
             green : iStebber.color[1],
             blue : iStebber.color[2],
@@ -304,7 +315,62 @@ steb.manager = {
     /**
      * For saving. TBD.
      */
-    stebDoCommand : function() {
+    stebDoCommand: function (iCommand, iCallback) {
+        console.log("stebDoCommand: ")
+
+        var tCommandObject = "";
+
+        switch (iCommand.action) {
+            case "notify":
+                var tValues = iCommand.values;
+                if (!Array.isArray(tValues)) {
+                    tValues = [tValues];
+                }
+                var tFirstValue = tValues[0];
+
+                if (tFirstValue.operation) {
+                    switch (tFirstValue.operation) {
+
+                        case "selectCases":
+                            console.log("Selection change in CODAP");
+                            console.log(iCommand);
+                            steb.manager.processSelectionFromCODAP();
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                break;
+
+            case "get":
+                console.log("stebDoCommand: action : get.");
+                switch (iCommand.resource) {
+                    case "interactiveState":
+                        console.log("stebDoCommand save document ");
+                        var tSaveObject = {
+                            success: true,
+                            values: {
+                                foo : 3,
+                                bar : "baz"
+                            }
+                        };
+                        codapHelper.sendSaveObject(
+                            tSaveObject,
+                            function () {
+                                console.log("Save complete?");
+                            }
+                        );
+                        break;
+                    default:
+                        console.log("stebDoCommand unknown get command resource: " + iCommand.resource );
+                        break;
+                }
+                break;
+
+            default:
+                console.log("stebDoCommand: no action.");
+        }
 
     }
 };

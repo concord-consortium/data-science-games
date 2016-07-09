@@ -37,6 +37,7 @@ steb.options = {
     eldest : false,
     automatedPredator : false,
     fixedInitialStebbers : true,
+    fixedInitialBG : false,
 
     useVisionParameters : false,
     predatorVisionType : null,
@@ -51,6 +52,9 @@ steb.options = {
      * and make the world reflect them!
      */
     predatorVisionChange : function() {
+        var tPredVisionVal = $('input[name=visionType]:checked').val();
+        this.useVisionParameters = (tPredVisionVal === "mono");
+
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
     },
@@ -64,7 +68,6 @@ steb.options = {
      * Set the underlying predator vision params based on the settings in the vision panel.
      */
     setPredatorVisionParameters : function() {
-        this.useVisionParameters = document.getElementById("visionUseParameters").checked;
         if (!this.useVisionParameters ) { steb.model.predatorVisionDenominator = 1; }    //  avoids nasty zero divide :)
 
         this.predatorVisionType = $('input[name=predatorVisionType]:checked').val();
@@ -101,6 +104,7 @@ steb.options = {
         this.crudScurry = document.getElementById("crudScurry").checked;
         this.eldest = document.getElementById("eldest").checked;
         this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
+        this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
 
         steb.ui.fixUI();
     },

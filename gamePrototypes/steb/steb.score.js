@@ -38,8 +38,8 @@ steb.score = {
     pointsPerSecond : -0.016,
     startingPoints : 10,
 
-    predatorEnergy : null,
-    startingPredatorEnergy : 10,
+    predatorPoints : null,
+    startingPredatorPoints : 10,
     energyPerMeal : 5,
     energyPerLoss : -1,
     energyPerVisionChange : -50,
@@ -48,7 +48,7 @@ steb.score = {
 
     newGame : function() {
         this.evolutionPoints = this.startingPoints;
-        this.predatorEnergy = this.startingPredatorEnergy;
+        this.predatorPoints = this.startingPredatorPoints;
     },
 
     /**
@@ -56,7 +56,7 @@ steb.score = {
      */
     meal : function() {
         this.evolutionPoints += this.pointsPerMeal - this.pointsPerMiss;
-        this.predatorEnergy += this.energyPerMeal;
+        this.predatorPoints += this.energyPerMeal;
         this.checkEnd();
     },
 
@@ -64,7 +64,7 @@ steb.score = {
      * Lost lock on a Stebber
      */
     loss : function() {
-        this.predatorEnergy += this.energyPerLoss;
+        this.predatorPoints += this.energyPerLoss;
         this.checkEnd();
     },
 
@@ -73,6 +73,7 @@ steb.score = {
      */
     crud : function() {
         this.evolutionPoints += this.pointsPerCrud - this.pointsPerMiss;
+        this.predatorPoints += this.pointsPerCrud;
         this.checkEnd();
     },
 
@@ -81,6 +82,7 @@ steb.score = {
      */
     clickInWorld : function() {
         this.evolutionPoints += this.pointsPerMiss;
+        this.predatorPoints += this.pointsPerMiss;
         this.checkEnd();
     },
 
@@ -88,7 +90,7 @@ steb.score = {
      * Check to see if the game is over after we updated the score
      */
     checkEnd : function( )  {
-        var tScore = steb.options.automatedPredator ? steb.score.predatorEnergy : steb.score.evolutionPoints;
+        var tScore = steb.options.automatedPredator ? steb.score.predatorPoints : steb.score.evolutionPoints;
 
         if (tScore >= steb.score.winningScore) steb.manager.endGame("win");
         if (tScore <= 0) steb.manager.endGame("loss");

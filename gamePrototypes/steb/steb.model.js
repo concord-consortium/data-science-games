@@ -116,10 +116,15 @@ steb.model = {
         this.meals = 0;         //      number of meals
         this.lastStebberNumber = 0;
 
-        this.trueBackgroundColor = this.inventBackgroundColor();
-        this.meanCrudColor = steb.options.backgroundCrud ?
-                this.mutateColor( this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]  ) :
+        if (steb.options.fixedInitialBG) {
+            this.trueBackgroundColor = [10, 10, 6];
+            this.meanCrudColor = [7, 7, 9];
+        } else {
+            this.trueBackgroundColor = this.inventBackgroundColor();
+            this.meanCrudColor = steb.options.backgroundCrud ?
+                this.mutateColor(this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]) :
                 null;
+        }
 
         //  create a new set of Stebbers.
         if (steb.options.fixedInitialStebbers) {

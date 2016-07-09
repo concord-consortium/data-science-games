@@ -74,8 +74,9 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
     <script src="steb.model.js" language="JavaScript"></script>
     <script src="steb.score.js" language="JavaScript"></script>
     <script src="steb.options.js" language="JavaScript"></script>
-    <script src="steb.connectNewAPI.js" language="JavaScript"></script>
+    <script src="steb.connect.js" language="JavaScript"></script>
     <script src="steb.worldView.js" language="JavaScript"></script>
+    <script src="steb.colorBoxView.js" language="JavaScript"></script>
 
     <script src="Stebber.js" language="JavaScript"></script>
     <script src="StebberView.js" language="JavaScript"></script>
@@ -108,13 +109,20 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
 
     <div id="worldTab">     <!--    The main tab, where the game is     -->
         <div class="hBox" id="scoreDiv">
-            Evolution Points: <div id="evolutionPoints"></div>&nbsp;Predator Energy: <div id="predatorEnergy"></div>
+            <!--Evolution Points: <div id="evolutionPoints"></div>&nbsp;-->
+            Predator Points: <div id="predatorPoints"></div>
+            &nbsp;&nbsp;
+            <span id="shortStatus"></span>
         </div>
+
+
         <svg id="stebSnapWorld" width="300" height="300" onclick="steb.ui.clickInWorld();">
             <rect width="100" height="100" fill="dodgerblue"></rect>
             <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>
             <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
         </svg>
+
+
         <div class="hBox">
             <div class = "imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>
             <div class = "textIO" style = "width : 90px">
@@ -122,20 +130,25 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
                 m = <span id = "mealDisplay">0</span>
             </div>
             <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
+            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data now</button>
         </div>
         <div class="hBox">
-            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data</button>
-            <button id="newBGColorButton" onclick="steb.ui.selectOldestStebber()">oldest</button>
-            <button id="selectButton" onclick="steb.manager.showHideSelection(true)">select</button>
-            <span id="shortStatus"></span>
-            <label for="visionUseParameters">| vision: </label>
-            <input type="checkbox" id="visionUseParameters" onclick="steb.options.predatorVisionChange()" >
+            <label for="visionType">Vision:</label>
+            <div id="visionType" onchange="steb.options.predatorVisionChange()">
+                <input type="radio" id="normalVision" name="visionType" value="normal" checked><label
+                    for="normalVision">normal</label>
+                <input type="radio" id="monocolorVision" name="visionType" value="mono"><label for="monocolorVision">mono</label>
+            </div>
+            <label for="predatorType">Predator:</label>
+            <div id="predatorType" onchange="steb.options.predatorTypeChange()">
+                <input type="radio" id="manualPredator" name="predatorType" value="manual" checked>
+                <label for="manualPredator">manual</label>
+                <input type="radio" id="autoPredator" name="predatorType" value="auto">
+                <label for="autoPredator">auto</label>
+            </div>
         </div>
-        <label for="predatorType">Predator:</label>
-        <div id="predatorType" onchange="steb.options.predatorTypeChange()">
-            <input type="radio" id="manualPredator" name="predatorType" value="manual" checked><label for="manualPredator">manual</label>
-            <input type="radio" id="autoPredator" name="predatorType" value="auto"><label for="autoPredator">auto</label>
-        </div>
+
+        <svg id="colorBoxView" width="200" height="50"></svg>
     </div>
 
     <!--        VISION tab      -->
@@ -186,12 +199,11 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
         </ul>
         <h2>The Basics</h2>
         <p>Eat the circles. They're called "Stebbers."
-            We need to encourage "predators" to eat the most obvious ones
-            as opposed to the closest. </p>
+            </p>
         <p>Do NOT eat the "Crud." The Crud are round-cornered rectangles,
             so they look a lot like Stebbers, but they're NOT STEBBERS.</p>
         <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>
-        <p>Data are collected every ten meals, or whenever you press Data.</p>
+        <p>Data are collected every ten meals, or whenever you press <b>data</b>.</p>
     </div>
 
 
@@ -204,7 +216,13 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
 
     <div id="optionsTab">
         <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
-            <label><input type="checkbox" id="backgroundCrud" checked>include Crud. Select before starting game.</label>
+            <fieldset class="vBox">
+                <legend> Select before starting game.</legend>
+                <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
+                <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial Stebber colors</label>
+                <label><input type="checkbox" id="fixedInitialBG">fixed initial background and Crud
+                    colors</label>
+            </fieldset>
             <hr>
             <label><input type="checkbox" id="delayReproduction" >delay reproduction (wait and do 5)</label>
             <label><input type="checkbox" id="reducedMutation" >reduced mutation</label>
@@ -212,7 +230,6 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
             <label><input type="checkbox" id="crudFlee" >crud runs from predation</label>
             <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>
             <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
-            <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial colors</label>
         </div>
     </div>
 

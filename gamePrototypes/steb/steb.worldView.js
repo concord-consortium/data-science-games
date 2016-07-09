@@ -86,7 +86,7 @@ steb.worldView = {
 
         tSV.moveTo( iStebber.where );   //  place the view where it actually is on the main paper
 
-        this.stebberViews.push( tSV );  //  add thi snew view to the array
+        this.stebberViews.push( tSV );  //  add this new view to the array
     },
 
     /**
@@ -115,7 +115,7 @@ steb.worldView = {
     initialize : function() {
         this.paper = Snap(document.getElementById("stebSnapWorld"));    //    create the underlying svg "paper"
 
-        //  now set this paper's "view box" By default "0 0 1000 1000"
+        //  now set this paper's "view box" --  By default "0 0 1000 1000"
         this.paper.attr({
             viewBox : "0 0 " + steb.constants.worldViewBoxSize + " " + steb.constants.worldViewBoxSize
         });
