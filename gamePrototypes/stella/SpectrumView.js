@@ -25,12 +25,41 @@
 
 
  */
-/* global Spectrum, Snap, alert */
+/* global Spectrum, Snap, alert, stella, console */
 
 var SpectrumView = function (iPaper) {
     this.paper = iPaper;        //      snap.svg paper
-    this.initialize();
+    this.initialize(
+        this.paper.node.clientWidth,
+        this.paper.node.clientHeight
+    );
 };
+
+SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
+    this.totalSpectrumViewHeight = iHeight;
+    this.spectrumViewWidth = iWidth;
+
+    this.interspectrumGap = this.totalSpectrumViewHeight * 0.4;
+    this.mainSpectrumHeight = this.totalSpectrumViewHeight * 0.2;
+    this.zoomSpectrumHeight = this.totalSpectrumViewHeight - this.interspectrumGap - this.mainSpectrumHeight;
+
+    this.lambdaMinPossible = Spectrum.constants.visibleMin;
+    this.lambdaMaxPossible = Spectrum.constants.visibleMax;
+    this.lambdaMin = Spectrum.constants.visibleMin;
+    this.lambdaMax = Spectrum.constants.visibleMax;
+    this.pixelMin = 0;
+    this.pixelMax = this.spectrumViewWidth;
+    this.nBins = 100;
+    this.gain = 1.0;
+    this.showNoData();
+
+    this.paper.click( stella.manager.clickInSpectrum );
+
+    console.log( "Initialize a spectrum view");
+
+};
+
+
 
 SpectrumView.prototype.adjustLimits = function( iMin, iMax )    {
     this.lambdaMin = iMin;
@@ -121,25 +150,12 @@ SpectrumView.prototype.paintChannels = function () {
                 break;
         }
     } else {
-        this.initialize();
+        this.showNoData();      //  this.initialize();
     }
 };
 
-SpectrumView.prototype.initialize = function () {
-    this.totalSpectrumViewHeight = this.paper.node.clientHeight;
-    this.interspectrumGap = this.totalSpectrumViewHeight * 0.4;
-    this.mainSpectrumHeight = this.totalSpectrumViewHeight * 0.2;
-    this.zoomSpectrumHeight = this.totalSpectrumViewHeight - this.interspectrumGap - this.mainSpectrumHeight;
-    this.spectrumViewWidth = this.paper.node.clientWidth;
 
-    this.lambdaMinPossible = Spectrum.constants.visibleMin;
-    this.lambdaMaxPossible = Spectrum.constants.visibleMax;
-    this.lambdaMin = Spectrum.constants.visibleMin;
-    this.lambdaMax = Spectrum.constants.visibleMax;
-    this.pixelMin = 0;
-    this.pixelMax = this.spectrumViewWidth;
-    this.nBins = 100;
-    this.gain = 1.0;
+SpectrumView.prototype.showNoData = function() {
     this.spectrum = null;
     this.channels = [];
     this.zoomChannels = [];
@@ -148,6 +164,7 @@ SpectrumView.prototype.initialize = function () {
         fill: "yellow"
     });
     this.paper.text(30, 20, "no data");
+
 };
 
 SpectrumView.prototype.invalidate = function () {

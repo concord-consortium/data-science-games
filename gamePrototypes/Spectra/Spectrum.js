@@ -114,14 +114,14 @@ Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAw
     var tLambda =  (iLambda * 1.0e-7);      //  convert nm to cm
 
     var tMaxLambda = Spectrum.constants.wien / this.blackbodyTemperature;       //   in cm. Wien's displacement law.
-    var tMaxIntensity = Spectrum.blackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
+    var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
 
-    var tIntense = Spectrum.blackbodyIntensityAt(tLambda, this.blackbodyTemperature);
+    var tIntense = Spectrum.relativeBlackbodyIntensityAt(tLambda, this.blackbodyTemperature);
     return 100.0 *  tIntense / tMaxIntensity;
 };
 
 
-Spectrum.blackbodyIntensityAt = function( iLambda, iTemp ) {
+Spectrum.relativeBlackbodyIntensityAt = function(iLambda, iTemp ) {
     var kT = Spectrum.constants.boltzmann * iTemp;
     var hNu = Spectrum.constants.planck * Spectrum.constants.light / iLambda;
     var csq = Spectrum.constants.light * Spectrum.constants.light;

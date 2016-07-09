@@ -27,10 +27,11 @@
 
 /* global spec, Spectrum */
 
-var Line = function (iLambda, iWidth, iStrength) {
+var Line = function (iLambda, iWidth, iStrength, iWhat) {
     this.lambda = iLambda;
     this.width = iWidth;
     this.strength = iStrength;
+    this.what = iWhat;          //  purely informational
 };
 
 Line.prototype.intensityBetween = function (iMin, iMax, iSpeedAway) {

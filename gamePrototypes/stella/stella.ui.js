@@ -25,13 +25,14 @@
 
  */
 
-/* global $, stella, SpectrumView, Snap  */
+/* global $, stella, SpectrumView, Snap, console  */
 
 stella.ui = {
 
 
     fixUI : function() {
 
+        this.timeAndScore.text("t = " + stella.model.now + ", score = " + stella.manager.stellaScore);
         this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 
         //  correct title for new/abort game button
@@ -40,7 +41,8 @@ stella.ui = {
         //  focusStar label
         var focusStarText = stella.strings.notPointingText;
         if (stella.manager.focusStar) {
-            focusStarText = stella.manager.focusStar.infoText();
+            focusStarText = "Pointing at " + stella.manager.focusStar.infoText();
+            this.pointAtStarInputField.val( stella.manager.focusStar.id );
         }
         this.starInfoTextField.text( focusStarText );
 
@@ -57,6 +59,16 @@ stella.ui = {
             this.labSpectrumLabel.text(stella.strings.noLabSpectrum);
         }
 
+        //  starResult text
+
+        var tStarResultHeadText = "Your results: ";
+
+        tStarResultHeadText += stella.manager.starResultType + " = ";
+        tStarResultHeadText += stella.manager.starResultValue ?
+            stella.manager.starResultValue : "(unspecified)";
+
+        this.starResultHeadline.text( tStarResultHeadText );
+        this.starResultUnits.text( stella.starResults[stella.manager.starResultType].units);
     },
 
 
@@ -68,18 +80,36 @@ stella.ui = {
     },
 
 
+    assembleStarResultMenu: function () {
+        var oMenu = '<select  id="starResultTypeMenu" onchange="stella.manager.starResultTypeChanged()">\n';
+
+        for (var m in stella.starResults) {
+            if (stella.starResults.hasOwnProperty(m)) {
+                oMenu += '<option value="' + stella.starResults[m].id + '">' + stella.starResults[m].name + '</option>\n';
+            }
+        }
+
+        oMenu += "</select>";
+        return oMenu;
+    },
+
     initialize : function() {
 
         this.newGameButton = $("#newGameButton");
         this.starInfoTextField = $("#starInfo");
         this.shortStatusField = $("#shortStatus");
         this.pointAtStarInputField = $("#pointAtStar");
+        this.timeAndScore = $("#timeAndScore");
 
         this.labSpectrumView = new SpectrumView(Snap(document.getElementById("labSpectrumDisplay")));
         this.skySpectrumView = new SpectrumView(Snap(document.getElementById("skySpectrumDisplay")));
         this.labSpectrumLabel = $("#labSpectrumLabel");
         this.skySpectrumLabel = $("#skySpectrumLabel");
 
+        this.starResultHeadline = $("#starResultHeadline");
+        this.starResultUnits = $("#starResultUnits");
+
+        $("#starResultMenu").html( this.assembleStarResultMenu() );
 
         this.gainSlider = $('#labSpectrographGainSlider');
         this.labTempSlider = $('#labTempSlider');
@@ -99,8 +129,8 @@ stella.ui = {
 
         this.labTempSlider.slider( {
                 min : 1000,
-                max : 10000,
-                values : [5500],
+                max : 30000,
+                values : [5800],
                 step : 100,
                 slide : function(e, ui) {
                     stella.model.labBlackbodyTemperature = Number( ui.value );

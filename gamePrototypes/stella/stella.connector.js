@@ -43,12 +43,15 @@ stella.connector = {
     spectrumCaseID: 0,
     spectrumNumber : 0,
     spectraCollectionName: "spectra",
+    starResultsCollectionName: "results",
     channelCollectionName: "channels",
     catalogCollectionName: "starCatalog",
     catalogDataSetName : "starCatalog",
     catalogDataSetTitle : "Star Catalog",
     spectraDataSetName : "spectra",
     spectraDataSetTitle : "Stellar Spectra",
+    starResultsDataSetName : "results",
+    starResultsDataSetTitle : "Your Results",
 
 
     /**
@@ -64,6 +67,15 @@ stella.connector = {
             },
             iCallback,   //  callback is in .manager. To record the case ID (for selection work)
             this.catalogDataSetName
+        );
+    },
+
+    emitStarResult : function( iValues, iCallback ) {
+        codapHelper.createCase(
+            this.starResultsCollectionName,
+            { values : iValues },
+            iCallback,           //  callback
+            this.starResultsDataSetName
         );
     },
 
@@ -99,7 +111,7 @@ stella.connector = {
                 parent : this.spectrumCaseID,
                 values : {
                     lambda : iChannel.min.toFixed(5),
-                    int :   iChannel.intensity.toFixed(2)
+                    intensity :   iChannel.intensity.toFixed(2)
                 }
             },
             null,       //  no callback
@@ -107,6 +119,11 @@ stella.connector = {
         );
     },
 
+    selectStarInCODAPByCatalogID : function( iCaseID ) {
+        var theIDs = [ iCaseID ];
+        codapHelper.selectCasesByIDs( theIDs, this.catalogDataSetName );
+
+    },
 
     /**
      * Initialize the frame structure
@@ -126,32 +143,28 @@ stella.connector = {
      * Initialize the data set
      * @returns {{name: string, title: string, description: string, collections: *[]}}
      */
-    getInitStarCatalogObject: function () {
+    getStarResultsDataSetObject: function () {
         return {
-            name: this.catalogDataSetName,
-            title: this.catalogDataSetTitle,
-            description: 'the Stella star catalog',
+            name: this.starResultsDataSetName,
+            title: this.starResultsDataSetTitle,
+            description: 'the Stella results data set',
             collections: [
 
                 {
-                    name: this.catalogCollectionName,
+                    name: this.starResultsCollectionName,
                     parent: null,       //  this.gameCollectionName,    //  this.bucketCollectionName,
                     labels: {
-                        singleCase: "star",
-                        pluralCase: "stars",
-                        setOfCasesWithArticle: "star catalog"
+                        singleCase: "result",
+                        pluralCase: "results",
+                        setOfCasesWithArticle: "results data set"
                     },
 
                     attrs: [
-                        {name: "date", type: 'numeric', precision: 3, description: "date of observation(yr)"},
-                        {name: "id", type: 'numeric', precision: 3, description : "Stellar ID string"},
-                        {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "V", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "x", type: 'numeric', precision: 3, description: "angle in x (degrees)"},
-                        {name: "y", type: 'numeric', precision: 3, description: "angle in y (degrees)"},
-                        {name: "name", type: 'categorical'}
+                        {name: "date", type: 'numeric', precision: 3, description: "date of result (yr)"},
+                        {name: "id", type: 'categorical', description : "stellar ID string"},
+                        {name: "type", type: 'categorical', description: "result type"},
+                        {name: "value", type: 'numeric', precision: 8, description: "result value"},
+                        {name: "units", type: 'categorical', description: "units of the result"},
                     ]
                 }
             ]
@@ -175,7 +188,7 @@ stella.connector = {
 
                     attrs: [
                         {name: "specNum", type: 'categorical'},
-                        {name: "date", type: 'numeric', precision: 3, description: "date of observation"},
+                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
                         {name: "name", type: 'categorical', description: "the name of the spectrum"}
 
                     ],
@@ -192,12 +205,46 @@ stella.connector = {
 
                     attrs: [
                         {name: "lambda", type: 'numeric', precision: 5, description: "wavelength (nm)"},
-                        {name: "int", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
+                        {name: "intensity", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
+                    ]
+                }
+            ]
+        };
+    },
+
+    getInitStarCatalogDataSetObject: function () {
+        return {
+            name: this.catalogDataSetName,
+            title: this.catalogDataSetTitle,
+            description: 'stella star catalog',
+            collections: [
+
+                {
+                    name: this.catalogCollectionName,
+                    parent: null,       //  this.gameCollectionName,    //  this.bucketCollectionName,
+                    labels: {
+                        singleCase: "star",
+                        pluralCase: "stars",
+                        setOfCasesWithArticle: "star catalog"
+                    },
+
+                    attrs: [
+                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
+                        {name: "id", type: 'categorical',  description : "Stellar ID string"},
+                        {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
+                        {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
+                        {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},
+                        {name: "V", type: 'numeric', precision: 2, description: "apparent magnitude in V"},
+                        {name: "x", type: 'numeric', precision: 3, description: "angle in x (degrees)"},
+                        {name: "y", type: 'numeric', precision: 3, description: "angle in y (degrees)"},
+                        {name: "name", type: 'categorical'}
                     ]
                 }
             ]
         };
     }
+
+
 
 };
 
@@ -212,6 +259,7 @@ codapHelper.initDataInteractive(
     stella.manager.stellaDoCommand         //  the callback needed
 );
 
-codapHelper.initDataSet(stella.connector.getInitStarCatalogObject());
+codapHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject());
+codapHelper.initDataSet(stella.connector.getStarResultsDataSetObject());
 codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject());
 

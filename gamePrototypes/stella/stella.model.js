@@ -26,7 +26,7 @@
 
  */
 
-/* global stella, Star, Spectrum, console, ElementalSpectra */
+/* global stella, Star, Spectrum, console, ElementalSpectra, alert */
 
 stella.model = {
 
@@ -40,8 +40,8 @@ stella.model = {
         this.stars = [];
 
         this.makeAllStars();
-        this.now = new Date(2525, 0);   //  Jan 1 2525
-        this.epoch = new Date(2500, 0);   //  Jan 1 2525
+        this.now = 2525.0;       //  new Date(2525, 0);   //  Jan 1 2525
+        this.epoch = 2500.0;     //  new Date(2500, 0);   //  Jan 1 2525
     },
 
     starFromTextID : function(iText) {
@@ -66,15 +66,49 @@ stella.model = {
 
     makeAllStars : function() {
 
-        var tFrustum = {
+    var i, tFrustum, tMotion, tS;
+
+        //  first, miscellaneous stars of middling age
+
+        tFrustum = {
+            xMin : 0,
+            yMin : 0,
             width : stella.constants.universeWidth,
-            height : stella.constants.universeDistance
+            L1 : 0,
+            L2 : stella.constants.universeDistance
         };
 
-        for (var i = 0; i < stella.constants.nStars; i++) {
-            var tS = new Star( tFrustum );
+        tMotion = {
+            x : 0,  sx : 25,
+            y : 0,  sy : 25,
+            r : 5,  sr : 25
+        };
+
+        for (i = 0; i < stella.constants.nStars; i++) {
+            tS = new Star( tFrustum, tMotion, 9.0 + 0.5 * Math.random() );
             this.stars.push( tS );
             //  console.log( tS.toString() );
+        }
+
+        //  then, stars in a cluster
+
+        tFrustum = {
+            xMin : 0.2 * stella.constants.universeWidth,
+            yMin : 0.4 * stella.constants.universeWidth,
+            width : 0.2 * stella.constants.universeWidth,
+            L1 : stella.constants.universeDistance,
+            L2 : stella.constants.universeDistance + 5
+        };
+
+        tMotion = {             //  motion of the cluster
+            x : 20,  sx : 5,
+            y : 40,  sy : 5,
+            r : 25,  sr : 5
+        };
+
+        for ( i = 0; i < stella.constants.nStars/2; i++) {
+            tS = new Star( tFrustum, tMotion, 7.0 + 0.1 * Math.random() );
+            this.stars.push( tS );
         }
 
 
@@ -95,7 +129,7 @@ stella.model = {
         this.labSpectrum.hasEmissionLines = false;
         this.labSpectrum.blackbodyTemperature = this.labBlackbodyTemperature;
         this.labSpectrum.source.id = "blackbody at " + this.labSpectrum.blackbodyTemperature + " K";
-        this.labSpectrum.source.shortid = "BB " + this.labSpectrum.blackbodyTemperature + " K";
+        this.labSpectrum.source.shortid = "BB_" + this.labSpectrum.blackbodyTemperature + "K";
     },
 
     installDischargeTube: function () {
@@ -110,7 +144,7 @@ stella.model = {
                 break;
 
             case "Helium":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.He, 100);
+                this.labSpectrum.addLinesFrom(ElementalSpectra.HeI, 100);
                 break;
 
             case "Sodium":
@@ -129,6 +163,48 @@ stella.model = {
         this.labSpectrum.source.shortid = this.dischargeTube;
     },
 
+    evaluateResult : function( iValues ) {
+        var tStar = stella.model.starFromTextID( iValues.id );
+        var tMaxPoints = 100;
+        var oPoints = 0;
+
+        var trueValue = null;
+        var debugString = "debug";
+
+        switch( iValues.type ) {
+            case "temp" :
+                var tLogResultValue = Math.log10( iValues.value );
+                trueValue = Math.pow(10, tStar.logMainSequenceTemperature);
+                var dLogResultValue = Math.abs(tLogResultValue - tStar.logMainSequenceTemperature);
+                oPoints = tMaxPoints * ( 1 - 10 * dLogResultValue );     //  difference in log of 0.1 = about 20%
+                break;
+
+            case "vel_r":
+                trueValue = tStar.pm.r;
+                var guessValue = iValues.value;
+                var dValue = Math.abs(trueValue - guessValue);
+                oPoints = tMaxPoints * (1 - 0.1 * dValue);    //  ± 10 km/sec tolerance
+                break;
+
+            default:
+                var tMess = "Sorry, I don't know how to score " + stella.starResults[ iValues.type].name + " yet.";
+                alert(tMess);
+                oPoints = 0;    //      so it will not record the data
+                break;
+        }
+
+        if (oPoints < 0 ) {
+            oPoints = 0;
+        }
+
+        debugString = "Evaluate " +
+            stella.starResults[ iValues.type].name + ": user said " +
+                iValues.value + ", true value " + trueValue +
+                ". Awarding " + Math.round(oPoints) + " points.";
+
+        console.log( debugString );
+        return Math.round(oPoints);
+    },
 
     foo : null
 };

@@ -38,7 +38,7 @@ spec.model = {
     skySpectrum: null,
 
     initialize: function () {
-        this.setUpElementalSpectra();
+        //  this.setUpElementalSpectra();
     },
 
     installBlackbody: function () {
@@ -60,7 +60,7 @@ spec.model = {
                 break;
 
             case "Helium":
-                this.labSpectrum.addLinesFrom(this.elementalSpectra.He, 100);
+                this.labSpectrum.addLinesFrom(this.elementalSpectra.HeI, 100);
                 break;
 
             case "Sodium":
@@ -95,7 +95,7 @@ spec.model = {
         oSpectrum.hasAbsorptionLines = true;
         oSpectrum.hasEmissionLines = false;
         oSpectrum.addLinesFrom(this.elementalSpectra.H, 50);
-        oSpectrum.addLinesFrom(this.elementalSpectra.He, 30);
+        oSpectrum.addLinesFrom(this.elementalSpectra.HeI, 30);
         oSpectrum.addLinesFrom(this.elementalSpectra.NaI, 40);
         oSpectrum.addLinesFrom(this.elementalSpectra.CaII, 30);
 
@@ -141,7 +141,7 @@ spec.model = {
         tSpectrum.addLine(new Line(587.5621, 1, 100));
         tSpectrum.addLine(new Line(587.5966, 1, 20));
         tSpectrum.addLine(new Line(667.8151, 1, 20));
-        this.elementalSpectra.He = tSpectrum;
+        this.elementalSpectra.HeI = tSpectrum;
 
         //  Ca II (singly ionized)
         tSpectrum = new Spectrum();         //  http://physics.nist.gov/cgi-bin/ASD/lines1.pl  //   divide intensities by 2.5

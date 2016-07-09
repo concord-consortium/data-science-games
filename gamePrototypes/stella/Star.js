@@ -53,36 +53,90 @@ Now the copmpanion, Eta Cassiopeiae B
  * @constructor
  */
 
-/* global Snap, Spectrum, stella, ElementalSpectra */
+/* global Snap, Spectrum, stella, ElementalSpectra, TEEUtils */
 
-var Star = function( iFrustum ) {
-    /*
-    this.where = { x : 0, y : 0, z : 0 };               //  initially at the origin
-    this.absoluteMagnitude = {U : 5, B : 5, V : 5};     //  in three color bands
-    this.mass = 0.97 * stella.constants.solarMass;        //   mass of eta cas
-    */
-
+var Star = function( iFrustum, iMotion, iLogAge ) {
     this.caseID = -1;
 
-    var x = Math.random();
-    var y = (1 - x) * (1 - x);
-    this.logMass = (stella.constants.maxStarLogMass - stella.constants.minStarLogMass) * y - 1;
+    var t1 = Math.random();
+    var t2 = (1 - t1) * (1 - t1);
+    this.logMass = (stella.constants.maxStarLogMass - stella.constants.minStarLogMass) * t2 - 1;
+    this.logMainSequenceRadius = (2/3) * this.logMass;
+    this.logRadius = this.logMainSequenceRadius;
     this.logLuminosity = 3.5 * this.logMass;
-    this.logTemperature = 3.76 + 13/24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
+    this.logMainSequenceTemperature = 3.76 + 13/24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
+    this.logTemperature = this.logMainSequenceTemperature;      //  start on main sequence
     this.logLifetime = 10 + this.logMass - this.logLuminosity;
+    this.logAge = null;
+    this.myGiantIndex = 0;
+
+    var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
 
     this.where = {
-        x : Math.random() * iFrustum.width,
-        y : Math.random() * iFrustum.width,
-        z : Math.pow(Math.random(), 0.333) * iFrustum.height
+        x : iFrustum.xMin + Math.random() * iFrustum.width,
+        y : iFrustum.yMin + Math.random() * iFrustum.width,
+        z : Math.pow(tDistanceCubed, 0.333)
     };
 
-    this.mAbs = 4.85 - 2.5 * this.logLuminosity;
-    this.mApp = Star.apparentMagnitude( this.mAbs, this.where.z );
-    this.id = 42;
+    this.pm = {
+        x : stella.pmFromSpeedAndDistance( TEEUtils.randomNormal( iMotion.x, iMotion.sx), this.where.z),
+        y : stella.pmFromSpeedAndDistance( TEEUtils.randomNormal( iMotion.y, iMotion.sy), this.where.z),
+        r : TEEUtils.randomNormal( iMotion.r, iMotion.sr )
+    };
 
+    this.id = 42;       //  placeholder. Gets set elsewhere.
+    this.logAge = iLogAge;
+
+    this.evolve( );
     this.setUpSpectrum();
     this.doPhotometry();
+};
+
+Star.prototype.evolve = function(  ) {
+    var tAge = Math.pow(10, this.logAge);           //  current age
+    this.myGiantIndex = this.computeGiantIndex( tAge );
+
+    if (this.myGiantIndex <= 0) {
+        this.myGiantIndex = 0;                 //      ON MAIN SEQUENCE. No evolution.
+    } else if (this.myGiantIndex <= 1) {        //  GIANT phase
+        /*
+         Our model is, at this point, that as you age, you will maintain your luminosity,
+         but your temperature will decline, linearly, to about 3000K
+         (stella.constants.giantTemperature)
+         */
+
+        var tMSTemp = Math.pow(10, this.logMainSequenceTemperature);
+        var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));
+        tCurrentTemp -= 500.0 * Math.random();      //  some variety in giant temperatures.
+        this.logTemperature = Math.log10(tCurrentTemp);
+        this.logRadius = this.logMainSequenceRadius + 2.0 * (this.logMainSequenceTemperature - this.logTemperature);
+        //  R goes like T^2 for constant luminosity (L goes as R^2T^4)
+    } else {            //          WHITE DWARF or...
+        var tRan = Math.random();
+        this.logTemperature = 4 + tRan * 0.5;       //  hot! 10000 to 30000
+
+        var tTempInSols = Math.pow(10, this.logTemperature) / stella.constants.solarTemperature;
+
+        //  todo: THIS is where we would have decided how much mass is left, and if we'll make a neutron star or BH.
+
+        this.logRadius = -2.0 - 0.3 * this.logMass;      //  see http://burro.cwru.edu/academics/Astr221/LifeCycle/WDmassrad.html
+        //  now we know temperature and radius, we can compute luminosity:
+        this.logLuminosity = 2 * this.logRadius + 4 * Math.log10( tTempInSols );
+    }
+};
+
+Star.prototype.positionAtTime = function( iTime ) {
+
+    //  todo: put in parallax
+
+    var iDT = iTime - stella.model.epoch;
+    var oWhere = {
+        x : this.where.x + iDT * this.pm.x,
+        y : this.where.y + iDT * this.pm.y,
+        z : this.where.z + iDT * this.pm.r * 1.0e05 / stella.constants.parsec
+    };
+
+    return oWhere;
 };
 
 Star.apparentMagnitude = function( iAbsoluteMagnitude, iDistance ) {
@@ -96,14 +150,16 @@ Star.prototype.setUpSpectrum = function() {
     this.spectrum.hasBlackbody = true;
     this.spectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
 
-    this.spectrum.addLinesFrom(ElementalSpectra.H, 50);
-    this.spectrum.addLinesFrom(ElementalSpectra.He, 30);
-    this.spectrum.addLinesFrom(ElementalSpectra.NaI, 40);
-    this.spectrum.addLinesFrom(ElementalSpectra.CaII, 30);
-    this.spectrum.addLinesFrom(ElementalSpectra.FeI, 30);
+    this.spectrum.addLinesFrom(ElementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
+    this.spectrum.addLinesFrom(ElementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
+    this.spectrum.addLinesFrom(ElementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
+    this.spectrum.addLinesFrom(ElementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
+    this.spectrum.addLinesFrom(ElementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
+
+    this.spectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
 };
 
-Star.prototype.giantIndex = function(iAge ) {
+Star.prototype.computeGiantIndex = function(iAge ) {
     var result = 0;
     var tTimeOnMS = Math.pow(10, this.logLifetime);
     var tTimeAcross = tTimeOnMS;  //  for now, the same time across as on MS
@@ -116,7 +172,7 @@ Star.prototype.giantIndex = function(iAge ) {
     } else if (iAge < tTimeOnMS + tTimeAcross + tTimeAsGiant) {
         result = 1.0;
     } else {
-        result = Math.MAX_VALUE;    //  past nova!
+        result = 1000;    //  past nova!
     }
 
     return result;
@@ -124,22 +180,34 @@ Star.prototype.giantIndex = function(iAge ) {
 
 /**
  * UBV photometry using blackbody.
- * Assume A0 = 10000K, and all absolute magnites are zero.
+ * Assume A0 = 10000K, and all its absolute magnites are zero.
  */
 Star.prototype.doPhotometry = function() {
+
+    this.mAbs = 4.85 - 2.5 * this.logLuminosity;
+    this.mApp = Star.apparentMagnitude( this.mAbs, this.where.z );
+
+    var solarU = 5.61;  //  solar mags from http://www.ucolick.org/~cnaw/sun.html
+    var solarB = 5.48;
+    var solarV = 4.83;
+    var solarR = 4.42;
+    var solarI = 4.08;
+
+    var tSolar = 5800;
+
     var tTemp = Math.pow(10, this.logTemperature);
+    var tRadius = Math.pow(10, this.logRadius);
 
-    var L_A0_U = Spectrum.blackbodyIntensityAt( stella.constants.lambdaU, 10000 );
-    var L_A0_B = Spectrum.blackbodyIntensityAt( stella.constants.lambdaB, 10000 );
-    var L_A0_V = Spectrum.blackbodyIntensityAt( stella.constants.lambdaV, 10000 );
-    var L_star_U = Spectrum.blackbodyIntensityAt( stella.constants.lambdaU, tTemp );
-    var L_star_B = Spectrum.blackbodyIntensityAt( stella.constants.lambdaB, tTemp );
-    var L_star_V = Spectrum.blackbodyIntensityAt( stella.constants.lambdaV, tTemp );
+    var L_solarU = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaU, tSolar);
+    var L_solarB = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaB, tSolar);
+    var L_solarV = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaV, tSolar);
+    var L_star_U = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaU, tTemp) * tRadius * tRadius;
+    var L_star_B = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaB, tTemp) * tRadius * tRadius;
+    var L_star_V = Spectrum.relativeBlackbodyIntensityAt(stella.constants.lambdaV, tTemp) * tRadius * tRadius;
 
-    this.uAbs = -2.5 * Math.log10( L_star_U / L_A0_U);
-    this.bAbs = -2.5 * Math.log10( L_star_B / L_A0_B);
-    this.vAbs = -2.5 * Math.log10( L_star_V / L_A0_V);
-
+    this.uAbs = solarU - 2.5 * Math.log10( L_star_U / L_solarU);
+    this.bAbs = solarB - 2.5 * Math.log10( L_star_B / L_solarB);
+    this.vAbs = solarV - 2.5 * Math.log10( L_star_V / L_solarV);
 
 };
 
@@ -159,7 +227,7 @@ Star.prototype.dataValues = function() {
 
 Star.prototype.toString = function() {
     var out = Math.pow(10, this.logMass).toFixed(2);
-    out += ", " + Math.round(Math.pow(10, this.logTemperature));
+    out += ", " + Math.round(Math.pow(10, this.logMainSequenceTemperature));
     out += ", " + this.mAbs.toFixed(2);
     out += ", " + this.mApp.toFixed(2);
     out += ", " + Math.round(Math.pow(10, this.logLifetime - 6));

@@ -25,19 +25,24 @@
 
  */
 
-/* global $, stella, Planet, Star, SpectrumView, Snap, console, codapHelper  */
+/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert  */
 
 stella.manager = {
 
     playing : false,
     focusStar : null,
+    starResultType : null,
+    starResultValue : null,
+    stellaScore : 0,
+
 
     newGame : function() {
 
         stella.model.newGame();     //  make all the stars etc
         this.playing = true;
+        this.starResultTypeChanged();      //  to make sure that it has a good value
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
-
+        stella.manager.spectrumParametersChanged();
         this.runTests();
         stella.skyView.initialize( stella.model );
         stella.ui.fixUI();
@@ -49,38 +54,23 @@ stella.manager = {
             stella.model.skySpectrum = iStar.spectrum;
             stella.skyView.pointAtStar( this.focusStar );
             stella.ui.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
+            stella.connector.selectStarInCODAPByCatalogID( iStar.caseID );
+
+            console.log("pointAtStar");
+            console.log(this.focusStar);
         } else {
             this.focusStar = null;
             stella.model.skySpectrum = null;
             stella.skyView.pointAtStar( null );
             stella.ui.skySpectrumView.displaySpectrum( null );
         }
+        stella.ui.fixUI();
     },
 
 
     runTests : function() {
         var tT = "testing\n";
         var d = $("#debugText");
-
-/*
-        var tSun = new Star();
-
-        var tPlanet = new Planet( 1.0, tSun );
-        tPlanet.e = 0.5;
-
-        tT += tPlanet + "\n";
-
-        tT += "i\tx\ty\tz\n";
-
-
-        for (var i = 0; i < 100; i++) {
-            var tPosition = stella.xyz( tPlanet, stella.model.now );
-            tT += i + "\t" + tPosition.x + "\t" + tPosition.y + "\t" + tPosition.z + "\n";
-
-            stella.elapse( 7 * stella.constants.msPerDay );
-
-        }
-*/
 
         tT = "Stars\nmass, temp, M, mapp, ageMY, x, y, z\n";
 
@@ -119,16 +109,17 @@ stella.manager = {
     },
 
     processSelectionFromCODAP : function( iResult ) {
-        if (iResult.success) {
-            iResult.values.forEach( function( iVal ) {
-                var tStar =  stella.model.starFromCaseID( iVal.caseID );
+        if (iResult && iResult.success) {
+            if (iResult.values.length === 1) {
+                var tStar =  stella.model.starFromCaseID( iResult.values[0].caseID );
                 stella.manager.pointAtStar( tStar );
-            });
-        stella.ui.fixUI();
+                stella.ui.fixUI();
+            }
         } else {
-            console.log('Failed to retrive selected case IDs.');
+            console.log('Failed to retrieve selected case IDs.');
         }
     },
+
 
     /*
             SPECTRA SECTION
@@ -138,9 +129,14 @@ stella.manager = {
     spectrumParametersChanged : function() {
         this.setSpectrogramWavelengths();       //  read min and max from boxes in the UI
         this.updateLabSpectrum();
+        this.displayAllSpectra();
+    },
+
+    displayAllSpectra : function() {
         stella.ui.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
         stella.ui.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
         stella.ui.fixUI();
+
     },
 
     saveSpectrum : function( iWhich ) {
@@ -193,28 +189,158 @@ stella.manager = {
         stella.ui.skySpectrumView.adjustLimits( tLMin, tLMax);
     },
 
+    clickInSpectrum: function (e) {
+        var tSpecView = stella.ui.labSpectrumView;
+
+        var uupos = tSpecView.paper.node.createSVGPoint();
+        uupos.x = e.clientX;
+        uupos.y = e.clientY;
+
+        var ctm = e.target.getScreenCTM().inverse();
+
+        if (ctm) {
+            uupos = uupos.matrixTransform(ctm);
+        }
+
+        //  now calculate the wavelength that got clicked.
+
+        var tLambda = 0;
+        var tRange = tSpecView.lambdaMax - tSpecView.lambdaMin; //  range in the zoomed spectrum
+
+        var tFrac = uupos.x / tSpecView.spectrumViewWidth;
+        var tZoomFactor = 0.7;
+
+        if (uupos.y <= tSpecView.mainSpectrumHeight) {
+            var tTotalRange = tSpecView.lambdaMaxPossible - tSpecView.lambdaMinPossible;
+            tLambda = tSpecView.lambdaMinPossible + tFrac * tTotalRange;
+        } else if (uupos.y >= tSpecView.mainSpectrumHeight + tSpecView.interspectrumGap) {
+            tLambda = tSpecView.lambdaMin + tFrac * tRange;
+            if (tLambda < tSpecView.lambdaMin || tLambda > tSpecView.lambdaMax) {
+                tZoomFactor = 1.0;      //      just translate if outside the zoom area
+            }
+        } else {
+            tZoomFactor = 2.0;    //      zoom back out
+            tLambda = (tSpecView.lambdaMax + tSpecView.lambdaMin) / 2;
+        }
+
+        tRange *= tZoomFactor;
+        var tMin = tLambda - tRange / 2;
+        var tMax = tLambda + tRange / 2;
+        tMin = tMin < tSpecView.lambdaMinPossible ? tSpecView.lambdaMinPossible : tMin;
+        tMax = tMax > tSpecView.lambdaMaxPossible ? tSpecView.lambdaMaxPossible : tMax;
+
+        tMin = Math.round(tMin*10)/10.0;
+        tMax = Math.round(tMax*10)/10.0;
+        if (tMax - tMin < 1.0) {
+            var tMid = (tMax + tMin)/2;
+            tMax = tMid + 0.5;
+            tMin = tMid - 0.5;
+        }
+
+        stella.ui.labSpectrumView.adjustLimits( tMin, tMax );
+        stella.ui.skySpectrumView.adjustLimits( tMin, tMax );
+        stella.manager.displayAllSpectra();
+    },
+
+/*      "STAR RESULT" SECTION     */
+
+    starResultTypeChanged : function() {
+        stella.manager.starResultType = $("#starResultTypeMenu").val();
+        stella.ui.fixUI();
+
+    },
+
+    starResultValueChanged : function() {
+        stella.manager.starResultValue = Number($("#starResultValue").val());
+        stella.ui.fixUI();
+
+    },
+
+    saveStarResult: function () {
+        if (stella.manager.focusStar) {
+            var tValues = {
+                id: stella.manager.focusStar.id,
+                type: stella.manager.starResultType,
+                value: stella.manager.starResultValue,
+                date: stella.model.now,
+                units: stella.starResults[stella.manager.starResultType].units
+            };
+            var tScore = stella.model.evaluateResult(tValues);
+            if (tScore > 0) {
+                stella.connector.emitStarResult(tValues, null);
+                stella.manager.stellaScore += tScore;
+            } else {
+                alert( stella.strings.resultIsWayOff );
+            }
+        } else {
+            alert(stella.strings.notPointingAtStarForResults);
+        }
+
+        stella.ui.fixUI();
+    },
+
+
+
     /**
-     * For saving. TBD.
+     * responds to CODAP notifications.
      */
-    stellaDoCommand : function( iCommand, iCallback) {
+    stellaDoCommand: function (iCommand, iCallback) {
 
-      console.log( "stellaDoCommand: " + iCommand.action + " " + iCommand.resource );
+        console.log("stellaDoCommand: ")
+        console.log(iCommand);
+
         var tCommandObject = "";
-        var tDataSet = stella.manager.extractFromWithinBrackets( iCommand.resource );
 
-        if (iCommand.values) {
-            if (Array.isArray(iCommand.values)) {
-                switch (iCommand.values[0].operation) {
+        switch (iCommand.action) {
+            case "notify":
+                if (Array.isArray(iCommand.values)) {
+                    switch (iCommand.values[0].operation) {
 
-                    // todo: Note that this is set up to work only with the star catalog data set.
-                    case "selectCases":
-                        codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
+                        // todo: Note that this is set up to work only with the star catalog data set.
+                        case "selectCases":
+                            var tDataSet = stella.manager.extractFromWithinBrackets(iCommand.resource);
+                            if (tDataSet === stella.connector.catalogDataSetName) {
+                                codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
+                } else {
+                    var tOperation = iCommand.values.operation;
+                    console.log("Values is not an array. Operation: " + tOperation);
+                }
+                break;
+
+            case "get":
+                console.log("stellaDoCommand: action : get.");
+                switch (iCommand.resource) {
+                    case "interactiveState":
+                        console.log("stellaDoCommand save document ");
+                        var tSaveObject = {
+                            success: true,
+                            values: {
+                                foo : 3,
+                                bar : "baz"
+                            }
+                        };
+                        codapHelper.sendSaveObject(
+                            tSaveObject,
+                            function () {
+                                console.log("Save complete?");
+                            }
+                        );
                         break;
-
                     default:
+                        console.log("stellaDoCommand unknown get command resource: " + iCommand.resource );
                         break;
                 }
-            }
+                break;
+
+            default:
+                console.log("stellaDoCommand: no action.");
         }
+
     }
 };

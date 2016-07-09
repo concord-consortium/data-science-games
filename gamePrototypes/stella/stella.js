@@ -25,36 +25,71 @@
 
  */
 
-/* global ElementalSpectra */
+/* global ElementalSpectra, Math */
 
 var     stella = {};    //  top level global
 
 stella.initialize = function() {
     ElementalSpectra.initialize();
     stella.ui.initialize();
+    stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
+
+    //  stella.manager.newGame();   //  todo: make this work; the problem is that the data sets do not exist yet so explode
+};
+
+stella.starResults = {
+    "temp": {
+        name: "temperature",
+        units: "K",
+        id: "temp"
+    },
+    pm_x: {
+        id : "pm_x",
+        name: "proper motion (x)",
+        units: "microdegrees per year"
+    },
+    pm_y: {
+        id : "pm_y",
+        name: "proper motion (y)",
+        units: "microdegrees per year"
+    },
+    parallax: {
+        id : "parallax",
+        name: "parallax",
+        units: "microdegrees"
+    },
+    vel_r: {
+        id : "vel_r",
+        name: "radial velocity",
+        units: "km/sec"
+    }
 };
 
 stella.strings = {
     notPointingText : "not pointing at a particular star",
     noSkySpectrum : "point at a star to see its spectrum",
     noLabSpectrum : "set up equipment to see a lab spectrum",
-};
+    notPointingAtStarForResults : "You have to point at a star so we know which star you're reporting on!",
+    resultIsWayOff : "Your result is pretty far off. No points. Be sure to check units!"};
 
 stella.constants = {
     version : "000",
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
     solarMass : 1.989e33,       //  grams
+    solarTemperature : 5800,    //  Kelvin
     astronomicalUnit : 1.5e13,  //  centimeters
-    parsec : 206265 * stella.astronomicalUnit,    //      centimeters
     msPerDay : 86400000,        //  milliseconds per (Earth) day
+    secPerYear : 86400 * 365.24,    //  seconds
 
     nStars : 200,
-    maxStarLogMass : 1.5,
-    minStarLogMass : -1.0,
+    maxStarLogMass : 1.5,           //  30 solar masses
+    minStarLogMass : -1.0,          //  0.1 solar masses
+    giantTemperature : 3333,        //  Kelvin
 
-    //  for now, the universe is a spherical sector, width x width x distance, subtending an angle width degrees on a side.
-    universeWidth : 5,              //  degrees
+    //  for now, the universe is a spherical sector,
+    //   a frustum! width x width x distance, subtending an angle width degrees on a side.
+    universeWidth : 5,              //  degrees, about 0.1 radians
     universeDistance : 100,          //  parsecs
 
     lambdaU : 364 * 1.0e-07,      //  for photometry. cm
@@ -93,7 +128,7 @@ stella.apparentMagnitude = function(iAbs, iDistance ) {
     return iAbs + 5 - 5 * Math.log10( iDistance );
 };
 
-stella.xyz = function(iObject, iDate ) {
+stella.orbitXYZ = function(iObject, iDate ) {
 
     var dt = iDate - stella.model.epoch;    //  time since epoch in ms.
     var motionPerSecond = 360.0 / iObject.period;       //  degrees per second
@@ -120,4 +155,23 @@ stella.xyz = function(iObject, iDate ) {
     var Z = r * Math.sin(relevantAngle) * Math.sin(i);
 
     return {x : X, y : Y, z : Z};
+};
+
+/**
+ * Proper motion in degrees per year
+ *
+ * @param iSpeed        transverse speed in km/sec
+ * @param iDistance     distance in parsecs
+ * @returns {number}    degrees per year
+ */
+stella.pmFromSpeedAndDistance = function( iSpeed, iDistance ) {
+    var oPM = 0;
+
+    var tRadialDistanceInCM = iDistance * stella.constants.parsec;
+    var tTransverseSpeedInCMperSEC = iSpeed * 1.0e05;
+    var tTransverseDistancePerYear = tTransverseSpeedInCMperSEC * stella.constants.secPerYear;  //  in CM
+
+    oPM = (180 / Math.PI) * (tTransverseDistancePerYear / tRadialDistanceInCM );
+
+    return oPM;
 };

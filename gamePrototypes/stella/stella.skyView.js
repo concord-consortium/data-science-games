@@ -49,9 +49,75 @@ stella.skyView = {
 
     },
 
+    down : function( e ) {
+
+    },
+
+    /**
+     * Mouseup handler.
+     * Note that "this" in this routine is the SVG object itself
+     * @param e     the mouse event
+     */
+    up : function( e ) {
+        var uupos = this.createSVGPoint();
+        uupos.x = e.clientX;
+        uupos.y = e.clientY;
+
+        var ctm = e.target.getScreenCTM().inverse();
+
+        if (ctm) {
+            uupos = uupos.matrixTransform( ctm );
+        }
+        console.log( uupos );
+
+        var tStar = stella.skyView.starFromViewCoordinates( uupos );
+        stella.manager.pointAtStar( tStar );
+    },
+
+    move : function ( e ) {
+/*
+        if (!epiManager.draggingCritter) {
+            var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
+            var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
+
+            if (e.button === 0 && e.buttons === 1) {
+                var tDx = e.movementX * tHScale;
+                var tDy = e.movementY * tVScale;
+
+                epiWorldView.VBLeft -= tDx;
+                epiWorldView.VBTop -= tDy;
+                epiWorldView.updateViewBox();
+            }
+        }
+*/
+    },
+
+    starFromViewCoordinates : function( iPoint ) {
+        iPoint.y = stella.constants.universeWidth - iPoint.y;   //  change y direction
+        var oStar = null;
+        var tDist = 1.0e30;     //  large number; Math.MAX_VALUE not working for some reason
+
+        stella.skyView.starViews.forEach( function(sv) {
+            var tStar = sv.star;
+            var tCurrDSq = (tStar.where.x - iPoint.x) *  (tStar.where.x - iPoint.x) +
+                (tStar.where.y - iPoint.y) *  (tStar.where.y - iPoint.y);
+            if (tCurrDSq < tDist) {
+                tDist = tCurrDSq;
+                oStar = tStar;
+            }
+        });
+
+        return oStar;
+
+    },
+
     initialize : function( iModel ) {
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
         this.paper.clear();
+
+        this.paper.node.addEventListener("mousedown",   stella.skyView.down,false);
+        this.paper.node.addEventListener("mouseup",     stella.skyView.up,false);
+        this.paper.node.addEventListener("mousemove",   stella.skyView.move,false);
 
         //  now set this paper's "view box"
         this.paper.attr({

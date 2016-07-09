@@ -54,7 +54,7 @@ Spectrum.prototype.addLine = function( iLine ) {
 
 Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
     iSpectrum.lines.forEach( function(iLine) {
-        var tLine = new Line(iLine.lambda, iLine.width, iLine.strength * iAmp / 100);
+        var tLine = new Line(iLine.lambda, iLine.width, iLine.strength * iAmp / 100, iLine.what);
         this.lines.push( tLine );
     }.bind(this));
 };
@@ -125,14 +125,14 @@ Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAw
     if (tMaxLambda > Spectrum.constants.visibleMax * 1.0e-07) {
         tMaxLambda = Spectrum.constants.visibleMax * 1.0e-07;
     }
-    var tMaxIntensity = Spectrum.blackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
+    var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
 
-    var tIntense = Spectrum.blackbodyIntensityAt(tLambda, this.blackbodyTemperature);
+    var tIntense = Spectrum.relativeBlackbodyIntensityAt(tLambda, this.blackbodyTemperature);
     return 100.0 *  tIntense / tMaxIntensity;
 };
 
 
-Spectrum.blackbodyIntensityAt = function( iLambda, iTemp ) {
+Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp) {
     var kT = Spectrum.constants.boltzmann * iTemp;
     var hNu = Spectrum.constants.planck * Spectrum.constants.light / iLambda;
     var csq = Spectrum.constants.light * Spectrum.constants.light;
@@ -151,4 +151,60 @@ Spectrum.constants = {
     visibleMin : 350,       //  nm
     visibleMax : 700        //  nm
 
+};
+
+Spectrum.linePresenceCoefficient = function( iSpecies, iLogTemp ) {
+
+    //      adapted from http://skyserver.sdss.org/dr1/en/proj/advanced/spectraltypes/lines.asp
+
+    if (!stella.options.tempAffectsWhichLinesArePresent) {
+        return 1.0;
+    }
+
+    var tTemp = Math.pow(10, iLogTemp);
+    var oCoeff = 1.0;           //  this will go from 0 to 1
+
+    switch( iSpecies ) {
+        case "H":
+            oCoeff = lineStrengthInterpolator(tTemp, 5000, 7500, 10000, 25000);
+            break;
+
+        case "HeI":
+            oCoeff = lineStrengthInterpolator(tTemp, 9000, 10000, 28000, 40000);
+            console.log("Helium check: T = " + tTemp + " coeff = " + oCoeff);
+            break;
+
+        case "CaII":
+            oCoeff = lineStrengthInterpolator(tTemp, 4000, 5000, 7500, 10000);
+            break;
+
+        case "FeI":
+            oCoeff = lineStrengthInterpolator(tTemp, 2500, 3500, 5000, 7500);
+            break;
+
+        case "NaI":
+            oCoeff = lineStrengthInterpolator(tTemp, 0, 0, 4000, 6000);
+            break;
+    }
+
+    return oCoeff;
+
+    function lineStrengthInterpolator(iTemp, iMin0, iMinTop, iMaxTop, iMax0) {
+        var out = 0;
+
+
+        if (iTemp > iMax0) {
+            out = 0;
+        } else if (iTemp > iMaxTop) {
+            out = 0.5;
+        } else if (iTemp > iMinTop) {
+            out = 1.0;
+        } else if (iTemp > iMin0) {
+            out = 0.5;
+        } else {
+            out = 0.0;
+        }
+
+        return out;
+    }
 };

@@ -1,9 +1,9 @@
 /**
- * Created by tim on 6/25/16.
+ * Created by tim on 7/8/16.
 
 
  ==========================================================================
- SkyView.js in data-science-games.
+ stella.options.js in data-science-games.
 
  Author:   Tim Erickson
 
@@ -24,3 +24,17 @@
 
 
  */
+
+
+stella.options = {
+    tempAffectsWhichLinesArePresent : false,
+
+    /**
+     *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
+     */
+    optionChange : function() {
+        this.tempAffectsWhichLinesArePresent = document.getElementById("tempAffectsWhichLinesArePresent").checked;
+
+        stella.ui.fixUI();
+    },
+};
