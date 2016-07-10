@@ -29,10 +29,13 @@
  * Singleton with many small methods for updateing the score
  * @type {{evolutionPoints: null, pointsPerCrud: number, pointsPerMeal: number, pointsPerMiss: number, pointsPerSecond: number, startingPoints: number, predatorEnergy: null, startingPredatorEnergy: number, energyPerMeal: number, energyPerLoss: number, energyPerVisionChange: number, winningScore: number, newGame: steb.score.newGame, meal: steb.score.meal, loss: steb.score.loss, crud: steb.score.crud, clickInWorld: steb.score.clickInWorld, checkEnd: steb.score.checkEnd}}
  */
+
+/* global steb */
+
 steb.score = {
 
     evolutionPoints : null,
-    pointsPerCrud : -5,
+    pointsPerCrud : -8,
     pointsPerMeal : 1,
     pointsPerMiss : -1,
     pointsPerSecond : -0.016,
@@ -90,9 +93,11 @@ steb.score = {
      * Check to see if the game is over after we updated the score
      */
     checkEnd : function( )  {
-        var tScore = steb.options.automatedPredator ? steb.score.predatorPoints : steb.score.evolutionPoints;
+        var tScore = steb.score.evolutionPoints;
 
-        if (tScore >= steb.score.winningScore) steb.manager.endGame("win");
+        if (tScore >= steb.score.winningScore) {
+            steb.manager.endGame("win");
+        }
         if (tScore <= 0) steb.manager.endGame("loss");
     }
-}
+};

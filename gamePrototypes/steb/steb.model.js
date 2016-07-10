@@ -116,9 +116,11 @@ steb.model = {
         this.meals = 0;         //      number of meals
         this.lastStebberNumber = 0;
 
+        var i;
+
         if (steb.options.fixedInitialBG) {
-            this.trueBackgroundColor = [10, 10, 6];
-            this.meanCrudColor = [7, 7, 9];
+            this.trueBackgroundColor = steb.constants.defaultBackgroundColor;
+            this.meanCrudColor = steb.constants.defaultCrudColor;
         } else {
             this.trueBackgroundColor = this.inventBackgroundColor();
             this.meanCrudColor = steb.options.backgroundCrud ?
@@ -130,7 +132,6 @@ steb.model = {
         if (steb.options.fixedInitialStebbers) {
             this.makeInitialFixedStebbers();
         } else {
-            var i = 0;
             for (i = 0; i < steb.constants.initialNumberOfStebbers; i++) {
                 this.addNewStebberBasedOn(null);
             }
@@ -212,6 +213,14 @@ steb.model = {
         }
     },
 
+    selectStebber : function( iSteb, iOnly ) {
+        if (iOnly) {
+            this.stebbers.forEach( function(iS) {
+                iS.selected = false;
+            });
+        }
+        iSteb.selected = true;
+    },
 
     /**
      * Find the  Stebber in question and eliminate it.

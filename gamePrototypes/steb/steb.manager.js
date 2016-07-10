@@ -193,6 +193,11 @@ steb.manager = {
      * @param iStebberView
      */
     clickOnStebberView : function(iStebberView, iEvent ) {
+        steb.model.selectStebber( iStebberView.stebber, true );
+        //  iStebberView.update();
+        steb.worldView.update();        //  todo: a perfect place to use notifications. If model.selectStebber sets all the selecteds to false, they should each notify the view to refresh.
+
+
         var tEat = steb.manager.running && !steb.options.automatedPredator;
         if (tEat) {
             this.eatStebber( iStebberView );

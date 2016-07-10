@@ -105,6 +105,7 @@ steb.options = {
         this.eldest = document.getElementById("eldest").checked;
         this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
         this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
+        this.crudSameShapeAsStebbers = document.getElementById("crudSameShapeAsStebbers").checked;
 
         steb.ui.fixUI();
     },

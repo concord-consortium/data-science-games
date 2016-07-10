@@ -38,9 +38,10 @@ var StebberView = function( iStebber ) {
     this.stebber = iStebber;    //  its model
 
     //  the SVG object on which we'll draw
-    this.paper = new Snap( steb.constants.stebberViewSize, steb.constants.stebberViewSize);
+    this.paper = new Snap( steb.constants.stebberViewSize * 1.1, steb.constants.stebberViewSize * 1.1);
     var tRadius = steb.constants.stebberViewSize / 2;   //  circle
-    var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
+    var tVBText  = " -55 -55 110 110";
+    //  var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
 
     this.paper.attr({
         viewBox : tVBText,
@@ -49,7 +50,7 @@ var StebberView = function( iStebber ) {
 
     //  set up the target reticule. This is on the bottom
 
-    this.targetReticule = this.paper.rect( -tRadius, -tRadius, 2 * tRadius, 2 * tRadius).attr({
+    this.targetReticule = this.paper.rect( -55, -55, 110, 110).attr({   //   -tRadius, -tRadius, 2 * tRadius, 2 * tRadius).attr({
         fill : "transparent",
         strokeWidth : 10,
         stroke : "transparent"
@@ -57,7 +58,8 @@ var StebberView = function( iStebber ) {
 
     //  draw the stebber on top.
 
-    this.selectionCircle = this.paper.circle(0, 0, tRadius).attr({
+    this.selectionCircle = this.paper.circle(0, 0, 50).attr({
+        //  this.selectionCircle = this.paper.circle(0, 0, tRadius).attr({
         strokeWidth : 10,
         stroke : "transparent"
     });

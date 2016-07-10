@@ -85,7 +85,7 @@ steb.ui = {
      * Only works (for now) if there is no automated predator
      */
     clickCrud : function() {
-        if(!steb.options.automatedPredator) {
+        if(!steb.options.automatedPredator && steb.manager.running) {
 
             steb.manager.onTimeout = true;  //  we go "on timeout"
 
@@ -142,11 +142,14 @@ steb.ui = {
         oPaper.rect( 0, 0, steb.constants.worldViewBoxSize, steb.constants.worldViewBoxSize).attr({
             fill: "yellow"
         });
-        oPaper.text(100,100,"Time out!").attr({
+        oPaper.text(40,100,"Time out!").attr({
             fontSize : 100
         });
-        oPaper.text(100,222,"Eat only circles!").attr({
-            fontSize : 100
+        oPaper.text(40,250,"Crud are toxic!").attr({
+            fontSize : 80
+        });
+        oPaper.text(40,352,"Eat only Stebbers!").attr({
+            fontSize : 80
         });
         oPaper.attr({
             visibility : "visible"

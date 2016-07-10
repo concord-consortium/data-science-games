@@ -33,6 +33,8 @@ stella.initialize = function() {
     ElementalSpectra.initialize();
     stella.ui.initialize();
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
+    stella.manager.starResultTypeChanged();     //  so we can change stuff before a game.
+
 
     //  stella.manager.newGame();   //  todo: make this work; the problem is that the data sets do not exist yet so explode
 };

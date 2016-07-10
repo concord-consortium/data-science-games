@@ -116,9 +116,8 @@ Crud.prototype.runFrom = function( iPoint ) {
 var CrudView = function( iCrud ) {
 
     this.crud = iCrud;      //  its model
-    this.paper = new Snap( steb.constants.crudSize, steb.constants.crudSize);   //  the SVG "paper"
-    var tRadius = steb.constants.crudSize / 2;
-    var tVBText = -tRadius + " " + (-tRadius) + " " + 2 * tRadius + " " + 2 * tRadius;
+    this.paper = new Snap( steb.constants.crudSize * 1.1, steb.constants.crudSize * 1.1);   //  the SVG "paper"
+    var tVBText = "-55 -55 110 110";
 
     this.paper.attr({       //  the overall data for this view
         viewBox : tVBText,
@@ -128,9 +127,8 @@ var CrudView = function( iCrud ) {
     });
 
     this.selectionShape = this.paper.rect(          //  the round-cornered visible shape
-        -tRadius, -tRadius,
-        steb.constants.crudSize, steb.constants.crudSize,
-        steb.constants.crudSize * 0.4               //  the radius of the corners.
+        -50, -50, 100, 100,
+        steb.options.crudSameShapeAsStebbers ? 50 : 45              //  the radius of the corners.
     );
 
     this.setMyColor();      //  apply predator vision. See function below.
