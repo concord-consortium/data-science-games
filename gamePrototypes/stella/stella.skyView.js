@@ -25,7 +25,7 @@
 
  */
 
-/* global stella, $, Snap, StarView */
+/* global stella, $, Snap, StarView, console */
 
 stella.skyView = {
 
@@ -34,19 +34,64 @@ stella.skyView = {
     starViews : [],
     reticleX : null,
     reticleY : null,
+    magnification : 1.0,
+    baseStrokeWidth : 0.05,
 
     pointAtStar : function(iStar ) {
 
         if (iStar) {
-            var x = iStar.where.x;
-            var y = iStar.where.y;
-            this.reticleX.attr({ visibility : "visible", y1 : stella.constants.universeWidth - y, y2 : stella.constants.universeWidth - y});
-            this.reticleY.attr({ visibility : "visible", x1 : x, x2 : x});
+            this.pointAtLocation( iStar.where.x, iStar.where.y);
+            if (this.magnification === 1.0) {
+                var tNewY = stella.constants.universeWidth - iStar.where.y;
+                this.reticleX.attr({ visibility : "visible", y1 : tNewY, y2 : tNewY});
+                this.reticleY.attr({ visibility : "visible", x1 : iStar.where.x, x2 : iStar.where.x});
+            }
         } else {
+            this.pointAtLocation( null, null);
             this.reticleX.attr({ visibility : "hidden"});
             this.reticleY.attr({ visibility : "hidden"});
         }
 
+    },
+
+    pointAtLocation : function( x, y ) {
+        y = stella.constants.universeWidth - y;     //  reverse coordinates
+
+        var tWidth = stella.constants.universeWidth / this.magnification;
+        var tViewBoxString = "0 0 " + tWidth + " " + tWidth;
+
+        if ( this.magnification > 1 ) {
+            var tX = x - tWidth/2;
+            var tY = y - tWidth/2;
+            tViewBoxString = tX  + " " + tY + " " + tWidth + " " + tWidth;
+
+            //  reticles
+
+            this.reticleX.attr({ visibility : "visible", y1 : y, y2 : y,
+                strokeWidth : this.baseStrokeWidth / this.magnification});
+            this.reticleY.attr({ visibility : "visible", x1 : x, x2 : x,
+                strokeWidth : this.baseStrokeWidth / this.magnification});
+        } else {
+            this.reticleX.attr({strokeWidth : this.baseStrokeWidth});
+            this.reticleY.attr({strokeWidth : this.baseStrokeWidth});
+        }
+
+        //  nb: if magnification === 1, we are set to point correctly
+
+        this.paper.attr({ viewBox : tViewBoxString });
+    },
+
+    /**
+     * Called ONLY from stella.manager.changeMagnification.
+     *
+     * @param iMagnification
+     */
+    magnify : function( iMagnification  ) {
+        this.magnification = iMagnification;
+        this.paper.clear();
+        this.makeBackground();
+        this.makeAndInstallStarViews( );  // now make all the star views
+        this.makeAndInstallReticles();       //  make the reticle views
     },
 
     down : function( e ) {
@@ -111,7 +156,39 @@ stella.skyView = {
 
     },
 
-    initialize : function( iModel ) {
+    makeBackground : function( ) {
+        this.backgroundSkyRect = this.paper.rect(
+            0, 0,
+            stella.constants.universeWidth,        //  full size. Cover the world view.
+            stella.constants.universeWidth).attr( {fill : "black"});
+
+    },
+
+    makeAndInstallStarViews : function( ) {
+        stella.model.stars.forEach( function(iStar) {
+            var tStarView = new StarView( iStar, this.paper );  //  attaches it to the Paper
+            this.starViews.push( tStarView );
+        }.bind(this));
+
+    },
+
+    makeAndInstallReticles : function() {
+        this.reticleX = this.paper.line(0, 0, stella.constants.universeWidth, 0).attr({
+            stroke : "green",
+            strokeWidth : this.baseStrokeWidth,
+            strokeOpacity : 0.7,
+            visibility : "hidden"
+        });
+        this.reticleY = this.paper.line(0, 0, 0, stella.constants.universeWidth ).attr({
+            stroke : "green",
+            strokeWidth : this.baseStrokeWidth,
+            strokeOpacity : 0.7,
+            visibility : "hidden"
+        });
+
+    },
+
+    initialize : function( ) {
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
         this.paper.clear();
 
@@ -124,32 +201,9 @@ stella.skyView = {
             viewBox : "0 0 " + stella.constants.universeWidth + " " + stella.constants.universeWidth
         });
 
-        this.backgroundSkyRect = this.paper.rect(
-            0, 0,
-            stella.constants.universeWidth,        //  full size. Cover the world view.
-            stella.constants.universeWidth).attr( {fill : "black"});
-
-        // now make all the star views
-
-        iModel.stars.forEach( function(iStar) {
-            var tStarView = new StarView( iStar, this.paper );  //  attaches it to the Paper
-            this.starViews.push( tStarView );
-        }.bind(this));
-
-        //  make the reticle views
-
-        this.reticleX = this.paper.line(0, 0, stella.constants.universeWidth, 0).attr({
-            stroke : "green",
-            strokeWidth : 0.05,
-            strokeOpacity : 0.7,
-            visibility : "hidden"
-        });
-        this.reticleY = this.paper.line(0, 0, 0, stella.constants.universeWidth ).attr({
-            stroke : "green",
-            strokeWidth : 0.05,
-            strokeOpacity : 0.7,
-            visibility : "hidden"
-        });
+        this.makeBackground();
+        this.makeAndInstallStarViews( );  // now make all the star views
+        this.makeAndInstallReticles();       //  make the reticle views
     }
 
 };

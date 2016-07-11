@@ -88,7 +88,7 @@ var Star = function( iFrustum, iMotion, iLogAge ) {
     this.logAge = iLogAge;
 
     this.evolve( );
-    this.setUpSpectrum();
+    //  this.spectrum = this.setUpSpectrum();
     this.doPhotometry();
 };
 
@@ -144,19 +144,22 @@ Star.apparentMagnitude = function( iAbsoluteMagnitude, iDistance ) {
 };
 
 Star.prototype.setUpSpectrum = function() {
-    this.spectrum = new Spectrum();
-    this.spectrum.hasAbsorptionLines = true;
-    this.spectrum.hasEmissionLines = false;
-    this.spectrum.hasBlackbody = true;
-    this.spectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
+    var tSpectrum = new Spectrum();
+    tSpectrum.hasAbsorptionLines = true;
+    tSpectrum.hasEmissionLines = false;
+    tSpectrum.hasBlackbody = true;
+    tSpectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
 
-    this.spectrum.addLinesFrom(ElementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
-    this.spectrum.addLinesFrom(ElementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
-    this.spectrum.addLinesFrom(ElementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
-    this.spectrum.addLinesFrom(ElementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
-    this.spectrum.addLinesFrom(ElementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
+    tSpectrum.addLinesFrom(ElementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
+    tSpectrum.addLinesFrom(ElementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
+    tSpectrum.addLinesFrom(ElementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
+    tSpectrum.addLinesFrom(ElementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
+    tSpectrum.addLinesFrom(ElementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
 
-    this.spectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
+    tSpectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
+    tSpectrum.source.id = this.id;
+
+    return tSpectrum;
 };
 
 Star.prototype.computeGiantIndex = function(iAge ) {
@@ -247,15 +250,41 @@ Star.prototype.infoText = function() {
 var StarView = function( iStar, iPaper ) {
     this.star = iStar;          //  view knows about the model
 
-    var tRadius = stella.constants.universeWidth / 200;
+    var tOpacity = 1.0;
+    var tRadius = stella.constants.universeWidth / stella.skyView.magnification / 150;
     var tGray = 17;
+    var tMagnitudeElbow, tMagnitudeLimit;
 
-    if (iStar.mApp < -1) {
-        tRadius *= -iStar.mApp;
+    switch (stella.skyView.magnification) {
+        case 1:
+            tMagnitudeElbow = 0.0;
+            tMagnitudeLimit = 11.0;
+            break;
+        case 10:
+            tMagnitudeElbow = 6.0;
+            tMagnitudeLimit = 14.0;
+            break;
+        case 100:
+            tMagnitudeElbow = 12.0;
+            tMagnitudeLimit = 17.0;
+            break;
+        default:
+            tMagnitudeElbow = 0.0;
+            tMagnitudeLimit = 7.0;
+            break;
+    }
+
+    if (iStar.mApp < tMagnitudeElbow) {
+        tRadius *= tMagnitudeElbow - iStar.mApp;
+    } else if (iStar.mApp < tMagnitudeLimit) {
+        tOpacity = (tMagnitudeLimit - iStar.mApp) / (tMagnitudeLimit - tMagnitudeElbow);
     } else {
-        tGray -= iStar.mApp - (-1);
+        tOpacity = 0.0;
     }
 
     var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );
-    iPaper.circle( iStar.where.x, stella.constants.universeWidth - iStar.where.y, tRadius).attr({ fill : tColor});
+    iPaper.circle( iStar.where.x, stella.constants.universeWidth - iStar.where.y, tRadius).attr({
+        fill : tColor,
+        fillOpacity : tOpacity
+    });
 };

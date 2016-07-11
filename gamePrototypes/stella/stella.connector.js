@@ -36,7 +36,7 @@
  * @type {{gameCaseID: number, bucketCaseID: number, gameNumber: number, bucketNumber: number, gameCollectionName: string, bucketCollectionName: string, stebberCollectionName: string, newGameCase: steb.connector.newGameCase, finishGameCase: steb.connector.finishGameCase, newBucketCase: steb.connector.newBucketCase, doStebberRecord: steb.connector.doStebberRecord, getInitSimObject: steb.connector.getInitSimObject}}
  */
 
-/* global stella, alert, codapHelper */
+/* global stella, alert, codapHelper, console */
 
 stella.connector = {
     starCaseID: 0,
@@ -261,5 +261,8 @@ codapHelper.initDataInteractive(
 
 codapHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject());
 codapHelper.initDataSet(stella.connector.getStarResultsDataSetObject());
-codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject());
+codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject(), function() {
+    console.log("last data set done!");
+    stella.initialize();
+});
 

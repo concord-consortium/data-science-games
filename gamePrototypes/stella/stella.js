@@ -31,12 +31,10 @@ var     stella = {};    //  top level global
 
 stella.initialize = function() {
     ElementalSpectra.initialize();
-    stella.ui.initialize();
+    stella.ui.initializeUINames();
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
-    stella.manager.starResultTypeChanged();     //  so we can change stuff before a game.
 
-
-    //  stella.manager.newGame();   //  todo: make this work; the problem is that the data sets do not exist yet so explode
+    stella.manager.newGame();   //  todo: make this work; the problem is that the data sets do not exist yet so explode
 };
 
 stella.starResults = {
@@ -75,7 +73,7 @@ stella.strings = {
     resultIsWayOff : "Your result is pretty far off. No points. Be sure to check units!"};
 
 stella.constants = {
-    version : "000",
+    version : "001a",
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
     solarMass : 1.989e33,       //  grams
@@ -105,9 +103,9 @@ stella.constants = {
 
 
 stella.elapse = function(iMS ) {
-    var tMS = stella.model.now.getTime();
+    //var tMS = stella.model.now.getTime();     //  uncomment if we go back to dateTimes
     tMS += iMS;
-    stella.model.now.setTime( tMS );
+    //stella.model.now.setTime( tMS );
 };
 
 /**

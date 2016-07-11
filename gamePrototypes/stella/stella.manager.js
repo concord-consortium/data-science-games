@@ -35,38 +35,51 @@ stella.manager = {
     starResultValue : null,
     stellaScore : 0,
 
+    labSpectrumView : null,
+    skySpectrumView : null,
 
-    newGame : function() {
+
+    newGame: function () {
 
         stella.model.newGame();     //  make all the stars etc
         this.playing = true;
-        this.starResultTypeChanged();      //  to make sure that it has a good value
+        stella.skyView.initialize( );
+
+        this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
+        this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
+
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
+        stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.spectrumParametersChanged();
-        this.runTests();
-        stella.skyView.initialize( stella.model );
-        stella.ui.fixUI();
+        stella.manager.updateStella();
+    },
+
+    updateStella : function() {
+        stella.skyView.pointAtStar( this.focusStar );
+        stella.model.skySpectrum = (this.focusStar === null) ? null :  this.focusStar.setUpSpectrum();
+        this.displayAllSpectra();
+        stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
 
     pointAtStar : function( iStar ) {
         if (iStar) {
             this.focusStar = iStar;
-            stella.model.skySpectrum = iStar.spectrum;
-            stella.skyView.pointAtStar( this.focusStar );
-            stella.ui.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
             stella.connector.selectStarInCODAPByCatalogID( iStar.caseID );
 
             console.log("pointAtStar");
             console.log(this.focusStar);
         } else {
             this.focusStar = null;
-            stella.model.skySpectrum = null;
-            stella.skyView.pointAtStar( null );
-            stella.ui.skySpectrumView.displaySpectrum( null );
         }
-        stella.ui.fixUI();
+        this.updateStella();
     },
 
+    changeMagnificationTo : function( iNewMag ) {
+
+        stella.skyView.magnify( iNewMag  );
+        this.updateStella();    //  this will also point at the focusStar, if any
+
+    },
 
     runTests : function() {
         var tT = "testing\n";
@@ -113,7 +126,7 @@ stella.manager = {
             if (iResult.values.length === 1) {
                 var tStar =  stella.model.starFromCaseID( iResult.values[0].caseID );
                 stella.manager.pointAtStar( tStar );
-                stella.ui.fixUI();
+                stella.manager.updateStella();
             }
         } else {
             console.log('Failed to retrieve selected case IDs.');
@@ -127,33 +140,31 @@ stella.manager = {
      */
 
     spectrumParametersChanged : function() {
-        this.setSpectrogramWavelengths();       //  read min and max from boxes in the UI
+        this.setSpectrogramWavelengthsToTypedValues();       //  read min and max from boxes in the UI
         this.updateLabSpectrum();
-        this.displayAllSpectra();
+        stella.manager.updateStella();
     },
 
     displayAllSpectra : function() {
-        stella.ui.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
-        stella.ui.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
-        stella.ui.fixUI();
-
+        stella.manager.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
+        stella.manager.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
     },
 
-    saveSpectrum : function( iWhich ) {
+    saveSpectrumToCODAP : function(iWhich ) {
 
         var tSpectrum, tTitle, tSpectrumView, tChannels;
 
         switch (iWhich) {
             case "sky":
                 tSpectrum = stella.model.skySpectrum;
-                tSpectrumView = stella.ui.skySpectrumView;
+                tSpectrumView = stella.manager.skySpectrumView;
                 tChannels = tSpectrumView.zoomChannels;
                 tTitle = stella.manager.focusStar.id;
                 break;
 
             case "lab":
                 tSpectrum = stella.model.labSpectrum;
-                tSpectrumView = stella.ui.labSpectrumView;
+                tSpectrumView = stella.manager.labSpectrumView;
                 tChannels = tSpectrumView.zoomChannels;
                 tTitle = stella.model.labSpectrum.source.shortid;
                 break;
@@ -181,16 +192,16 @@ stella.manager = {
     },
 
 
-    setSpectrogramWavelengths : function() {
+    setSpectrogramWavelengthsToTypedValues : function() {
         var tLMin = Number($("#lambdaMin").val());
         var tLMax = Number($("#lambdaMax").val());
 
-        stella.ui.labSpectrumView.adjustLimits( tLMin, tLMax);
-        stella.ui.skySpectrumView.adjustLimits( tLMin, tLMax);
+        this.labSpectrumView.adjustLimits( tLMin, tLMax);
+        this.skySpectrumView.adjustLimits( tLMin, tLMax);
     },
 
     clickInSpectrum: function (e) {
-        var tSpecView = stella.ui.labSpectrumView;
+        var tSpecView = stella.manager.labSpectrumView; //  todo: maybe make this work on the target, in case the skySpectrumView is of a different dimension
 
         var uupos = tSpecView.paper.node.createSVGPoint();
         uupos.x = e.clientX;
@@ -237,8 +248,8 @@ stella.manager = {
             tMin = tMid - 0.5;
         }
 
-        stella.ui.labSpectrumView.adjustLimits( tMin, tMax );
-        stella.ui.skySpectrumView.adjustLimits( tMin, tMax );
+        stella.manager.labSpectrumView.adjustLimits( tMin, tMax );
+        stella.manager.skySpectrumView.adjustLimits( tMin, tMax );
         stella.manager.displayAllSpectra();
     },
 
@@ -246,14 +257,12 @@ stella.manager = {
 
     starResultTypeChanged : function() {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
-        stella.ui.fixUI();
-
+        stella.manager.updateStella();
     },
 
     starResultValueChanged : function() {
         stella.manager.starResultValue = Number($("#starResultValue").val());
-        stella.ui.fixUI();
-
+        stella.manager.updateStella();
     },
 
     saveStarResult: function () {
@@ -276,7 +285,7 @@ stella.manager = {
             alert(stella.strings.notPointingAtStarForResults);
         }
 
-        stella.ui.fixUI();
+        stella.manager.updateStella();
     },
 
 

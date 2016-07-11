@@ -29,43 +29,57 @@
 
 stella.ui = {
 
+    fixStellaUITextAndControls : function() {
 
-    fixUI : function() {
+        var tTimeAndScoreText = "Date " + stella.model.now + ", score = " + stella.manager.stellaScore;
 
-        this.timeAndScore.text("t = " + stella.model.now + ", score = " + stella.manager.stellaScore);
         this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 
         //  correct title for new/abort game button
         this.newGameButton.html( stella.manager.playing ? "abort game" : "new game");
 
-        //  focusStar label
+        //  focusStar label and make sure it's got the right spectrum
         var focusStarText = stella.strings.notPointingText;
         if (stella.manager.focusStar) {
             focusStarText = "Pointing at " + stella.manager.focusStar.infoText();
             this.pointAtStarInputField.val( stella.manager.focusStar.id );
+
+            stella.model.skySpectrum = stella.manager.focusStar.setUpSpectrum();
         }
-        this.starInfoTextField.text( focusStarText );
+
+        this.starInfoTextField.text( focusStarText + " • " + tTimeAndScoreText );
 
         //  spectra labels
 
-        if (this.skySpectrumView.spectrum) {
-            this.skySpectrumLabel.text(this.skySpectrumView.toString());
+        if (stella.manager.skySpectrumView.spectrum) {
+            this.skySpectrumLabel.text(stella.manager.skySpectrumView.toString());
         } else {
             this.skySpectrumLabel.text(stella.strings.noSkySpectrum);
         }
-        if (this.labSpectrumView.spectrum) {
-            this.labSpectrumLabel.text(this.labSpectrumView.toString());
+        if (stella.manager.labSpectrumView.spectrum) {
+            this.labSpectrumLabel.text(stella.manager.labSpectrumView.toString());
         } else {
             this.labSpectrumLabel.text(stella.strings.noLabSpectrum);
         }
 
-        //  starResult text
+        //  spectra min and max text
 
-        var tStarResultHeadText = "Your results: ";
+        $("#lambdaMin").val( stella.manager.skySpectrumView.lambdaMin.toFixed(1));
+        $("#lambdaMax").val( stella.manager.skySpectrumView.lambdaMax.toFixed(1));
+
+        //  starResult text
+        var tStarResultHeadText = " ";
+
+        if (stella.manager.focusStar === null) {
+            tStarResultHeadText = "Point at a star to record ";
+        } else {
+            tStarResultHeadText = "Results for " + stella.manager.focusStar.id + ": ";
+        }
 
         tStarResultHeadText += stella.manager.starResultType + " = ";
         tStarResultHeadText += stella.manager.starResultValue ?
-            stella.manager.starResultValue : "(unspecified)";
+            stella.manager.starResultValue : "(enter a value)";
+        tStarResultHeadText += " (" + stella.starResults[stella.manager.starResultType].units + ")";
 
         this.starResultHeadline.text( tStarResultHeadText );
         this.starResultUnits.text( stella.starResults[stella.manager.starResultType].units);
@@ -76,7 +90,6 @@ stella.ui = {
         var tText = this.pointAtStarInputField.val();
         var tStar = stella.model.starFromTextID( tText );
         stella.manager.pointAtStar( tStar );
-        this.fixUI();
     },
 
 
@@ -93,18 +106,16 @@ stella.ui = {
         return oMenu;
     },
 
-    initialize : function() {
+    initializeUINames : function() {
 
         this.newGameButton = $("#newGameButton");
         this.starInfoTextField = $("#starInfo");
         this.shortStatusField = $("#shortStatus");
         this.pointAtStarInputField = $("#pointAtStar");
-        this.timeAndScore = $("#timeAndScore");
 
-        this.labSpectrumView = new SpectrumView(Snap(document.getElementById("labSpectrumDisplay")));
-        this.skySpectrumView = new SpectrumView(Snap(document.getElementById("skySpectrumDisplay")));
         this.labSpectrumLabel = $("#labSpectrumLabel");
         this.skySpectrumLabel = $("#skySpectrumLabel");
+
 
         this.starResultHeadline = $("#starResultHeadline");
         this.starResultUnits = $("#starResultUnits");
@@ -120,8 +131,8 @@ stella.ui = {
                 values : 1,
                 step : 1,
                 slide : function(e, ui) {
-                    stella.ui.labSpectrumView.gain = Number( ui.value );
-                    $('#gainDisplay').text(stella.ui.labSpectrumView.gain);
+                    stella.manager.labSpectrumView.gain = Number( ui.value );
+                    $('#gainDisplay').text(stella.manager.labSpectrumView.gain);
                     stella.manager.spectrumParametersChanged();
                 }
             }

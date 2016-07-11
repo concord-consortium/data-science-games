@@ -9,11 +9,11 @@ fieldset {
 }
 
 .options   {
-    background-color: #ecc;
+    background-color: #eca;
     padding: 4px;
 }
 .gameOptions   {
-    background-color: #fee;
+    background-color: #fed;
     padding: 4px;
 }
 
@@ -50,7 +50,7 @@ fieldset {
     padding : 4px;
     background-color : #2f9cf3;
     color : white;
-    font-size : 12pt;
+    font-size : 11pt;
     font-family: "Helvetica Neue", Verdana,sans-serif;
 }
 /*		BOX CLASSES		*/
@@ -73,27 +73,12 @@ fieldset {
     font-size: 7pt;
     color: white;
 }
+.buttonText {
+    background-color: tomato;
+    margin: 2px;
+    padding: 2px;
+    font-family: sans-serif;
+    font-size: 7pt;
+    color: white;
+}
 
-input.ownslider.ui-slider-input{ display:none; }
-
-.ownslider + div.ui-slider { margin-left: 1%; width: 96%; }
-
-.ownslider + div.ui-slider .ui-slider-handle:after {
-    font-size: 15px;
-    position: absolute;
-    margin-top: 6px;
-    padding-left: 5px;
-    content: attr(title); }
-
-.ownslider + div.ui-slider-mini .ui-slider-handle:after {
-    font-size: 13px;
-    font-weight: normal; }
-
-.ui-input-text + div.ui-slider .ui-slider-handle:active:before {
-    font-size: 18px;
-    position: absolute;
-    top: -40px;
-    left: -6px;
-    padding: .2em .5em;
-    background: inherit;
-    content: attr(title); }

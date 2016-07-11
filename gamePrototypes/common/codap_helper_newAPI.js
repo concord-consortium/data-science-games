@@ -26,7 +26,7 @@ var codapHelper = {
             }.bind(this));
     },
 
-    initDataSet : function( iDataSetDescription ) {
+    initDataSet : function( iDataSetDescription, iCallback ) {
         this.codapPhone.call(
             {
                 action: 'create',
@@ -36,7 +36,11 @@ var codapHelper = {
             function (iResult) {
                 if (iResult.success) {
                     this.initDataSetAccomplished = true;
+                    if (iCallback) {
+                        iCallback();
+                    }
                 }
+
             }.bind(this));
     },
 

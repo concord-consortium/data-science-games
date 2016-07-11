@@ -25,6 +25,7 @@
 
  */
 
+/* global stella */
 
 stella.options = {
     tempAffectsWhichLinesArePresent : false,
@@ -35,6 +36,6 @@ stella.options = {
     optionChange : function() {
         this.tempAffectsWhichLinesArePresent = document.getElementById("tempAffectsWhichLinesArePresent").checked;
 
-        stella.ui.fixUI();
+        stella.manager.updateStella();
     },
 };

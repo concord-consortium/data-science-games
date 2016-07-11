@@ -92,13 +92,6 @@ stella.model = {
 
         //  then, stars in a cluster
 
-        tFrustum = {
-            xMin : 0.2 * stella.constants.universeWidth,
-            yMin : 0.4 * stella.constants.universeWidth,
-            width : 0.2 * stella.constants.universeWidth,
-            L1 : stella.constants.universeDistance,
-            L2 : stella.constants.universeDistance + 5
-        };
 
         tMotion = {             //  motion of the cluster
             x : 20,  sx : 5,
@@ -106,7 +99,21 @@ stella.model = {
             r : 25,  sr : 5
         };
 
+        var tClusterStarXCBaseFrac = 0.3 + 0.4 * Math.random(); //  center of the cluster
+        var tClusterStarYCBaseFrac = 0.3 + 0.4 * Math.random();
+        var tClusterHalfWidthFrac = 0.1;        //  width of the star position frustum, sort of
+
         for ( i = 0; i < stella.constants.nStars/2; i++) {
+            var tClusterStarXMIN = TEEUtils.randomNormal(tClusterStarXCBaseFrac, tClusterHalfWidthFrac);
+            var tClusterStarYMIN = TEEUtils.randomNormal(tClusterStarYCBaseFrac, tClusterHalfWidthFrac);
+            tFrustum = {
+                xMin : tClusterStarXMIN * stella.constants.universeWidth,   //  0.2 * stella.constants.universeWidth,
+                yMin : tClusterStarYMIN * stella.constants.universeWidth,   //  0.4 * stella.constants.universeWidth,
+                width : tClusterHalfWidthFrac * stella.constants.universeWidth,
+                L1 : stella.constants.universeDistance,
+                L2 : stella.constants.universeDistance + 5
+            };
+
             tS = new Star( tFrustum, tMotion, 7.0 + 0.1 * Math.random() );
             this.stars.push( tS );
         }
@@ -119,7 +126,7 @@ stella.model = {
         for (var s = 0; s < this.stars.length; s++) {
             var tNumber = 1000 + s;
             this.stars[s].id = "S" + tNumber;
-            this.stars[s].spectrum.source.id = this.stars[s].id;
+            //  this.stars[s].spectrum.source.id = this.stars[s].id;
         }
     },
 

@@ -27,12 +27,10 @@
  */
 /* global Spectrum, Snap, alert, stella, console */
 
-var SpectrumView = function (iPaper) {
-    this.paper = iPaper;        //      snap.svg paper
-    this.initialize(
-        this.paper.node.clientWidth,
-        this.paper.node.clientHeight
-    );
+var SpectrumView = function ( iSVGName) {
+    this.paper = new Snap(document.getElementById( iSVGName ));        //      snap.svg paper
+    //  this.initialize( this.paper.node.clientWidth, this.paper.node.clientHeight);
+    this.initialize( 300, 60 );     //      todo: fix this kludge! Why can't we get the dimensions from the width and height in html? It works for stella.skyview!
 };
 
 SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
