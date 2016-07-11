@@ -35,11 +35,6 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 or locally,
 http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/steb/steb.html
 
-locally, new API:
-http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://localhost/~tim/gamePrototypes/steb/steb.html
-
-globally, new API:
-http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebNewAPI/steb.html
 
 -->
 
@@ -133,14 +128,14 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
             <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data now</button>
         </div>
         <div class="hBox">
-            <label for="visionType">Vision:</label>
             <div id="visionType" onchange="steb.options.predatorVisionChange()">
+                <label for="visionType">Vision:</label>
                 <input type="radio" id="normalVision" name="visionType" value="normal" checked><label
                     for="normalVision">normal</label>
                 <input type="radio" id="monocolorVision" name="visionType" value="mono"><label for="monocolorVision">mono</label>
             </div>
-            <label for="predatorType">Predator:</label>
             <div id="predatorType" onchange="steb.options.predatorTypeChange()">
+                <label for="predatorType">Predator:</label>
                 <input type="radio" id="manualPredator" name="predatorType" value="manual" checked>
                 <label for="manualPredator">manual</label>
                 <input type="radio" id="autoPredator" name="predatorType" value="auto">
@@ -215,21 +210,38 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/stebN
     <!--        OPTIONS tab      -->
 
     <div id="optionsTab">
-        <div class = "vBox options" id = "gameOptions" onclick="steb.options.optionChange()">
-            <fieldset class="vBox">
-                <legend> Select before starting game.</legend>
+        <div class="vBox options" id="gameOptions">
+            <h2>Game options. <span id="optionPresetText"></span></h2>
+            <fieldset class="preGameOptions">
+                <legend>Option "presets" (will turn into levels eventually)</legend>
+                <div class="hBox">
+                <button onclick="steb.options.doPreset(1)">1</button>
+                <button onclick="steb.options.doPreset(2)">2</button>
+                <button onclick="steb.options.doPreset(3)">3</button>
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="vBox preGameOptions"  onclick="steb.options.optionChange()">
+                <legend>Select before starting game</legend>
                 <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
                 <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial Stebber colors</label>
                 <label><input type="checkbox" id="fixedInitialBG">fixed initial background and Crud colors</label>
-                <label><input type="checkbox" id="crudSameShapeAsStebbers">Crud is the same shape as Stebbers (harder)</label>
+                <label><input type="checkbox" id="crudSameShapeAsStebbers">Crud is the same shape as Stebbers
+                    (harder)</label>
             </fieldset>
-            <hr>
-            <label><input type="checkbox" id="delayReproduction" >delay reproduction (wait and do 5)</label>
-            <label><input type="checkbox" id="reducedMutation" >reduced mutation</label>
-            <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
-            <label><input type="checkbox" id="crudFlee" >crud runs from predation</label>
-            <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>
-            <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
+            <br>
+            <fieldset class="vBox preGameOptions" onclick="steb.options.optionChange()">
+                <legend>You can change these "on the fly"</legend>
+                <label><input type="checkbox" id="delayReproduction">delay reproduction (wait and do 5)</label>
+                <label><input type="checkbox" id="reducedMutation">reduced mutation</label>
+                <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
+                <label><input type="checkbox" id="crudFlee">crud runs from predation</label>
+                <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>
+                <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
+                <br>
+                <label><input type="checkbox" id="colorVisionChoiceVisible">see vision choice option</label>
+                <label><input type="checkbox" id="automatedPredatorChoiceVisible">see automation option</label>
+            </fieldset>
         </div>
     </div>
 

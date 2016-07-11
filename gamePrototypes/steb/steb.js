@@ -39,6 +39,7 @@ steb.initialize = function() {
     this.ui.initialize();
     this.worldView.initialize();
     this.colorBoxView.initialize( );
+    steb.ui.fixUI();
 };
 
 /**
@@ -86,7 +87,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001g",
+    version : "001h",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",

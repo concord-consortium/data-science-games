@@ -34,7 +34,6 @@
 
 steb.score = {
 
-    evolutionPoints : null,
     pointsPerCrud : -8,
     pointsPerMeal : 1,
     pointsPerMiss : -1,
@@ -50,7 +49,6 @@ steb.score = {
     winningScore : 500,
 
     newGame : function() {
-        this.evolutionPoints = this.startingPoints;
         this.predatorPoints = this.startingPredatorPoints;
     },
 
@@ -58,7 +56,6 @@ steb.score = {
      * Stebber gets eaten. Yum!
      */
     meal : function() {
-        this.evolutionPoints += this.pointsPerMeal - this.pointsPerMiss;
         this.predatorPoints += this.energyPerMeal;
         this.checkEnd();
     },
@@ -75,7 +72,6 @@ steb.score = {
      * user clicks on Crud
      */
     crud : function() {
-        this.evolutionPoints += this.pointsPerCrud - this.pointsPerMiss;
         this.predatorPoints += this.pointsPerCrud;
         this.checkEnd();
     },
@@ -84,7 +80,6 @@ steb.score = {
      * User clicks but misses everything
      */
     clickInWorld : function() {
-        this.evolutionPoints += this.pointsPerMiss;
         this.predatorPoints += this.pointsPerMiss;
         this.checkEnd();
     },
@@ -93,11 +88,12 @@ steb.score = {
      * Check to see if the game is over after we updated the score
      */
     checkEnd : function( )  {
-        var tScore = steb.score.evolutionPoints;
+        var tScore = steb.score.predatorPoints;
 
         if (tScore >= steb.score.winningScore) {
             steb.manager.endGame("win");
+        } else if (tScore <= 0) {
+            steb.manager.endGame("loss");
         }
-        if (tScore <= 0) steb.manager.endGame("loss");
     }
 };

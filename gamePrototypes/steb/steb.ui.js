@@ -63,6 +63,13 @@ steb.ui = {
             $("#predatorPoints").text(steb.score.predatorPoints);
         }
 
+        //  option text
+        $("#optionPresetText").text( steb.options.currentPreset > 0 ? "Preset " + steb.options.currentPreset : "No preset");
+
+        //  visibility options
+
+        $("#predatorType").css("visibility", steb.options.automatedPredatorChoiceVisible ? "visible" : "hidden");
+        $("#visionType").css("visibility", steb.options.colorVisionChoiceVisible ? "visible" : "hidden");
     },
 
     /**

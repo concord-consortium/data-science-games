@@ -118,7 +118,7 @@ steb.manager = {
      * User has requested a new game.
      */
     newGame : function() {
-        steb.options.optionChange();        //  make sure they align with the checkboxes
+        steb.options.setOptionsToMatchUI();        //  make sure they align with the checkboxes
         this.stebElapsed = 0;
         this.gameNumber += 1;
 

@@ -42,9 +42,14 @@ steb.options = {
     useVisionParameters : false,
     predatorVisionType : null,
 
+    automatedPredatorChoiceVisible : false,
+    colorVisionChoiceVisible : false,
+
     redCoefficient : 1,
     greenCoefficient : 1,
     blueCoefficient : 1,
+
+    currentPreset : 0,
 
     /**
      * User changed the vision params on the panel.
@@ -92,21 +97,118 @@ steb.options = {
 
     },
 
+    doPreset : function( iPreset ) {
+
+        this.currentPreset = iPreset;
+
+        switch( iPreset ) {
+            case 1:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = true;
+                this.fixedInitialBG = true;
+                this.crudSameShapeAsStebbers = false;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+
+                this.colorVisionChoiceVisible = false;
+                this.automatedPredatorChoiceVisible = false;
+
+                break;
+
+            case 2:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = true;
+                this.fixedInitialBG = true;
+                this.crudSameShapeAsStebbers = false;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+
+                this.colorVisionChoiceVisible = true;
+                this.automatedPredatorChoiceVisible = false;
+
+                steb.model.predatorVisionColorVector = [0, 1, 0];
+                break;
+
+            case 3:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = true;
+                this.fixedInitialBG = true;
+                this.crudSameShapeAsStebbers = false;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+
+                this.colorVisionChoiceVisible = true;
+                this.automatedPredatorChoiceVisible = true;
+
+                steb.model.predatorVisionColorVector = [0, 1, 0];
+                break;
+
+            default:
+                break;
+        }
+
+        this.setUIToMatchValues();
+    },
+
     /**
      *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
      */
     optionChange : function() {
+        this.currentPreset = 0;
+        this.setOptionsToMatchUI();
+    },
+
+    setOptionsToMatchUI : function() {
+
         this.backgroundCrud = document.getElementById("backgroundCrud").checked;
+        this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
+        this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
+        this.crudSameShapeAsStebbers = document.getElementById("crudSameShapeAsStebbers").checked;
+
         this.delayReproduction = document.getElementById("delayReproduction").checked;
         this.reducedMutation = document.getElementById("reducedMutation").checked;
         this.flee = document.getElementById("flee").checked;
         this.crudFlee = document.getElementById("crudFlee").checked;
         this.crudScurry = document.getElementById("crudScurry").checked;
         this.eldest = document.getElementById("eldest").checked;
-        this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
-        this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
-        this.crudSameShapeAsStebbers = document.getElementById("crudSameShapeAsStebbers").checked;
+
+        this.colorVisionChoiceVisible = document.getElementById("colorVisionChoiceVisible").checked;
+        this.automatedPredatorChoiceVisible = document.getElementById("automatedPredatorChoiceVisible").checked;
 
         steb.ui.fixUI();
     },
+
+    setUIToMatchValues : function() {
+        document.getElementById("backgroundCrud").checked = this.backgroundCrud;
+        document.getElementById("fixedInitialStebbers").checked = this.fixedInitialStebbers;
+        document.getElementById("fixedInitialBG").checked = this.fixedInitialBG;
+        document.getElementById("crudSameShapeAsStebbers").checked = this.crudSameShapeAsStebbers;
+
+        document.getElementById("delayReproduction").checked = this.delayReproduction;
+        document.getElementById("reducedMutation").checked = this.reducedMutation;
+        document.getElementById("flee").checked =     this.flee;
+        document.getElementById("crudFlee").checked = this.crudFlee;
+        document.getElementById("crudScurry").checked = this.crudScurry;
+        document.getElementById("eldest").checked = this.eldest;
+
+        document.getElementById("colorVisionChoiceVisible").checked = this.colorVisionChoiceVisible;
+        document.getElementById("automatedPredatorChoiceVisible").checked = this.automatedPredatorChoiceVisible;
+
+        steb.ui.fixUI();
+    }
 };

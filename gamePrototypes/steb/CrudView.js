@@ -128,7 +128,7 @@ var CrudView = function( iCrud ) {
 
     this.selectionShape = this.paper.rect(          //  the round-cornered visible shape
         -50, -50, 100, 100,
-        steb.options.crudSameShapeAsStebbers ? 50 : 45              //  the radius of the corners.
+        steb.options.crudSameShapeAsStebbers ? 50 : 40              //  the radius of the corners.
     );
 
     this.setMyColor();      //  apply predator vision. See function below.
