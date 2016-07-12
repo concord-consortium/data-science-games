@@ -27,6 +27,12 @@
 
 /* global stella, $, Snap, StarView, console */
 
+/**
+ * Main sky or telescope view, the one with all the stars.
+ * Imprtantly, maintains an array of StarViews
+ *
+ * @type {{paper: null, backgroundSkyRect: null, starViews: Array, reticleX: null, reticleY: null, magnification: number, baseStrokeWidth: number, pointAtStar: stella.skyView.pointAtStar, pointAtLocation: stella.skyView.pointAtLocation, magnify: stella.skyView.magnify, down: stella.skyView.down, up: stella.skyView.up, move: stella.skyView.move, starFromViewCoordinates: stella.skyView.starFromViewCoordinates, makeBackground: stella.skyView.makeBackground, makeAndInstallStarViews: stella.skyView.makeAndInstallStarViews, makeAndInstallReticles: stella.skyView.makeAndInstallReticles, initialize: stella.skyView.initialize}}
+ */
 stella.skyView = {
 
     paper : null,
@@ -37,10 +43,19 @@ stella.skyView = {
     magnification : 1.0,
     baseStrokeWidth : 0.05,
 
+    /**
+     * Change the view to point at the given star. Called by .manager.pointAtStar()
+     *
+     * What you do depends on magnification.
+     * At 1x, put the crosshairs (reticle) on it.
+     * at more than 1x, put the crosshairs in the middle and put the star on the crosshairs
+     *
+     * @param iStar
+     */
     pointAtStar : function(iStar ) {
 
         if (iStar) {
-            this.pointAtLocation( iStar.where.x, iStar.where.y);
+            this.pointAtLocation( iStar.where.x, iStar.where.y);    //  moves the star field if necessary
             if (this.magnification === 1.0) {
                 var tNewY = stella.constants.universeWidth - iStar.where.y;
                 this.reticleX.attr({ visibility : "visible", y1 : tNewY, y2 : tNewY});
@@ -65,7 +80,7 @@ stella.skyView = {
             var tY = y - tWidth/2;
             tViewBoxString = tX  + " " + tY + " " + tWidth + " " + tWidth;
 
-            //  reticles
+            //  reticles in the magnified case (always in the middle)
 
             this.reticleX.attr({ visibility : "visible", y1 : y, y2 : y,
                 strokeWidth : this.baseStrokeWidth / this.magnification});
@@ -83,6 +98,7 @@ stella.skyView = {
 
     /**
      * Called ONLY from stella.manager.changeMagnification.
+     * So all updating happens here, not in the ui.fix... method
      *
      * @param iMagnification
      */
@@ -94,6 +110,10 @@ stella.skyView = {
         this.makeAndInstallReticles();       //  make the reticle views
     },
 
+    /**
+     * Event handler for mousedown
+     * @param e
+     */
     down : function( e ) {
 
     },
@@ -119,6 +139,11 @@ stella.skyView = {
         stella.manager.pointAtStar( tStar );
     },
 
+    /**
+     * mouseMove event handler.
+     * Use eventually when we do drag.
+     * @param e
+     */
     move : function ( e ) {
 /*
         if (!epiManager.draggingCritter) {
@@ -137,6 +162,12 @@ stella.skyView = {
 */
     },
 
+    /**
+     * Get the closest star to the view coordinates.
+     * Used to select a star based on a click. (see up(), above)
+     * @param iPoint
+     * @returns {*}
+     */
     starFromViewCoordinates : function( iPoint ) {
         iPoint.y = stella.constants.universeWidth - iPoint.y;   //  change y direction
         var oStar = null;
@@ -156,6 +187,9 @@ stella.skyView = {
 
     },
 
+    /**
+     * Make the (black) background rectangle.
+     */
     makeBackground : function( ) {
         this.backgroundSkyRect = this.paper.rect(
             0, 0,
@@ -164,6 +198,9 @@ stella.skyView = {
 
     },
 
+    /**
+     * For every Star in the model, make a view and install it.
+     */
     makeAndInstallStarViews : function( ) {
         stella.model.stars.forEach( function(iStar) {
             var tStarView = new StarView( iStar, this.paper );  //  attaches it to the Paper
@@ -188,6 +225,10 @@ stella.skyView = {
 
     },
 
+    /**
+     * Set up this view.
+     * Called from stella.initialize()
+     */
     initialize : function( ) {
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
         this.paper.clear();

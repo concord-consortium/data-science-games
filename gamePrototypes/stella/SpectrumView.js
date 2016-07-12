@@ -27,38 +27,61 @@
  */
 /* global Spectrum, Snap, alert, stella, console */
 
+/**
+ * Displays a Spectrum
+ *
+ * Basic idea: there are two spectra in this view: one showing the entire visible spectrum,
+ * and another zoomed in. We keep track of what part is zoomed in, in wavelength and in pixels.
+ *
+ * A gray shape visually shows the relationship between the two spectra.
+ *
+ * todo: the scaling ought to be done using viewBox, but it didn't work when I tried it, and I ran out of time!
+ *
+ * @param iSVGName  name of the SVG element to house this
+ * @constructor
+ */
 var SpectrumView = function ( iSVGName) {
     this.paper = new Snap(document.getElementById( iSVGName ));        //      snap.svg paper
     //  this.initialize( this.paper.node.clientWidth, this.paper.node.clientHeight);
     this.initialize( 300, 60 );     //      todo: fix this kludge! Why can't we get the dimensions from the width and height in html? It works for stella.skyview!
 };
 
+/**
+ * Initialize many SpectrumView quantities
+ * @param iWidth
+ * @param iHeight
+ */
 SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
     this.totalSpectrumViewHeight = iHeight;
     this.spectrumViewWidth = iWidth;
 
+    //  parameters for drawing the two spectra
     this.interspectrumGap = this.totalSpectrumViewHeight * 0.4;
     this.mainSpectrumHeight = this.totalSpectrumViewHeight * 0.2;
     this.zoomSpectrumHeight = this.totalSpectrumViewHeight - this.interspectrumGap - this.mainSpectrumHeight;
 
     this.lambdaMinPossible = Spectrum.constants.visibleMin;
     this.lambdaMaxPossible = Spectrum.constants.visibleMax;
-    this.lambdaMin = Spectrum.constants.visibleMin;
-    this.lambdaMax = Spectrum.constants.visibleMax;
+    this.lambdaMin = Spectrum.constants.visibleMin;     //  minimum in the zoomed part of the view.
+    this.lambdaMax = Spectrum.constants.visibleMax;     //  max in the zoomed view.
     this.pixelMin = 0;
     this.pixelMax = this.spectrumViewWidth;
     this.nBins = 100;
     this.gain = 1.0;
     this.showNoData();
 
-    this.paper.click( stella.manager.clickInSpectrum );
+    this.paper.click( stella.manager.clickInSpectrum );     //  register the click handler
 
     console.log( "Initialize a spectrum view");
 
 };
 
-
-
+/**
+ * Set the internal values for min and max wavelength.
+ * Also compute what pixel values those correspond to.
+ * @param iMin
+ * @param iMax
+ */
 SpectrumView.prototype.adjustLimits = function( iMin, iMax )    {
     this.lambdaMin = iMin;
     this.lambdaMax = iMax;
@@ -69,26 +92,41 @@ SpectrumView.prototype.adjustLimits = function( iMin, iMax )    {
     this.pixelMax = this.spectrumViewWidth * (this.lambdaMax - this.lambdaMinPossible) / (this.lambdaMaxPossible - this.lambdaMinPossible);
 };
 
+/**
+ * A string describing the Spectrum
+ * @returns {string}
+ */
 SpectrumView.prototype.toString = function () {
     var out = "Spectrogram of " + this.spectrum.source.id + " " + this.lambdaMin + " - " + this.lambdaMax + " nm";
 
     return out;
 };
 
+/**
+ * Call to actually display a spectrum. Installs the given Spectrum in this SpectrumView.
+ * @param iSpectrum     Spectrum to display
+ */
 SpectrumView.prototype.displaySpectrum = function (iSpectrum) {
     this.spectrum = iSpectrum;
+
+    //  make two channel arrays, one full-range, one zoomed.
     if (iSpectrum) {
         this.channels = this.spectrum.channelize(this.lambdaMinPossible, this.lambdaMaxPossible, this.nBins);   //  array of objects { intensity, min, max}
         this.zoomChannels = this.spectrum.channelize(this.lambdaMin, this.lambdaMax, this.nBins);   //  array of objects { intensity, min, max}
     }
-    this.paintChannels();
+    this.paintChannels();       //  actually draw
 };
 
+/**
+ * Actually draw the spectrum channels.
+ */
 SpectrumView.prototype.paintChannels = function () {
 
     var tNChannels = this.channels.length;
     if (tNChannels > 0) {
         this.paper.clear();
+
+        //  this is the gray thing that shows you what part of the spectrum is zoomed.
         this.paper.polygon(
             this.pixelMin, this.mainSpectrumHeight,
             this.pixelMax, this.mainSpectrumHeight,
@@ -97,7 +135,8 @@ SpectrumView.prototype.paintChannels = function () {
             0, this.mainSpectrumHeight + this.interspectrumGap,
             this.pixelMin, this.mainSpectrumHeight + this.interspectrumGap / 3
         ).attr({
-            fill : "lightgray"
+            fill : "lightgray",
+            stroke : "black"
         });
         var tChannelWidthOnDisplay = this.spectrumViewWidth / (tNChannels);
         var tLeft;
@@ -152,7 +191,9 @@ SpectrumView.prototype.paintChannels = function () {
     }
 };
 
-
+/**
+ * If there is no data, display something to that effect
+ */
 SpectrumView.prototype.showNoData = function() {
     this.spectrum = null;
     this.channels = [];
@@ -165,6 +206,9 @@ SpectrumView.prototype.showNoData = function() {
 
 };
 
+/**
+ * Unused, I think todo: check, and remove is possible
+ */
 SpectrumView.prototype.invalidate = function () {
     this.paper.clear();
     this.paper.text(20, 15, "press the button to get the spectrum");
@@ -172,6 +216,12 @@ SpectrumView.prototype.invalidate = function () {
 
 SpectrumView.displayTypes = ["photo", "rail"];
 
+/**
+ * Get a suitable (hex, string) color to use at a particular wavelength
+ * todo: improve the colors, especially at the violet end
+ * @param iSignal
+ * @param iLambdaNM
+ */
 SpectrumView.intensityAndWavelengthToRGB = function (iSignal, iLambdaNM) {
 
     var Red, Green, Blue;
@@ -210,5 +260,5 @@ SpectrumView.intensityAndWavelengthToRGB = function (iSignal, iLambdaNM) {
     Green *= iSignal;
     Blue *= iSignal;
 
-    return Snap.rgb(255 * Red, 255 * Green, 255 * Blue);
+    return Snap.rgb(255 * Red, 255 * Green, 255 * Blue);    //  convert to hex
 };

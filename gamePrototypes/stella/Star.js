@@ -55,6 +55,20 @@ Now the copmpanion, Eta Cassiopeiae B
 
 /* global Snap, Spectrum, stella, ElementalSpectra, TEEUtils */
 
+/**
+ * Notes on position
+ * {x, y, r}
+ * where x and y are IN DEGREES and r is in pc.
+ */
+
+/**
+ * Construct a model Star. Called from stella.model.initGame()
+ *
+ * @param iFrustum  volume of space in which we choose a random spot
+ * @param iMotion   motion parameters. An object with components in x, y, and r. Also has SDs.
+ * @param iLogAge   log base 10 of the star's age. Will be used to see if it has evolved.
+ * @constructor
+ */
 var Star = function( iFrustum, iMotion, iLogAge ) {
     this.caseID = -1;
 
@@ -87,11 +101,15 @@ var Star = function( iFrustum, iMotion, iLogAge ) {
     this.id = 42;       //  placeholder. Gets set elsewhere.
     this.logAge = iLogAge;
 
-    this.evolve( );
+    this.evolve( );     //  old enough to move off the MS?
     //  this.spectrum = this.setUpSpectrum();
-    this.doPhotometry();
+    this.doPhotometry();    //  calculate UBV (etc) magnitudes
 };
 
+/**
+ * Has this Star moved off the MS? If so, how much?
+ * Answer is stored in this.myGiantIndex, which is 0 on the MS, (0,1) transitioning, 1 for giant, and 1000 for WD, NS, etc
+ */
 Star.prototype.evolve = function(  ) {
     var tAge = Math.pow(10, this.logAge);           //  current age
     this.myGiantIndex = this.computeGiantIndex( tAge );
@@ -125,6 +143,11 @@ Star.prototype.evolve = function(  ) {
     }
 };
 
+/**
+ * Star's position (as an object) at the current time, based on PM and parallax
+ * @param iTime
+ * @returns {{x: *, y: *, z: *}}
+ */
 Star.prototype.positionAtTime = function( iTime ) {
 
     //  todo: put in parallax
@@ -139,10 +162,21 @@ Star.prototype.positionAtTime = function( iTime ) {
     return oWhere;
 };
 
+/**
+ * Calculate apparent magnitude from absolute and distance
+ * @param iAbsoluteMagnitude
+ * @param iDistance
+ * @returns {*}
+ */
 Star.apparentMagnitude = function( iAbsoluteMagnitude, iDistance ) {
     return iAbsoluteMagnitude + 5 * (Math.log10( iDistance ) - 1);
 };
 
+/**
+ * Make THIS star's spectrum.
+ * Only need it when we have to put it up, so we don't store it.
+ * @returns {Spectrum}
+ */
 Star.prototype.setUpSpectrum = function() {
     var tSpectrum = new Spectrum();
     tSpectrum.hasAbsorptionLines = true;
@@ -162,6 +196,11 @@ Star.prototype.setUpSpectrum = function() {
     return tSpectrum;
 };
 
+/**
+ * Stellar Evolution. Where it is, and how it depends on age and (ms) lifetime.
+ * @param iAge
+ * @returns {number}
+ */
 Star.prototype.computeGiantIndex = function(iAge ) {
     var result = 0;
     var tTimeOnMS = Math.pow(10, this.logLifetime);
@@ -183,7 +222,7 @@ Star.prototype.computeGiantIndex = function(iAge ) {
 
 /**
  * UBV photometry using blackbody.
- * Assume A0 = 10000K, and all its absolute magnites are zero.
+ * Assume Sun = 5800K, and all its absolute magnites are as listed.
  */
 Star.prototype.doPhotometry = function() {
 
@@ -214,6 +253,11 @@ Star.prototype.doPhotometry = function() {
 
 };
 
+/**
+ * Make the object we can use to put a row in the Catalog.
+ *
+ * @returns {{x: string, y: string, m: string, id: *, U: string, B: string, V: string}}
+ */
 Star.prototype.dataValues = function() {
     var out = {
         x : this.where.x.toFixed(3),
@@ -228,6 +272,10 @@ Star.prototype.dataValues = function() {
     return out;
 };
 
+/**
+ * String version of me
+ * @returns {string}
+ */
 Star.prototype.toString = function() {
     var out = Math.pow(10, this.logMass).toFixed(2);
     out += ", " + Math.round(Math.pow(10, this.logMainSequenceTemperature));
@@ -239,14 +287,25 @@ Star.prototype.toString = function() {
     return out;
 };
 
+/**
+ * Very short ID string useful for the status bar
+ * @returns {string}
+ */
 Star.prototype.infoText = function() {
     var out = this.id + " m = " +  this.mApp.toFixed(2);
 
     return out;
 };
 
+//------------------------------------------
 //      VIEW class
 
+/**
+ * Make a new StarView.
+ * @param iStar     which Star
+ * @param iPaper    the paper of the SKY, to which we attach this view
+ * @constructor
+ */
 var StarView = function( iStar, iPaper ) {
     this.star = iStar;          //  view knows about the model
 
@@ -255,10 +314,12 @@ var StarView = function( iStar, iPaper ) {
     var tGray = 17;
     var tMagnitudeElbow, tMagnitudeLimit;
 
+    //  The scale and brightness of stars depends on magnification
+
     switch (stella.skyView.magnification) {
         case 1:
-            tMagnitudeElbow = 0.0;
-            tMagnitudeLimit = 11.0;
+            tMagnitudeElbow = 0.0;      //  magnitude at which stars are fully white but different sizes
+            tMagnitudeLimit = 11.0;     //  below this magntude, stars are fully transparent
             break;
         case 10:
             tMagnitudeElbow = 6.0;
@@ -275,14 +336,16 @@ var StarView = function( iStar, iPaper ) {
     }
 
     if (iStar.mApp < tMagnitudeElbow) {
-        tRadius *= tMagnitudeElbow - iStar.mApp;
+        tRadius *= tMagnitudeElbow - iStar.mApp + 1;
     } else if (iStar.mApp < tMagnitudeLimit) {
         tOpacity = (tMagnitudeLimit - iStar.mApp) / (tMagnitudeLimit - tMagnitudeElbow);
     } else {
         tOpacity = 0.0;
     }
 
-    var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );
+    var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );    //  put color in here of we want
+
+    //  actually make the circle! Be sure to reverse the y coordinate.
     iPaper.circle( iStar.where.x, stella.constants.universeWidth - iStar.where.y, tRadius).attr({
         fill : tColor,
         fillOpacity : tOpacity

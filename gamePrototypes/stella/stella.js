@@ -25,18 +25,61 @@
 
  */
 
+/*
+stella.js
+
+The root of the stella object hierarchy.
+
+Here you find the basic initialization routine, constants of various sorts, and utilities.
+
+Program Overview
+----------------
+
+Controllers: .manager, .ui, .options, .connector
+
+Model:  .model, Star, Spectrum, Line, ElementalSpectra, [Planet] (not currently in use)
+
+Views:  .skyView, SpectrumView, StarView (in Star.js)
+
+This game is not a series of games, but rather a single game that continues.
+As of 2016-07-11, the idea is that you will accrue points (money?) doing various tasks,
+and spend them (or just be rewarded) to get new capabilities such as better equipment and automated services.
+
+It would be great, but is beyond the current scope, to share data withing the classroom,
+and possibly to publish.
+
+Anyhow: the .model singleton has an array of Stars. Stars have a variety of attributes, beginning with stellar mass,
+from which all other stellar properties derive. Mass determines radius and brightness,
+which determine temperature and lifespan.
+
+A Spectrum is essentially a collection of Lines at particular intensities. You get the Lines from
+ElementalSpectra, which get made at startup from NIST data. See that class for the actual lines data.
+
+A stellar Spectrum gets created on the fly when needed (foreseeing variable stars).
+When the user can see a Spectrum, you update a SpectrumView with the new Spectrum.
+ */
+
+
 /* global ElementalSpectra, Math */
 
 var     stella = {};    //  top level global
 
+/**
+ * Initialze the whole thing.
+ */
 stella.initialize = function() {
-    ElementalSpectra.initialize();
-    stella.ui.initializeUINames();
+    ElementalSpectra.initialize();  //  read the line data into objects
+    stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
-    stella.manager.newGame();   //  todo: make this work; the problem is that the data sets do not exist yet so explode
+    stella.manager.newGame();   //  will create new stars, etc.
 };
 
+/**
+ * Object containing information about possible results users can submit
+ *
+ * @type {{temp: {name: string, units: string, id: string}, pm_x: {id: string, name: string, units: string}, pm_y: {id: string, name: string, units: string}, parallax: {id: string, name: string, units: string}, vel_r: {id: string, name: string, units: string}}}
+ */
 stella.starResults = {
     "temp": {
         name: "temperature",
@@ -65,6 +108,10 @@ stella.starResults = {
     }
 };
 
+/**
+ * UI strings that can later be swapped out for localization
+ * @type {{notPointingText: string, noSkySpectrum: string, noLabSpectrum: string, notPointingAtStarForResults: string, resultIsWayOff: string}}
+ */
 stella.strings = {
     notPointingText : "not pointing at a particular star",
     noSkySpectrum : "point at a star to see its spectrum",
@@ -72,6 +119,10 @@ stella.strings = {
     notPointingAtStarForResults : "You have to point at a star so we know which star you're reporting on!",
     resultIsWayOff : "Your result is pretty far off. No points. Be sure to check units!"};
 
+/**
+ * Many constants including physical constants.
+ * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
+ */
 stella.constants = {
     version : "001a",
     bigG : 6.674e-08,           //      big G in cgs
@@ -101,7 +152,10 @@ stella.constants = {
 
 //      utilities
 
-
+/**
+ * Time passes
+ * @param iMS
+ */
 stella.elapse = function(iMS ) {
     //var tMS = stella.model.now.getTime();     //  uncomment if we go back to dateTimes
     tMS += iMS;
@@ -128,6 +182,12 @@ stella.apparentMagnitude = function(iAbs, iDistance ) {
     return iAbs + 5 - 5 * Math.log10( iDistance );
 };
 
+/**
+ * Get the coordinates of a planet at a date
+ * @param iObject
+ * @param iDate
+ * @returns {{x: number, y: number, z: number}}
+ */
 stella.orbitXYZ = function(iObject, iDate ) {
 
     var dt = iDate - stella.model.epoch;    //  time since epoch in ms.

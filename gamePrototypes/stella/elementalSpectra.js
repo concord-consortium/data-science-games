@@ -27,6 +27,13 @@
 
 /* global Spectrum, Line */
 
+/**
+ * Singleton containing spectra for each species in stellar atmospheres.
+ * These are set so the maximum intensity is (about) 100.
+ * So you will need to scale them to get the height that's appropriate.
+ *
+ * @type {{H: null, HeI: null, CaII: null, NaI: null, FeI: null, mainSequenceWidth: number, giantWidth: number, initialize: ElementalSpectra.initialize}}
+ */
 var ElementalSpectra = {
     H : null,
     HeI : null,
