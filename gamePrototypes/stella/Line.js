@@ -27,6 +27,15 @@
 
 /* global spec, Spectrum */
 
+/**
+ * Constructor for Lines.
+ *
+ * @param iLambda   Wavelength in nm
+ * @param iWidth    Width in nm.
+ * @param iStrength Intensity of the line. Arbitrary units, often max = 100.
+ * @param iWhat     What this is a line of, purely informational.
+ * @constructor
+ */
 var Line = function (iLambda, iWidth, iStrength, iWhat) {
     this.lambda = iLambda;
     this.width = iWidth;
@@ -34,6 +43,15 @@ var Line = function (iLambda, iWidth, iStrength, iWhat) {
     this.what = iWhat;          //  purely informational
 };
 
+/**
+ * We compute spectra in channels; this routine (called by Spectrum.intensityBetween())
+ * tells the caller how much intensity is in a slice of spectrum for this line.
+ * todo: improve this kludgey algorithm. Simpson's rule?
+ * @param iMin          bottom end of the interval
+ * @param iMax          top end
+ * @param iSpeedAway    cm/sec going away, for computing Doppler shift
+ * @returns {number}
+ */
 Line.prototype.intensityBetween = function (iMin, iMax, iSpeedAway) {
     var oIntensity = 0;
 
@@ -54,6 +72,13 @@ Line.prototype.intensityBetween = function (iMin, iMax, iSpeedAway) {
     return oIntensity;
 };
 
+/**
+ * Old way of assigning line strength. I think this is no longer used. todo: remove if safe!
+ *
+ * @param iRelativeLambda
+ * @param iWidth
+ * @returns {number}
+ */
 Line.intensity = function( iRelativeLambda, iWidth ) {
     if ( iRelativeLambda < -iWidth ) {
         return 0;
@@ -66,6 +91,12 @@ Line.intensity = function( iRelativeLambda, iWidth ) {
     }
 };
 
+/**
+ * Also no longer used, I think. todo: remove if safe!
+ * @param iArg
+ * @param iWidth
+ * @returns {number}
+ */
 Line.cdf = function (iArg, iWidth) {
 
     if (iArg < -iWidth) {

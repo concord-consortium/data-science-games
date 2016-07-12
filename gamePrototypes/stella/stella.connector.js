@@ -70,6 +70,11 @@ stella.connector = {
         );
     },
 
+    /**
+     * Emit a "result" record of the user's work
+     * @param iValues
+     * @param iCallback
+     */
     emitStarResult : function( iValues, iCallback ) {
         codapHelper.createCase(
             this.starResultsCollectionName,
@@ -79,10 +84,14 @@ stella.connector = {
         );
     },
 
+    /**
+     * Emit a whole spectrum
+     * @param iChannels the array of channels (each is an object)
+     * @param iName     the name of the spectrum (star or lab designation)
+     */
     emitSpectrum: function ( iChannels, iName ) {
 
-        this.currentSpectrumName = iName;
-        this.spectrumNumber += 1;
+        this.spectrumNumber += 1;       //      serial
 
         codapHelper.createCase(
             this.spectraCollectionName,
@@ -94,9 +103,9 @@ stella.connector = {
                 }
             },
             function (iResult) {
-                this.spectrumCaseID = iResult.values[0].id;
+                this.spectrumCaseID = iResult.values[0].id;     //  need for the channels sub-collection
                 iChannels.forEach(function (ch) {
-                    stella.connector.emitSpectrumChannel(ch);
+                    stella.connector.emitSpectrumChannel(ch);   //  send that channel
                 });
 
             }.bind(this),
@@ -104,6 +113,11 @@ stella.connector = {
         );
     },
 
+    /**
+     * emit a single channel
+     * todo: consider constructing an array and creating this whole collection in a single call with CreateCases
+     * @param iChannel
+     */
     emitSpectrumChannel: function (iChannel ) {
         codapHelper.createCase(
             this.channelCollectionName,
@@ -119,6 +133,10 @@ stella.connector = {
         );
     },
 
+    /**
+     * We have case IDs for the stars! Tell CODAP to select this star.
+     * @param iCaseID
+     */
     selectStarInCODAPByCatalogID : function( iCaseID ) {
         var theIDs = [ iCaseID ];
         codapHelper.selectCasesByIDs( theIDs, this.catalogDataSetName );
@@ -140,7 +158,7 @@ stella.connector = {
     },
 
     /**
-     * Initialize the data set
+     * Initialize the Results data set
      * @returns {{name: string, title: string, description: string, collections: *[]}}
      */
     getStarResultsDataSetObject: function () {
@@ -171,6 +189,10 @@ stella.connector = {
         };
     },
 
+    /**
+     * Initialize the Spectrum
+     * @returns {{name: string, title: string, description: string, collections: *[]}}
+     */
     getInitSpectraDataSetObject: function () {
         return {
             name: this.spectraDataSetName,
@@ -212,6 +234,10 @@ stella.connector = {
         };
     },
 
+    /**
+     * Initialize the Catalog data set
+     * @returns {{name: string, title: string, description: string, collections: *[]}}
+     */
     getInitStarCatalogDataSetObject: function () {
         return {
             name: this.catalogDataSetName,

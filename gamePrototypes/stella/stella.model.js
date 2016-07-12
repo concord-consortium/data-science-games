@@ -28,6 +28,12 @@
 
 /* global stella, Star, Spectrum, console, ElementalSpectra, alert */
 
+/**
+ * Overarching model class
+ * Most importantly, maintains the array of Stars.
+ *
+ * @type {{stars: Array, now: null, epoch: null, skySpectrum: null, labSpectrum: null, newGame: stella.model.newGame, starFromTextID: stella.model.starFromTextID, starFromCaseID: stella.model.starFromCaseID, makeAllStars: stella.model.makeAllStars, installBlackbody: stella.model.installBlackbody, installDischargeTube: stella.model.installDischargeTube, evaluateResult: stella.model.evaluateResult, foo: null}}
+ */
 stella.model = {
 
     stars : [],
@@ -36,6 +42,10 @@ stella.model = {
     skySpectrum : null,
     labSpectrum : null,
 
+    /**
+     * Called by manager.newGame().
+     * Asks for all stars to be made.
+     */
     newGame : function() {
         this.stars = [];
 
@@ -44,6 +54,12 @@ stella.model = {
         this.epoch = 2500.0;     //  new Date(2500, 0);   //  Jan 1 2525
     },
 
+    /**
+     * Determine which star you mean if you give it partial text
+     * todo: expand to include names, when we get star names.
+     * @param iText
+     * @returns {*}
+     */
     starFromTextID : function(iText) {
         for (var i = 0; i < this.stars.length; i++) {
             var s = this.stars[i];
@@ -54,6 +70,11 @@ stella.model = {
         return null;
     },
 
+    /**
+     * Gives you the Star corresponding to a caseID. Need for doing selection.
+     * @param id
+     * @returns {*} the Star
+     */
     starFromCaseID : function( id ) {
         for (var i = 0; i < this.stars.length; i++) {
             var s = this.stars[i];
@@ -64,6 +85,10 @@ stella.model = {
         return null;
     },
 
+    /**
+     * Actually constructs all the stars.
+     * Both field stars and the cluster.
+     */
     makeAllStars : function() {
 
     var i, tFrustum, tMotion, tS;
@@ -78,6 +103,7 @@ stella.model = {
             L2 : stella.constants.universeDistance
         };
 
+        //  motion parameter for pm and V_rad. Means and SDs.
         tMotion = {
             x : 0,  sx : 25,
             y : 0,  sy : 25,
@@ -118,10 +144,13 @@ stella.model = {
             this.stars.push( tS );
         }
 
+        //  Sort the stars by apparent magnitude
 
         this.stars.sort( function(a,b) {
            return a.mApp - b.mApp;
         });
+
+        //  Now give them ids (text, NOT caseIDs) for the catalog.
 
         for (var s = 0; s < this.stars.length; s++) {
             var tNumber = 1000 + s;
@@ -130,15 +159,24 @@ stella.model = {
         }
     },
 
+    /**
+     * Install the blackbody device in the lab.
+     * Remember that a Spectrum is an array of lines (this has none) plus parameters.
+     * No actual values until it gets channelized.
+     */
     installBlackbody: function () {
         this.labSpectrum = new Spectrum();
         this.labSpectrum.hasBlackbody = true;
         this.labSpectrum.hasEmissionLines = false;
-        this.labSpectrum.blackbodyTemperature = this.labBlackbodyTemperature;
+        this.labSpectrum.blackbodyTemperature = this.labBlackbodyTemperature;   //  sets this flag
         this.labSpectrum.source.id = "blackbody at " + this.labSpectrum.blackbodyTemperature + " K";
         this.labSpectrum.source.shortid = "BB_" + this.labSpectrum.blackbodyTemperature + "K";
     },
 
+    /**
+     * Install a discharge tube in the lab.
+     * Get the lines form the ElementalSpectra.
+     */
     installDischargeTube: function () {
         this.labSpectrum = new Spectrum();
 
@@ -170,6 +208,12 @@ stella.model = {
         this.labSpectrum.source.shortid = this.dischargeTube;
     },
 
+    /**
+     * When the user submits a Result, we check to see how close it is.
+     *
+     * @param iValues
+     * @returns {number}
+     */
     evaluateResult : function( iValues ) {
         var tStar = stella.model.starFromTextID( iValues.id );
         var tMaxPoints = 100;
@@ -178,6 +222,9 @@ stella.model = {
         var trueValue = null;
         var debugString = "debug";
 
+        /**
+         * How far off you can be depends on what kind of measurement it is
+         */
         switch( iValues.type ) {
             case "temp" :
                 var tLogResultValue = Math.log10( iValues.value );

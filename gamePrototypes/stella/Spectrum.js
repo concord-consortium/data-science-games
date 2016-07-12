@@ -37,6 +37,10 @@
 
 /* global $, console, Line */
 
+/**
+ * A Spectrum is basically an array of Lines with additional flags and parameters.
+ * @constructor
+ */
 var Spectrum = function() {
     this.lines = [];
     this.hasEmissionLines = true;
@@ -47,11 +51,19 @@ var Spectrum = function() {
     this.source = { brightness : 100 };
 };
 
+/**
+ * Ass a single Line to this Spectrum
+ * @param iLine the Line to add
+ */
 Spectrum.prototype.addLine = function( iLine ) {
     this.lines.push( iLine );
 };
 
-
+/**
+ * Add all the lines from a Spectrum to this one
+ * @param iSpectrum     source
+ * @param iAmp          at what amplitude? These amplitudes are percentages, and multiply the Line's inherent strength.
+ */
 Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
     iSpectrum.lines.forEach( function(iLine) {
         var tLine = new Line(iLine.lambda, iLine.width, iLine.strength * iAmp / 100, iLine.what);
@@ -59,6 +71,12 @@ Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
     }.bind(this));
 };
 
+/**
+ * What is the total intensity between these two wavelengths
+ * @param iMin
+ * @param iMax
+ * @returns {number}
+ */
 Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
     var oIntensity = 0;
 
@@ -88,6 +106,14 @@ Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
     return oIntensity;
 };
 
+/**
+ * Divide the wavelength interval to be displayed into bins,
+ * and make an array that gives the intensity in each bin.
+ * @param iMin      min wavelength to be displayed
+ * @param iMax      max
+ * @param iNBins    how many bins?
+ * @returns {Array} Array of channel objects: { intensity (0-100), min (wavelength), max }
+ */
 Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
     var oChannels= [];
     var tLambda = iMin;        //  bottom of the interval
@@ -110,20 +136,28 @@ Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
         dText += c.intensity.toFixed(2) + " ";
         return dText;
     });
-    $("#debugText").text( dText );
+    //  $("#debugText").text( dText );
 
     return oChannels;
 };
 
+/**
+ * Calculate the blackbody intensity at a wavelength,
+ * set so that the maximum value in the visible interval is 100.
+ * @param iLambda
+ * @param iSpeedAway
+ * @returns {number}
+ */
 Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAway) {   //  todo: doppler shift BB
     var tLambda =  (iLambda * 1.0e-7);      //  convert nm to cm
 
+    //  compute the wavelength where the function is a maximum
     var tMaxLambda = Spectrum.constants.wien / this.blackbodyTemperature;       //   in cm. Wien's displacement law.
     if (tMaxLambda < Spectrum.constants.visibleMin * 1.0e-07) {
-        tMaxLambda = Spectrum.constants.visibleMin * 1.0e-07;
+        tMaxLambda = Spectrum.constants.visibleMin * 1.0e-07;   //  ah, the peak is in UV, so we pick 350 nm.
     }
     if (tMaxLambda > Spectrum.constants.visibleMax * 1.0e-07) {
-        tMaxLambda = Spectrum.constants.visibleMax * 1.0e-07;
+        tMaxLambda = Spectrum.constants.visibleMax * 1.0e-07;   //  peak is in IR, so we usee 700 nm.
     }
     var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
 
@@ -131,7 +165,12 @@ Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAw
     return 100.0 *  tIntense / tMaxIntensity;
 };
 
-
+/**
+ * Raw blackbody intensity calcuation.
+ * @param iLambda       wavelength (cm)
+ * @param iTemp         temperature (K)
+ * @returns {number}
+ */
 Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp) {
     var kT = Spectrum.constants.boltzmann * iTemp;
     var hNu = Spectrum.constants.planck * Spectrum.constants.light / iLambda;
@@ -142,6 +181,10 @@ Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp) {
     return (2 * csq * Spectrum.constants.planck / (Math.pow(iLambda, 5))) * (1.0 / tDenom);
 };
 
+/**
+ * Miscellaneous spectral constants
+ * @type {{planck: number, light: number, boltzmann: number, wien: number, visibleMin: number, visibleMax: number}}
+ */
 Spectrum.constants = {
     planck      : 6.626e-27,  //  h in cgs
     light       : 2.997e10,   //  c in cgs
@@ -153,6 +196,14 @@ Spectrum.constants = {
 
 };
 
+/**
+ * This routine calculates how much of the spectrum of a given "species" will appear.
+ * For example, cool stars show sodium lines easily, but in hot lines, Sodium is ionized.
+ *
+ * @param iSpecies
+ * @param iLogTemp
+ * @returns {number}
+ */
 Spectrum.linePresenceCoefficient = function( iSpecies, iLogTemp ) {
 
     //      adapted from http://skyserver.sdss.org/dr1/en/proj/advanced/spectraltypes/lines.asp
@@ -161,20 +212,27 @@ Spectrum.linePresenceCoefficient = function( iSpecies, iLogTemp ) {
         return 1.0;
     }
 
-    var tTemp = Math.pow(10, iLogTemp);
+    var tTemp = Math.pow(10, iLogTemp);     //  actual temperature, not its log
     var oCoeff = 1.0;           //  this will go from 0 to 1
 
     switch( iSpecies ) {
         case "H":
+            /*
+            The basic idea is that we make a trapezoid: for Hydrogen, the coefficent is...
+            0 under 5000K,
+            linearly increasing to 1, from 5000 to 7000
+            1 between 7500 and 10000,
+            linearly decreasing (to zero) between 10000 and 25000
+            0 above 25000
+             */
             oCoeff = lineStrengthInterpolator(tTemp, 5000, 7500, 10000, 25000);
             break;
 
-        case "HeI":
+        case "HeI":     //  HeI means "neutal Helium." HeII is singly ionized; it's like H with more nucleus.
             oCoeff = lineStrengthInterpolator(tTemp, 9000, 10000, 28000, 40000);
-            console.log("Helium check: T = " + tTemp + " coeff = " + oCoeff);
             break;
 
-        case "CaII":
+        case "CaII":    //  CaII means "singly ionized," that is, it has one electron left in its outer shell.
             oCoeff = lineStrengthInterpolator(tTemp, 4000, 5000, 7500, 10000);
             break;
 
@@ -189,6 +247,15 @@ Spectrum.linePresenceCoefficient = function( iSpecies, iLogTemp ) {
 
     return oCoeff;
 
+    /**
+     * Utility to compute the trapezoidal function described in Spectrum.linePresenceCoefficient().
+     * @param iTemp     the temperature
+     * @param iMin0     min temp for any response (zero below this value)
+     * @param iMinTop   min temp for +1.0 response
+     * @param iMaxTop   max temp for +1.0
+     * @param iMax0     max temp for any response (zero above this value)
+     * @returns {number}
+     */
     function lineStrengthInterpolator(iTemp, iMin0, iMinTop, iMaxTop, iMax0) {
         var out = 0;
 

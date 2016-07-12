@@ -27,40 +27,56 @@
 
 /* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert  */
 
+/**
+ * Main controller for Stella
+ *
+ * @type {{playing: boolean, focusStar: null, starResultType: null, starResultValue: null, stellaScore: number, labSpectrumView: null, skySpectrumView: null, newGame: stella.manager.newGame, updateStella: stella.manager.updateStella, pointAtStar: stella.manager.pointAtStar, changeMagnificationTo: stella.manager.changeMagnificationTo, runTests: stella.manager.runTests, emitInitialStarsData: stella.manager.emitInitialStarsData, extractFromWithinBrackets: stella.manager.extractFromWithinBrackets, processSelectionFromCODAP: stella.manager.processSelectionFromCODAP, spectrumParametersChanged: stella.manager.spectrumParametersChanged, displayAllSpectra: stella.manager.displayAllSpectra, saveSpectrumToCODAP: stella.manager.saveSpectrumToCODAP, updateLabSpectrum: stella.manager.updateLabSpectrum, setSpectrogramWavelengthsToTypedValues: stella.manager.setSpectrogramWavelengthsToTypedValues, clickInSpectrum: stella.manager.clickInSpectrum, starResultTypeChanged: stella.manager.starResultTypeChanged, starResultValueChanged: stella.manager.starResultValueChanged, saveStarResult: stella.manager.saveStarResult, stellaDoCommand: stella.manager.stellaDoCommand}}
+ */
 stella.manager = {
 
     playing : false,
-    focusStar : null,
-    starResultType : null,
+    focusStar : null,       //  what star are we pointing at?
+    starResultType : null,  //  kind of result. set in newGame()
     starResultValue : null,
-    stellaScore : 0,
+    stellaScore : 0,        //  current "score"
 
-    labSpectrumView : null,
+    labSpectrumView : null, //  SpectrumView object
     skySpectrumView : null,
 
 
+    /**
+     * Called on new game, in this case, on startup
+     */
     newGame: function () {
 
         stella.model.newGame();     //  make all the stars etc
         this.playing = true;
-        stella.skyView.initialize( );
+        stella.skyView.initialize( );   //  make the sky
 
         this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
         this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
-        stella.manager.starResultType = $("#starResultTypeMenu").val();
-        stella.manager.spectrumParametersChanged();
-        stella.manager.updateStella();
+        stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
+        stella.manager.spectrumParametersChanged();     //  reads the UI and sets various variables.
+        stella.manager.updateStella();              //  update the screen and text
     },
 
+    /**
+     * Housekeeping. Synchronize things.
+     * Often called when the user has changed something.
+     */
     updateStella : function() {
         stella.skyView.pointAtStar( this.focusStar );
-        stella.model.skySpectrum = (this.focusStar === null) ? null :  this.focusStar.setUpSpectrum();
+        stella.model.skySpectrum = (this.focusStar === null) ? null :  this.focusStar.setUpSpectrum();  //  make the spectrum
         this.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
 
+    /**
+     * Point at the given star.
+     * @param iStar     The star. Pass `null` to be not pointing at anything.
+     */
     pointAtStar : function( iStar ) {
         if (iStar) {
             this.focusStar = iStar;
@@ -74,6 +90,10 @@ stella.manager = {
         this.updateStella();
     },
 
+    /**
+     * Change the magnification on the telescope
+     * @param iNewMag
+     */
     changeMagnificationTo : function( iNewMag ) {
 
         stella.skyView.magnify( iNewMag  );
@@ -81,6 +101,9 @@ stella.manager = {
 
     },
 
+    /**
+     * For testing
+     */
     runTests : function() {
         var tT = "testing\n";
         var d = $("#debugText");
@@ -94,6 +117,9 @@ stella.manager = {
         d.text( tT );       //  sends that data to debug
     },
 
+    /**
+     * Send out the catalog at the beginning of the game.
+     */
     emitInitialStarsData : function() {
 
         stella.model.stars.forEach( function( iStar ) {
@@ -113,6 +139,12 @@ stella.manager = {
 
     },
 
+    /**
+     * Get the contents of the brackets in a string.
+     * New API may make this unnecessary.
+     * @param iString
+     * @returns {*}
+     */
     extractFromWithinBrackets : function( iString ) {
         if (iString ) {
             return iString.substring(iString.lastIndexOf("[") + 1, iString.lastIndexOf("]"));
@@ -121,6 +153,10 @@ stella.manager = {
         }
     },
 
+    /**
+     * When CODAP tells us there's one selection in the Catalog, point the telescope there.
+     * @param iResult
+     */
     processSelectionFromCODAP : function( iResult ) {
         if (iResult && iResult.success) {
             if (iResult.values.length === 1) {
@@ -139,17 +175,28 @@ stella.manager = {
 
      */
 
+    /**
+     * Use has changed something in the spectrum tab.
+     * Make appropriate changes.
+     */
     spectrumParametersChanged : function() {
         this.setSpectrogramWavelengthsToTypedValues();       //  read min and max from boxes in the UI
         this.updateLabSpectrum();
         stella.manager.updateStella();
     },
 
+    /**
+     * Actually display both spectra
+     */
     displayAllSpectra : function() {
         stella.manager.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
         stella.manager.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
     },
 
+    /**
+     * Emit one spectrum's worth of data to CODAP
+     * @param iWhich    "sky" or "lab"
+     */
     saveSpectrumToCODAP : function(iWhich ) {
 
         var tSpectrum, tTitle, tSpectrumView, tChannels;
@@ -178,7 +225,9 @@ stella.manager = {
 
     },
 
-
+    /**
+     * Decide what kind of lab spectrum we're making, then have it made
+     */
     updateLabSpectrum : function() {
         //  first, figure out the Lab spectrum
         var tSpectrumType = $('input[name=sourceType]:checked').val();
@@ -191,7 +240,9 @@ stella.manager = {
         }
     },
 
-
+    /**
+     * Take the numbers in the boxes and use them to set the limits of the spectra
+     */
     setSpectrogramWavelengthsToTypedValues : function() {
         var tLMin = Number($("#lambdaMin").val());
         var tLMax = Number($("#lambdaMax").val());
@@ -200,9 +251,15 @@ stella.manager = {
         this.skySpectrumView.adjustLimits( tLMin, tLMax);
     },
 
+    /**
+     * Handle a click in the SpectrumView
+     * Change the limits appropriately.
+     * @param e
+     */
     clickInSpectrum: function (e) {
         var tSpecView = stella.manager.labSpectrumView; //  todo: maybe make this work on the target, in case the skySpectrumView is of a different dimension
 
+        //  todo: consider whether this can all be avoided with viewBox and making TWO spectrumViews.
         var uupos = tSpecView.paper.node.createSVGPoint();
         uupos.x = e.clientX;
         uupos.y = e.clientY;
@@ -248,23 +305,34 @@ stella.manager = {
             tMin = tMid - 0.5;
         }
 
-        stella.manager.labSpectrumView.adjustLimits( tMin, tMax );
+        stella.manager.labSpectrumView.adjustLimits( tMin, tMax );  //  sets lambdaMin, lambdaMax
         stella.manager.skySpectrumView.adjustLimits( tMin, tMax );
         stella.manager.displayAllSpectra();
+
+        stella.manager.updateStella();
     },
 
 /*      "STAR RESULT" SECTION     */
 
+    /**
+     * USer has chosen a different kind of measurement in the menu there
+     */
     starResultTypeChanged : function() {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
     },
 
+    /**
+     * User has entered a value
+     */
     starResultValueChanged : function() {
         stella.manager.starResultValue = Number($("#starResultValue").val());
         stella.manager.updateStella();
     },
 
+    /**
+     * User has clicked Save for a result.
+     */
     saveStarResult: function () {
         if (stella.manager.focusStar) {
             var tValues = {
@@ -274,7 +342,7 @@ stella.manager = {
                 date: stella.model.now,
                 units: stella.starResults[stella.manager.starResultType].units
             };
-            var tScore = stella.model.evaluateResult(tValues);
+            var tScore = stella.model.evaluateResult(tValues);  //  we don't necessarily save all results!
             if (tScore > 0) {
                 stella.connector.emitStarResult(tValues, null);
                 stella.manager.stellaScore += tScore;
@@ -302,26 +370,35 @@ stella.manager = {
 
         switch (iCommand.action) {
             case "notify":
-                if (Array.isArray(iCommand.values)) {
-                    switch (iCommand.values[0].operation) {
+                var tValues = iCommand.values;
+                if (!Array.isArray(tValues)) {
+                    tValues = [tValues];
+                }
+                switch (tValues[0].operation) {
 
-                        // todo: Note that this is set up to work only with the star catalog data set.
-                        case "selectCases":
-                            var tDataSet = stella.manager.extractFromWithinBrackets(iCommand.resource);
-                            if (tDataSet === stella.connector.catalogDataSetName) {
-                                codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
-                            }
-                            break;
+                    case "selectCases":
 
-                        default:
-                            break;
-                    }
-                } else {
-                    var tOperation = iCommand.values.operation;
-                    console.log("Values is not an array. Operation: " + tOperation);
+                        /**
+                         * CODAP is telling us that user has selected cases. We have CODAP
+                         * send the selection list to our function, stella.manager.processSelectionFromCODAP
+                         */
+
+                        // todo: Note that this is set up to work only with the star catalog data set. Expand!
+
+                        var tDataSet = stella.manager.extractFromWithinBrackets(iCommand.resource);
+                        if (tDataSet === stella.connector.catalogDataSetName) {
+                            codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
                 break;
 
+        /**
+         * For saving
+         */
             case "get":
                 console.log("stellaDoCommand: action : get.");
                 switch (iCommand.resource) {
