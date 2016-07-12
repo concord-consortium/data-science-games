@@ -37,9 +37,9 @@ colorPlay.ui = {
 
     update : function() {
         var tMatchColor = Snap.rgb(
-            colorPlay.model.playColor.red,
-            colorPlay.model.playColor.green,
-            colorPlay.model.playColor.blue
+            colorPlay.model.playColor.red * 17,
+            colorPlay.model.playColor.green * 17,
+            colorPlay.model.playColor.blue * 17
         );
 
         $("#redValue").text("  red = " + colorPlay.model.playColor.red);
@@ -54,14 +54,14 @@ colorPlay.ui = {
         });
 
         var tMatchTryColor = Snap.rgb(
-            colorPlay.model.matchTryColor.red,
-            colorPlay.model.matchTryColor.green,
-            colorPlay.model.matchTryColor.blue
+            colorPlay.model.matchTryColor.red * 17,
+            colorPlay.model.matchTryColor.green * 17,
+            colorPlay.model.matchTryColor.blue * 17
         );
         var tMatchTargetColor = Snap.rgb(
-            colorPlay.model.matchTargetColor.red,
-            colorPlay.model.matchTargetColor.green,
-            colorPlay.model.matchTargetColor.blue
+            colorPlay.model.matchTargetColor.red * 17,
+            colorPlay.model.matchTargetColor.green * 17,
+            colorPlay.model.matchTargetColor.blue * 17
         );
 
 
@@ -106,35 +106,35 @@ colorPlay.ui = {
             class : "redSlider",
             range : false,
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.playColor.red = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
         $("#greenPlaySlider").slider({
             range : false,
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.playColor.green = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
         $("#bluePlaySlider").slider({
             range : false,
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.playColor.blue = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
 
         //  Match sliders
@@ -143,35 +143,35 @@ colorPlay.ui = {
             range : false,
             animation : "slow",
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.matchTryColor.red = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
         $("#greenMatchSlider").slider({
             range : false,
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.matchTryColor.green = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
         $("#blueMatchSlider").slider({
             range : false,
             min : 0,
-            max : 255,
-            values : [ 128 ],
+            max : 15,
+            values : [ 8 ],
             slide : function(e, ui) {
                 colorPlay.model.matchTryColor.blue = Number( ui.values[0] );
                 colorPlay.ui.update();
             },
-            step : 1
+            step : 0.2
         });
     },
 
