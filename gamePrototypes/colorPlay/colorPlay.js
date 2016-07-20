@@ -36,6 +36,6 @@ colorPlay = {
     },
 
     constants : {
-        version : "001a"
+        version : "001b"
     }
 }

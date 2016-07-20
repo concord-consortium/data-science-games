@@ -49,9 +49,9 @@ colorPlay.manager = {
 
     setNewMatchTarget: function () {
         colorPlay.model.matchTargetColor = {
-            red: Math.round(255 * Math.random()),
-            green: Math.round(255 * Math.random()),
-            blue: Math.round(255 * Math.random())
+            red: Math.round(75 * Math.random()) / 5,
+            green: Math.round(75 * Math.random()) / 5,
+            blue: Math.round(75 * Math.random()) / 5
         };
 
         $("#matchResults").html("Click <b>check match</b> when you're ready.");
@@ -77,19 +77,19 @@ colorPlay.model = {
 
     initialize: function () {
         this.playColor = {
-            red: 128,
-            green: 128,
-            blue: 128
+            red: 8,
+            green: 8,
+            blue: 8
         };
         this.matchTargetColor = {
-            red: 128,
-            green: 128,
-            blue: 128
+            red: 8,
+            green: 8,
+            blue: 8
         };
         this.matchTryColor = {
-            red: 128,
-            green: 128,
-            blue: 128
+            red: 8,
+            green: 8,
+            blue: 8
         };
     },
 
