@@ -22,6 +22,19 @@ var codapHelper = {
             }, function (iResult) {
                 if (iResult.success) {
                     this.initFrameAccomplished = true;
+                    this.getSaveObject();
+                }
+            }.bind(this));
+    },
+
+    getSaveObject: function() {
+        this.codapPhone.call(
+            {
+                action: 'get',
+                resource: 'interactiveFrame'
+            }, function (iResult) {
+                if (iResult.success) {
+                    console.log('get-interactiveFrame success');
                 }
             }.bind(this));
     },
@@ -122,7 +135,8 @@ var codapHelper = {
     },
 
     sendSaveObject : function( iSaveObject, iCallback) {
-        this.codapPhone.call( iSaveObject, iCallback );
+        //this.codapPhone.call( iSaveObject, iCallback );
+        iCallback( iSaveObject);
     },
 
     resourceString : function( iCollectionName, iDataContextName) {

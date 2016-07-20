@@ -362,9 +362,7 @@ steb.manager = {
                         };
                         codapHelper.sendSaveObject(
                             tSaveObject,
-                            function () {
-                                console.log("Save complete?");
-                            }
+                            iCallback
                         );
                         break;
                     default:
