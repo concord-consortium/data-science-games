@@ -7,13 +7,15 @@
 
 var codapHelper = {
     codapPhone: null,
+    restoreStateFunc: null,
     initFrameAccomplished: false,
     initDataSetAccomplished: false,
     alerted : false,
 
-    initDataInteractive: function (iFrameDescription, doCommandFunc) {
+    initDataInteractive: function (iFrameDescription, doCommandFunc, restoreStateFunc) {
         this.codapPhone = new iframePhone.IframePhoneRpcEndpoint(doCommandFunc, "data-interactive", window.parent);
 
+        this.restoreStateFunc = restoreStateFunc;
         this.codapPhone.call(
             {
                 action: 'update',
@@ -22,26 +24,55 @@ var codapHelper = {
             }, function (iResult) {
                 if (iResult.success) {
                     this.initFrameAccomplished = true;
+                    this.getSaveObject();
+                }
+            }.bind(this));
+    },
+
+    getSaveObject: function() {
+        this.codapPhone.call(
+            {
+                action: 'get',
+                resource: 'interactiveFrame'
+            }, function (iResult) {
+                if (iResult.success) {
+                    console.log('get-interactiveFrame success');
+                    if( this.restoreStateFunc)
+                        this.restoreStateFunc( iResult.values);
                 }
             }.bind(this));
     },
 
     initDataSet : function( iDataSetDescription, iCallback ) {
+        // First determine whether there may already be a dataset with the given name
         this.codapPhone.call(
             {
-                action: 'create',
-                resource: 'dataContext',
-                values: iDataSetDescription
+                action: 'get',
+                resource: 'dataContext[' + iDataSetDescription.name + ']'
             },
-            function (iResult) {
-                if (iResult.success) {
-                    this.initDataSetAccomplished = true;
-                    if (iCallback) {
-                        iCallback();
-                    }
+            function( iResult) {
+                if( !iResult.success) {
+                    // The dataset did not already exist, so go ahead and create it
+                    this.codapPhone.call(
+                        {
+                            action: 'create',
+                            resource: 'dataContext',
+                            values: iDataSetDescription
+                        },
+                        function (iResult) {
+                            if (iResult.success) {
+                                this.initDataSetAccomplished = true;
+                                if (iCallback) {
+                                    iCallback();
+                                }
+                            }
+                        }.bind(this));
                 }
+                else
+                    this.initDataSetAccomplished = true;    // Because it was restored and we found it
+            }.bind( this)
+        )
 
-            }.bind(this));
     },
 
     checkForCODAP: function () {
@@ -122,7 +153,8 @@ var codapHelper = {
     },
 
     sendSaveObject : function( iSaveObject, iCallback) {
-        this.codapPhone.call( iSaveObject, iCallback );
+        //this.codapPhone.call( iSaveObject, iCallback );
+        iCallback( iSaveObject);
     },
 
     resourceString : function( iCollectionName, iDataContextName) {

@@ -59,7 +59,10 @@ steb.manager = {
         steb.manager.previous = timestamp;
         steb.manager.update(tDt);
         if (steb.manager.running) {
-            window.requestAnimationFrame(steb.manager.animate);
+            // 20 frames per second should be enough
+            window.setTimeout( function() {
+                window.requestAnimationFrame(steb.manager.animate);
+            }, 50 /* ms */);
         }
     },
 
@@ -140,6 +143,20 @@ steb.manager = {
         //  and start time!
 
         this.restart();
+    },
+
+    /**
+     * Called at end of restore process
+     */
+    reinstateGame : function() {
+        steb.options.setUIToMatchValues();
+
+        if( this.playing)
+        {
+            steb.worldView.newGame();
+            steb.colorBoxView.newGame();
+            this.restart();
+        }
     },
 
     /**
@@ -357,15 +374,74 @@ steb.manager = {
                         var tSaveObject = {
                             success: true,
                             values: {
-                                foo : 3,
-                                bar : "baz"
+                                manager: {
+                                    playing: steb.manager.playing,
+                                    gameNumber: steb.manager.gameNumber,
+                                },
+                                model: {
+                                    stebbers: steb.model.stebbers.map(function (iStebber) {
+                                        return {
+                                            id: iStebber.id,
+                                            where: iStebber.where,
+                                            color: iStebber.color,
+                                            caseIDs: iStebber.caseIDs
+                                        }
+                                    }),
+                                    crud: steb.model.crud.map(function (iCrud) {
+                                        return {
+                                            where: iCrud.where,
+                                            speed: iCrud.speed,
+                                            trueColor: iCrud.trueColor
+                                        }
+                                    }),
+                                    elapsed: steb.model.elapsed,
+                                    meals: steb.model.meals,
+                                    meanCrudColor: steb.model.meanCrudColor,
+                                    trueBackgroundColor: steb.model.trueBackgroundColor
+                                },
+                                options: {
+                                    backgroundCrud : steb.options.backgroundCrud,
+                                    delayReproduction : steb.options.delayReproduction,
+                                    reducedMutation : steb.options.reducedMutation,
+                                    flee : steb.options.flee,
+                                    crudFlee : steb.options.crudFlee,
+                                    crudScurry : steb.options.crudScurry,
+                                    eldest : steb.options.eldest,
+                                    automatedPredator : steb.options.automatedPredator,
+                                    fixedInitialStebbers : steb.options.fixedInitialStebbers,
+                                    fixedInitialBG : steb.options.fixedInitialBG,
+
+                                    useVisionParameters : steb.options.useVisionParameters,
+                                    predatorVisionType : steb.options.predatorVisionType,
+
+                                    automatedPredatorChoiceVisible : steb.options.automatedPredatorChoiceVisible,
+                                    colorVisionChoiceVisible : steb.options.colorVisionChoiceVisible,
+
+                                    redCoefficient : steb.options.redCoefficient,
+                                    greenCoefficient : steb.options.greenCoefficient,
+                                    blueCoefficient : steb.options.blueCoefficient,
+
+                                    currentPreset : steb.options.currentPreset
+                                },
+                                predator: {
+                                    where: steb.predator.where,
+                                    state: steb.predator.state,
+                                    memory: steb.predator.memory
+                                },
+                                score: {
+                                    predatorPoints: steb.score.predatorPoints
+                                },
+                                connect: {
+                                    gameCaseIDInLiving: steb.connector.gameCaseIDInLiving,
+                                    gameCaseIDInEaten: steb.connector.gameCaseIDInEaten,
+                                    bucketCaseID: steb.connector.bucketCaseID,
+                                    bucketNumber: steb.connector.bucketNumber
+                                }
                             }
                         };
                         codapHelper.sendSaveObject(
                             tSaveObject,
-                            function () {
-                                console.log("Save complete?");
-                            }
+                            iCallback
                         );
                         break;
                     default:
@@ -378,5 +454,77 @@ steb.manager = {
                 console.log("stebDoCommand: no action.");
         }
 
+    },
+
+  /**
+   * This function is passed to
+   * @param iSavedState
+   */
+  stebRestoreState: function( iValues) {
+      if( iValues.savedState) {
+          var tManager = iValues.savedState.manager,
+              tModel = iValues.savedState.model,
+              tOptions = iValues.savedState.options,
+              tPredator = iValues.savedState.predator,
+              tScore = iValues.savedState.score,
+              tConnect = iValues.savedState.connect;
+          steb.manager.playing = tManager.playing;
+          steb.manager.gameNumber = tManager.gameNumber;
+
+          steb.model.elapsed = tModel.elapsed;
+          steb.model.meals = tModel.meals;
+          steb.model.meanCrudColor = tModel.meanCrudColor;
+          steb.model.trueBackgroundColor = tModel.trueBackgroundColor;
+          steb.model.stebbers = tModel.stebbers.map(function (iStebState) {
+              var tStebber = new Stebber(iStebState.color, iStebState.where, iStebState.id);
+              tStebber.caseIDs = iStebState.caseIDs;
+              return tStebber;
+          });
+          steb.model.crud = tModel.crud.map(function (iCrudState) {
+              var tCrud = new Crud();
+              tCrud.where = iCrudState.where;
+              tCrud.speed = iCrudState.speed;
+              tCrud.trueColor = iCrudState.trueColor;
+              return tCrud;
+          });
+
+          steb.options.backgroundCrud = tOptions.backgroundCrud;
+          steb.options.delayReproduction = tOptions.delayReproduction;
+          steb.options.reducedMutation = tOptions.reducedMutation;
+          steb.options.flee = tOptions.flee;
+          steb.options.crudFlee = tOptions.crudFlee;
+          steb.options.crudScurry = tOptions.crudScurry;
+          steb.options.eldest = tOptions.eldest;
+          steb.options.automatedPredator = tOptions.automatedPredator;
+          steb.options.fixedInitialStebbers = tOptions.fixedInitialStebbers;
+          steb.options.fixedInitialBG = tOptions.fixedInitialBG;
+          steb.options.useVisionParameters = tOptions.useVisionParameters;
+          steb.options.predatorVisionType = tOptions.predatorVisionType;
+          steb.options.automatedPredatorChoiceVisible = tOptions.automatedPredatorChoiceVisible;
+          steb.options.colorVisionChoiceVisible = tOptions.colorVisionChoiceVisible;
+          steb.options.redCoefficient = tOptions.redCoefficient;
+          steb.options.greenCoefficient = tOptions.greenCoefficient;
+          steb.options.blueCoefficient = tOptions.blueCoefficient;
+          steb.options.currentPreset = tOptions.currentPreset;
+
+          steb.predator.where = tPredator.where;
+          steb.predator.state = tPredator.state;
+          steb.predator.memory = tPredator.memory;
+
+          steb.score.predatorPoints = tScore.predatorPoints;
+
+          steb.connector.gameCaseIDInLiving = tConnect.gameCaseIDInLiving;
+          steb.connector.gameCaseIDInEaten = tConnect.gameCaseIDInEaten;
+          steb.connector.bucketCaseID = tConnect.bucketCaseID;
+          steb.connector.bucketNumber = tConnect.bucketNumber;
+
+          // Get things started where they left off
+          steb.manager.reinstateGame();
+      }
+
+      codapHelper.initDataSet(steb.connector.getInitStebberMealsDataSetObject());
+
+      codapHelper.initDataSet(steb.connector.getInitLivingStebberDataSetObject());   //  second one is the default??
     }
+
 };
