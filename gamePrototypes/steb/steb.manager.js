@@ -173,6 +173,7 @@ steb.manager = {
         this.playing = false;
         this.running = false;
         this.emitPopulationData();      //  send data on the remaining Stebbers to CODAP
+        //  todo: consider emitting meal data. But if you do, you have to condition on iStebber. also, maybe increase "meals" by 1 or 0.5.
 
         steb.connector.finishGameCase({ //  and finish the game attributes
                 bgColor: JSON.stringify(steb.model.trueBackgroundColor),
