@@ -71,6 +71,14 @@ stella.model = {
     },
 
     /**
+     * Let time pass.
+     * @param iTime     currently in YEARS.
+     */
+    stellaElapse : function( iTime ) {
+      this.now += iTime;
+    },
+
+    /**
      * Gives you the Star corresponding to a caseID. Need for doing selection.
      * @param id
      * @returns {*} the Star

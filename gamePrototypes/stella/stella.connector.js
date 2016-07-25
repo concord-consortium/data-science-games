@@ -153,7 +153,7 @@ stella.connector = {
             name: 'Stella',
             title: 'Stella',
             version: stella.constants.version,
-            dimensions: {width: 400, height: 500}
+            dimensions: {width: 444, height: 500}
         };
     },
 

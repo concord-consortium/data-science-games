@@ -97,7 +97,7 @@ SpectrumView.prototype.adjustLimits = function( iMin, iMax )    {
  * @returns {string}
  */
 SpectrumView.prototype.toString = function () {
-    var out = "Spectrogram of " + this.spectrum.source.id + " " + this.lambdaMin + " - " + this.lambdaMax + " nm";
+    var out = "Spectrogram of " + this.spectrum.source.id + " " + this.lambdaMin + "-" + this.lambdaMax + " nm";
 
     return out;
 };

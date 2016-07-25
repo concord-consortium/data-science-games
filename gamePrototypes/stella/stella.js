@@ -147,6 +147,15 @@ stella.constants = {
     lambdaB : 442 * 1.0e-07,
     lambdaV : 540 * 1.0e-07,
 
+    //  Constants for how long things take in game time. Currently in years.
+
+    time : {
+        changePointing : 0.04,
+        saveSpectrum : 0.05,
+     //   makeLabSpectrum : 0.03,
+        changeResultType : 0.01,
+        saveResult : 0.02
+    },
     foo : null
 };
 

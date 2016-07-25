@@ -31,7 +31,7 @@ stella.ui = {
 
     fixStellaUITextAndControls : function() {
 
-        var tTimeAndScoreText = "Date " + stella.model.now + ", score = " + stella.manager.stellaScore;
+        var tTimeAndScoreText = "Date " + stella.model.now.toFixed(2) + " • score = " + stella.manager.stellaScore;
 
         this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 

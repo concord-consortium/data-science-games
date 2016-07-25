@@ -87,6 +87,7 @@ stella.manager = {
         } else {
             this.focusStar = null;
         }
+        stella.model.stellaElapse( stella.constants.time.changePointing );
         this.updateStella();
     },
 
@@ -197,7 +198,7 @@ stella.manager = {
      * Emit one spectrum's worth of data to CODAP
      * @param iWhich    "sky" or "lab"
      */
-    saveSpectrumToCODAP : function(iWhich ) {
+    saveSpectrumToCODAP : function( iWhich ) {
 
         var tSpectrum, tTitle, tSpectrumView, tChannels;
 
@@ -221,7 +222,10 @@ stella.manager = {
 
         if (tSpectrumView.channels.length > 0) {
             stella.connector.emitSpectrum(tChannels, tTitle);
+            stella.model.stellaElapse( stella.constants.time.saveSpectrum );
         }
+
+        stella.manager.updateStella();
 
     },
 
@@ -320,6 +324,7 @@ stella.manager = {
     starResultTypeChanged : function() {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
+        stella.model.stellaElapse( stella.constants.time.changeResultType );
     },
 
     /**
@@ -353,6 +358,7 @@ stella.manager = {
             alert(stella.strings.notPointingAtStarForResults);
         }
 
+        stella.model.stellaElapse( stella.constants.time.saveResult );
         stella.manager.updateStella();
     },
 
