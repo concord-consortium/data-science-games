@@ -351,6 +351,7 @@ stella.manager = {
             if (tScore > 0) {
                 stella.connector.emitStarResult(tValues, null);
                 stella.manager.stellaScore += tScore;
+                alert("Good job! " + stella.manager.starResultValue + " is close enough to get you " + tScore + " points!");
             } else {
                 alert( stella.strings.resultIsWayOff );
             }
