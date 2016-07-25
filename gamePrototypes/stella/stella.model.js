@@ -228,8 +228,8 @@ stella.model = {
         switch( iValues.type ) {
             case "temp" :
                 var tLogResultValue = Math.log10( iValues.value );
-                trueValue = Math.pow(10, tStar.logMainSequenceTemperature);
-                var dLogResultValue = Math.abs(tLogResultValue - tStar.logMainSequenceTemperature);
+                trueValue = Math.pow(10, tStar.logTemperature);
+                var dLogResultValue = Math.abs(tLogResultValue - tStar.logTemperature);
                 oPoints = tMaxPoints * ( 1 - 10 * dLogResultValue );     //  difference in log of 0.1 = about 20%
                 break;
 
