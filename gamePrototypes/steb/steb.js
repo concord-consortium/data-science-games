@@ -87,7 +87,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001h",
+    version : "001k",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
@@ -99,8 +99,8 @@ steb.constants = {
     stebberColorReducedMutationArray : [-1, -0.5, -0.5, 0, 0, 0.5, 0.5, 1],   //  same if reduced mutation option selected
     crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how mcuh Crud varies from its original mean
 
-    defaultBackgroundColor : [6, 9, 4],
-    defaultCrudColor : [9, 6, 7],
+    defaultBackgroundColor : [7, 10, 8],
+    defaultCrudColor : [4, 8, 6],
     fixedStebberColor : [
         [4, 4, 8],
         [4, 12, 8],

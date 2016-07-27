@@ -256,7 +256,7 @@ steb.connector = {
                         //  {name: "value", type: 'numeric', precision: 3},
                         {name: "id", type: 'numeric', precision: 0},
                         {name: "color", description: "use as a legend to color points in graph",
-                            formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'},
+                            formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'}
                     ]
                 }
             ]

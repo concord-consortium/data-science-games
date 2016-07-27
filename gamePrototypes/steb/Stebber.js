@@ -130,18 +130,23 @@ Stebber.prototype.runFrom = function( iPoint ) {
  */
 Stebber.prototype.dataValues = function() {
 
-    var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
+    //  var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
     return {
         red : this.color[0],
         green : this.color[1],
         blue : this.color[2],
-        h : tSnapColorRecord.h,
-        s : tSnapColorRecord.s,
-        v : tSnapColorRecord.v,
         id : this.id
     };
 };
 
+/*
+was in the Stebber record before...
+
+ h : tSnapColorRecord.h,
+ s : tSnapColorRecord.s,
+ v : tSnapColorRecord.v,
+
+ */
 /**
  * String display of this Stebber
  * @returns {string}

@@ -25,7 +25,7 @@
 
  */
 
-/* global steb, Snap, console, TEEUtils */
+/* global steb, Snap, console, TEEUtils, codapHelper, Stebber, Crud */
 
 /**
  * This is the main manager (singleton) controller for Stebbins
@@ -287,11 +287,7 @@ steb.manager = {
             } else {
                 console.log("Failed to create bucket case.");
             }
-
-
         }
-
-
     },
 
     emitMealData : function( iStebber ) {
@@ -339,7 +335,7 @@ steb.manager = {
      * For saving. TBD.
      */
     stebDoCommand: function (iCommand, iCallback) {
-        console.log("stebDoCommand: ")
+        console.log("stebDoCommand: ");
 
         var tCommandObject = "";
 
@@ -385,14 +381,14 @@ steb.manager = {
                                             where: iStebber.where,
                                             color: iStebber.color,
                                             caseIDs: iStebber.caseIDs
-                                        }
+                                        };
                                     }),
                                     crud: steb.model.crud.map(function (iCrud) {
                                         return {
                                             where: iCrud.where,
                                             speed: iCrud.speed,
                                             trueColor: iCrud.trueColor
-                                        }
+                                        };
                                     }),
                                     elapsed: steb.model.elapsed,
                                     meals: steb.model.meals,
