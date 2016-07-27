@@ -52,24 +52,31 @@ stella.skyView = {
      *
      * @param iStar
      */
-    pointAtStar : function(iStar ) {
+    pointAtStar : function( iStar ) {
+
+        //  at this point, where.x is the catalog position. Maybe that should change to actual.
 
         if (iStar) {
-            this.pointAtLocation( iStar.where.x, iStar.where.y);    //  moves the star field if necessary
+            var tWhereNow = iStar.positionAtTime( stella.model.now );
+            this.pointAtLocation( iStar.where, tWhereNow);    //  moves the star field if necessary
             if (this.magnification === 1.0) {
                 var tNewY = stella.constants.universeWidth - iStar.where.y;
                 this.reticleX.attr({ visibility : "visible", y1 : tNewY, y2 : tNewY});
                 this.reticleY.attr({ visibility : "visible", x1 : iStar.where.x, x2 : iStar.where.x});
             }
         } else {
-            this.pointAtLocation( null, null);
+            //  no star, so no reticle.
+            //  this.pointAtLocation( null, null);
             this.reticleX.attr({ visibility : "hidden"});
             this.reticleY.attr({ visibility : "hidden"});
         }
 
     },
 
-    pointAtLocation : function( x, y ) {
+    pointAtLocation : function( iWhereCatalog, iWhereNow ) {
+        var y = iWhereCatalog.y;
+        var x = iWhereCatalog.x;
+
         y = stella.constants.universeWidth - y;     //  reverse coordinates
 
         var tWidth = stella.constants.universeWidth / this.magnification;

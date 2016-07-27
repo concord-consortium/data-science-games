@@ -200,11 +200,15 @@ stella.model = {
                 this.labSpectrum.addLinesFrom(ElementalSpectra.HeI, 100);
                 break;
 
+            case "Lithium (neutral)":
+                this.labSpectrum.addLinesFrom(ElementalSpectra.LiI, 100);
+                break;
+
             case "Sodium":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.NaI, 100);
                 break;
 
-            case "Calcium":
+            case "Calcium (+)":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.CaII, 100);
                 break;
 
@@ -230,30 +234,76 @@ stella.model = {
         var trueValue = null;
         var debugString = "debug";
 
+        var guessValue;
+        var trueValue;
+        var trueDisplayValue;
+        var tMaxDiff;
+        var dValue;
+
+        var displayDebugStringInConsole = true;
+
         /**
          * How far off you can be depends on what kind of measurement it is
          */
         switch( iValues.type ) {
             case "temp" :
-                var tLogResultValue = Math.log10( iValues.value );
-                trueValue = Math.pow(10, tStar.logTemperature);
-                var dLogResultValue = Math.abs(tLogResultValue - tStar.logTemperature);
-                oPoints = tMaxPoints * ( 1 - 10 * dLogResultValue );     //  difference in log of 0.1 = about 20%
+                trueValue = tStar.logTemperature;
+                trueDisplayValue = Math.pow(10, trueValue);
+                guessValue = Math.log10( iValues.value );       //  we'll look at difference in the log
+                tMaxDiff = 0.1;
                 break;
 
             case "vel_r":
                 trueValue = tStar.pm.r;
-                var guessValue = iValues.value;
-                var dValue = Math.abs(trueValue - guessValue);
-                oPoints = tMaxPoints * (1 - 0.1 * dValue);    //  ± 10 km/sec tolerance
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 10;
+                break;
+
+            case "pm_x":
+                tMaxPoints = 100;
+                trueValue = tStar.pm.x * 1000000;   //      because it's in microdegrees
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 10;
+                break;
+
+            case "pm_y":
+                tMaxPoints = 100;
+                trueValue = tStar.pm.y * 1000000;   //      because it's in microdegrees
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 10;
+                break;
+
+            case "pos_x":
+                tMaxPoints = 10;        //  could be more; this is temp
+                trueValue = tStar.positionAtTime( stella.model.now).x;
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 0.001;
+                break;
+
+            case "pos_y":
+                tMaxPoints = 10;        //  could be more; this is temp
+                trueValue = tStar.positionAtTime( stella.model.now).y;
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 0.001;
                 break;
 
             default:
                 var tMess = "Sorry, I don't know how to score " + stella.starResults[ iValues.type].name + " yet.";
+                displayDebugStringInConsole = false;
                 alert(tMess);
-                oPoints = 0;    //      so it will not record the data
+                trueValue = 1;    //      so it will not record the data
+                guessValue = 1;
+                tMaxPoints = 0;
                 break;
         }
+
+        dValue = Math.abs(trueValue - guessValue);
+        oPoints = tMaxPoints * (1 - dValue / tMaxDiff);
 
         if (oPoints < 0 ) {
             oPoints = 0;
@@ -261,10 +311,12 @@ stella.model = {
 
         debugString = "Evaluate " +
             stella.starResults[ iValues.type].name + ": user said " +
-                iValues.value + ", true value " + trueValue +
+                iValues.value + ", true value " + trueDisplayValue +
                 ". Awarding " + Math.round(oPoints) + " points.";
 
-        console.log( debugString );
+        if (displayDebugStringInConsole) {
+            console.log( debugString );
+        }
         return Math.round(oPoints);
     },
 

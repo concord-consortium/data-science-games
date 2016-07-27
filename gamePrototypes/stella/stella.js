@@ -86,6 +86,16 @@ stella.starResults = {
         units: "K",
         id: "temp"
     },
+    vel_r: {
+        id : "vel_r",
+        name: "radial velocity",
+        units: "km/sec"
+    },
+    parallax: {
+        id : "parallax",
+        name: "parallax",
+        units: "microdegrees"
+    },
     pm_x: {
         id : "pm_x",
         name: "proper motion (x)",
@@ -96,15 +106,15 @@ stella.starResults = {
         name: "proper motion (y)",
         units: "microdegrees per year"
     },
-    parallax: {
-        id : "parallax",
-        name: "parallax",
-        units: "microdegrees"
+    pos_x: {
+        id : "pos_x",
+        name: "position (x)",
+        units: "degrees"
     },
-    vel_r: {
-        id : "vel_r",
-        name: "radial velocity",
-        units: "km/sec"
+    pos_y: {
+        id : "pos_y",
+        name: "position (y)",
+        units: "degrees"
     }
 };
 
@@ -154,7 +164,8 @@ stella.constants = {
         saveSpectrum : 0.05,
      //   makeLabSpectrum : 0.03,
         changeResultType : 0.01,
-        saveResult : 0.02
+        saveResult : 0.02,
+        savePositionFromDoubleclick : 0.01
     },
     foo : null
 };

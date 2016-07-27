@@ -37,12 +37,21 @@
 var ElementalSpectra = {
     H : null,
     HeI : null,
+    LiI : null,
     CaII : null,
     NaI : null,
     FeI : null,
     mainSequenceWidth : 0.1,
     giantWidth : 0.3,
 
+    /*
+    To add a new species:
+        Put the line values in here
+        Refer to the lines in the definition above.
+        Put the menu item in stella.html
+        Put the element in stella.model.installDischargeTube()
+
+     */
     initialize : function() {
         var tSpectrum, tWhat;
 
@@ -78,6 +87,14 @@ var ElementalSpectra = {
         tSpectrum.addLine(new Line(587.5966, this.mainSequenceWidth, 20, tWhat ));
         tSpectrum.addLine(new Line(667.8151, this.mainSequenceWidth, 20, tWhat ));
         ElementalSpectra.HeI = tSpectrum;
+
+        //  Lithium I (neutral. Not present in stellar atmospheres because it gets eaten.)
+        tWhat = "LiI";
+        tSpectrum = new Spectrum();     //  divide by 3600
+        tSpectrum.addLine(new Line(670.7, this.mainSequenceWidth, 100, tWhat ));
+        tSpectrum.addLine(new Line(610.3, this.mainSequenceWidth, 9, tWhat ));
+        ElementalSpectra.LiI = tSpectrum;
+
 
         //  Ca II (singly ionized)
         tWhat = "CaII";

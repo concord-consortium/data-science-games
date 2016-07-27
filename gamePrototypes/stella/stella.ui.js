@@ -86,7 +86,7 @@ stella.ui = {
     },
 
 
-    pointingChanged : function() {
+    pointingChangedByTyping : function() {
         var tText = this.pointAtStarInputField.val();
         var tStar = stella.model.starFromTextID( tText );
         stella.manager.pointAtStar( tStar );

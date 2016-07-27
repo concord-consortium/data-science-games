@@ -345,9 +345,16 @@ var StarView = function( iStar, iPaper ) {
 
     var tColor = Snap.rgb( tGray * 15, tGray * 15, tGray * 15 );    //  put color in here of we want
 
+    //  convert to current positions!
+
+    var tCurrentWhere = iStar.positionAtTime( stella.model.now );
+
     //  actually make the circle! Be sure to reverse the y coordinate.
-    iPaper.circle( iStar.where.x, stella.constants.universeWidth - iStar.where.y, tRadius).attr({
+    var tCircle = iPaper.circle( tCurrentWhere.x, stella.constants.universeWidth - tCurrentWhere.y, tRadius).attr({
         fill : tColor,
         fillOpacity : tOpacity
     });
+
+    tCircle.dblclick( stella.manager.doubleClickOnAStar );
+
 };

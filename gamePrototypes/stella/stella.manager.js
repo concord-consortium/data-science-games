@@ -82,7 +82,6 @@ stella.manager = {
             this.focusStar = iStar;
             stella.connector.selectStarInCODAPByCatalogID( iStar.caseID );
 
-            console.log("pointAtStar");
             console.log(this.focusStar);
         } else {
             this.focusStar = null;
@@ -338,34 +337,73 @@ stella.manager = {
     /**
      * User has clicked Save for a result.
      */
-    saveStarResult: function () {
+    saveStarResult: function (iValues) {
+        var tValues;
         if (stella.manager.focusStar) {
-            var tValues = {
-                id: stella.manager.focusStar.id,
-                type: stella.manager.starResultType,
-                value: stella.manager.starResultValue,
-                date: stella.model.now,
-                units: stella.starResults[stella.manager.starResultType].units
-            };
+            if (iValues) {
+                tValues = iValues;
+            } else {
+                tValues = {
+                    id: stella.manager.focusStar.id,
+                    type: stella.manager.starResultType,
+                    value: stella.manager.starResultValue,
+                    date: stella.model.now,
+                    units: stella.starResults[stella.manager.starResultType].units
+                };
+            }
+
             var tScore = stella.model.evaluateResult(tValues);  //  we don't necessarily save all results!
             if (tScore > 0) {
                 stella.connector.emitStarResult(tValues, null);
                 stella.manager.stellaScore += tScore;
                 alert("Good job! " + stella.manager.starResultValue + " is close enough to get you " + tScore + " points!");
             } else {
-                alert( stella.strings.resultIsWayOff );
+                alert(stella.strings.resultIsWayOff);
             }
         } else {
             alert(stella.strings.notPointingAtStarForResults);
         }
 
-        stella.model.stellaElapse( stella.constants.time.saveResult );
+        stella.model.stellaElapse(stella.constants.time.saveResult);
+        stella.manager.updateStella();
+    },
+
+    doubleClickOnAStar: function () {
+        if (stella.skyview.magnification < 100) {
+            return;
+        }
+        console.log("double click on a star!");
+        var tStar = stella.manager.focusStar;
+        var tNow = stella.model.now;
+        var tPos = tStar.positionAtTime(tNow);
+
+        var txValues = {
+            id: tStar.id,
+            type: "pos_x",
+            value: tPos.x,
+            date: tNow,
+            units: stella.starResults["pos_x"].units
+        };
+        var tyValues = {
+            id: tStar.id,
+            type: "pos_y",
+            value: tPos.y,
+            date: tNow,
+            units: stella.starResults["pos_y"].units
+        };
+        stella.connector.emitStarResult(txValues, null);
+        stella.connector.emitStarResult(tyValues, null);
+
+        var tScore = stella.model.evaluateResult(tyValues);  //  we don't necessarily save all results!
+        stella.manager.stellaScore += tScore;
+
+        stella.model.stellaElapse(stella.constants.time.savePositionFromDoubleclick);
         stella.manager.updateStella();
     },
 
 
 
-    /**
+/**
      * responds to CODAP notifications.
      */
     stellaDoCommand: function (iCommand, iCallback) {
