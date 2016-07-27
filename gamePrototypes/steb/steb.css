@@ -8,9 +8,20 @@ body {
 .sliderLabel { display : inline-block; }
 
 .options   {
-    background-color: #ecc;
+    background-color: #edd;
     padding: 4px;
 }
+
+.advancedVisionOptions   {
+    background-color: #eef;
+    padding: 4px;
+}
+
+.visionOptions   {
+    background-color: #dde;
+    padding: 4px;
+}
+
 .preGameOptions   {
     background-color: #fee;
     padding: 4px;

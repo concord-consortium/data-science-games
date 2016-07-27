@@ -63,13 +63,19 @@ steb.ui = {
             $("#predatorPoints").text(steb.score.predatorPoints);
         }
 
+        //  color numbers on the vision page, with the BW sliders
+
+        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector[0]);
+        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector[1]);
+        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector[2]);
+
         //  option text
         $("#optionPresetText").text( steb.options.currentPreset > 0 ? "Preset " + steb.options.currentPreset : "No preset");
 
         //  visibility options
 
-        $("#predatorType").css("visibility", steb.options.automatedPredatorChoiceVisible ? "visible" : "hidden");
-        $("#visionType").css("visibility", steb.options.colorVisionChoiceVisible ? "visible" : "hidden");
+        $("#isPredatorAutomatedControl").css("visibility", steb.options.automatedPredatorChoiceVisible ? "visible" : "hidden");
+        $("#isPredatorVisionNormalControl").css("visibility", steb.options.colorVisionChoiceVisible ? "visible" : "hidden");
     },
 
     /**
@@ -178,10 +184,13 @@ steb.ui = {
         //  set up radio button panels
 
         $(function() {
-            $( "#predatorType" ).buttonset();
+            $( "#isPredatorAutomatedControl" ).buttonset();
         });
         $(function() {
-            $( "#visionType" ).buttonset();
+            $( "#isPredatorVisionNormalControl" ).buttonset();
+        });
+        $(function() {
+            $( "#simpleColorControl" ).buttonset();
         });
 
         //  set up the sliders. This seems to be the way you do it in jquery-ui
@@ -190,7 +199,7 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector[0] ],
+            value : steb.model.predatorVisionBWCoefficientVector[0],
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[0] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
@@ -201,7 +210,7 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector[1] ],
+            value : steb.model.predatorVisionBWCoefficientVector[1],
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[1] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
@@ -212,7 +221,7 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            values : [ steb.model.predatorVisionBWCoefficientVector[2] ],
+            value : steb.model.predatorVisionBWCoefficientVector[2],
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[2] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();

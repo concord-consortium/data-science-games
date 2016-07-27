@@ -87,7 +87,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001k",
+    version : "001m",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
@@ -137,5 +137,10 @@ steb.constants = {
     invisibilityDistance : 1.1, //  color distance at which the probability of capture is zero.
     certaintyDistance : 8.0,    //  color distance at which the probability of capture is 1.0
 
-    timeOutTime : 2000      //      ms to wait when you click on a Crud
+    timeOutTime : 2000,      //      ms to wait when you click on a Crud
+
+    strings : {
+        livingStebberTableName : "stebbers",
+        eatenStebberTableName : "meals"
+    }
 };

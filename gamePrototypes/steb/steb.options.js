@@ -34,20 +34,17 @@ steb.options = {
     flee : true,
     crudFlee : false,
     crudScurry : true,
+    crudSameShapeAsStebbers : false,
     eldest : false,
     automatedPredator : false,
     fixedInitialStebbers : true,
     fixedInitialBG : false,
 
-    useVisionParameters : false,
-    predatorVisionType : null,
+    useVisionParameters : false,    //  are we using any strange predator vision?
+    predatorVisionMethod : null,      //  "dotProduct" or "formula"
 
     automatedPredatorChoiceVisible : false,
     colorVisionChoiceVisible : false,
-
-    redCoefficient : 1,
-    greenCoefficient : 1,
-    blueCoefficient : 1,
 
     currentPreset : 0,
 
@@ -57,15 +54,15 @@ steb.options = {
      * and make the world reflect them!
      */
     predatorVisionChange : function() {
-        var tPredVisionVal = $('input[name=visionType]:checked').val();
+        var tPredVisionVal = $('input[name=isPredatorVisionNormalControl]:checked').val();
         this.useVisionParameters = (tPredVisionVal === "mono");
 
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
     },
 
-    predatorTypeChange : function() {
-        var tAutoPredVal = $('input[name=predatorType]:checked').val();
+    predatorAutomationChange : function() {
+        var tAutoPredVal = $('input[name=isPredatorAutomatedControl]:checked').val();
         this.automatedPredator = (tAutoPredVal === "auto");
     },
 
@@ -75,26 +72,48 @@ steb.options = {
     setPredatorVisionParameters : function() {
         if (!this.useVisionParameters ) { steb.model.predatorVisionDenominator = 1; }    //  avoids nasty zero divide :)
 
-        this.predatorVisionType = $('input[name=predatorVisionType]:checked').val();
+        this.predatorVisionMethod = $('input[name=predatorVisionMethodControl]:checked').val();
 
         var tRed = Number($("#visionRed").val());
         var tGreen = Number($("#visionGreen").val());
         var tBlue = Number($("#visionBlue").val());
 
-        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector[0]);
-        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector[1]);
-        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector[2]);
-
-        steb.model.predatorVisionColorVector = [ tRed, tGreen, tBlue ];
+        steb.model.predatorVisionDotProductColorVector = [ tRed, tGreen, tBlue ];
         //  steb.model.predatorVisionBWCoefficientVector is set directly by sliders. See steb.ui.js.initialize().
 
         console.log(
-            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionColorVector ) +
+            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionDotProductColorVector ) +
             " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
         );
 
         steb.model.stebbers.forEach(function(s) { s.updateColorDistances(); });     //  update all stebbers to reflect new vision
 
+    },
+
+    setVisionVectorUIToMatchModelValues : function() {
+        $("#visionRed").val(steb.model.predatorVisionDotProductColorVector[0]);
+        $("#visionGreen").val(steb.model.predatorVisionDotProductColorVector[1]);
+        $("#visionBlue").val(steb.model.predatorVisionDotProductColorVector[2]);
+
+        //  now for the sliders, definded in steb.ui...
+
+        $("#redCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[0] ]});
+        $("#greenCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[1] ]});
+        $("#blueCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[2] ]});
+
+
+    },
+
+    setSimpleColor : function( iColor ) {
+
+        steb.model.predatorVisionBWCoefficientVector.forEach(
+            function( item, index ) {
+                steb.model.predatorVisionBWCoefficientVector[ index ] = (index == iColor ? 1 : 0);
+                steb.model.predatorVisionDotProductColorVector[ index ] = (index == iColor ? 1 : 0);
+            }
+        );
+        this.setUIToMatchStebOptions();
+        this.predatorVisionChange();
     },
 
     doPreset : function( iPreset ) {
@@ -103,6 +122,14 @@ steb.options = {
 
         switch( iPreset ) {
             case 1:
+                /*
+                 Level 1.
+                 - no auto-predator
+                 - crud is present!
+                 - generate only the Stebbers table
+                 - we say when to stop, or institute a time limit on the game
+                 - fixed colors for stebbers, crud, bkg
+                 */
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
@@ -114,6 +141,9 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+
+                this.useVisionParameters = false;
+                this.predatorVisionMethod = 'formula';  //  unnecessary since use params = false
 
                 this.colorVisionChoiceVisible = false;
                 this.automatedPredatorChoiceVisible = false;
@@ -121,10 +151,19 @@ steb.options = {
                 break;
 
             case 2:
+                /*
+                 - set color to 0,1,0
+                 - vision control switch is present
+                 - "mono" selected by default
+                 *** - can only play when "mono" is selected    todo: implement
+                 *** - "normal" is unavailable while playing; becomes available when game is paused todo: implement
+                 *** - play button is unavailable while 'normal' is selected.   todo: implement
+                 - manual predator only
+                 */
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
-                this.crudSameShapeAsStebbers = false;
+                this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
                 this.reducedMutation = false;
@@ -132,18 +171,22 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+
+                this.useVisionParameters = true;
+                this.predatorVisionMethod = 'dotProduct';
 
                 this.colorVisionChoiceVisible = true;
                 this.automatedPredatorChoiceVisible = false;
 
-                steb.model.predatorVisionColorVector = [0, 1, 0];
+                steb.model.predatorVisionDotProductColorVector = [0, 1, 0];
                 break;
 
             case 3:
+            case 4:
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
-                this.crudSameShapeAsStebbers = false;
+                this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
                 this.reducedMutation = false;
@@ -152,17 +195,43 @@ steb.options = {
                 this.crudScurry = true;
                 this.eldest = false;
 
-                this.colorVisionChoiceVisible = true;
-                this.automatedPredatorChoiceVisible = true;
+                this.useVisionParameters = true;
+                this.predatorVisionMethod = 'formula';      //  grayscale
 
-                steb.model.predatorVisionColorVector = [0, 1, 0];
+                this.colorVisionChoiceVisible = true;
+                this.automatedPredatorChoiceVisible = false;
+
+                steb.model.predatorVisionBWCoefficientVector = [0, 1, 0];
+                break;
+
+            case 5:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = true;
+                this.fixedInitialBG = true;
+                this.crudSameShapeAsStebbers = true;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+
+                this.useVisionParameters = true;
+                this.predatorVisionMethod = 'formula';      //  grayscale
+
+                this.colorVisionChoiceVisible = true;
+                this.automatedPredatorChoiceVisible = true; //  the change
+
+                steb.model.predatorVisionBWCoefficientVector = [0, 0, 1];    //  NB: blue
                 break;
 
             default:
                 break;
         }
 
-        this.setUIToMatchValues();
+        this.setUIToMatchStebOptions();
+        steb.ui.fixUI();
     },
 
     /**
@@ -170,10 +239,10 @@ steb.options = {
      */
     optionChange : function() {
         this.currentPreset = 0;
-        this.setOptionsToMatchUI();
+        this.setStebOptionsToMatchUI();
     },
 
-    setOptionsToMatchUI : function() {
+    setStebOptionsToMatchUI : function() {
 
         this.backgroundCrud = document.getElementById("backgroundCrud").checked;
         this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
@@ -187,13 +256,16 @@ steb.options = {
         this.crudScurry = document.getElementById("crudScurry").checked;
         this.eldest = document.getElementById("eldest").checked;
 
+        this.useVisionParameters = $('input[name=isPredatorVisionNormalControl]:checked').val() === 'mono';
+        this.predatorVisionMethod = $('input[name=predatorVisionMethodControl]:checked').val();
+
         this.colorVisionChoiceVisible = document.getElementById("colorVisionChoiceVisible").checked;
         this.automatedPredatorChoiceVisible = document.getElementById("automatedPredatorChoiceVisible").checked;
 
         steb.ui.fixUI();
     },
 
-    setUIToMatchValues : function() {
+    setUIToMatchStebOptions : function() {
         document.getElementById("backgroundCrud").checked = this.backgroundCrud;
         document.getElementById("fixedInitialStebbers").checked = this.fixedInitialStebbers;
         document.getElementById("fixedInitialBG").checked = this.fixedInitialBG;
@@ -205,6 +277,12 @@ steb.options = {
         document.getElementById("crudFlee").checked = this.crudFlee;
         document.getElementById("crudScurry").checked = this.crudScurry;
         document.getElementById("eldest").checked = this.eldest;
+
+        var tVisionType = this.useVisionParameters ? "mono" : "normal";
+        $('input[name="isPredatorVisionNormalControl"][value="' + tVisionType + '"]').prop('checked', true);
+        $('input[name="predatorVisionMethodControl"][value="' + this.predatorVisionMethod + '"]').prop('checked', true);
+
+        this.setVisionVectorUIToMatchModelValues();
 
         document.getElementById("colorVisionChoiceVisible").checked = this.colorVisionChoiceVisible;
         document.getElementById("automatedPredatorChoiceVisible").checked = this.automatedPredatorChoiceVisible;

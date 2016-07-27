@@ -170,6 +170,34 @@ steb.connector = {
 
     },
 
+    createLivingStebberTable : function() {
+        var tArg = {
+            action: 'create',
+            resource: 'component',
+            values: {
+                type: 'caseTable',
+                name: steb.constants.strings.livingStebberTableName,
+                dimensions: {
+                    width: 600,
+                    height: 240
+                },
+                position: 'top',
+                dataContext : steb.constants.dataSetName_Living
+            }
+        };
+
+        codapHelper.codapPhone.call(
+            tArg,
+            function (iResult) {
+                if (iResult.success) {
+                    console.log("Table made");
+                } else {
+                    console.log("Table construction failed.");
+                }
+            }.bind(this));
+
+    },
+
     /**
      * Initialize the frame structure
      * @returns {{name: string, title: string, version: string, dimensions: {width: number, height: number}}}

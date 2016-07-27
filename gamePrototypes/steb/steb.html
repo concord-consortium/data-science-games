@@ -138,77 +138,97 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/steb/
             <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data now</button>
         </div>
         <div class="hBox">
-            <div id="visionType" onchange="steb.options.predatorVisionChange()">
-                <label for="visionType">Vision:</label>
-                <input type="radio" id="normalVision" name="visionType" value="normal" checked><label
-                    for="normalVision">normal</label>
-                <input type="radio" id="monocolorVision" name="visionType" value="mono"><label for="monocolorVision">mono</label>
+            <div id="isPredatorVisionNormalControl" onchange="steb.options.predatorVisionChange()">
+                <label for="isPredatorVisionNormalControl">Vision:</label>
+                <input type="radio" id="normalVision" name="isPredatorVisionNormalControl" value="normal" checked>
+                <label for="normalVision">normal</label>
+                <input type="radio" id="monocolorVision" name="isPredatorVisionNormalControl" value="mono">
+                <label for="monocolorVision">mono</label>
             </div>
-            <div id="predatorType" onchange="steb.options.predatorTypeChange()">
-                <label for="predatorType">Predator:</label>
-                <input type="radio" id="manualPredator" name="predatorType" value="manual" checked>
+            <div id="isPredatorAutomatedControl" onchange="steb.options.predatorAutomationChange()">
+                <label for="isPredatorAutomatedControl">Predator:</label>
+                <input type="radio" id="manualPredator" name="isPredatorAutomatedControl" value="manual" checked>
                 <label for="manualPredator">manual</label>
-                <input type="radio" id="autoPredator" name="predatorType" value="auto">
+                <input type="radio" id="autoPredator" name="isPredatorAutomatedControl" value="auto">
                 <label for="autoPredator">auto</label>
             </div>
         </div>
 
         <svg id="colorBoxView" width="200" height="50"></svg>
+        <button onclick="steb.connector.createLivingStebberTable()">table 1</button>
     </div>
 
     <!--        VISION tab      -->
 
-    <div id="predatorVisionTab" onchange="steb.options.predatorTypeChange()">
-        <h2>Predator Vision Parameters</h2>
-        <p>Choose one 'vision method' and then fill in its parameters.</p>
-        <div class="hBox">
-            <input type="radio" name="predatorVisionType" value="dotProduct" checked>
-            <fieldset>
-                <legend>Color response (dot-product method)</legend>
-                <div class="vBox options" id="visionParameters" >
-                    <label><input type="text" id="visionRed" value="1"> red (0 to 1)</label>
-                    <!-- todo: make these disappear when vision not in use -->
-                    <label><input type="text" id="visionGreen" value="0"> green (0 to 1)</label>
-                    <label><input type="text" id="visionBlue" value="0"> blue (0 to 1)</label>
+    <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">
+        <div class="vBox visionOptions">
+            <h2>Predator Vision Parameters</h2>
+            <p>Mostly use the top (simple) box....</p>
+
+            <fieldset class="preGameOptions">
+                <legend>Simple version: What color are your goggles?</legend>
+                <div class="hBox">
+                    <button onclick="steb.options.setSimpleColor(0)">red</button>
+                    <button onclick="steb.options.setSimpleColor(1)">green</button>
+                    <button onclick="steb.options.setSimpleColor(2)">blue</button>
                 </div>
             </fieldset>
-        </div>
 
-        <div class="hBox">
-            <input type="radio" name="predatorVisionType" value="formula">
+            <p>Advanced settings: Choose one 'vision method' and then fill in its parameters.</p>
+            <div class="hBox">
+                <input type="radio" name="predatorVisionMethodControl" value="dotProduct" checked>
+                <fieldset class="advancedVisionOptions">
+                    <legend>Color response (dot-product method)</legend>
+                    <div class="vBox" id="visionParameters">
+                        <label><input type="text" id="visionRed" value="1"> red (0 to 1)</label>
+                        <!-- todo: make these disappear when vision not in use -->
+                        <label><input type="text" id="visionGreen" value="0"> green (0 to 1)</label>
+                        <label><input type="text" id="visionBlue" value="0"> blue (0 to 1)</label>
+                    </div>
+                </fieldset>
+            </div>
 
-            <fieldset>
-                <legend> B/W response (enter coefficients)</legend>
-                <br>
-                <div id="redCoefficient" ></div>
-                <div id="redCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the red slider -->
-                <div id="greenCoefficient"></div>
-                <div id="greenCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the green slider -->
-                <div id="blueCoefficient"></div>
-                <div id="blueCoeffDisplay" class="sliderLabel"></div><br><br>    <!--    the blue slider -->
-                <div id="visionFormula">foo</div>
-            </fieldset>
+            <div class="hBox">
+                <input type="radio" name="predatorVisionMethodControl" value="formula">
 
+                <fieldset class="advancedVisionOptions">
+                    <legend> B/W response (enter coefficients)</legend>
+                    <br>
+                    <div id="redCoefficient"></div>
+                    <div id="redCoeffDisplay" class="sliderLabel"></div>
+                    <br><br>    <!--    the red slider -->
+                    <div id="greenCoefficient"></div>
+                    <div id="greenCoeffDisplay" class="sliderLabel"></div>
+                    <br><br>    <!--    the green slider -->
+                    <div id="blueCoefficient"></div>
+                    <div id="blueCoeffDisplay" class="sliderLabel"></div>
+                    <br><br>    <!--    the blue slider -->
+                    <div id="visionFormula">foo</div>
+                </fieldset>
+
+            </div>
         </div>
 
     </div>
 
     <div id="instructionsTab">
-        <h2>What's New</h2>
-        <p>There are now two tables. In the new one, you can plot infomation about the stebbers that get eaten, as a function of time. </p>
-        <p>New selection buttons</p>
-        <ul>
-            <li><b>data</b> output a complete set of data right now</li>
-            <li><b>oldest</b> select the oldest Stebber in CODAP</li>
-            <li><b>select</b> any stebbers selected in CODAP get selected in the game</li>
-        </ul>
         <h2>The Basics</h2>
-        <p>Eat the circles. They're called "Stebbers."
-            </p>
+        <p>Eat the circles. They're called "Stebbers."</p>
         <p>Do NOT eat the "Crud." The Crud are round-cornered rectangles,
             so they look a lot like Stebbers, but they're NOT STEBBERS.</p>
         <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>
         <p>Data are collected every ten meals, or whenever you press <b>data</b>.</p>
+
+        <h3>Levels and Game Play</h3>
+        <p>
+            In the <b>options</b> tab, you can select "presets."
+            In preset 5, you get the option to automate the predator.
+            The challenge is to keep the automated predator from going extinct (or just starving).
+            It starves when the score goes to zero.
+        </p>
+        <p>
+            Don't forget: you can pause automated play when you want to change the vision!
+        </p>
     </div>
 
 
@@ -225,9 +245,11 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/steb/
             <fieldset class="preGameOptions">
                 <legend>Option "presets" (will turn into levels eventually)</legend>
                 <div class="hBox">
-                <button onclick="steb.options.doPreset(1)">1</button>
-                <button onclick="steb.options.doPreset(2)">2</button>
-                <button onclick="steb.options.doPreset(3)">3</button>
+                    <button onclick="steb.options.doPreset(1)">1</button>
+                    <button onclick="steb.options.doPreset(2)">2</button>
+                    <button onclick="steb.options.doPreset(3)">3</button>
+                    <button onclick="steb.options.doPreset(4)">4</button>
+                    <button onclick="steb.options.doPreset(5)">5</button>
                 </div>
             </fieldset>
             <br>

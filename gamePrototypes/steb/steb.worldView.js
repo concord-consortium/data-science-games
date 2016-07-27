@@ -142,7 +142,7 @@ steb.worldView = {
      * Change the apparent color of a miscellaneous object.
      * Called by StebberView, CrudView, etc.
      * TO make it look cool, we animate the color change.
-     * @param iThing    whose color we're changing
+     * @param iThing        thing whose color we're changing
      * @param iTrueColor    the original, true color of the object
      * @param iTime     Optional: how long it takes to animate the color. We use 0 for new objects (e.g., newborn Stebbers).
      */
@@ -151,7 +151,7 @@ steb.worldView = {
         if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
         var tApparentColor = steb.model.getPredatorVisionColor(iTrueColor);
         var tColorString = steb.makeColorString( tApparentColor );
-        iThing.animate({ fill : tColorString }, iTime); //  animate the color change
+        iThing.animate({ fill : tColorString }, iTime);      //  animate the color change
 
     },
 

@@ -35,7 +35,7 @@
  * frightenStebbersFrom: steb.model.frightenStebbersFrom, randomPlace: steb.model.randomPlace,
  * distanceBetween: steb.model.distanceBetween, randomColor: steb.model.randomColor,
  * mutateColor: steb.model.mutateColor,
- * predatorVisionColorVector: {red: number, green: number, blue: number},
+ * predatorVisionDotProductColorVector: {red: number, green: number, blue: number},
  * predatorVisionBWFormula: string, getPredatorVisionColor: steb.model.getPredatorVisionColor,
  * convertToGrayUsingRGBFormula: steb.model.convertToGrayUsingRGBFormula
  * }}
@@ -336,7 +336,7 @@ steb.model = {
     /**
      * Initial values for the predator vision parameters.
      */
-    predatorVisionColorVector : [1, 0, 0],          //  for the "dot product" scheme. [r, g, b] This is all red.
+    predatorVisionDotProductColorVector : [1, 0, 0],          //  for the "dot product" scheme. [r, g, b] This is all red.
     predatorVisionBWCoefficientVector : [1, 1, 1],  //  for the "coefficient" scheme. [r, g, b]. This is straight gray from all three color channels.
     predatorVisionDenominator : 1,                  //  this gets calculated when needed, but 1 is a good default placeholder.
 
@@ -352,8 +352,8 @@ steb.model = {
         var tResult = iColor;
 
         if (steb.options.useVisionParameters) {
-            if (steb.options.predatorVisionType === "dotProduct") {
-                var tDotProduct = this.predatorVisionColorVector;
+            if (steb.options.predatorVisionMethod === "dotProduct") {
+                var tDotProduct = this.predatorVisionDotProductColorVector;
                 tResult = [
                     (iColor[0]) * tDotProduct[0],
                     (iColor[1]) * tDotProduct[1],

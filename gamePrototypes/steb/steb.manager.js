@@ -48,6 +48,9 @@ steb.manager = {
     gameNumber : 0,     //  the game number
     stebElapsed : 0.0,      //  elapsed time
 
+    livingStebberTableShowing : false,
+    eatenStebberTableShowing : false,
+
 
     /**
      * The animation loop. Calls .update()
@@ -121,7 +124,7 @@ steb.manager = {
      * User has requested a new game.
      */
     newGame : function() {
-        steb.options.setOptionsToMatchUI();        //  make sure they align with the checkboxes
+        steb.options.setStebOptionsToMatchUI();        //  make sure they align with the checkboxes
         this.stebElapsed = 0;
         this.gameNumber += 1;
 
@@ -149,7 +152,7 @@ steb.manager = {
      * Called at end of restore process
      */
     reinstateGame : function() {
-        steb.options.setUIToMatchValues();
+        steb.options.setUIToMatchStebOptions();
 
         if( this.playing)
         {
@@ -408,14 +411,10 @@ steb.manager = {
                                     fixedInitialBG : steb.options.fixedInitialBG,
 
                                     useVisionParameters : steb.options.useVisionParameters,
-                                    predatorVisionType : steb.options.predatorVisionType,
+                                    predatorVisionMethod : steb.options.predatorVisionMethod,
 
                                     automatedPredatorChoiceVisible : steb.options.automatedPredatorChoiceVisible,
                                     colorVisionChoiceVisible : steb.options.colorVisionChoiceVisible,
-
-                                    redCoefficient : steb.options.redCoefficient,
-                                    greenCoefficient : steb.options.greenCoefficient,
-                                    blueCoefficient : steb.options.blueCoefficient,
 
                                     currentPreset : steb.options.currentPreset
                                 },
@@ -495,12 +494,9 @@ steb.manager = {
           steb.options.fixedInitialStebbers = tOptions.fixedInitialStebbers;
           steb.options.fixedInitialBG = tOptions.fixedInitialBG;
           steb.options.useVisionParameters = tOptions.useVisionParameters;
-          steb.options.predatorVisionType = tOptions.predatorVisionType;
+          steb.options.predatorVisionMethod = tOptions.predatorVisionMethod;
           steb.options.automatedPredatorChoiceVisible = tOptions.automatedPredatorChoiceVisible;
           steb.options.colorVisionChoiceVisible = tOptions.colorVisionChoiceVisible;
-          steb.options.redCoefficient = tOptions.redCoefficient;
-          steb.options.greenCoefficient = tOptions.greenCoefficient;
-          steb.options.blueCoefficient = tOptions.blueCoefficient;
           steb.options.currentPreset = tOptions.currentPreset;
 
           steb.predator.where = tPredator.where;
