@@ -133,7 +133,7 @@ steb.options = {
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
-                this.crudSameShapeAsStebbers = false;
+                this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
                 this.reducedMutation = false;
@@ -141,6 +141,7 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+                this.automatedPredator = false;
 
                 this.useVisionParameters = false;
                 this.predatorVisionMethod = 'formula';  //  unnecessary since use params = false
@@ -171,6 +172,7 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+                this.automatedPredator = false;
 
                 this.useVisionParameters = true;
                 this.predatorVisionMethod = 'dotProduct';
@@ -194,6 +196,7 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+                this.automatedPredator = false;
 
                 this.useVisionParameters = true;
                 this.predatorVisionMethod = 'formula';      //  grayscale
@@ -216,12 +219,15 @@ steb.options = {
                 this.crudFlee = false;
                 this.crudScurry = true;
                 this.eldest = false;
+                this.automatedPredator = true;
+
+                steb.manager.running = false;
 
                 this.useVisionParameters = true;
                 this.predatorVisionMethod = 'formula';      //  grayscale
 
                 this.colorVisionChoiceVisible = true;
-                this.automatedPredatorChoiceVisible = true; //  the change
+                this.automatedPredatorChoiceVisible = false; //  the change
 
                 steb.model.predatorVisionBWCoefficientVector = [0, 0, 1];    //  NB: blue
                 break;
@@ -231,6 +237,7 @@ steb.options = {
         }
 
         this.setUIToMatchStebOptions();
+        this.predatorVisionChange();    //  must come after UI is set
         steb.ui.fixUI();
     },
 

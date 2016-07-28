@@ -203,6 +203,7 @@ steb.ui = {
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[0] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
+                steb.ui.fixUI();
             },
             step : 1
         });
@@ -214,6 +215,7 @@ steb.ui = {
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[1] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
+                steb.ui.fixUI();
             },
             step : 1
         });
@@ -225,6 +227,7 @@ steb.ui = {
             slide : function(e, ui) {
                 steb.model.predatorVisionBWCoefficientVector[2] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
+                steb.ui.fixUI();
             },
             step : 1
         });

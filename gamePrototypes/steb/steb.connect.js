@@ -45,9 +45,9 @@ steb.connector = {
     bucketCaseID: 0,
     bucketNumber: 0,
     gameCollectionName: "games",
-    bucketCollectionName: "buckets",
-    stebberCollectionName: "stebbers",
-    eatenCollectionName: "meals",
+    bucketCollectionName: "snapshots",
+    stebberCollectionName: "survivors",
+    eatenCollectionName: "eatenStebbers",
 
 
     selectStebberInCODAP : function( iStebber ) {
@@ -221,7 +221,7 @@ steb.connector = {
         return {
             name: steb.constants.dataSetName_Living,
             title: steb.constants.dataSetName_Living,
-            description: 'the Stebbins data set',
+            description: 'Surviving Stebbers',
             collections: [  // There are three collections: game, bucket, stebber
                 {
                     name: this.gameCollectionName,
@@ -243,24 +243,24 @@ steb.connector = {
                     name: this.bucketCollectionName,
                     parent: this.gameCollectionName,
                     labels: {
-                        singleCase: "bucket",
-                        pluralCase: "buckets",
-                        setOfCasesWithArticle: "buckets of data"
+                        singleCase: "snapshot",
+                        pluralCase: "snapshots",
+                        setOfCasesWithArticle: "snapshots of survivors"
                     },
                     // The bucket collection spec:
                     attrs: [
                         {name: "meals", type: 'categorical', description: 'how many stebbers you have eaten'},
-                        {name: "score", type: 'numeric', precision: 1, description: 'evolution score'}
+                        {name: "score", type: 'numeric', precision: 1, description: 'score at this time'}
                     ],
-                    childAttrName: "stebber"
+                    childAttrName: "survivor"
                 },
                 {
                     name: this.stebberCollectionName,
                     parent: this.bucketCollectionName,
                     labels: {
-                        singleCase: "stebber",
-                        pluralCase: "stebbers",
-                        setOfCasesWithArticle: "a set of stebbers"
+                        singleCase: "survivor",
+                        pluralCase: "survivors",
+                        setOfCasesWithArticle: "a group of survivors"
                     },
                     // The child collection specification:
                     attrs: [
