@@ -183,6 +183,7 @@ stella.connector = {
                         {name: "type", type: 'categorical', description: "result type"},
                         {name: "value", type: 'numeric', precision: 8, description: "result value"},
                         {name: "units", type: 'categorical', description: "units of the result"},
+                        {name: "points", type: 'numeric', description: "points awarded"},
                     ]
                 }
             ]
@@ -261,8 +262,8 @@ stella.connector = {
                         {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
                         {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},
                         {name: "V", type: 'numeric', precision: 2, description: "apparent magnitude in V"},
-                        {name: "x", type: 'numeric', precision: 3, description: "angle in x (degrees)"},
-                        {name: "y", type: 'numeric', precision: 3, description: "angle in y (degrees)"},
+                        {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
+                        {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
                         {name: "name", type: 'categorical'}
                     ]
                 }

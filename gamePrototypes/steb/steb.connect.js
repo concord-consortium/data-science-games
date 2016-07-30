@@ -205,9 +205,11 @@ steb.connector = {
     getInitFrameObject: function () {
 
         return {
+            version: steb.constants.version,
             name: 'Stebbins',
             title: 'Stebbins',
-            version: steb.constants.version
+            dimensions: {width: 444, height: 555}
+
             /*, Temporarily, at least, we let CODAP set the default dimensions
             dimensions: {width: 380, height: 500}*/
         };

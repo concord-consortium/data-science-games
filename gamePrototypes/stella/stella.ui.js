@@ -77,8 +77,7 @@ stella.ui = {
         }
 
         tStarResultHeadText += stella.manager.starResultType + " = ";
-        tStarResultHeadText += stella.manager.starResultValue ?
-            stella.manager.starResultValue : "(enter a value)";
+        tStarResultHeadText += stella.manager.starResultValue !== null ? stella.manager.starResultValue : "(enter a value)";
         tStarResultHeadText += " (" + stella.starResults[stella.manager.starResultType].units + ")";
 
         this.starResultHeadline.text( tStarResultHeadText );

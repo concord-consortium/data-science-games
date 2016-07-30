@@ -134,7 +134,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version : "001b",
+    version : "001c",
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
     solarMass : 1.989e33,       //  grams

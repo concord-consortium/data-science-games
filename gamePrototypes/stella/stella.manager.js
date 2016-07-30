@@ -354,6 +354,7 @@ stella.manager = {
 
             var tScore = stella.model.evaluateResult(tValues);  //  we don't necessarily save all results!
             if (tScore > 0) {
+                tValues.points = tScore;
                 stella.connector.emitStarResult(tValues, null);
                 stella.manager.stellaScore += tScore;
                 alert("Good job! " + stella.manager.starResultValue + " is close enough to get you " + tScore + " points!");
@@ -369,7 +370,7 @@ stella.manager = {
     },
 
     doubleClickOnAStar: function () {
-        if (stella.skyview.magnification < 100) {
+        if (stella.skyView.magnification < 100) {
             return;
         }
         console.log("double click on a star!");

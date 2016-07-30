@@ -184,6 +184,7 @@ Star.prototype.setUpSpectrum = function() {
     tSpectrum.hasBlackbody = true;
     tSpectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
 
+    //  NB: no Lithium
     tSpectrum.addLinesFrom(ElementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
     tSpectrum.addLinesFrom(ElementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
     tSpectrum.addLinesFrom(ElementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
@@ -260,8 +261,8 @@ Star.prototype.doPhotometry = function() {
  */
 Star.prototype.dataValues = function() {
     var out = {
-        x : this.where.x.toFixed(3),
-        y : this.where.y.toFixed(3),
+        x : this.where.x.toFixed(6),
+        y : this.where.y.toFixed(6),
         m : this.mApp.toFixed(2),
         id : this.id,
         U : Star.apparentMagnitude( this.uAbs, this.where.z ).toFixed(2),
