@@ -23,7 +23,7 @@
  ==========================================================================
  */
 
-/* global steb, Snap */
+/* global steb, Snap, console */
 
 /**
  * Class for Stebbers (model)
@@ -39,6 +39,8 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.id = iID;
     this.caseIDs = [];  //  array of case IDs for this Stebber
     this.selected = false;
+    this.colorDistanceToBackground = null;
+    this.colorDistanceToCrud = null;
 
     this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
     this.updateColorDistances();    //  todo: do we need this? The view doesn't exist yet, right?
@@ -59,16 +61,17 @@ Stebber.prototype.setNewSpeedAndHeading = function() {
  * Determine this Stebber's color distances based on the predator's vision parameters.
  */
 Stebber.prototype.updateColorDistances = function() {
-    this.colorDistanceToBackground = steb.model.colorDistance(
-        steb.model.getPredatorVisionColor(steb.model.trueBackgroundColor),
-        steb.model.getPredatorVisionColor(this.color)
+    this.colorDistanceToBackground = steb.color.colorDistance(
+        steb.color.getPredatorVisionColor(steb.model.trueBackgroundColor),
+        steb.color.getPredatorVisionColor(this.color)
     );
 
     if (steb.options.backgroundCrud) {
-        this.colorDistanceToCrud = steb.model.colorDistance(
-            steb.model.getPredatorVisionColor(steb.model.meanCrudColor),
-            steb.model.getPredatorVisionColor(this.color)
+        this.colorDistanceToCrud = steb.color.colorDistance(
+            steb.color.getPredatorVisionColor(steb.model.meanCrudColor),
+            steb.color.getPredatorVisionColor(this.color)
         );
+        //  console.log("Stebber.updateColorDistances dCrud = " + this.colorDistanceToCrud.toFixed(3));
     } else {
         this.colorDistanceToCrud = null;
     }

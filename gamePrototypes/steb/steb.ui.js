@@ -56,7 +56,7 @@ steb.ui = {
                 steb.worldView.stebberViews.length + " views, " +
                 steb.worldView.crudViews.length + " crud.";
 
-            tDebugText = steb.model.stebberColorReport();
+            tDebugText = steb.color.stebberColorReport();
 
             $("#debugText").html(tDebugText);
             $("#evolutionPoints").text(steb.score.evolutionPoints);
@@ -65,9 +65,9 @@ steb.ui = {
 
         //  color numbers on the vision page, with the BW sliders
 
-        $("#redCoeffDisplay").text("red = " + steb.model.predatorVisionBWCoefficientVector[0]);
-        $("#greenCoeffDisplay").text("green = " + steb.model.predatorVisionBWCoefficientVector[1]);
-        $("#blueCoeffDisplay").text("blue = " + steb.model.predatorVisionBWCoefficientVector[2]);
+        $("#redCoeffDisplay").text("red = " + steb.color.predatorVisionBWCoefficientVector[0]);
+        $("#greenCoeffDisplay").text("green = " + steb.color.predatorVisionBWCoefficientVector[1]);
+        $("#blueCoeffDisplay").text("blue = " + steb.color.predatorVisionBWCoefficientVector[2]);
 
         //  option text
         $("#optionPresetText").text( steb.options.currentPreset > 0 ? "Preset " + steb.options.currentPreset : "No preset");
@@ -199,9 +199,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            value : steb.model.predatorVisionBWCoefficientVector[0],
+            value : steb.color.predatorVisionBWCoefficientVector[0],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector[0] = Number( ui.values[0] );
+                steb.color.predatorVisionBWCoefficientVector[0] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
                 steb.ui.fixUI();
             },
@@ -211,9 +211,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            value : steb.model.predatorVisionBWCoefficientVector[1],
+            value : steb.color.predatorVisionBWCoefficientVector[1],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector[1] = Number( ui.values[0] );
+                steb.color.predatorVisionBWCoefficientVector[1] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
                 steb.ui.fixUI();
             },
@@ -223,9 +223,9 @@ steb.ui = {
             range : false,
             min : -10,
             max : 10,
-            value : steb.model.predatorVisionBWCoefficientVector[2],
+            value : steb.color.predatorVisionBWCoefficientVector[2],
             slide : function(e, ui) {
-                steb.model.predatorVisionBWCoefficientVector[2] = Number( ui.values[0] );
+                steb.color.predatorVisionBWCoefficientVector[2] = Number( ui.values[0] );
                 steb.options.predatorVisionChange();
                 steb.ui.fixUI();
             },

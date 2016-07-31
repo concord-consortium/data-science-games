@@ -33,11 +33,7 @@
  * update: steb.model.update, newGame: steb.model.newGame,
  * addNewStebberBasedOn: steb.model.addNewStebberBasedOn, removeStebber: steb.model.removeStebber,
  * frightenStebbersFrom: steb.model.frightenStebbersFrom, randomPlace: steb.model.randomPlace,
- * distanceBetween: steb.model.distanceBetween, randomColor: steb.model.randomColor,
- * mutateColor: steb.model.mutateColor,
- * predatorVisionDotProductColorVector: {red: number, green: number, blue: number},
- * predatorVisionBWFormula: string, getPredatorVisionColor: steb.model.getPredatorVisionColor,
- * convertToGrayUsingRGBFormula: steb.model.convertToGrayUsingRGBFormula
+ * distanceBetween: steb.model.distanceBetween
  * }}
  */
 
@@ -124,7 +120,7 @@ steb.model = {
         } else {
             this.trueBackgroundColor = this.inventBackgroundColor();
             this.meanCrudColor = steb.options.backgroundCrud ?
-                this.mutateColor(this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]) :
+                steb.color.mutateColor(this.trueBackgroundColor, [-3, -3, -2, 2, 3, 3]) :
                 null;
         }
 
@@ -161,7 +157,7 @@ steb.model = {
             Math.round(tNorm * tRGB.b)
         ];
 
-        oColor = this.randomColor( [6,7,8,9] );     //  temp restrict??
+        oColor = steb.color.randomColor( steb.options.extremeBGColor ? [3, 4, 5, 11, 12, 13] : [6,7,8,9] );     //  temp restrict??
 
         return oColor;
     },
@@ -185,11 +181,11 @@ steb.model = {
             var tMute = steb.options.reducedMutation ?
                 steb.constants.stebberColorReducedMutationArray :
                 steb.constants.stebberColorMutationArray;
-            tColor = this.mutateColor( iParentStebber.color, tMute );
+            tColor = steb.color.mutateColor( iParentStebber.color, tMute );
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
         } else {    //  beginning of the game, no parent
-            tColor = this.randomColor( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
+            tColor = steb.color.randomColor( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
             tWhere = this.randomPlace();
         }
 
@@ -270,159 +266,7 @@ steb.model = {
         return tDistance;
     },
 
-    //          COLOR utilities
-
-    /**
-     * Choose a random color from the list, for each of the three colors in the array
-     * @param iColors
-     * @returns {Array}
-     */
-    randomColor : function( iColors ) {
-        var oArray = [];
-
-        for (var i = 0; i < 3; i++) {
-            var tRan = TEEUtils.pickRandomItemFrom( iColors );
-            oArray.push( tRan );
-        }
-        return oArray;
-    },
-
-    /**
-     * Mutate the given color a bit, depending on the values in the given array
-     * @param iColor    input color
-     * @param iMutes    array of possible mutations
-     * @returns {Array} output color, after mutation
-     */
-    mutateColor : function( iColor, iMutes )    {
-        var oColor = [];
-
-        iColor.forEach( function(c) {
-            c += TEEUtils.pickRandomItemFrom( iMutes );
-            c = steb.rangePin(c, 0, 15);
-            oColor.push( c );
-        });
-
-        return oColor;
-    },
-
-    /**
-     * Text debugging information about all the Stebbers.
-     * @returns {string}
-     */
-    stebberColorReport: function () {
-        var tout = "bg: " + JSON.stringify(steb.model.trueBackgroundColor) +
-            " crud: " + JSON.stringify(steb.model.meanCrudColor) + "<br>";
-
-        this.stebbers.forEach(function (s) {
-                var tDBG = s.colorDistanceToBackground;
-                var tDCrud = s.colorDistanceToCrud;
-
-                tout += s.id + " " + JSON.stringify(s.color) + " dBG: " + tDBG.toFixed(2);
-                if (tDCrud) {
-                    if (typeof tDCrud !== 'undefined' && tDCrud !== null) {
-                        tout += " dCrud: " + tDCrud.toFixed(2);
-                    }
-                    tout += " p = " + steb.predator.targetProbability(s).toFixed(3) + "<br>";
-
-                }
-            }
-        );
-        return tout;
-    },
 
 
-    //      Predator Vision Section
-
-    /**
-     * Initial values for the predator vision parameters.
-     */
-    predatorVisionDotProductColorVector : [1, 0, 0],          //  for the "dot product" scheme. [r, g, b] This is all red.
-    predatorVisionBWCoefficientVector : [1, 1, 1],  //  for the "coefficient" scheme. [r, g, b]. This is straight gray from all three color channels.
-    predatorVisionDenominator : 1,                  //  this gets calculated when needed, but 1 is a good default placeholder.
-
-    /**
-     * Find the color of an object as seen by the predator.
-     * Determines which scheme we're using and applies it.
-     *
-     * @param iColor    actual color of the object
-     * @returns {*}     apparent color of the object
-     */
-    getPredatorVisionColor: function (iColor) {
-
-        var tResult = iColor;
-
-        if (steb.options.useVisionParameters) {
-            if (steb.options.predatorVisionMethod === "dotProduct") {
-                var tDotProduct = this.predatorVisionDotProductColorVector;
-                tResult = [
-                    (iColor[0]) * tDotProduct[0],
-                    (iColor[1]) * tDotProduct[1],
-                    (iColor[2]) * tDotProduct[2]
-                ];
-                this.predatorVisionDenominator = tDotProduct[0] + tDotProduct[1] + tDotProduct[2];
-            }
-            else        //  using the BW vector coefficients
-            {
-                tResult = steb.model.convertToGrayUsingRGBFormula(iColor);
-            }
-        }
-
-        //  pin the results into [0, 15]
-
-        tResult.forEach( function(c, i) {   tResult[i] = steb.rangePin( c, 0, 15); });
-
-        return tResult;
-    },
-
-    /**
-     * Apply the coefficients to the input color to get the (grayscale) color that the predator sees
-     * Called by this.getPredatorVisionColor
-     *
-     * The algorithm: Add up the absolute values of the coeffs to get a denominator. (tDenom)
-     * At the same time, multiply the coefficient by either...
-     * ...the color value, if the coefficent is positive, or
-     * ...(the color value - 15) if it's negative. This will give a positive number in (coeff is < 0)
-     * Add those up, and divide the total by tDenom, resulting in a number between 0 and 15.
-     *
-     * @param iColor        input color
-     * @returns {Array}     the seen color
-     */
-    convertToGrayUsingRGBFormula : function(iColor ) {
-
-        var tGrayscaleNumber = 0;
-        var tDenom = 0;
-
-        this.predatorVisionBWCoefficientVector.forEach( function(c, i ) {
-            tDenom += Math.abs( c );
-            tGrayscaleNumber += (c > 0) ? c * iColor[i] : (iColor[i] - 15) * c;
-            });
-        tGrayscaleNumber = (tDenom === 0) ? 0 : tGrayscaleNumber / tDenom;
-        this.predatorVisionDenominator = tDenom;
-
-        //  The result is gray. Not necessary to do it this particular way.
-        //  Do anything plausible with the tGrayscaleNumber result.
-
-        var tResult = [
-            tGrayscaleNumber,
-            tGrayscaleNumber,
-            tGrayscaleNumber
-        ];
-
-        return tResult;
-    },
-
-    /**
-     * the color distance. For now, it's just Euclidean in straight RGB color space.
-     * No luminance adjustments or anything like that.
-     * @param iColor1
-     * @param iColor2
-     * @returns {number}
-     */
-    colorDistance : function( iColor1, iColor2 ) {
-        var tD2 = (iColor1[0] - iColor2[0]) * (iColor1[0] - iColor2[0]) +
-            (iColor1[1] - iColor2[1]) * (iColor1[1] - iColor2[1]) +
-            (iColor1[2] - iColor2[2]) * (iColor1[2] - iColor2[2]);
-        return Math.sqrt( tD2 );
-    }
 
 };

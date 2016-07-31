@@ -23,7 +23,7 @@
  ==========================================================================
  */
 
-/* global steb */
+/* global steb, console */
 
 /**
  * Singleton embodying the automated predator's behavior
@@ -116,18 +116,28 @@ steb.predator = {
         var tDBG = iTarget.colorDistanceToBackground;
         var tDCrud = iTarget.colorDistanceToCrud;
 
+        //  console.log("predator.targetProbability" + iTarget.toString() + " dBG: " + tDBG + " dCrud: " + tDCrud);
+
         var tColorDistance = tDBG;
-        if (tDCrud) {
+        //if (tDCrud) {         //  todo: figure out how to deal with there being no crud at all. But note tDCrud can be zero.
             if (tDCrud < tColorDistance) {tColorDistance = tDCrud;}
-        }
+        //}
         //  tColorDistance is now the SMALLER of the distance to BG and to Crud
 
-        tColorDistance *= steb.model.predatorVisionDenominator; //  todo: not clear if this is right.
+        tColorDistance *= steb.color.predatorVisionDenominator; //  todo: not clear if this is right.
 
         //  now we convert that distance to a probability. It's a linear function based on
         //  the two key values here. See steb.js for the definitions of these constants.
 
         var oProb = (tColorDistance - steb.constants.invisibilityDistance) * steb.constants.captureSlope;
+
+        //      testing!
+
+        var tProbAtOne = 0.33;
+        var factor = 1 - tProbAtOne;    //  like, 2/3
+        var depress = Math.pow(factor, tColorDistance);     //  like, 2/3 ^4 for color distance of 4
+
+        oProb = 1 - depress;
 
         return oProb;
     }
