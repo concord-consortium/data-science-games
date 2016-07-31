@@ -77,6 +77,7 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/steb/
     <script src="steb.manager.js" language="JavaScript"></script>
     <script src="steb.ui.js" language="JavaScript"></script>
     <script src="steb.model.js" language="JavaScript"></script>
+    <script src="steb.color.js" language="JavaScript"></script>
     <script src="steb.score.js" language="JavaScript"></script>
     <script src="steb.options.js" language="JavaScript"></script>
     <script src="steb.connect.js" language="JavaScript"></script>
@@ -251,14 +252,17 @@ http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/steb/
                     <button onclick="steb.options.doPreset(2)">2</button>
                     <button onclick="steb.options.doPreset(3)">3 & 4</button>
                     <button onclick="steb.options.doPreset(5)">5</button>
+                    <button onclick="steb.options.doPreset(42)">debug</button>
                 </div>
             </fieldset>
             <br>
             <fieldset class="vBox preGameOptions"  onclick="steb.options.optionChange()">
                 <legend>Select before starting game</legend>
-                <label><input type="checkbox" id="backgroundCrud" checked>include Crud</label>
+                <label><input type="checkbox" id="backgroundCrud" checked>include Crud (not working properly)</label>
                 <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial Stebber colors</label>
                 <label><input type="checkbox" id="fixedInitialBG">fixed initial background and Crud colors</label>
+                <label><input type="checkbox" id="extremeBGColor">more extreme background color</label>
+                <label><input type="checkbox" id="beginGamePaused">begin game paused</label>
                 <label><input type="checkbox" id="crudSameShapeAsStebbers">Crud is the same shape as Stebbers
                     (harder)</label>
             </fieldset>

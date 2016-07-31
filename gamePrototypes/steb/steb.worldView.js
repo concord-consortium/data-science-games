@@ -149,7 +149,7 @@ steb.worldView = {
     applyPredatorVisionToObject : function(iThing, iTrueColor, iTime) {
 
         if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
-        var tApparentColor = steb.model.getPredatorVisionColor(iTrueColor);
+        var tApparentColor = steb.color.getPredatorVisionColor(iTrueColor);
         var tColorString = steb.makeColorString( tApparentColor );
         iThing.animate({ fill : tColorString }, iTime);      //  animate the color change
 
@@ -173,7 +173,7 @@ steb.worldView = {
      * Change the background color on demand. This is really for debugging.
      */
     mutateBackgroundColor : function() {
-        steb.model.trueBackgroundColor = steb.model.mutateColor( steb.model.trueBackgroundColor, [-2, -1, 0, 1, 2]);
+        steb.model.trueBackgroundColor = steb.color.mutateColor( steb.model.trueBackgroundColor, [-2, -1, 0, 1, 2]);
         this.setBackgroundColor();
     },
 

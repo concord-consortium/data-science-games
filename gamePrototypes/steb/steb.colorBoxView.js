@@ -57,16 +57,18 @@ steb.colorBoxView = {
     },
 
     setColors : function( iBG, iCrud )  {
-        this.crudColor = iCrud;
+        if (iCrud) {
+            this.crudColor = iCrud;
+            var tCrudColor = steb.makeColorString( this.crudColor );
+            this.crudText.node.innerHTML = "Crud: " + iCrud.toString();
+            this.crudBox.attr({fill : tCrudColor});
+        } else {
+            this.crudText.node.innerHTML = "no crud this time";
+        }
+
         this.bgColor = iBG;
-
-        var tCrudColor = steb.makeColorString( this.crudColor );
         var tBGColor = steb.makeColorString( this.bgColor );
-
-        this.crudText.node.innerHTML = "Crud: " + iCrud.toString();
         this.bgText.node.innerHTML = "BG: " + iBG.toString();
-
-        this.crudBox.attr({fill : tCrudColor});
         this.bgBox.attr({fill : tBGColor});
     }
 };

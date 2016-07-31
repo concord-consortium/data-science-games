@@ -146,6 +146,9 @@ steb.manager = {
         //  and start time!
 
         this.restart();
+        if (steb.options.beginGamePaused) {
+            this.pause();
+        }
     },
 
     /**
@@ -281,7 +284,7 @@ steb.manager = {
                     function stebberRecordCreated( jResult ) {
                         if (jResult.success) {
                             iSteb.caseIDs.push( jResult.values[0].id );
-                            console.log('Stebber ' + iSteb.id + ' has case IDs ' + iSteb.caseIDs.toString());
+                            //  console.log('Stebber ' + iSteb.id + ' has case IDs ' + iSteb.caseIDs.toString());
                         } else {
                             console.log("Failed to create stebber case.");
                         }

@@ -38,7 +38,7 @@ var Crud = function(  ) {
     this.where = steb.model.randomPlace();
     this.speed = steb.constants.baseCrudSpeed;
 
-    this.trueColor = steb.model.mutateColor(
+    this.trueColor = steb.color.mutateColor(
         steb.model.meanCrudColor,
         steb.constants.crudColorMutationArray
     );

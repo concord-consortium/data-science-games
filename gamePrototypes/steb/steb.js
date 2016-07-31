@@ -88,7 +88,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001n",
+    version : "001p",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
@@ -98,10 +98,33 @@ steb.constants = {
 
     stebberColorMutationArray : [-2,-1,-1, 0, 0, 1, 1, 2],      //  how much Stebber children vary from their parents
     stebberColorReducedMutationArray : [-1, -0.5, -0.5, 0, 0, 0.5, 0.5, 1],   //  same if reduced mutation option selected
-    crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how mcuh Crud varies from its original mean
+    crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how much Crud varies from its original mean
 
+    /*
     defaultBackgroundColor : [7, 11, 9],
     defaultCrudColor : [5, 9, 6],
+    */
+
+    defaultBackgroundColor : [5, 9, 7],
+    defaultCrudColor : [3, 7, 5],
+
+    /*
+    fixedStebberColor : [
+        [8, 8, 12],
+        [8, 12, 8],
+        [12, 8, 8],
+        [8, 8, 4],
+        [8, 4, 8],
+        [4, 8, 8],
+        [8, 10, 10],
+        [10, 8, 10],
+        [10, 10, 8],
+        [8, 6, 6],
+        [6, 8, 6],
+        [6, 6, 8]
+    ],
+    */
+
     fixedStebberColor : [
         [4, 4, 8],
         [4, 12, 8],
@@ -116,6 +139,7 @@ steb.constants = {
         [8, 12, 4],
         [8, 12, 12]
     ],
+
 
     worldViewBoxSize : 1000.0,  //  size of the coordinate system (viewBox)
 
@@ -135,8 +159,8 @@ steb.constants = {
     predatorStalkTime : 1.0,        //  how long you "stalk" prey before eating it.
 
     //  for computing probability of capture based on color distance
-    invisibilityDistance : 1.1, //  color distance at which the probability of capture is zero.
-    certaintyDistance : 8.0,    //  color distance at which the probability of capture is 1.0
+    invisibilityDistance : 0.0, //  color distance at which the probability of capture is zero.
+    certaintyDistance : 3.0,    //  color distance at which the probability of capture is 1.0
 
     timeOutTime : 2000,      //      ms to wait when you click on a Crud
 

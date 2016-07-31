@@ -39,6 +39,8 @@ steb.options = {
     automatedPredator : false,
     fixedInitialStebbers : true,
     fixedInitialBG : false,
+    extremeBGColor : false,
+    beginGamePaused : true,
 
     useVisionParameters : false,    //  are we using any strange predator vision?
     predatorVisionMethod : null,      //  "dotProduct" or "formula"
@@ -70,7 +72,7 @@ steb.options = {
      * Set the underlying predator vision params based on the settings in the vision panel.
      */
     setPredatorVisionParameters : function() {
-        if (!this.useVisionParameters ) { steb.model.predatorVisionDenominator = 1; }    //  avoids nasty zero divide :)
+        if (!this.useVisionParameters ) { steb.color.predatorVisionDenominator = 1; }    //  avoids nasty zero divide :)
 
         this.predatorVisionMethod = $('input[name=predatorVisionMethodControl]:checked').val();
 
@@ -78,12 +80,12 @@ steb.options = {
         var tGreen = Number($("#visionGreen").val());
         var tBlue = Number($("#visionBlue").val());
 
-        steb.model.predatorVisionDotProductColorVector = [ tRed, tGreen, tBlue ];
+        steb.color.predatorVisionDotProductColorVector = [ tRed, tGreen, tBlue ];
         //  steb.model.predatorVisionBWCoefficientVector is set directly by sliders. See steb.ui.js.initialize().
 
         console.log(
-            "Options. Vision vector = " + JSON.stringify( steb.model.predatorVisionDotProductColorVector ) +
-            " BW vector = " + JSON.stringify(steb.model.predatorVisionBWCoefficientVector)
+            "Options. Vision vector = " + JSON.stringify( steb.color.predatorVisionDotProductColorVector ) +
+            " BW vector = " + JSON.stringify(steb.color.predatorVisionBWCoefficientVector)
         );
 
         steb.model.stebbers.forEach(function(s) { s.updateColorDistances(); });     //  update all stebbers to reflect new vision
@@ -91,25 +93,25 @@ steb.options = {
     },
 
     setVisionVectorUIToMatchModelValues : function() {
-        $("#visionRed").val(steb.model.predatorVisionDotProductColorVector[0]);
-        $("#visionGreen").val(steb.model.predatorVisionDotProductColorVector[1]);
-        $("#visionBlue").val(steb.model.predatorVisionDotProductColorVector[2]);
+        $("#visionRed").val(steb.color.predatorVisionDotProductColorVector[0]);
+        $("#visionGreen").val(steb.color.predatorVisionDotProductColorVector[1]);
+        $("#visionBlue").val(steb.color.predatorVisionDotProductColorVector[2]);
 
         //  now for the sliders, definded in steb.ui...
 
-        $("#redCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[0] ]});
-        $("#greenCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[1] ]});
-        $("#blueCoefficient").slider({'values' : [ steb.model.predatorVisionBWCoefficientVector[2] ]});
+        $("#redCoefficient").slider({'values' : [ steb.color.predatorVisionBWCoefficientVector[0] ]});
+        $("#greenCoefficient").slider({'values' : [ steb.color.predatorVisionBWCoefficientVector[1] ]});
+        $("#blueCoefficient").slider({'values' : [ steb.color.predatorVisionBWCoefficientVector[2] ]});
 
 
     },
 
     setSimpleColor : function( iColor ) {
 
-        steb.model.predatorVisionBWCoefficientVector.forEach(
-            function( item, index ) {
-                steb.model.predatorVisionBWCoefficientVector[ index ] = (index == iColor ? 1 : 0);
-                steb.model.predatorVisionDotProductColorVector[ index ] = (index == iColor ? 1 : 0);
+        [0, 1, 2].forEach(
+            function( item ) {
+                steb.color.predatorVisionBWCoefficientVector[ item ] = (item === iColor ? 1 : 0);
+                steb.color.predatorVisionDotProductColorVector[ item ] = (item === iColor ? 1 : 0);
             }
         );
         this.setUIToMatchStebOptions();
@@ -133,6 +135,8 @@ steb.options = {
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
+                this.extremeBGColor = false;
+                this.beginGamePaused = false;
                 this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
@@ -164,6 +168,8 @@ steb.options = {
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
+                this.extremeBGColor = false;
+                this.beginGamePaused = false;
                 this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
@@ -188,6 +194,8 @@ steb.options = {
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
                 this.fixedInitialBG = true;
+                this.extremeBGColor = false;
+                this.beginGamePaused = false;
                 this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
@@ -210,7 +218,34 @@ steb.options = {
             case 5:
                 this.backgroundCrud = true;
                 this.fixedInitialStebbers = true;
-                this.fixedInitialBG = true;
+                this.fixedInitialBG = false;
+                this.extremeBGColor = true;
+                this.beginGamePaused = true;
+                this.crudSameShapeAsStebbers = true;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+                this.automatedPredator = true;
+
+                this.useVisionParameters = true;
+                this.predatorVisionMethod = 'formula';      //  grayscale
+
+                this.colorVisionChoiceVisible = true;
+                this.automatedPredatorChoiceVisible = false; //  the change
+
+                steb.model.predatorVisionBWCoefficientVector = [0, 0, 1];    //  NB: blue
+                break;
+
+            case 42:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = false;
+                this.fixedInitialBG = false;
+                this.extremeBGColor = true;
+                this.beginGamePaused = true;
                 this.crudSameShapeAsStebbers = true;
 
                 this.delayReproduction = false;
@@ -227,9 +262,9 @@ steb.options = {
                 this.predatorVisionMethod = 'formula';      //  grayscale
 
                 this.colorVisionChoiceVisible = true;
-                this.automatedPredatorChoiceVisible = false; //  the change
+                this.automatedPredatorChoiceVisible = true; //  the change
 
-                steb.model.predatorVisionBWCoefficientVector = [0, 0, 1];    //  NB: blue
+                steb.model.predatorVisionBWCoefficientVector = [1, 0, 0];    //  NB: red
                 break;
 
             default:
@@ -254,6 +289,8 @@ steb.options = {
         this.backgroundCrud = document.getElementById("backgroundCrud").checked;
         this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
         this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
+        this.beginGamePaused = document.getElementById("beginGamePaused").checked;
+        this.extremeBGColor = document.getElementById("extremeBGColor").checked;
         this.crudSameShapeAsStebbers = document.getElementById("crudSameShapeAsStebbers").checked;
 
         this.delayReproduction = document.getElementById("delayReproduction").checked;
@@ -276,6 +313,8 @@ steb.options = {
         document.getElementById("backgroundCrud").checked = this.backgroundCrud;
         document.getElementById("fixedInitialStebbers").checked = this.fixedInitialStebbers;
         document.getElementById("fixedInitialBG").checked = this.fixedInitialBG;
+        document.getElementById("beginGamePaused").checked = this.beginGamePaused;
+        document.getElementById("extremeBGColor").checked = this.extremeBGColor;
         document.getElementById("crudSameShapeAsStebbers").checked = this.crudSameShapeAsStebbers;
 
         document.getElementById("delayReproduction").checked = this.delayReproduction;
