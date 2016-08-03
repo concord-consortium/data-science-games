@@ -124,7 +124,7 @@ stella.connector = {
             {
                 parent : this.spectrumCaseID,
                 values : {
-                    lambda : iChannel.min.toFixed(5),
+                    wavelength : iChannel.min.toFixed(5),
                     intensity :   iChannel.intensity.toFixed(2)
                 }
             },
@@ -227,7 +227,7 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "lambda", type: 'numeric', precision: 5, description: "wavelength (nm)"},
+                        {name: "wavelength", type: 'numeric', precision: 5, description: "wavelength (nm)"},
                         {name: "intensity", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
                     ]
                 }

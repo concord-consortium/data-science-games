@@ -52,6 +52,9 @@ stella.model = {
         this.makeAllStars();
         this.now = 2525.0;       //  new Date(2525, 0);   //  Jan 1 2525
         this.epoch = 2500.0;     //  new Date(2500, 0);   //  Jan 1 2525
+
+        stella.model.labBlackbodyTemperature = stella.constants.solarTemperature;
+
     },
 
     /**
@@ -192,27 +195,27 @@ stella.model = {
         this.labSpectrum.hasEmissionLines = true;
 
         switch (this.dischargeTube) {
-            case "Hydrogen":
+            case "H":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.H, 100);
                 break;
 
-            case "Helium":
+            case "HeI":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.HeI, 100);
                 break;
 
-            case "Lithium (neutral)":
+            case "LiI":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.LiI, 100);
                 break;
 
-            case "Sodium":
+            case "NaI":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.NaI, 100);
                 break;
 
-            case "Calcium (+)":
+            case "CaII":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.CaII, 100);
                 break;
 
-            case "Iron (neutral)":
+            case "FeI":
                 this.labSpectrum.addLinesFrom(ElementalSpectra.FeI, 100);
                 break;
         }

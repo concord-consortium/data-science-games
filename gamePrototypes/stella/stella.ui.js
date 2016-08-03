@@ -140,7 +140,7 @@ stella.ui = {
         this.labTempSlider.slider( {
                 min : 1000,
                 max : 30000,
-                values : [5800],
+                values : [ stella.constants.solarTemperature ],
                 step : 100,
                 slide : function(e, ui) {
                     stella.model.labBlackbodyTemperature = Number( ui.value );
