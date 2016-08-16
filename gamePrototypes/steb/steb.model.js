@@ -49,6 +49,7 @@ steb.model = {
     meanCrudColor : null,
     trueBackgroundColor : null,
 
+
     /**
      * Perform reproduction in the Stebber set
      */
@@ -181,7 +182,7 @@ steb.model = {
             var tMute = steb.options.reducedMutation ?
                 steb.constants.stebberColorReducedMutationArray :
                 steb.constants.stebberColorMutationArray;
-            tColor = steb.color.mutateColor( iParentStebber.color, tMute );
+            tColor = steb.color.mutateColor( iParentStebber.trueColor, tMute );
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
         } else {    //  beginning of the game, no parent
@@ -224,7 +225,7 @@ steb.model = {
      */
     removeStebber : function( iStebber ) {
         this.meals += 1;
-        var tKilledColor = steb.makeColorString( iStebber.color );  //  todo: use in future dataset
+        var tKilledColor = steb.makeColorString( iStebber.trueColor );  //  todo: use in future dataset
         var tIndex = this.stebbers.indexOf( iStebber );
         this.stebbers.splice( tIndex, 1 );
     },

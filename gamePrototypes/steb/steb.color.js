@@ -179,9 +179,9 @@ steb.color = {
         steb.model.stebbers.forEach(function (s) {
                 var tDBG = s.colorDistanceToBackground;
                 var tDCrud = s.colorDistanceToCrud;
-                var tVisibleColor = steb.color.getPredatorVisionColor(s.color);
+                var tVisibleColor = steb.color.getPredatorVisionColor(s.trueColor);
 
-                tout += "<tr><td>" + s.id + "</td><td>" + JSON.stringify(s.color) +
+                tout += "<tr><td>" + s.id + "</td><td>" + JSON.stringify(s.trueColor) +
                     "</td><td>" + JSON.stringify(tVisibleColor) + "</td><td>" + tDBG.toFixed(2);
 
                 if (typeof tDCrud === 'number') {

@@ -300,9 +300,9 @@ steb.manager = {
         var tValues = {
             meal : steb.model.meals,
             score : steb.score.predatorPoints,
-            red : iStebber.color[0],
-            green : iStebber.color[1],
-            blue : iStebber.color[2],
+            red : iStebber.trueColor[0],
+            green : iStebber.trueColor[1],
+            blue : iStebber.trueColor[2],
             id : iStebber.id
         };
 

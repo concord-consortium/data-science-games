@@ -28,6 +28,7 @@
 /* global steb, $, console */
 
 steb.options = {
+    useStripes : true,
     backgroundCrud : true,
     delayReproduction : false,
     reducedMutation : false,
@@ -286,6 +287,7 @@ steb.options = {
 
     setStebOptionsToMatchUI : function() {
 
+        this.useStripes = document.getElementById("useStripes").checked;
         this.backgroundCrud = document.getElementById("backgroundCrud").checked;
         this.fixedInitialStebbers = document.getElementById("fixedInitialStebbers").checked;
         this.fixedInitialBG = document.getElementById("fixedInitialBG").checked;
@@ -310,6 +312,7 @@ steb.options = {
     },
 
     setUIToMatchStebOptions : function() {
+        document.getElementById("useStripes").checked = this.useStripes;
         document.getElementById("backgroundCrud").checked = this.backgroundCrud;
         document.getElementById("fixedInitialStebbers").checked = this.fixedInitialStebbers;
         document.getElementById("fixedInitialBG").checked = this.fixedInitialBG;

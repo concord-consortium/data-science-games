@@ -56,6 +56,10 @@ var StebberView = function( iStebber ) {
         stroke : "transparent"
     });
 
+    //  create the pattern, if necessary
+
+    this.pattern = this.makePatternFromModel(  );        //  its pattern
+
     //  draw the stebber on top.
 
     this.selectionCircle = this.paper.circle(0, 0, 50).attr({
@@ -65,7 +69,7 @@ var StebberView = function( iStebber ) {
     });
 
     //  the fill color depends on how the predator sees. Set in this method:
-    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.stebber.color, 0);   //  NB extra arg, it's the timing
+    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.stebber.trueColor, 0);   //  NB extra arg, it's the timing
 
     //  set up the click handler
 
@@ -75,12 +79,29 @@ var StebberView = function( iStebber ) {
 
 };
 
+StebberView.prototype.makePatternFromModel = function( ) {
+    var tStripCenter = this.stebber.trueDarkStripWidth / 2;
+    var tPathString = "M " + tStripCenter + " 0, " + tStripCenter + " 1";
+    tPathString = "M 2 0 2 1";
+    var p = this.paper.path(tPathString).attr({
+        fill: "none",
+        stroke: "yellow",
+        strokeWidth: 4  //  this.stebber.trueDarkStripWidth
+    });
+    //  var tPat = p.pattern(0, 0, this.stebber.trueDarkStripWith + this.stebber.trueLightStripWidth, 1);
+    var tPat = p.pattern(0, 0, 10, 1);
+
+    return tPat;
+},
+
+
+
 /**
  *  Set the apparent color of this thing.
  *  This is different from in the constructor because we don't pass the time argument
  */
 StebberView.prototype.setMyColor = function() {
-    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.stebber.color);
+    steb.worldView.applyPredatorVisionToObject( this.selectionCircle, this.stebber.trueColor);
 };
 
 /**

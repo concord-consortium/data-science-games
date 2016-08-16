@@ -34,7 +34,7 @@
  * @constructor
  */
 var Stebber = function( iColor, iWhere, iID ) {
-    this.color = iColor ? iColor : [8, 8, 8];
+    this.trueColor = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
     this.caseIDs = [];  //  array of case IDs for this Stebber
@@ -42,7 +42,11 @@ var Stebber = function( iColor, iWhere, iID ) {
     this.colorDistanceToBackground = null;
     this.colorDistanceToCrud = null;
 
-    this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
+    trueLightStripeWidth = 4;
+    trueDarkStripeWidth = 4;
+
+
+        this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
     this.updateColorDistances();    //  todo: do we need this? The view doesn't exist yet, right?
 };
 
@@ -63,13 +67,13 @@ Stebber.prototype.setNewSpeedAndHeading = function() {
 Stebber.prototype.updateColorDistances = function() {
     this.colorDistanceToBackground = steb.color.colorDistance(
         steb.color.getPredatorVisionColor(steb.model.trueBackgroundColor),
-        steb.color.getPredatorVisionColor(this.color)
+        steb.color.getPredatorVisionColor(this.trueColor)
     );
 
     if (steb.options.backgroundCrud) {
         this.colorDistanceToCrud = steb.color.colorDistance(
             steb.color.getPredatorVisionColor(steb.model.meanCrudColor),
-            steb.color.getPredatorVisionColor(this.color)
+            steb.color.getPredatorVisionColor(this.trueColor)
         );
         //  console.log("Stebber.updateColorDistances dCrud = " + this.colorDistanceToCrud.toFixed(3));
     } else {
@@ -135,9 +139,9 @@ Stebber.prototype.dataValues = function() {
 
     //  var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
     return {
-        red : this.color[0],
-        green : this.color[1],
-        blue : this.color[2],
+        red : this.trueColor[0],
+        green : this.trueColor[1],
+        blue : this.trueColor[2],
         id : this.id
     };
 };

@@ -148,9 +148,16 @@ steb.worldView = {
      */
     applyPredatorVisionToObject : function(iThing, iTrueColor, iTime) {
 
+        var tUsePattern = (typeof iThing.pattern !== undefined) && steb.options.useStripes;
+
         if (typeof iTime === 'undefined') { iTime = steb.constants.colorAnimationDuration; }
         var tApparentColor = steb.color.getPredatorVisionColor(iTrueColor);
         var tColorString = steb.makeColorString( tApparentColor );
+
+        if (tUsePattern) {
+            tColorString = iThing.pattern;
+        }
+
         iThing.animate({ fill : tColorString }, iTime);      //  animate the color change
 
     },
