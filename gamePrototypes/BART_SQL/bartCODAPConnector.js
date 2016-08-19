@@ -25,6 +25,7 @@
 
  */
 
+/* global codapHelper, console, bartManager */
 
 /*
 

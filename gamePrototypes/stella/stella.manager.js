@@ -49,12 +49,15 @@ stella.manager = {
      */
     newGame: function () {
 
-        stella.model.newGame();     //  make all the stars etc
+        stella.model.newGame();     //  make all the stars etc. When we have them, "shared" calls whenWeHaveAllTheStars
         this.playing = true;
-        stella.skyView.initialize( );   //  make the sky
 
         this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
         this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
+    },
+
+    whenWeHaveAllTheStars : function() {
+        stella.skyView.initialize( );   //  make the sky
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
         stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab

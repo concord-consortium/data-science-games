@@ -62,15 +62,20 @@ When the user can see a Spectrum, you update a SpectrumView with the new Spectru
 
 /* global ElementalSpectra, Math */
 
-var     stella = {};    //  top level global
+var     stella = {           //  top level global
+
+};
 
 /**
  * Initialze the whole thing.
  */
 stella.initialize = function() {
+
     ElementalSpectra.initialize();  //  read the line data into objects
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
+
+    stella.share.initialize( stella.constants.baseURL );
 
     stella.manager.newGame();   //  will create new stars, etc.
 };
@@ -134,7 +139,10 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version : "001d",
+    version : "001e",
+    baseURL : "http://localhost:8888/dsg/stella.php",   //  alternatively:
+
+
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
     solarMass : 1.989e33,       //  grams

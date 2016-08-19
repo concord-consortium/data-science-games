@@ -237,6 +237,8 @@ stella.skyView = {
      * Called from stella.initialize()
      */
     initialize : function( ) {
+        this.originalViewWidth = Number($("#stellaSkyView").attr("width"));
+
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
         this.paper.clear();
 
@@ -252,6 +254,8 @@ stella.skyView = {
         this.makeBackground();
         this.makeAndInstallStarViews( );  // now make all the star views
         this.makeAndInstallReticles();       //  make the reticle views
+
+        console.log("Done with skyView.initialize()");
     }
 
 };

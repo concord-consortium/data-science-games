@@ -69,41 +69,60 @@ Now the copmpanion, Eta Cassiopeiae B
  * @param iLogAge   log base 10 of the star's age. Will be used to see if it has evolved.
  * @constructor
  */
-var Star = function( iFrustum, iMotion, iLogAge ) {
-    this.caseID = -1;
 
-    var t1 = Math.random();
-    var t2 = (1 - t1) * (1 - t1);
-    this.logMass = (stella.constants.maxStarLogMass - stella.constants.minStarLogMass) * t2 - 1;
+var Star = function( iStarData ) {
+
+    this.logMass = Number(iStarData.logMass);
+    this.logAge = Number(iStarData.logAge);
+    this.id = iStarData.id;
+
+    this.where = {
+        x : Number(iStarData.x),
+        y : Number(iStarData.y),
+        z : Number(iStarData.z)
+    };
+
+    this.pm = {
+        x : stella.pmFromSpeedAndDistance( Number(iStarData.vx), this.where.z),
+        y : stella.pmFromSpeedAndDistance( Number(iStarData.vy), this.where.z),
+        r : Number(iStarData.vz)
+    };
+
+    //  what depends on mass and age...
+
     this.logMainSequenceRadius = (2/3) * this.logMass;
     this.logRadius = this.logMainSequenceRadius;
     this.logLuminosity = 3.5 * this.logMass;
     this.logMainSequenceTemperature = 3.76 + 13/24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
     this.logTemperature = this.logMainSequenceTemperature;      //  start on main sequence
     this.logLifetime = 10 + this.logMass - this.logLuminosity;
-    this.logAge = null;
     this.myGiantIndex = 0;
 
-    var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
-
-    this.where = {
-        x : iFrustum.xMin + Math.random() * iFrustum.width,
-        y : iFrustum.yMin + Math.random() * iFrustum.width,
-        z : Math.pow(tDistanceCubed, 0.333)
-    };
-
-    this.pm = {
-        x : stella.pmFromSpeedAndDistance( TEEUtils.randomNormal( iMotion.x, iMotion.sx), this.where.z),
-        y : stella.pmFromSpeedAndDistance( TEEUtils.randomNormal( iMotion.y, iMotion.sy), this.where.z),
-        r : TEEUtils.randomNormal( iMotion.r, iMotion.sr )
-    };
-
-    this.id = 42;       //  placeholder. Gets set elsewhere.
-    this.logAge = iLogAge;
 
     this.evolve( );     //  old enough to move off the MS?
-    //  this.spectrum = this.setUpSpectrum();
     this.doPhotometry();    //  calculate UBV (etc) magnitudes
+};
+
+Star.prototype.csvLine = function( ) {
+    var o = "";
+    o = this.id + "," + this.logMass + "," + this.logAge + "," +
+            this.where.x + "," + this.where.y + "," + this.where.z + "," +
+            this.vx + "," + this.vy + "," + this.vr;
+
+    return o;
+};
+
+Star.prototype.htmlTableRow = function() {
+    var o = "<tr>";
+    o += "<td>" + this.id + "</td>";
+    o += "<td>" + this.logMass + "</td>";
+    o += "<td>" + this.logAge + "</td>";
+    o += "<td>" + this.mApp.toFixed(2) + "</td>";
+    o += "<td>" + this.myGiantIndex.toFixed(2) + "</td>";
+    o += "<td>" + this.where.z.toFixed(2) + "</td>";
+    o += "</tr>";
+
+    return o;
 };
 
 /**
@@ -311,7 +330,8 @@ var StarView = function( iStar, iPaper ) {
     this.star = iStar;          //  view knows about the model
 
     var tOpacity = 1.0;
-    var tRadius = stella.constants.universeWidth / stella.skyView.magnification / 150;
+    var tRadius = 1;
+    var tDegreesPerPixel = stella.constants.universeWidth / stella.skyView.magnification / stella.skyView.originalViewWidth;
     var tGray = 17;
     var tMagnitudeElbow, tMagnitudeLimit;
 
@@ -351,11 +371,59 @@ var StarView = function( iStar, iPaper ) {
     var tCurrentWhere = iStar.positionAtTime( stella.model.now );
 
     //  actually make the circle! Be sure to reverse the y coordinate.
-    var tCircle = iPaper.circle( tCurrentWhere.x, stella.constants.universeWidth - tCurrentWhere.y, tRadius).attr({
-        fill : tColor,
-        fillOpacity : tOpacity
-    });
 
-    tCircle.dblclick( stella.manager.doubleClickOnAStar );
+    if (tOpacity > 0) {
+        var tRadiusInDegrees = tRadius * tDegreesPerPixel;
+        var tCircle = iPaper.circle(tCurrentWhere.x, stella.constants.universeWidth - tCurrentWhere.y, tRadiusInDegrees ).attr({
+            fill: tColor,
+            fillOpacity: tOpacity
+        });
+        tCircle.dblclick( stella.manager.doubleClickOnAStar );
+    }
 
 };
+
+
+/*      OLD CONSTRUCTOR
+
+ var Star = function( iFrustum, iMotion, iLogAge ) {
+ this.caseID = -1;
+
+ var t1 = Math.random();
+ var t2 = (1 - t1) * (1 - t1);
+ this.logMass = (stella.constants.maxStarLogMass - stella.constants.minStarLogMass) * t2 - 1;
+ this.logMainSequenceRadius = (2/3) * this.logMass;
+ this.logRadius = this.logMainSequenceRadius;
+ this.logLuminosity = 3.5 * this.logMass;
+ this.logMainSequenceTemperature = 3.76 + 13/24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
+ this.logTemperature = this.logMainSequenceTemperature;      //  start on main sequence
+ this.logLifetime = 10 + this.logMass - this.logLuminosity;
+ this.logAge = null;
+ this.myGiantIndex = 0;
+
+ this.vx = TEEUtils.randomNormal( iMotion.x, iMotion.sx);
+ this.vy = TEEUtils.randomNormal( iMotion.y, iMotion.sy);
+ this.vr = TEEUtils.randomNormal( iMotion.r, iMotion.sr);
+
+ var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
+
+ this.where = {
+ x : iFrustum.xMin + Math.random() * iFrustum.width,
+ y : iFrustum.yMin + Math.random() * iFrustum.width,
+ z : Math.pow(tDistanceCubed, 0.333)
+ };
+
+ this.pm = {
+ x : stella.pmFromSpeedAndDistance( this.vx, this.where.z),
+ y : stella.pmFromSpeedAndDistance( this.vy, this.where.z),
+ r : this.vr
+ };
+
+ this.id = 42;       //  placeholder. Gets set elsewhere.
+ this.logAge = iLogAge;
+
+ this.evolve( );     //  old enough to move off the MS?
+ //  this.spectrum = this.setUpSpectrum();
+ this.doPhotometry();    //  calculate UBV (etc) magnitudes
+ };
+ */

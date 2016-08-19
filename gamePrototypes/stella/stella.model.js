@@ -96,13 +96,22 @@ stella.model = {
         return null;
     },
 
+    makeAllStars : function() {
+        stella.share.retrieveStars();
+
+    },
+
+
     /**
      * Actually constructs all the stars.
      * Both field stars and the cluster.
      */
-    makeAllStars : function() {
+    oldMakeAllStars : function() {
 
-    var i, tFrustum, tMotion, tS;
+        this.stars = [];        //  stella.share.retrieveStars();
+
+
+        var i, tFrustum, tMotion, tS;
 
         //  first, miscellaneous stars of middling age
 
@@ -168,6 +177,16 @@ stella.model = {
             this.stars[s].id = "S" + tNumber;
             //  this.stars[s].spectrum.source.id = this.stars[s].id;
         }
+
+        var dText = "";
+
+        this.stars.forEach(
+            function( s ) {
+                dText += s.csvLine() + "<br>";
+            }
+        );
+
+        $("#debugText").html(dText);
     },
 
     /**

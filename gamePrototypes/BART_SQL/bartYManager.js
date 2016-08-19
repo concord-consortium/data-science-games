@@ -23,6 +23,7 @@ limitations under the License.
  * Created by tim on 2/23/16.
  */
 
+/* global $, TEEUtils, console */
 
 var bart = {};
 
@@ -51,7 +52,7 @@ bart.constants = {
         "Wed" : "gold",
         "Thu" : "goldenrod",
         "Fri" : "lightsalmon",
-        "Sat" : "limegreen",
+        "Sat" : "limegreen"
     }
 }
 
@@ -163,12 +164,12 @@ bart.manager = {
                 break;
 
             default:
-                tQuery += " true LIMIT 10"
+                tQuery += " true LIMIT 10";
         }
 
         dataString += "&d0=" + this.queryData.d0 + "&d1=" + this.queryData.d1;
-        if (this.queryData.useHour) dataString += "&h0=" + this.queryData.h0 + "&h1=" + this.queryData.h1;
-        if (this.queryData.useWeekday) dataString += "&dow=" + this.queryData.weekday;
+        if (this.queryData.useHour) {dataString += "&h0=" + this.queryData.h0 + "&h1=" + this.queryData.h1;}
+        if (this.queryData.useWeekday) {dataString += "&dow=" + this.queryData.weekday;}
         dataString += tStationClauseString;
 
 
@@ -311,7 +312,7 @@ bart.manager = {
             var     reorganizedData = {};
             theData.forEach( reorganizeByHour );
 
-            //  now data are reoganized by hour
+            //  now data are reorganized by hour
 
             $("#status").text("Data reorganized.");
 

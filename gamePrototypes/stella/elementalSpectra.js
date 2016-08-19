@@ -52,6 +52,7 @@ var ElementalSpectra = {
         Put the element in stella.model.installDischargeTube()
 
      */
+
     initialize : function() {
         var tSpectrum, tWhat;
 
