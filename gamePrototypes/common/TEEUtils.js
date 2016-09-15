@@ -132,7 +132,35 @@ var     TEEUtils = {
         var tTempDate = new Date(iString + " " + iTimeZoneString);
         var tDay = tTempDate.getDay();      //  day of week, Sunday = 0, etc.
         return tDay;
-    }
+    },
+
+    newtonsMethod : function( iExpression, iStartValue, iTolerance ) {
+        var maxIterations = 10;
+        var nIterations = 0;
+        var xCurrentValue = iStartValue;
+        var delta = iTolerance;   //  using iTolerance for delta x. Good idea??
+
+        var x = xCurrentValue;
+        var yCurrentValue = eval( iExpression );
+
+        while (Math.abs(yCurrentValue) > iTolerance && nIterations < maxIterations) {
+            nIterations += 1;
+            x = xCurrentValue + delta;
+            var yAtXPlusDelta = eval( iExpression );
+            var fPrime = (yAtXPlusDelta - yCurrentValue) / delta;
+
+            if (fPrime !== 0) {
+                var d = -yCurrentValue / fPrime;
+                xCurrentValue += d;
+            } else {
+                xCurrentValue -= delta;     //  kludge in case we're at a peak :)
+            }
+            x = xCurrentValue;
+            yCurrentValue = eval( iExpression );
+        }
+
+        return { success : (nIterations < maxIterations), x : xCurrentValue, y : yCurrentValue , iterations : nIterations};
+    },
 
 };
 
