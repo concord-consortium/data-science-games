@@ -32,7 +32,7 @@ var bartManager;
 bartManager = {
 
     version :  "003",
-    kBaseURL :  "http://localhost:8888/bart/getBARTdata.php",   //  "getBARTdata.php"   //  todo : set to release URL
+    kBaseURL :  "http://localhost:8888/bart/getBARTdata.php",   //  "../php/getBARTdata.php"   //  todo : set to release URL
     kBaseDateString : "Wed Sep 30 2015 00:00:00 GMT-0700 (PDT)",
     baseDate : null,
     dataDateTime : null,

@@ -40,6 +40,7 @@ var dsgSQL = {
     },
 
     doPost : function( iURLString, iCallback ) {
+        console.log("dsgSQL.doPost: " + this.baseURL + "?" + iURLString );
         $.ajax({
             type :  "post",
             url :   this.baseURL,

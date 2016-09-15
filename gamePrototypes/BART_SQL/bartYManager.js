@@ -31,7 +31,7 @@ bart.constants = {
     version :  "002a",
     daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     queryTypes : ["byArrival", "byDeparture", "byRoute", "betweenAny"],
-    kBaseURL :  "http://localhost:8888/bart/getBARTYdata.php",   //  "getBARTYdata.php",   //  todo : set to release URL
+    kBaseURL :  "http://localhost:8888/dsgphp/getBARTYdata.php",   //  "../php/getBARTYdata.php",   //  todo : set to release URL
     kBaseDateString : "2015-04-15",
     kBaseH0 : 8,
     kBaseH1 : 14,
