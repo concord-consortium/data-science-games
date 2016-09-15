@@ -25,7 +25,7 @@
 
  */
 
-/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert  */
+/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert, ElementalSpectra  */
 
 /**
  * Main controller for Stella
@@ -49,14 +49,13 @@ stella.manager = {
      */
     newGame: function () {
 
-        stella.model.newGame();     //  make all the stars etc. When we have them, "shared" calls whenWeHaveAllTheStars
+        ElementalSpectra.initialize();  //  read the line data into objects
+
+        stella.model.newGame();     //  make all the stars etc.
         this.playing = true;
 
         this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
         this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
-    },
-
-    whenWeHaveAllTheStars : function() {
         stella.skyView.initialize( );   //  make the sky
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
@@ -64,6 +63,7 @@ stella.manager = {
         stella.manager.spectrumParametersChanged();     //  reads the UI and sets various variables.
         stella.manager.updateStella();              //  update the screen and text
     },
+
 
     /**
      * Housekeeping. Synchronize things.
@@ -89,7 +89,7 @@ stella.manager = {
         } else {
             this.focusStar = null;
         }
-        stella.model.stellaElapse( stella.constants.time.changePointing );
+        stella.model.stellaElapse( stella.constants.timeRequired.changePointing );
         this.updateStella();
     },
 
@@ -224,7 +224,7 @@ stella.manager = {
 
         if (tSpectrumView.channels.length > 0) {
             stella.connector.emitSpectrum(tChannels, tTitle);
-            stella.model.stellaElapse( stella.constants.time.saveSpectrum );
+            stella.model.stellaElapse( stella.constants.timeRequired.saveSpectrum );
         }
 
         stella.manager.updateStella();
@@ -326,7 +326,7 @@ stella.manager = {
     starResultTypeChanged : function() {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
-        stella.model.stellaElapse( stella.constants.time.changeResultType );
+        stella.model.stellaElapse( stella.constants.timeRequired.changeResultType );
     },
 
     /**
@@ -368,7 +368,7 @@ stella.manager = {
             alert(stella.strings.notPointingAtStarForResults);
         }
 
-        stella.model.stellaElapse(stella.constants.time.saveResult);
+        stella.model.stellaElapse(stella.constants.timeRequired.saveResult);
         stella.manager.updateStella();
     },
 
@@ -386,14 +386,14 @@ stella.manager = {
             type: "pos_x",
             value: tPos.x,
             date: tNow,
-            units: stella.starResults["pos_x"].units
+            units: stella.starResults.pos_x.units
         };
         var tyValues = {
             id: tStar.id,
             type: "pos_y",
             value: tPos.y,
             date: tNow,
-            units: stella.starResults["pos_y"].units
+            units: stella.starResults.pos_y.units
         };
         stella.connector.emitStarResult(txValues, null);
         stella.connector.emitStarResult(tyValues, null);
@@ -401,7 +401,7 @@ stella.manager = {
         var tScore = stella.model.evaluateResult(tyValues);  //  we don't necessarily save all results!
         stella.manager.stellaScore += tScore;
 
-        stella.model.stellaElapse(stella.constants.time.savePositionFromDoubleclick);
+        stella.model.stellaElapse(stella.constants.timeRequired.savePositionFromDoubleclick);
         stella.manager.updateStella();
     },
 
@@ -412,7 +412,7 @@ stella.manager = {
      */
     stellaDoCommand: function (iCommand, iCallback) {
 
-        console.log("stellaDoCommand: ")
+        console.log("stellaDoCommand: ");
         console.log(iCommand);
 
         var tCommandObject = "";

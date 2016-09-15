@@ -88,6 +88,8 @@ var Star = function( iStarData ) {
         r : Number(iStarData.vz)
     };
 
+    this.parallax = (1/this.where.z) * stella.constants.microdegreesPerArcSecond;   //  max in microdegrees
+
     //  what depends on mass and age...
 
     this.logMainSequenceRadius = (2/3) * this.logMass;
@@ -169,14 +171,32 @@ Star.prototype.evolve = function(  ) {
  */
 Star.prototype.positionAtTime = function( iTime ) {
 
-    //  todo: put in parallax
+    var oWhere = {
+        x : this.where.x,
+        y : this.where.y,
+        z : this.where.z
+    };
+
+    //  parallax
+
+    var tParallaxMax = (1/this.where.z) * stella.constants.microdegreesPerArcSecond;
+    var tFracYear = iTime % 1;      //  the fractional part of the year
+
+    var tParallax = this.parallax * Math.cos( tFracYear * 2 * Math.PI);
+
+    if (stella.options.parallax) {
+        oWhere.x += tParallax * 0.000001;       //  because tParallax is in microdegrees
+    }
+
+    //  proper motion
 
     var iDT = iTime - stella.model.epoch;
-    var oWhere = {
-        x : this.where.x + iDT * this.pm.x,
-        y : this.where.y + iDT * this.pm.y,
-        z : this.where.z + iDT * this.pm.r * 1.0e05 / stella.constants.parsec
-    };
+
+    if (stella.options.properMotion) {
+        oWhere.x += iDT * this.pm.x;
+        oWhere.y += iDT * this.pm.y;
+        oWhere.z += iDT * this.pm.r * 1.0e05 / stella.constants.parsec
+    }
 
     return oWhere;
 };

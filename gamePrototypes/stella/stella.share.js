@@ -57,7 +57,7 @@ stella.share = {
             theData.forEach(function (s) {
                 stella.model.stars.push(new Star(s));
             });
-            console.log("All stars read in, in stella.share.retrieveStars (gotStars)");
+            console.log("All " + theData.length + " = " + stella.model.stars.length + " stars read in, in stella.share.retrieveStars (gotStars)");
 
             var dText = "<table><tr><th>id</th><th>logMass</th><th>age</th><th>m</th><th>GI</th><th>dist</th></tr>";
             stella.model.stars.forEach(

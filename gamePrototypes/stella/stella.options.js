@@ -28,13 +28,17 @@
 /* global stella */
 
 stella.options = {
-    tempAffectsWhichLinesArePresent : false,
+    tempAffectsWhichLinesArePresent : true,
+    parallax : true,
+    properMotion : true,
 
     /**
      *  Called whenever user clicks on an option. Sets the internal flags to match the UI.
      */
     optionChange : function() {
         this.tempAffectsWhichLinesArePresent = document.getElementById("tempAffectsWhichLinesArePresent").checked;
+        this.parallax = document.getElementById("parallax").checked;
+        this.properMotion = document.getElementById("properMotion").checked;
 
         stella.manager.updateStella();
     },

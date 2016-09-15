@@ -26,7 +26,7 @@
 
  */
 
-/* global stella, Star, Spectrum, console, ElementalSpectra, alert */
+/* global $, stella, Star, Spectrum, console, ElementalSpectra, alert, TEEUtils */
 
 /**
  * Overarching model class
@@ -96,9 +96,25 @@ stella.model = {
         return null;
     },
 
+    /**
+     * Create all Stars from the initial star data (its own file, raw JSON, thanks, Bill!
+     */
     makeAllStars : function() {
-        stella.share.retrieveStars();
+        //  stella.share.retrieveStars();
+        var dText = "<table><tr><th>id</th><th>logMass</th><th>age</th><th>m</th><th>GI</th><th>dist</th></tr>";
 
+        stella.initialStarData.forEach(
+            function( isd ) {
+                var s = new Star( isd );
+                stella.model.stars.push( s );
+                dText += s.htmlTableRow();
+            }
+        );
+        dText += "</table>";
+
+        $("#debugText").html(dText);
+        console.log("All " + stella.initialStarData.length + " = " + stella.model.stars.length + " stars read in, " +
+            "in stella.model.makeAllStars( )");
     },
 
 
@@ -257,7 +273,6 @@ stella.model = {
         var debugString = "debug";
 
         var guessValue;
-        var trueValue;
         var trueDisplayValue;
         var tMaxDiff;
         var dValue;
@@ -312,6 +327,14 @@ stella.model = {
                 trueDisplayValue = trueValue;
                 guessValue = iValues.value;
                 tMaxDiff = 0.001;
+                break;
+
+            case "parallax":
+                tMaxPoints = 100;        //  could be more; this is temp
+                trueValue = tStar.parallax;
+                trueDisplayValue = trueValue;
+                guessValue = iValues.value;
+                tMaxDiff = 1;
                 break;
 
             default:

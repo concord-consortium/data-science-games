@@ -43,7 +43,7 @@ Views:  .skyView, SpectrumView, StarView (in Star.js)
 
 This game is not a series of games, but rather a single game that continues.
 As of 2016-07-11, the idea is that you will accrue points (money?) doing various tasks,
-and spend them (or just be rewarded) to get new capabilities such as better equipment and automated services.
+and spend them (or just be rewarded) to get new capabilities such as better equipmentViews and automated services.
 
 It would be great, but is beyond the current scope, to share data withing the classroom,
 and possibly to publish.
@@ -71,7 +71,6 @@ var     stella = {           //  top level global
  */
 stella.initialize = function() {
 
-    ElementalSpectra.initialize();  //  read the line data into objects
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
@@ -130,7 +129,7 @@ stella.starResults = {
 stella.strings = {
     notPointingText : "not pointing at a particular star",
     noSkySpectrum : "point at a star to see its spectrum",
-    noLabSpectrum : "set up equipment to see a lab spectrum",
+    noLabSpectrum : "set up equipmentViews to see a lab spectrum",
     notPointingAtStarForResults : "You have to point at a star so we know which star you're reporting on!",
     resultIsWayOff : "Your result is pretty far off. No points. Be sure to check units!"};
 
@@ -139,9 +138,9 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version : "001e",
-    baseURL : "http://localhost:8888/dsg/stella.php",   //  alternatively:
-
+    version : "001f",
+    baseURL : "http://localhost:8888/dsg/stella.php",
+    //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
     bigG : 6.674e-08,           //      big G in cgs
     solarLuminosity : 3.9e33,   //      ergs per second
@@ -151,6 +150,7 @@ stella.constants = {
     msPerDay : 86400000,        //  milliseconds per (Earth) day
     secPerYear : 86400 * 365.24,    //  seconds
 
+    microdegreesPerArcSecond : 1000000/3600 ,    //  like it says
     nStars : 200,
     maxStarLogMass : 1.5,           //  30 solar masses
     minStarLogMass : -1.0,          //  0.1 solar masses
@@ -167,7 +167,7 @@ stella.constants = {
 
     //  Constants for how long things take in game time. Currently in years.
 
-    time : {
+    timeRequired : {
         changePointing : 0.04,
         saveSpectrum : 0.05,
      //   makeLabSpectrum : 0.03,
