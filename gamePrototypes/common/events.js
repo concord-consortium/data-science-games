@@ -41,6 +41,8 @@ function EventDispatcher()
  *    The type of event to listen for
  * @param {Function} listener
  *    The listener that will be called. It will be called like, listener(e:Event)
+ * @param instance
+ *    typically, "this."
  */
 EventDispatcher.prototype.addEventListener = function(type, listener, instance)
 {
