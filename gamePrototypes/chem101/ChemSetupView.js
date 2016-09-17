@@ -26,32 +26,60 @@
  */
 
 
-ChemSetupView = function( iDOMString ) {
+ChemLabSetupView = function (iDOMString, iModel) {
 
-    this.myDOMElement = document.getElementById( iDOMString );
-    this.paper = Snap( this.myDOMElement );
+    this.equipmentModel = iModel;
+    this.myDOMElement = document.getElementById(iDOMString);
+    this.paper = Snap(this.myDOMElement);
     this.myWidth = Number(this.paper.attr("width"));
     this.myHeight = Number(this.paper.attr("height"));
 
     this.backgroundRectangle = this.paper.rect(
         0, 0, this.myWidth, this.myHeight
-    ).attr( {fill : "#dee"});
+    ).attr({fill: "#dee"});
 
     this.equipmentViews = [];
 
+    this.flowIndicator = this.paper.path("M 0 0 ").attr({fill: "orchid"});
 };
 
-ChemSetupView.prototype.updateView = function( ) {
+//  todo: see if this method is really necessary!
+
+ChemLabSetupView.prototype.updateView = function () {
 
     this.equipmentViews.forEach(
-        function( e ) {
+        function (e) {
             e.updateEquipmentView();
         }
     );
 };
 
+ChemLabSetupView.prototype.updateFlowIndicator = function (iFromView, iToView) {
 
-ChemSetupView.prototype.addEquipmentView = function( iEquipView, iX, iY ) {
+    var tXFrom = Number(iFromView.paper.attr("x")) + iFromView.origin.x;
+    var tXTo = Number(iToView.paper.attr("x")) + iToView.origin.x;
+    var tYFrom = Number(iFromView.paper.attr("y")) + iFromView.origin.y / 2,
+        tYTo = Number(iToView.paper.attr("y")) + iToView.origin.y / 2;
+    var tPathString = "M 0 0";
+
+    if (iFromView !== iToView) {
+        console.log("Flow is from " + iFromView.model.label + " to " + iToView.model.label);
+        tPathString = ["M", tXFrom, tYFrom - 20, "L", tXFrom, tYFrom + 20, "L", tXTo, tYTo, "Z"].join(" ");
+        this.flowIndicator.attr({path: tPathString});
+
+    } else if (iToView) {
+        console.log("Flow is into " + iToView.model.label);
+        tPathString = ["M", tXTo - 20, tYTo - 70, "L", tXTo + 20, tYTo - 70, "L", tXTo, tYTo, "Z"].join(" ");
+        this.flowIndicator.attr({path: tPathString});
+
+    } else {
+        this.flowIndicator = this.paper.path("M 0 0");
+    }
+};
+
+ChemLabSetupView.prototype.addEquipmentView = function (iEquipView, iX, iY) {
+
+    iEquipView.parent = this;
 
     this.paper.append(
         iEquipView.paper.attr({
@@ -60,6 +88,6 @@ ChemSetupView.prototype.addEquipmentView = function( iEquipView, iX, iY ) {
         })
     );
 
-    this.equipmentViews.push( iEquipView );
+    this.equipmentViews.push(iEquipView);
     this.updateView();
 };

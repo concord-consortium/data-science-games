@@ -28,9 +28,7 @@
 
 var chem101 = {
 
-    theSetupView : null,
-    theBeaker : null,
-    theBeakerView : null,
+    theChemLabSetupView : null,
 
     constants: {
         glassColor: "#445577",
@@ -39,32 +37,16 @@ var chem101 = {
 
         pixelsPerCentimeter : 10,
 
-        dropsPerML : 12
+        dropsPerML : 12,
+
+        emptyIconURI : "../art/emptyIcon.png"
     },
 
-    updateUI : function( ) {
-        var tBeakerContents = this.theBeaker.contents.toString();
-        $("#beakerContents").html( tBeakerContents );
-    },
-
-    addSalt : function( iGrams ) {
-        this.theBeaker.addSolid( 10, "NaCl" );
-    },
 
     initialize : function( ) {
 
         Chemistry.initialize();
-
-        this.theSetupView = new ChemSetupView( "theSetupView" );
-        this.theBeaker  = new Beaker();
-        this.theBeakerView = new BeakerView( this.theBeaker );
-        this.theBeaker.eventDispatcher.addEventListener(
-            "contentsChanged", this.updateUI, this
-        );
-
-        this.theSetupView.addEquipmentView( this.theBeakerView, 100, 20 );
-
-        this.theBeaker.addFluid("H20", 0 );
+        chem101.manager.initialize();
 
     }
 

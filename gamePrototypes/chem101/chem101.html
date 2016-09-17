@@ -32,6 +32,9 @@ limitations under the License.
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>
+        Chem101
+    </title>
 
     <!--        stylesheets         -->
     <link rel='stylesheet' type='text/css' href='chem101.css'/>
@@ -52,27 +55,44 @@ limitations under the License.
     <script src="ChemSetupView.js" language="JavaScript"></script>
     <script src="Contents.js" language="JavaScript"></script>
     <script src="equipment/Beaker.js" language="JavaScript"></script>
+    <script src="equipment/Equipment.js" language="JavaScript"></script>
     <script src="chem/Reaction.js" language="JavaScript"></script>
     <script src="chem/Chemistry.js" language="JavaScript"></script>
     <script src="chem/chemicals.js" language="JavaScript"></script>
 
 
     <script src="chem101.js" language="JavaScript"></script>
+    <script src="chem101.manager.js" language="JavaScript"></script>
 
-    <title>Chem 101</title>
 </head>
 <body>
 <h1>Chem 101</h1>
 
-<svg id="theSetupView" width="200" height="200"></svg>
+Source:
+<select id="chemSourceSelector" onchange="chem101.manager.sourceChosen()">
+    <option value="H2O" selected>Water</option>
+    <option value="NaCl">Salt</option>
+    <option value="1M HCl">Acid (1M HCl)</option>
+</select>
+
 <br>
-<button id="addFluid" onclick="chem101.theBeaker.addFluid('H20', 25)">add 25mL water</button>
-<button id="addFluid" onclick="chem101.theBeaker.addDrop('H2O')">add one drop</button>
-<button id="addFluid" onclick="chem101.theBeaker.addFluid('1M HCl', 25)">add 1M HCl</button>
-<button id="addSlt" onclick="chem101.addSalt(10)">add 10g salt</button>
+
+<svg id="theChemLabSetupView" width="200" height="200"></svg>
+<br>
+<span id="alterationLabel"></span><br>
+<button id="addSubstance_25" onclick="chem101.manager.moveSubstance(25)">25mL</button>
+<button id="addSubstance_5" onclick="chem101.manager.moveSubstance(5)">5mL</button>
+<button id="addSubstance_1" onclick="chem101.manager.moveSubstance(1)">1mL</button>
 <p id="beakerContents"></p>
 </body>
 
+<ul>
+    <li>Click in a beaker to set it to receive new material.
+    <li>Choose what you want to add from the menu above.
+    <li>Drag from beaker to beaker to set them up for transfer.
+    <li>Click a button to move material in (or from beaker to beaker)
+    <li>Click the <img src="../art/emptyIcon.png" width="8" height="8"/> icon to empty a beaker.</li>
+</ul>
 
 
 <script language="JavaScript">
