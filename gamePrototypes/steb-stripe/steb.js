@@ -90,9 +90,11 @@ steb.constants = {
     crudSPSMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how much Crud varies from its original mean
 
 
+
     defaultBackgroundSPS : [5, 9, 7],
     defaultCrudSPS : [3, 7, 5],
 
+    defaultCrudCornerRadius : 35,
 
     fixedStebberSPSValues : [
         [4, 4, 8],
@@ -112,7 +114,7 @@ steb.constants = {
 
     worldViewBoxSize : 1000.0,  //  size of the coordinate system (viewBox)
 
-    stebberViewSize : 100,       //  100,
+    stebberViewSize : 100,
     crudSize : 100,
 
     maxRotationSpeed : 60,      //  degrees per second

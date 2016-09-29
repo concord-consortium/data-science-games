@@ -47,6 +47,7 @@ steb.model = {
     meals : null,       //  number of meals
     lastStebberNumber : null,
     meanCrudSPS : null,
+    meanCrudCornerRadius : null,
     trueBackgroundSPS : null,
 
 
@@ -118,12 +119,14 @@ steb.model = {
         if (steb.options.fixedInitialBG) {
             this.trueBackgroundSPS = SPS.fromArray( steb.constants.defaultBackgroundSPS );
             this.meanCrudSPS = SPS.fromArray( steb.constants.defaultCrudSPS );
+            this.meanCrudCornerRadius = 25;
         } else {
             this.trueBackgroundSPS = this.inventBackgroundSPS();
             this.meanCrudSPS = steb.options.backgroundCrud ?
                 SPS.mutateSPS(this.trueBackgroundSPS, [-3, -3, -2, 2, 3, 3]) :
                 null;
         }
+
 
         if (steb.options.crudSamePatternAsBackground) {
             this.meanCrudSPS = this.trueBackgroundSPS;
@@ -176,14 +179,16 @@ steb.model = {
                 steb.constants.stebberSPSReducedMutationArray :
                 steb.constants.stebberSPSMutationArray;
             tSPS = SPS.mutateSPS( iParentStebber.SPS, tMute );
+            tCR = iParentStebber.cornerRadius + 5 * Math.random() - 5 * Math.random();  //  corner mutation hack
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
         } else {    //  beginning of the game, no parent
             tSPS = SPS.randomSPS( [1, 2, 3,4,5,6,7,8,9,10,11,12, 13, 14] );
             tWhere = this.randomPlace();
+            tCR = steb.options.crudSameShapeAsStebbers ? steb.constants.defaultCrudCornerRadius : 50 * Math.random();
         }
 
-        var tChildStebber = new Stebber( tSPS, tWhere, this.lastStebberNumber );
+        var tChildStebber = new Stebber( tSPS, tCR, tWhere, this.lastStebberNumber );
         tChildStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
         this.stebbers.push( tChildStebber );            //  we keep the model Stebber in our array
 
@@ -197,9 +202,10 @@ steb.model = {
             this.lastStebberNumber += 1;
             var tValueArray = steb.constants.fixedStebberSPSValues[i];
             var tSPS = SPS.fromArray( tValueArray );
+            var tCR = steb.options.crudSameShapeAsStebbers ? steb.constants.defaultCrudCornerRadius : 50 * Math.random();
 
             tWhere = this.randomPlace();
-            tNewStebber = new Stebber( tSPS, tWhere, this.lastStebberNumber );
+            tNewStebber = new Stebber( tSPS, tCR, tWhere, this.lastStebberNumber );
             tNewStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
             this.stebbers.push( tNewStebber );            //  we keep the model Stebber in our array
         }
@@ -261,8 +267,4 @@ steb.model = {
 
         return tDistance;
     },
-
-
-
-
 };

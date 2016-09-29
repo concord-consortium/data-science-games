@@ -268,10 +268,12 @@ steb.connector = {
                     // The child collection specification:
 
                     attrs: [
-                        {name: "vDark", type: 'numeric', precision: 1,
-                            description: "width of the dark vertical stripe"},
-                        {name: "vLight", type: 'numeric', precision: 1,
-                            description: "width of the light vertical stripe"},
+                        {name: "wDark", type: 'numeric', precision: 1,
+                            description: "width of the dark stripe"},
+                        {name: "wLight", type: 'numeric', precision: 1,
+                            description: "width of the light stripe"},
+                        {name: "cornerR", type: 'numeric', precision: 1,
+                            description: "radius of the corner"},
 
                         {name: "id", type: 'numeric', precision: 0}
 

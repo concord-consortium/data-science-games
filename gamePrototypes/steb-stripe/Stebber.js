@@ -29,12 +29,14 @@
  * Class for Stebbers (model)
  *
  * @param iSPS      its SPS (Stebbins Pattern Specification)
+ * @param iCorner   its corner radius
  * @param iWhere    where is it?
  * @param iID       its internal (serial) ID
  * @constructor
  */
-var Stebber = function (iSPS, iWhere, iID) {
+var Stebber = function (iSPS, iCorner, iWhere, iID) {
     this.SPS = iSPS ? iSPS : new SPS();     //  todo: fix this! :)
+    this.cornerRadius = iCorner;
     this.where = iWhere;
     this.angle = Math.random() * 360.0;
     this.omega = 0.0;
@@ -135,8 +137,9 @@ Stebber.prototype.dataValues = function () {
 
     //  var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
     return {
-        vDark: this.SPS.vDarkStripeWidth,
-        vLight: this.SPS.vLightStripeWidth,
+        wDark: this.SPS.vDarkStripeWidth,
+        wLight: this.SPS.vLightStripeWidth,
+        cornerR : this.cornerRadius,
         id: this.id
     };
 };
