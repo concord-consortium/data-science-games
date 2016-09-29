@@ -192,16 +192,25 @@ var pieChart = {
               });
 
               //    make a label
+
             var tLabelAngle = (tStartingDegree + tEndingDegree) / 2;
               var tLabelRadius = 70;
               var xLabel = tLabelRadius * Math.cos( tLabelAngle * Math.PI / 180.0 );
               var yLabel = tLabelRadius * Math.sin( tLabelAngle * Math.PI / 180.0 );
-              tPaper.text( xLabel, yLabel, iSeg.value).attr(
+              var tLabelText = tPaper.text( xLabel, yLabel, iSeg.value).attr(
                   {
-                      "font-size" : 20
+                      "font-size" : 16,
+                      "font" : "Verdana"
                   }
               );
 
+              var tLength = tLabelText.node.clientWidth;
+              var tHeight = tLabelText.node.clientHeight;
+              tLabelText.attr({
+                  x: xLabel - tLength / 2,
+                  y: yLabel + tHeight / 2
+              }
+              );
 
 
               //    get ready for next iteration
