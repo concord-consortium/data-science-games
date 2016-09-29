@@ -40,21 +40,23 @@ Beaker = function () {
     this.contents = new Contents();     //  object describing contents
 };
 
-Beaker.prototype.doChemistryInContainer = function() {
-    this.contents.update( this.label );
+Beaker.prototype.doChemistryInContainer = function () {
+    console.log("  ");
+    console.log("Pre-Chem: " + this.label + " contains " + this.contents.shortString());
+    this.contents.update(this.label);
     this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
 
-    console.log( "Post-Chem: " + this.label + " contains " + this.contents.shortString());
+    console.log("Post-Chem: " + this.label + " contains " + this.contents.shortString());
 };
 
-Beaker.prototype.setContainerName = function( iName ) {
+Beaker.prototype.setContainerName = function (iName) {
     this.label = iName;
-    this.contents.setMyContainer( this );
+    this.contents.setMyContainer(this);
 };
 
 Beaker.prototype.emptyThisContainer = function () {
     this.contents = new Contents();
-    this.contents.setMyContainer( this );
+    this.contents.setMyContainer(this);
     this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
 };
 
@@ -117,16 +119,17 @@ BeakerView = function (b) {
         y: this.myHeight
     };
 
+    var tInsideGradient = this.paper.gradient("l(0, 0, 1, 0)#cde-#fff-#cde-#9bd");
     this.outside = this.colorBeakerShape(0, chem101.constants.glassColor);
-    this.inside = this.colorBeakerShape(chem101.constants.glassThickness, chem101.constants.glassInterior);
+    this.inside = this.colorBeakerShape(chem101.constants.glassThickness, tInsideGradient); //  chem101.constants.glassInterior);
     this.solid = this.colorBeakerShape(chem101.constants.glassThickness, this.model.contents.solidColor());
     this.fluid = this.colorBeakerShape(chem101.constants.glassThickness, this.model.contents.fluidColor());
-    this.fluidMask = null;
+    this.fluidMask = this.paper.rect(0, 0, 0, 0);
     this.solidMask = null;
 
     this.label = this.paper.text(
         chem101.constants.glassThickness + 2,
-        10, this.model.label).attr({fill: "white", fontFamily: "Monaco", fontSize: 9});
+        10, this.model.label).attr({fill: "#246", fontFamily: "Monaco", fontSize: 9});
 
 
     //  the click shape is ALMOST on top
@@ -134,12 +137,10 @@ BeakerView = function (b) {
     this.clickShape = this.colorBeakerShape(0, "transparent");
 
     this.clickShape.mouseup(function (iEvent) {
-        //  console.log("Mouse up in " + this.model.label)
         chem101.manager.theEquipment.alterFlow("destination", this);
     }.bind(this));
 
     this.clickShape.mousedown(function (iEvent) {
-        //  console.log("Mouse down in " + this.model.label)
         chem101.manager.theEquipment.alterFlow("source", this);
     }.bind(this));
 
@@ -156,16 +157,24 @@ BeakerView.prototype.updateEquipmentView = function () {
     var tFluidDepth = this.model.fluidHeight() * chem101.constants.pixelsPerCentimeter;
     var tSolidDepth = this.model.solidHeight() * chem101.constants.pixelsPerCentimeter;
 
-    this.fluidMask = this.paper.rect(
-        0, this.myHeight - chem101.constants.glassThickness - tSolidDepth - tFluidDepth,
-        this.myWidth, tFluidDepth
-    ).attr({fill: "#fff"});
+    this.solid.attr({fill: this.model.contents.solidColor()});
+    this.fluid.attr({
+        fill: this.model.contents.fluidColor(),
+        opacity: 0.4
+    });
+
+    this.fluidMask.animate({
+        x: 0,
+        y: this.myHeight - chem101.constants.glassThickness - tSolidDepth - tFluidDepth,
+        width: this.myWidth, height: tFluidDepth,
+        fill: "#fff"
+    },250);
     this.fluid.attr({mask: this.fluidMask});
 
     this.solidMask = this.paper.rect(
         0, this.myHeight - chem101.constants.glassThickness - tSolidDepth,
         this.myWidth, tSolidDepth
-    ).attr({fill: "#fff"});
+    ).attr({fill: "#fff"});         //  need #fff for the mask to work for everything
     this.solid.attr({mask: this.solidMask});
 };
 

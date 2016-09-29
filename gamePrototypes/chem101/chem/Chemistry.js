@@ -35,53 +35,50 @@ var Chemistry = {
     updateContents: function (iContents) {
         console.log("--- Chemistry --- START updating " + iContents.shortString());
 
-        var tDissolveReactions = [];
-        var tNonDissolveReactions = [];
+        /*
+            For each reaction, see if the LHS is a single solid present in the contents,
+            i.e., that there is a solid in the Contents that could potentially dissolve.
+            Then totally dissolve that solid, so that everything as aqueous.
+            We'll (re) precipitate everything out later.
+         */
+        var tReactionsUsed = [];
 
         this.reactions.forEach(function (rr) {
-            var tLHSRelevant = false;
-
             //  check if the left hand side is alone, and if these reactants are present
             if (
-                iContents.solids.hasOwnProperty(rr.reactants[0].species) &&
-                rr.reactants.length === 1) {
+                iContents.solids.hasOwnProperty(rr.reactants[0].species) && rr.reactants.length === 1) {
                 if (iContents.solids[rr.reactants[0].species] > 0) {
-                    tLHSRelevant = true;
+                    //  the solid is lited and there's more than zero of it....
+                    tReactionsUsed.push(rr);
+                    Chemistry.forceDissolve(rr, iContents);
                 }
             }
-
-
-            if (tLHSRelevant) {
-                tDissolveReactions.push(rr);
-            } else {
-                tNonDissolveReactions.push(rr);
-            }
-
         });
 
-        var tReactionListString = tDissolveReactions.reduce(function (prev, curr, ix) {
+        var tReactionListString = tReactionsUsed.reduce(function (prev, curr, ix) {
             return prev + " | " + curr.toString();
         }, "");
-        console.log("Dissolve reactions: " + tReactionListString);
-        tDissolveReactions.forEach(function (rr) {
-            Chemistry.dissolve(rr, iContents);
-        });
+        console.log("Dissolve reactions used: " + tReactionListString);
+        console.log("--- Chemistry --- >>eveything is aqueous: " + iContents.shortString());
 
         //  Now go over any remaining reactions in which all "product" species are present
         //  in case they precipitate out
 
+        //  first, get a list of the relevant reactions
+        //  we get a list instead of simply processing in case we decide later
+        //  that you need to address themin some order.
+
         var tPrecipitationReactions = [];
 
-        tNonDissolveReactions.forEach( function(rr) {
+        this.reactions.forEach( function(rr) {
             //  check if all the products on the RHS are present. Assume they are solutes.
 
             var tRHSRelevant = rr.products.reduce(function (iPrev, iCurr) {
-                return iPrev && iContents.solutes.hasOwnProperty(iCurr.species);
+                return iPrev && iContents.solutes.hasOwnProperty(iCurr.species) && iContents.solutes[iCurr.species] > 0;
             }, true);
             if (tRHSRelevant) {
                 tPrecipitationReactions.push(rr);
             }
-
         });
 
 
@@ -90,17 +87,21 @@ var Chemistry = {
         }, "");
         console.log("Precipitation reactions: " + tReactionListString);
         tPrecipitationReactions.forEach(function (rr) {
-            Chemistry.dissolve(rr, iContents);
+            Chemistry.precipitate(rr, iContents);
         });
 
-        console.log("--- Chemistry --- >>DSLV updated " + iContents.shortString());
+        console.log("--- Chemistry ---  DONE with precipitation: " + iContents.shortString());
+
+        //  finally, make sure the water dissociation is correct!
 
         this.dissociateWater(iContents);
-        console.log("--- Chemistry ---  DONE updating " + iContents.shortString());
+        console.log("--- Chemistry ---  DONE with water: " + iContents.shortString());
     },
 
     dissociateWater: function (iContents) {
         if (iContents.massH20 > 0) {
+            console.log("Dissociating water:");
+
             var tHydroniumMolarity = iContents.molarityOfSolute("H3O+");
             var tHydroxylMolarity = iContents.molarityOfSolute("OH-");
             var tSolution;      //  amount to increase the molarity of H3O+
@@ -133,12 +134,33 @@ var Chemistry = {
         }
     },
 
-    dissolve: function (dissolutionReaction, iContents) {   //  iSolidNameString, iContents) {
-        console.log("    dissolving using " + dissolutionReaction);
-
-        var iSolidNameString = dissolutionReaction.reactants[0].species;
+    forceDissolve : function( iReaction, iContents) {
+        var iSolidNameString = iReaction.reactants[0].species;
         var initialMolesOfSolid = iContents.solids[iSolidNameString] || 0;     //  0 if there is not yet any solid
-        var tReactantCoefficient = dissolutionReaction.reactants[0].coefficient;    //  coefficient of left hand side
+        var tReactantCoefficient = iReaction.reactants[0].coefficient;    //  coefficient of left hand side
+
+        iReaction.products.forEach(function (ixProduct) {
+
+            //  how many moles of THIS product are in the solid?
+            var tNewMolesOfThisProduct = initialMolesOfSolid * ixProduct.coefficient / tReactantCoefficient;
+            iContents.addMolesOfSolute(ixProduct.species, tNewMolesOfThisProduct);  //  go ahead and add them in
+        });
+
+        iContents.solids[iSolidNameString] = 0;   //  we've dissolved everything, now we might bring some back...
+    },
+
+    precipitate: function (iReaction, iContents) {   //  iSolidNameString, iContents) {
+        /*
+            We begin calling this knowing that there are no solids present, only solutes.
+            Of course, this gets called for each relevant reaction,
+            so any precipitates might make solids present.
+            As we take stuff out of solution, concentrations will only go down.
+
+         */
+        console.log("    precipitating using " + iReaction);
+
+        var iSolidNameString = iReaction.reactants[0].species;
+        var tSolidCoefficient = iReaction.reactants[0].coefficient;    //  coefficient of left hand side
 
         //  calculate the Ksp required if the entire amount were to dissolve
         //  tMoles is the total number of moles for each species among the products
@@ -147,42 +169,34 @@ var Chemistry = {
         var tFinalProductOfUpdatedConcentrations = 1;
         var tFluidVolume = iContents.fluidVolume();   //  in L, todo: disregarding expansion of H2O solution
 
-        //  begin by putting all product species in solution, as if it were fully dissolved.
-        //  as we do this. we calculate whether it WILL fully dissolve (and we won't solve the equation...)
+        //  begin by calculating whether it WILL fully dissolve (and we won't solve the equation...)
 
-        dissolutionReaction.products.forEach(function (ixProduct) {
-
-            //  how many models of THIS product are in the solid?
-            var tNewMolesOfThisProduct = initialMolesOfSolid * ixProduct.coefficient / tReactantCoefficient;
-
-            //  which makes how many moles altogether?
-            var  tFinalModelsOfThisProduct = tNewMolesOfThisProduct + iContents.solutes[ixProduct.species] || 0;         //  NB: evaluates to zero if the species is not present
-            var tFinalMolarity = (tFinalModelsOfThisProduct / (tFluidVolume));  //  would be moles per liter, if fully dissolved.
+        iReaction.products.forEach(function (ixProduct) {
+            var tFinalMolesOfThisProduct = iContents.solutes[ixProduct.species] || 0;         //  NB: evaluates to zero if the species is not present
+            var tFinalMolarity = (tFinalMolesOfThisProduct / (tFluidVolume));  //  would be moles per liter, if fully dissolved.
             tFinalProductOfUpdatedConcentrations *= Math.pow(tFinalMolarity, ixProduct.coefficient);
-
-            iContents.addMolesOfSolute(ixProduct.species, tNewMolesOfThisProduct);  //  go ahead and add them in
         });
-
-        iContents.solids[iSolidNameString] = 0;   //  we've dissolved everything, now we might bring some back...
 
         //  now all the solutes are in the solution, even if they don't deserve it
 
-        var tFullyDissolves = dissolutionReaction.Ksp > tFinalProductOfUpdatedConcentrations;
+        var tFullyDissolves = iReaction.Ksp > tFinalProductOfUpdatedConcentrations;
 
         if (tFullyDissolves) {     //   and we won't precipitate
             console.log("   " + iSolidNameString + " completely dissolves. Now " + iContents.shortString());
         } else {        //  some precipitate is left
 
-            //  construct an equilibrium expression using the first product species increase as x
-            //  remember this is the increase in MOLARITY
-            //  (so the solution should be negative)
-            //  solve it using Newton's method
+/*
+              construct an equilibrium expression using the first product species increase as x
+              remember this is the increase in MOLARITY
+              (so the solution should be negative)
+              solve it using Newton's method
+*/
 
             var tSpeciesExpressionArray = [];
             var tCoefficientProduct = 1;    //      product of the PRODUCT coefficients, used to find the initial value
             var tCoefficientSum = 0;
 
-            dissolutionReaction.products.forEach(function (p) { //  loop over all the products, put the ions into the contents
+            iReaction.products.forEach(function (p) { //  loop over all the products, put the ions into the contents
                 var tMolarityAlreadyThere = (iContents.solutes[p.species] / tFluidVolume) || 0;
                 var tThisSpeciesExpression = "(" + p.coefficient + "*x + " + tMolarityAlreadyThere + ")";    //  no reactant coefficient, right?
                 for (var i = 0; i < p.coefficient; i++) {
@@ -194,34 +208,37 @@ var Chemistry = {
             var tExpression = tSpeciesExpressionArray.join("*");
             var tInitialValue = 0;  //  - Math.pow(dissolutionReaction.Ksp / tCoefficientProduct, 1 / tCoefficientSum);
 
-            tExpression += " - " + dissolutionReaction.Ksp;
+            tExpression += " - " + iReaction.Ksp;
 
             //  solve the equation using Newton's method
 
-            var newtonResult = TEEUtils.newtonsMethod(tExpression, tInitialValue, dissolutionReaction.Ksp * .00001);  //  todo: should the initial value be the current concentration?
+            var newtonResult = TEEUtils.newtonsMethod(tExpression, tInitialValue, iReaction.Ksp * .00001);  //  todo: should the initial value be the current concentration?
 
             if (newtonResult.success) {
-                console.log("Dissolve: Newton solution of " + tExpression + " = 0 is " + newtonResult.x.toFixed(4) +
+                console.log("Precipitate: Newton solution of " + tExpression + " = 0 is " + newtonResult.x.toFixed(4) +
                     " (" + newtonResult.iterations + " iters)");
+                if (newtonResult.x > 0) {
+                    alert("Precipitate: Positive result from Newton's method. Should be negative.");
+                }
             } else {
-                alert("Newton solution failed in dissolve()");
+                alert("Newton solution failed in precipitate()");
             }
+
             var tAdditionalMolarity = newtonResult.x;
 
-            //  use the result (x) to decrease the amount of precipitate.
-            //  How many moles will be used? tAdditionalMolarity * volume
-            //  todo: deal with the case where the new amount of solute exceeds the amount available,
-            //  todo: (continued) i.e., where the precipitate goes negative.
+/*
+              use the result (x) to decrease the amount of precipitate.
+              How many moles will be used? tAdditionalMolarity * volume
+*/
 
-            iContents.addMolesOfSolid( iSolidNameString, -tAdditionalMolarity * tFluidVolume * tReactantCoefficient)
+            iContents.addMolesOfSolid( iSolidNameString, -tAdditionalMolarity * tFluidVolume * tSolidCoefficient)
 
-            //  use the result (x) to increase the amounts of solutes in the iContents
+            //  use the result (x) to decrease the amounts of solutes in the iContents (x should be negative)
 
-            dissolutionReaction.products.forEach(function (p) { //  loop over all the products, put the ions into the contents
+            iReaction.products.forEach(function (p) { //  loop over all the products, put the ions into the contents
                 iContents.addMolesOfSolute(p.species, tAdditionalMolarity * tFluidVolume * p.coefficient);
             });
         }
-
     },
 
 
