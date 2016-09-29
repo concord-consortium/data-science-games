@@ -28,6 +28,17 @@ limitations under the License.
 
 -->
 
+<!--
+Here is the URL...
+
+http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/chem101/chem101.html
+
+
+local:
+http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/chem101/chem101.html
+
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +69,7 @@ limitations under the License.
     <script src="equipment/Equipment.js" language="JavaScript"></script>
     <script src="chem/Reaction.js" language="JavaScript"></script>
     <script src="chem/Chemistry.js" language="JavaScript"></script>
+    <script src="chem/reactionList.js" language="JavaScript"></script>
     <script src="chem/chemicals.js" language="JavaScript"></script>
 
 
@@ -68,11 +80,14 @@ limitations under the License.
 <body>
 <h1>Chem 101</h1>
 
-Source:
+Add to beaker:
 <select id="chemSourceSelector" onchange="chem101.manager.sourceChosen()">
-    <option value="H2O" selected>Water</option>
-    <option value="NaCl">Salt</option>
-    <option value="1M HCl">Acid (1M HCl)</option>
+    <option value="H2O" selected>water (H2O)</option>
+    <option value="NaCl">salt (NaCl)</option>
+    <option value="KI">potassium iodide (KI)</option>
+    <option value="Pb_NO3_2">Lead nitrate (Pb(NO3)2)</option>
+    <option value="HCl_">acid (1M HCl)</option>
+    <option value="NaOH_">base (1M NaOH)</option>
 </select>
 
 <br>
@@ -80,9 +95,9 @@ Source:
 <svg id="theChemLabSetupView" width="200" height="200"></svg>
 <br>
 <span id="alterationLabel"></span><br>
-<button id="addSubstance_25" onclick="chem101.manager.moveSubstance(25)">25mL</button>
-<button id="addSubstance_5" onclick="chem101.manager.moveSubstance(5)">5mL</button>
-<button id="addSubstance_1" onclick="chem101.manager.moveSubstance(1)">1mL</button>
+<button id="addSubstance_25" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.025)">25mL</button>
+<button id="addSubstance_5" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.005)">5mL</button>
+<button id="addSubstance_1" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.001)">1mL</button>
 <p id="beakerContents"></p>
 </body>
 

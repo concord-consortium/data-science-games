@@ -33,43 +33,53 @@ Beaker = function () {
     this.label = "Beaker";
 //      this.equipment = null;
 
-    this.volume = 250;       //  mL
+    this.volume = 0.250;       //  L
     this.diameter = 7;      //  cm
     this.height = 9.5;        //  cm
 
     this.contents = new Contents();     //  object describing contents
 };
 
+Beaker.prototype.doChemistryInContainer = function() {
+    this.contents.update( this.label );
+    this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
 
-Beaker.prototype.addDrop = function () {    //  todo: change in favor of something with a titrant. Use a Buret.
+    console.log( "Post-Chem: " + this.label + " contains " + this.contents.shortString());
+};
+
+Beaker.prototype.setContainerName = function( iName ) {
+    this.label = iName;
+    this.contents.setMyContainer( this );
+};
+
+Beaker.prototype.emptyThisContainer = function () {
+    this.contents = new Contents();
+    this.contents.setMyContainer( this );
+    this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
+};
+
+Beaker.prototype.addDropToContainer = function () {    //  todo: change in favor of something with a titrant. Use a Buret.
     var tContents = new Contents();
     tContents.addWater(1.0 / chem101.constants.dropsPerML);
-    this.addContents(tContents);
+    this.addContentsToContainer(tContents);
 
 };
 
-Beaker.prototype.empty = function () {
-    this.contents = new Contents();
-    this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
+Beaker.prototype.removeSolutionFromContainer = function (iAmount) {
+    var tRemoved = this.contents.removeSolutionFromContainer(iAmount);
+    this.doChemistryInContainer();
+    return tRemoved;        //  the "Contents" that have been removed
 };
 
-Beaker.prototype.removeSolution = function (iAmount) {
-
-    var tRemoved = this.contents.removeSolution(iAmount);
-    this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
-    return tRemoved;
-};
-
-Beaker.prototype.addContents = function (iContents) {
+Beaker.prototype.addContentsToContainer = function (iContents) {
     this.contents.addAdditionalContents(iContents);
-
-    this.eventDispatcher.dispatchEvent(new Event("contentsChanged"));
+    this.doChemistryInContainer();
 };
 
 
 Beaker.prototype.fluidHeight = function () {
     var tArea = Math.PI * this.diameter / 2 * this.diameter / 2;
-    var tVol = this.contents.fluidVolume();
+    var tVol = this.contents.fluidVolume() * 1000;  //  fluidVolume is in liters. We need ccs here.
     var tDepth = tVol / tArea;
 
     return tDepth;
@@ -77,7 +87,7 @@ Beaker.prototype.fluidHeight = function () {
 
 Beaker.prototype.solidHeight = function () {
     var tArea = Math.PI * this.diameter / 2 * this.diameter / 2;
-    var tVol = this.contents.precipitateInfo().volume;
+    var tVol = this.contents.precipitateInfo().volume;  //  this volume is in cc already.
     var tDepth = tVol / tArea;
 
     return tDepth;
@@ -138,7 +148,7 @@ BeakerView = function (b) {
     this.empty = this.paper.image(chem101.constants.emptyIconURI, this.myWidth - 16, 2);
 
     this.empty.click(function (iEvent) {
-        this.empty();
+        this.emptyThisContainer();
     }.bind(this.model));
 };
 

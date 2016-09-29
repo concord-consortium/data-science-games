@@ -135,7 +135,7 @@ var     TEEUtils = {
     },
 
     newtonsMethod : function( iExpression, iStartValue, iTolerance ) {
-        var maxIterations = 10;
+        var maxIterations = 15;
         var nIterations = 0;
         var xCurrentValue = iStartValue;
         var delta = iTolerance;   //  using iTolerance for delta x. Good idea??
@@ -143,6 +143,8 @@ var     TEEUtils = {
         var x = xCurrentValue;
         var yCurrentValue = eval( iExpression );
 
+        console.log("    ....newton find root of f(x) = " + iExpression);
+        console.log("    ....newton start at x = " + iStartValue + " f(x) = " + yCurrentValue);
         while (Math.abs(yCurrentValue) > iTolerance && nIterations < maxIterations) {
             nIterations += 1;
             x = xCurrentValue + delta;
@@ -157,7 +159,9 @@ var     TEEUtils = {
             }
             x = xCurrentValue;
             yCurrentValue = eval( iExpression );
+            console.log("    ....newton " + nIterations + " f(" + x + ") = " + yCurrentValue);
         }
+        console.log("    ....newton solution x = " + x);
 
         return { success : (nIterations < maxIterations), x : xCurrentValue, y : yCurrentValue , iterations : nIterations};
     },

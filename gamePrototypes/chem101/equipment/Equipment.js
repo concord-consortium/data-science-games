@@ -37,7 +37,7 @@ Equipment = function( iManager, iViewDOMString ) {
 
 Equipment.prototype.addBeaker = function( iLabel, iXPos ) {
     var nBeaker = new Beaker( );
-    nBeaker.label = iLabel;
+    nBeaker.setContainerName( iLabel );
     nBeaker.equipment = this;
 
     nBeaker.eventDispatcher.addEventListener(

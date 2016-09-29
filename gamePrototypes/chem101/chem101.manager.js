@@ -41,6 +41,7 @@ chem101.manager = {
         this.theSourceName = $("#chemSourceSelector").find('option:selected').val();
 
         this.adjustButtonText( 25, this.theSourceName );
+        this.adjustButtonText( 5, this.theSourceName );
         this.adjustButtonText( 1, this.theSourceName );
 
     },
@@ -57,12 +58,16 @@ chem101.manager = {
 
 
         var tElementName = "#addSubstance_" + iAmount;
-        var tUnits = (iWhat === "NaCl") ? "g" : "mL";  //  todo: make true for all solids
+
+        var listedInChemicals = !(Chemistry.chemicals[iWhat] === undefined);
+
+        var tUnits = (listedInChemicals && Chemistry.chemicals[iWhat].type === "solid") ? "g" : "mL";
 
         var tButtonText = "";
 
         if (tToView !== tFromView) {        //  flow form one to another
-            tAlterationText = "Move solution from " + tFromView.model.label + " to " + tToView.model.label
+            tAlterationText = "Move solution from " + tFromView.model.label + " to " + tToView.model.label;
+            tUnits = "mL";  //  all beaker-to-beaker flows are in mL
         } else if (tToView) {
             tAlterationText += "Add " + iWhat + " to " + tToView.model.label;
         }
@@ -72,23 +77,23 @@ chem101.manager = {
 
     },
 
-    moveSubstance: function (iAmount) {
+    moveOrAddSubstanceToAContainer: function (iAmount) {
         //  What container (view)s are we using?
         var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
         var tToView = this.theEquipment.destinationContainerView;
 
         if (!tToView) return;
 
-        var tNewContents = new Contents();
+        var tContentsToBeAdded = new Contents();
 
         if (tToView !== tFromView) {    //  move from one to another
-            tNewContents = tFromView.model.removeSolution( iAmount );
+            tContentsToBeAdded = tFromView.model.removeSolutionFromContainer( iAmount );
 
         } else if (tToView) {   //  just move in to the destination
-            tNewContents.addSubstance(this.theSourceName, iAmount);
+            tContentsToBeAdded.addSubstance(this.theSourceName, iAmount);
         }
 
-        tToView.model.addContents( tNewContents );  //  the beaker (etc) to add to
+        tToView.model.addContentsToContainer( tContentsToBeAdded );  //  the beaker (etc) to add to
     },
 
     initialize: function () {
