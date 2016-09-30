@@ -32,7 +32,7 @@ var chem101 = {
 
     constants: {
         glassColor: "#445577",
-        glassInterior: "#99aacc",
+        glassInterior: "#ace",
         glassThickness: 3,
 
         pixelsPerCentimeter : 10,

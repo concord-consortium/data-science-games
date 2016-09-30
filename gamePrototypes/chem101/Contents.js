@@ -209,7 +209,16 @@ Contents.prototype.precipitateInfo = function () {
 };
 
 Contents.prototype.solidColor = function () {
-    return "white";
+    var tColor = "#fff";
+
+    for (var species in this.solids) {
+        if (this.solids.hasOwnProperty(species) && this.solids[species] > 0) {
+            if (species.color !== "white") {
+                tColor = Chemistry.chemicals[species].color;
+            }
+        }
+    }
+    return tColor;
 };
 
 Contents.prototype.fluidColor = function () {
