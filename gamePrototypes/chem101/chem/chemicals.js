@@ -43,14 +43,14 @@ Chemistry.chemicals = {
         charge: 0
     },
     Hin : {
-        chemicalName : "phenolphthalein",
-        commonName : "phenolphthalein",
-        type: "liquid",
+        chemicalName : "phenolphthalein 1%",
+        commonName : "phenolphthalein 1%",
+        type: "prepared",
         density: 1,         //  solid: 1.277
         molWt : 318.33,
         charge : 0,
         color : function( ipH) {
-            var oColor = "transparent";
+            var oColor = Chemistry.clearColor;
             if (ipH < 0) {
                 oColor = "#FA0000";
             } else if (ipH >= 8.2 && ipH< 12) {

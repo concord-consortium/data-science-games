@@ -158,10 +158,10 @@ BeakerView.prototype.updateEquipmentView = function () {
     var tSolidDepth = this.model.solidHeight() * chem101.constants.pixelsPerCentimeter;
 
     this.solid.attr({fill: this.model.contents.solidColor()});
-    this.fluid.attr({
+    this.fluid.animate({
         fill: this.model.contents.fluidColor(),
-        opacity: 0.4
-    });
+        opacity: (this.model.contents.opaqueFluids ? 1 : 0.4)
+    }, 2000);
 
     this.fluidMask.animate({
         x: 0,

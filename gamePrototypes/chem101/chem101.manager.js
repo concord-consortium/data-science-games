@@ -40,14 +40,15 @@ chem101.manager = {
     sourceChosen: function () {
         this.theSourceName = $("#chemSourceSelector").find('option:selected').val();
 
-        this.adjustButtonText( 25, this.theSourceName );
-        this.adjustButtonText( 5, this.theSourceName );
-        this.adjustButtonText( 1, this.theSourceName );
-        this.adjustButtonText( "drop", this.theSourceName );
+        this.adjustButtonTextAndDisability( 25, this.theSourceName );
+        this.adjustButtonTextAndDisability( 5, this.theSourceName );
+        this.adjustButtonTextAndDisability( 1, this.theSourceName );
+        this.adjustButtonTextAndDisability( "drop", this.theSourceName );
 
     },
 
-    adjustButtonText : function( iAmount, iWhat ) {
+    adjustButtonTextAndDisability : function(iAmount, iWhat ) {
+
 
         //  What container (view)s are we using?
         var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
@@ -58,6 +59,13 @@ chem101.manager = {
         var tAlterationText = "";
 
         var tElementName = "#addSubstance_" + iAmount;
+
+        if (iAmount > 0 && iWhat == "Hin") {
+            $(tElementName).hide();
+        } else {
+            $(tElementName).show();
+        }
+
 
         var listedInChemicals = !(Chemistry.chemicals[iWhat] === undefined);
 

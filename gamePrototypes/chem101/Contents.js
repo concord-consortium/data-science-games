@@ -31,11 +31,13 @@
  */
 Contents = function () {
 
-    this.massH20 = 0;      //   we'll start with emptiness, and only aqueous stuff
+    this.massH2O = 0;      //   we'll start with emptiness, and only aqueous stuff
 
     this.solutes = {};      //  each property's key is the species (string) and the value is the number of MOLES,
                             //  as in { "Na+" : .01 , "SO4--" : .005 }
+    this.swirlies = {};
     this.solids = {}; //  same
+    this.opaqueFluids = false;
     this.myContainer = null;
     this.myContainerName = "<temp>";
 };
@@ -50,7 +52,7 @@ Contents.prototype.molarityOfSolute = function( iWhat ) {
 };
 
 Contents.prototype.pH = function() {
-    if (this.solutes["H3O+"]) {
+    if (this.solutes["H3O+"] > 0) {
         return -Math.log10( this.molarityOfSolute("H3O+"));
     }
     return null;
@@ -65,13 +67,20 @@ Contents.prototype.update = function (iMessage) {
 Contents.prototype.addAdditionalContents = function (iAdditionalContents) {
     console.log("    Combine! Add " + iAdditionalContents.shortString() + " to " + this.myContainerName + ": " + this.shortString());
 
-    this.massH20 += iAdditionalContents.massH20;
+    this.massH2O += iAdditionalContents.massH2O;
 
     //  solutes
 
     for (var additionalSolute in iAdditionalContents.solutes) {
         if (!iAdditionalContents.solutes.hasOwnProperty(additionalSolute)) continue;
         this.addMolesOfSolute(additionalSolute, iAdditionalContents.solutes[additionalSolute]);
+    }
+
+    //  swirlies
+
+    for (var additionalSwirly in iAdditionalContents.swirlies) {
+        if (!iAdditionalContents.swirlies.hasOwnProperty(additionalSwirly)) continue;
+        this.addMolesOfSwirly(additionalSwirly, iAdditionalContents.swirlies[additionalSwirly]);
     }
 
     //  solids
@@ -87,7 +96,11 @@ Contents.prototype.addAdditionalContents = function (iAdditionalContents) {
     //  this.update(this.myContainerName);
 };
 
-
+/**
+ *
+ * @param iWhat     the string representing the sqecies being added (see chemicals.js)
+ * @param iAmount    in liters for liquids (e.g., 0.025) but in grams for solids, so we will convert
+ */
 Contents.prototype.addSubstance = function (iWhat, iAmount) {  //  todo: make this less specific
     var tContents = new Contents();
 
@@ -112,6 +125,12 @@ Contents.prototype.addSubstance = function (iWhat, iAmount) {  //  todo: make th
             tContents.addMolesOfSolute("OH-", tMoles);
             break;
 
+        //  indicators
+        case "Hin":
+            tContents.addWater( iAmount);   //  todo: note that Hin is typicallty in ethanol, not water.
+            var tMoles = 0.0314 * iAmount;  //  molarity for 1% in water.
+            tContents.addMolesOfSolute("Hin", tMoles);
+            break;
         //  salts
 
         case "NaCl":
@@ -136,7 +155,7 @@ Contents.prototype.addSubstance = function (iWhat, iAmount) {  //  todo: make th
 //  "primitive" methods to alter this Contents
 
 Contents.prototype.addWater = function (iAmount) {
-    this.massH20 += iAmount * 1000;     //  iAmount is in liters. mass is in grams
+    this.massH2O += iAmount * 1000;     //  iAmount is in liters. mass is in grams
     this.addMolesOfSolute("H3O+", this.fluidVolume() * Math.sqrt(Chemistry.Kw));
     this.addMolesOfSolute("OH-", this.fluidVolume() * Math.sqrt(Chemistry.Kw) );
 };
@@ -152,6 +171,14 @@ Contents.prototype.addMolesOfSolid = function (iSpecies, iMoles) {
         this.solids[iSpecies] += iMoles;
     } else {
         this.solids[iSpecies] = iMoles;
+    }
+};
+Contents.prototype.addMolesOfSwirly = function (iSpecies, iMoles) {
+
+    if (this.swirlies.hasOwnProperty(iSpecies)) {
+        this.swirlies[iSpecies] += iMoles;
+    } else {
+        this.swirlies[iSpecies] = iMoles;
     }
 };
 
@@ -178,8 +205,8 @@ Contents.prototype.removeSolutionFromContainer = function (iAmount) {
     if (iAmount > 0) {
 
         var tFraction = iAmount / this.fluidVolume();
-        tRemoved.massH20 = this.massH20 * tFraction;
-        this.massH20 -= tRemoved.massH20;
+        tRemoved.massH2O = this.massH2O * tFraction;
+        this.massH2O -= tRemoved.massH2O;
 
         for (species in this.solutes) {
             if (!this.solutes.hasOwnProperty(species)) continue;
@@ -187,13 +214,20 @@ Contents.prototype.removeSolutionFromContainer = function (iAmount) {
             tRemoved.addMolesOfSolute(species, tMoles);
             this.solutes[species] -= tMoles;
         }
+
+        for (species in this.swirlies) {
+            if (!this.swirlies.hasOwnProperty(species)) continue;
+            var tMoles = this.swirlies[species] * tFraction;
+            tRemoved.addMolesOfSwirly(species, tMoles);
+            this.swirlies[species] -= tMoles;
+        }
     }
 
     return tRemoved;
 };
 
 Contents.prototype.fluidVolume = function () {
-    return this.massH20 / 1000;   //   In LITERS. for now, just use the water. No expansion due to solutes.
+    return this.massH2O / 1000;   //   In LITERS. for now, just use the water. No expansion due to solutes.
 };
 
 Contents.prototype.precipitateInfo = function () {
@@ -225,7 +259,24 @@ Contents.prototype.solidColor = function () {
 };
 
 Contents.prototype.fluidColor = function () {
-    return "dodgerblue";
+    var oColor = Chemistry.clearColor;
+    var totalAswirl = 0;
+
+    for (aSwirl in this.swirlies) {
+        if (this.swirlies[aSwirl] > 0) {    //  there is stuff swirling around
+            totalAswirl += this.swirlies[aSwirl];
+            oColor = Chemistry.chemicals[aSwirl].color();
+        }
+    }
+    this.opaqueFluids = (totalAswirl > 0);  //  can't see through a precipitate cloud
+
+    //  check for indicator
+    if (!this.opaqueFluids) {
+        if (this.solutes["Hin"]) {
+            oColor = Chemistry.chemicals["Hin"].color(this.pH());
+        }
+    }
+    return oColor;
 };
 
 Contents.smartNumberString = function( iVal ) {
@@ -243,10 +294,12 @@ Contents.smartNumberString = function( iVal ) {
 Contents.prototype.toString = function () {
     var o = "Contents: ";
     var tMoles, species;
-    o += Contents.smartNumberString(this.massH20) + " g H2O ( " + this.fluidVolume().toFixed(4) + " L) ";
+    o += Contents.smartNumberString(this.massH2O) + " g H2O ( " + this.fluidVolume().toFixed(4) + " L) ";
     if (this.pH()) {
         o += "pH : " + this.pH().toFixed(2);
     }
+
+    o += "<br>aqueous: ";
 
     if (Object.keys(this.solutes).length > 0) {
         for (species in this.solutes) {
@@ -255,6 +308,19 @@ Contents.prototype.toString = function () {
             var tMolarity = this.molarityOfSolute( species );
             o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) + " moles " + species +
                 " ( [" + species + "] = " + Contents.smartNumberString(tMolarity) + " )";
+        }
+    }
+    o += "<br>aswirl: ";
+
+    if (Object.keys(this.swirlies).length === 0) {
+        o += "none.";
+    } else {
+        for (species in this.swirlies) {
+            if (!this.swirlies.hasOwnProperty(species)) continue;
+            tMoles = this.swirlies[species];
+            var tGrams = tMoles * Chemistry.chemicals[species].molWt;
+            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) + " moles " + species +
+                " ( " + Contents.smartNumberString(tGrams) + "g )";
         }
     }
 
@@ -277,7 +343,7 @@ Contents.prototype.toString = function () {
 Contents.prototype.shortString = function () {
     var tMoles, species;
     var oArray = [];
-    oArray.push(this.massH20.toFixed(0) + " g H2O");
+    oArray.push(this.massH2O.toFixed(0) + " g H2O");
 
     if (Object.keys(this.solutes).length > 0) {
         for (species in this.solutes) {

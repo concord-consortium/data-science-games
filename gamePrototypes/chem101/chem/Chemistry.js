@@ -29,6 +29,7 @@
 var Chemistry = {
 
     Kw: 1.0e-14,
+    clearColor : 'dodgerblue',
 
     reactions: [],
 
@@ -44,6 +45,10 @@ var Chemistry = {
              We'll (re) precipitate everything out later.
              */
             var tReactionsUsed = [];
+            var tOldSolids = {};
+            for (var iSolid in iContents.solids) {
+                tOldSolids[iSolid] = iContents.solids[ iSolid ];
+            }
 
             this.reactions.forEach(function (rr) {
                 //  check if the left hand side is alone, and if these reactants are present
@@ -92,6 +97,21 @@ var Chemistry = {
                 Chemistry.precipitate(rr, iContents);
             });
 
+            //  now make those swirlies solid which were solid in the first place!
+
+            for (ixSolid in tOldSolids) {
+                if (iContents.swirlies.hasOwnProperty(ixSolid)) {
+                    var aSwirl = iContents.swirlies[ixSolid];
+                    var toSolidify = tOldSolids[ixSolid];
+                    if (tOldSolids[ixSolid] > aSwirl) {
+                        toSolidify = aSwirl;
+                    }
+                    iContents.swirlies[ixSolid] = aSwirl - toSolidify;
+                    iContents.solids[ ixSolid ] = toSolidify;
+
+                }
+            }
+
             console.log("--- Chemistry ---  DONE with precipitation: " + iContents.shortString());
 
             //  finally, make sure the water dissociation is correct!
@@ -102,7 +122,7 @@ var Chemistry = {
     },
 
     dissociateWater: function (iContents) {
-        if (iContents.massH20 > 0) {
+        if (iContents.massH2O > 0) {
             console.log("Dissociating water:");
 
             var tHydroniumMolarity = iContents.molarityOfSolute("H3O+");
@@ -230,11 +250,11 @@ var Chemistry = {
             var tAdditionalMolarity = newtonResult.x;
 
 /*
-              use the result (x) to decrease the amount of precipitate.
+              use the result (x) to increase the amount of precipitate.
               How many moles will be used? tAdditionalMolarity * volume
 */
 
-            iContents.addMolesOfSolid( iSolidNameString, -tAdditionalMolarity * tFluidVolume * tSolidCoefficient)
+            iContents.addMolesOfSwirly( iSolidNameString, -tAdditionalMolarity * tFluidVolume * tSolidCoefficient)
 
             //  use the result (x) to decrease the amounts of solutes in the iContents (x should be negative)
 
