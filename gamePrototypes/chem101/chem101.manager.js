@@ -43,6 +43,7 @@ chem101.manager = {
         this.adjustButtonText( 25, this.theSourceName );
         this.adjustButtonText( 5, this.theSourceName );
         this.adjustButtonText( 1, this.theSourceName );
+        this.adjustButtonText( "drop", this.theSourceName );
 
     },
 
@@ -56,14 +57,13 @@ chem101.manager = {
 
         var tAlterationText = "";
 
-
         var tElementName = "#addSubstance_" + iAmount;
 
         var listedInChemicals = !(Chemistry.chemicals[iWhat] === undefined);
 
         var tUnits = (listedInChemicals && Chemistry.chemicals[iWhat].type === "solid") ? "g" : "mL";
 
-        var tButtonText = "";
+        var tButtonText =  "";
 
         if (tToView !== tFromView) {        //  flow form one to another
             tAlterationText = "Move solution from " + tFromView.model.label + " to " + tToView.model.label;
@@ -71,13 +71,20 @@ chem101.manager = {
         } else if (tToView) {
             tAlterationText += "Add " + iWhat + " to " + tToView.model.label;
         }
-        tButtonText += iAmount + tUnits;
+        if (iAmount === "drop") {
+            tButtonText = (tUnits === "g" ? "pinch" : "drop");
+        } else {
+            tButtonText = iAmount + tUnits;
+        }
         $(tElementName).html(tButtonText);
         $("#alterationLabel").html(tAlterationText);
 
     },
 
     moveOrAddSubstanceToAContainer: function (iAmount) {
+
+        if (iAmount === 'drop') iAmount = .001 / 12;
+
         //  What container (view)s are we using?
         var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
         var tToView = this.theEquipment.destinationContainerView;

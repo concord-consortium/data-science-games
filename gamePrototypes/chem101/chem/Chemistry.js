@@ -33,68 +33,71 @@ var Chemistry = {
     reactions: [],
 
     updateContents: function (iContents) {
-        console.log("--- Chemistry --- START updating " + iContents.shortString());
 
-        /*
-            For each reaction, see if the LHS is a single solid present in the contents,
-            i.e., that there is a solid in the Contents that could potentially dissolve.
-            Then totally dissolve that solid, so that everything as aqueous.
-            We'll (re) precipitate everything out later.
-         */
-        var tReactionsUsed = [];
+        if (iContents.massH2O > 0) {
+            console.log("--- Chemistry --- START updating " + iContents.shortString());
 
-        this.reactions.forEach(function (rr) {
-            //  check if the left hand side is alone, and if these reactants are present
-            if (
-                iContents.solids.hasOwnProperty(rr.reactants[0].species) && rr.reactants.length === 1) {
-                if (iContents.solids[rr.reactants[0].species] > 0) {
-                    //  the solid is lited and there's more than zero of it....
-                    tReactionsUsed.push(rr);
-                    Chemistry.forceDissolve(rr, iContents);
+            /*
+             For each reaction, see if the LHS is a single solid present in the contents,
+             i.e., that there is a solid in the Contents that could potentially dissolve.
+             Then totally dissolve that solid, so that everything as aqueous.
+             We'll (re) precipitate everything out later.
+             */
+            var tReactionsUsed = [];
+
+            this.reactions.forEach(function (rr) {
+                //  check if the left hand side is alone, and if these reactants are present
+                if (
+                    iContents.solids.hasOwnProperty(rr.reactants[0].species) && rr.reactants.length === 1) {
+                    if (iContents.solids[rr.reactants[0].species] > 0) {
+                        //  the solid is lited and there's more than zero of it....
+                        tReactionsUsed.push(rr);
+                        Chemistry.forceDissolve(rr, iContents);
+                    }
                 }
-            }
-        });
+            });
 
-        var tReactionListString = tReactionsUsed.reduce(function (prev, curr, ix) {
-            return prev + " | " + curr.toString();
-        }, "");
-        console.log("Dissolve reactions used: " + tReactionListString);
-        console.log("--- Chemistry --- >>eveything is aqueous: " + iContents.shortString());
+            var tReactionListString = tReactionsUsed.reduce(function (prev, curr, ix) {
+                return prev + " | " + curr.toString();
+            }, "");
+            console.log("Dissolve reactions used: " + tReactionListString);
+            console.log("--- Chemistry --- >>eveything is aqueous: " + iContents.shortString());
 
-        //  Now go over any remaining reactions in which all "product" species are present
-        //  in case they precipitate out
+            //  Now go over any remaining reactions in which all "product" species are present
+            //  in case they precipitate out
 
-        //  first, get a list of the relevant reactions
-        //  we get a list instead of simply processing in case we decide later
-        //  that you need to address themin some order.
+            //  first, get a list of the relevant reactions
+            //  we get a list instead of simply processing in case we decide later
+            //  that you need to address themin some order.
 
-        var tPrecipitationReactions = [];
+            var tPrecipitationReactions = [];
 
-        this.reactions.forEach( function(rr) {
-            //  check if all the products on the RHS are present. Assume they are solutes.
+            this.reactions.forEach(function (rr) {
+                //  check if all the products on the RHS are present. Assume they are solutes.
 
-            var tRHSRelevant = rr.products.reduce(function (iPrev, iCurr) {
-                return iPrev && iContents.solutes.hasOwnProperty(iCurr.species) && iContents.solutes[iCurr.species] > 0;
-            }, true);
-            if (tRHSRelevant) {
-                tPrecipitationReactions.push(rr);
-            }
-        });
+                var tRHSRelevant = rr.products.reduce(function (iPrev, iCurr) {
+                    return iPrev && iContents.solutes.hasOwnProperty(iCurr.species) && iContents.solutes[iCurr.species] > 0;
+                }, true);
+                if (tRHSRelevant) {
+                    tPrecipitationReactions.push(rr);
+                }
+            });
 
 
-        tReactionListString = tPrecipitationReactions.reduce(function (prev, curr, ix) {
-            return prev + " | " + curr.toString();
-        }, "");
-        console.log("Precipitation reactions: " + tReactionListString);
-        tPrecipitationReactions.forEach(function (rr) {
-            Chemistry.precipitate(rr, iContents);
-        });
+            tReactionListString = tPrecipitationReactions.reduce(function (prev, curr, ix) {
+                return prev + " | " + curr.toString();
+            }, "");
+            console.log("Precipitation reactions: " + tReactionListString);
+            tPrecipitationReactions.forEach(function (rr) {
+                Chemistry.precipitate(rr, iContents);
+            });
 
-        console.log("--- Chemistry ---  DONE with precipitation: " + iContents.shortString());
+            console.log("--- Chemistry ---  DONE with precipitation: " + iContents.shortString());
 
-        //  finally, make sure the water dissociation is correct!
+            //  finally, make sure the water dissociation is correct!
 
-        this.dissociateWater(iContents);
+            this.dissociateWater(iContents);
+        }
         console.log("--- Chemistry ---  DONE with water: " + iContents.shortString());
     },
 

@@ -77,8 +77,11 @@ Contents.prototype.addAdditionalContents = function (iAdditionalContents) {
     //  solids
 
     for (var additionalSolid in iAdditionalContents.solids) {
-        if (!iAdditionalContents.solids.hasOwnProperty(additionalSolid)) continue;
-        this.addMolesOfSolid(additionalSolid, iAdditionalContents.solids[additionalSolid]);
+        if (iAdditionalContents.solids.hasOwnProperty(additionalSolid)) {
+            this.addMolesOfSolid(additionalSolid, iAdditionalContents.solids[additionalSolid]);
+        } else {    //  we are adding wholly new solid
+
+        }
     }
 
     //  this.update(this.myContainerName);
@@ -213,8 +216,8 @@ Contents.prototype.solidColor = function () {
 
     for (var species in this.solids) {
         if (this.solids.hasOwnProperty(species) && this.solids[species] > 0) {
-            if (species.color !== "white") {
-                tColor = Chemistry.chemicals[species].color;
+            if (Chemistry.chemicals[species].color() !== "white") {
+                tColor = Chemistry.chemicals[species].color();
             }
         }
     }
@@ -240,7 +243,7 @@ Contents.smartNumberString = function( iVal ) {
 Contents.prototype.toString = function () {
     var o = "Contents: ";
     var tMoles, species;
-    o += Contents.smartNumberString(this.massH20) + " g H2O ( " + this.fluidVolume() + " L) ";
+    o += Contents.smartNumberString(this.massH20) + " g H2O ( " + this.fluidVolume().toFixed(4) + " L) ";
     if (this.pH()) {
         o += "pH : " + this.pH().toFixed(2);
     }

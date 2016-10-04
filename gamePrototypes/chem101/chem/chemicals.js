@@ -42,6 +42,23 @@ Chemistry.chemicals = {
         molWt: 18,
         charge: 0
     },
+    Hin : {
+        chemicalName : "phenolphthalein",
+        commonName : "phenolphthalein",
+        type: "liquid",
+        density: 1,         //  solid: 1.277
+        molWt : 318.33,
+        charge : 0,
+        color : function( ipH) {
+            var oColor = "transparent";
+            if (ipH < 0) {
+                oColor = "#FA0000";
+            } else if (ipH >= 8.2 && ipH< 12) {
+                oColor = "#F710AA";
+            }
+            return oColor;
+        }
+    },
     HCl_: {
         commonName: "1M hydrochloric acid",
         type: "prepared",        //      at room temperature
@@ -53,7 +70,7 @@ Chemistry.chemicals = {
     NaCl: {
         chemicalName: "sodium chloride",
         commonName: "table salt",
-        color : "white",
+        color : function() { return "white"},
         type : "solid",
         density: 2.165,
         molWt: 58.44,
@@ -61,7 +78,7 @@ Chemistry.chemicals = {
     },
     KI : {
         chemicalName: "potassium iodide",
-        color : "white",
+        color : function() { return "white"},
         type : "solid",
         density: 3.123,
         molWt: 166.0028,
@@ -70,7 +87,7 @@ Chemistry.chemicals = {
     Pb_NO3_2: {
         chemicalName: "lead nitrate",
         type : "solid",
-        color : "white",
+        color : function() { return "white"},
         density: 4.53,
         molWt: 331.2,
         charge: 0
@@ -78,7 +95,7 @@ Chemistry.chemicals = {
     PbCl2: {
         chemicalName: "lead chloride",
         type : "solid",
-        color : "white",
+        color : function() { return "white"},
         density: 5.85,
         molWt: 278.1,
         charge: 0
@@ -86,7 +103,7 @@ Chemistry.chemicals = {
     PbI2: {
         chemicalName: "lead iodide",
         type : "solid",
-        color : "yellow",
+        color : function() { return "yellow"},
         density: 6.16,
         molWt: 461.01,
         charge: 0
