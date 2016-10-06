@@ -63,7 +63,6 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
 
     <!--            our game source         -->
     <script src="../common/events.js" language="JavaScript"></script>
-    <script src="PourControl.js" language="JavaScript"></script>
     <script src="ChemSetupView.js" language="JavaScript"></script>
     <script src="Contents.js" language="JavaScript"></script>
     <script src="equipment/Beaker.js" language="JavaScript"></script>
@@ -74,8 +73,8 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
     <script src="chem/chemicals.js" language="JavaScript"></script>
 
 
-    <script src="chem101.js" language="JavaScript"></script>
-    <script src="chem101.manager.js" language="JavaScript"></script>
+    <script src="chem100.js" language="JavaScript"></script>
+    <script src="chem100.manager.js" language="JavaScript"></script>
 
 </head>
 <body>
@@ -96,16 +95,12 @@ Add to beaker:
 
 <svg id="theChemLabSetupView" width="200" height="200"></svg>
 <br>
-<fieldset>
 <span id="alterationLabel"></span><br>
-    <svg id="pour" height="24" width="80"></svg>
 <button id="addSubstance_25" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.025)">25mL</button>
 <button id="addSubstance_5" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.005)">5mL</button>
 <button id="addSubstance_1" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.001)">1mL</button>
 <button id="addSubstance_drop" onclick="chem101.manager.moveOrAddSubstanceToAContainer('drop')">drop</button>
-</fieldset>
-<button id="newSampleButton" onclick="chem101.manager.getNewSample()">new sample</button>
-<!--<p id="beakerContents"></p>-->
+<p id="beakerContents"></p>
 </body>
 
 <ul>

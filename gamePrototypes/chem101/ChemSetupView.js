@@ -41,6 +41,10 @@ ChemLabSetupView = function (iDOMString, iModel) {
     this.equipmentViews = [];
 
     this.flowIndicator = this.paper.path("M 0 0 ").attr({fill: "orchid"});
+
+    this.paper.mouseup( function(iE) {
+        this.updateFlowIndicator( );
+    }.bind(this));
 };
 
 //  todo: see if this method is really necessary!
@@ -54,26 +58,45 @@ ChemLabSetupView.prototype.updateView = function () {
     );
 };
 
-ChemLabSetupView.prototype.updateFlowIndicator = function (iFromView, iToView) {
+ChemLabSetupView.prototype.updateFlowIndicator = function ( ) {
 
-    var tXFrom = Number(iFromView.paper.attr("x")) + iFromView.origin.x;
-    var tXTo = Number(iToView.paper.attr("x")) + iToView.origin.x;
-    var tYFrom = Number(iFromView.paper.attr("y")) + iFromView.origin.y / 2,
-        tYTo = Number(iToView.paper.attr("y")) + iToView.origin.y / 2;
+    var tFromView = this.equipmentModel.sourceContainerView;    //  || this.equipmentModel.destinationContainerView;
+    var tToView = this.equipmentModel.destinationContainerView;
+    var tXFrom, tYFrom, tXTo, tYTo;
     var tPathString = "M 0 0";
 
-    if (iFromView !== iToView) {
-        console.log("Flow is from " + iFromView.model.label + " to " + iToView.model.label);
-        tPathString = ["M", tXFrom, tYFrom - 20, "L", tXFrom, tYFrom + 20, "L", tXTo, tYTo, "Z"].join(" ");
-        this.flowIndicator.attr({path: tPathString});
+    if (tFromView) {
+         tXFrom = Number(tFromView.paper.attr("x")) + tFromView.origin.x;
+         tYFrom = Number(tFromView.paper.attr("y")) + tFromView.origin.y / 2;
+    }
+    if (tToView) {
+        tXTo = Number(tToView.paper.attr("x")) + tToView.origin.x;
+        tYTo = Number(tToView.paper.attr("y")) + tToView.origin.y / 2;
+    }
 
-    } else if (iToView) {
-        console.log("Flow is into " + iToView.model.label);
-        tPathString = ["M", tXTo - 20, tYTo - 70, "L", tXTo + 20, tYTo - 70, "L", tXTo, tYTo, "Z"].join(" ");
-        this.flowIndicator.attr({path: tPathString});
-
+    if (tToView) {
+        if (tFromView) {
+            if (tToView === tFromView) {
+                console.log("Flow is into " + tToView.model.label);
+                tPathString = ["M", tXTo - 20, tYTo - 70, "L", tXTo + 20, tYTo - 70, "L", tXTo, tYTo, "Z"].join(" ");
+                this.flowIndicator.attr({path: tPathString});
+            } else {
+                console.log("Flow is from " + tFromView.model.label + " to " + tToView.model.label);
+                tPathString = ["M", tXFrom, tYFrom - 20, "L", tXFrom, tYFrom + 20, "L", tXTo, tYTo, "Z"].join(" ");
+                this.flowIndicator.attr({path: tPathString});
+            }
+        } else {    //  no from view, only to
+            console.log("Flow is into " + tToView.model.label);
+            tPathString = ["M", tXTo - 20, tYTo - 70, "L", tXTo + 20, tYTo - 70, "L", tXTo, tYTo, "Z"].join(" ");
+            this.flowIndicator.attr({path: tPathString});
+        }
     } else {
-        this.flowIndicator = this.paper.path("M 0 0");
+        if (tFromView) {    //  drain
+            console.log("Draining " + tFromView.model.label);
+            tPathString = ["M", tXFrom - 20, tYFrom, "L", tXFrom + 20, tYFrom, "L", tXFrom, tYFrom - 70, "Z"].join(" ");
+            this.flowIndicator.attr({path: tPathString});
+
+        }
     }
 };
 

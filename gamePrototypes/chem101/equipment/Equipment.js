@@ -47,29 +47,29 @@ Equipment.prototype.addBeaker = function( iLabel, iXPos ) {
     this.theView.addEquipmentView( tBeakerView, iXPos, 20 );
 
     this.containers.push( nBeaker );
-
+    return nBeaker;
 };
 
 Equipment.prototype.alterFlow = function( iWhichEnd, iWhat ) {
     switch( iWhichEnd ) {
         case "source":
             this.sourceContainerView = iWhat;
+            this.destinationContainerView = null;   //  new for draining
             break;
 
         case "destination":
             this.destinationContainerView = iWhat;
-            this.theView.updateFlowIndicator(this.sourceContainerView || this.destinationContainerView, this.destinationContainerView);
-
-            //  we have to change the (temporary?) button text to reflect transfer versus add
-            chem101.manager.sourceChosen( ); //  todo: remove this violation in favor of perhaps events and notifications.
             break;
     }
+    //  we have to change the (temporary?) button text to reflect transfer versus add [ versus drain]
+    chem101.manager.sourceChosen( ); //  todo: remove this violation in favor of perhaps events and notifications.
+    //  this.theView.updateFlowIndicator(this.sourceContainerView || this.destinationContainerView, this.destinationContainerView);
 };
 
 Equipment.prototype.contentsHTML = function( ) {
     var out = "";
-    this.containers.forEach( function(iCont) {
-        out += "<p><strong>" + iCont.label + "</strong></p>" + iCont.contents.toString();
+    this.containers.forEach( function(ixCont) {
+        out += "<p><strong>" + ixCont.label + "</strong></p>" + ixCont.contents.toString();
     });
     return out;
 };

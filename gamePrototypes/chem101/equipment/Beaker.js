@@ -51,7 +51,7 @@ Beaker.prototype.doChemistryInContainer = function () {
 
 Beaker.prototype.setContainerName = function (iName) {
     this.label = iName;
-    this.contents.setMyContainer(this);
+    this.contents.setMyContainer(this); //  todo: move this. Bad side effect possiblities/
 };
 
 Beaker.prototype.emptyThisContainer = function () {
