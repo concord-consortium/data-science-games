@@ -51,21 +51,21 @@ stella.ui = {
 
         //  spectra labels
 
-        if (stella.manager.skySpectrumView.spectrum) {
-            this.skySpectrumLabel.text(stella.manager.skySpectrumView.toString());
+        if (stella.spectrumManager.skySpectrumView.spectrum) {
+            this.skySpectrumLabel.text(stella.spectrumManager.skySpectrumView.toString());
         } else {
             this.skySpectrumLabel.text(stella.strings.noSkySpectrum);
         }
-        if (stella.manager.labSpectrumView.spectrum) {
-            this.labSpectrumLabel.text(stella.manager.labSpectrumView.toString());
+        if (stella.spectrumManager.labSpectrumView.spectrum) {
+            this.labSpectrumLabel.text(stella.spectrumManager.labSpectrumView.toString());
         } else {
             this.labSpectrumLabel.text(stella.strings.noLabSpectrum);
         }
 
         //  spectra min and max text
 
-        $("#lambdaMin").val( stella.manager.skySpectrumView.lambdaMin.toFixed(1));
-        $("#lambdaMax").val( stella.manager.skySpectrumView.lambdaMax.toFixed(1));
+        $("#lambdaMin").val( stella.spectrumManager.skySpectrumView.lambdaMin.toFixed(1));
+        $("#lambdaMax").val( stella.spectrumManager.skySpectrumView.lambdaMax.toFixed(1));
 
         //  starResult text
 

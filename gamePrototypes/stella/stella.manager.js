@@ -39,9 +39,6 @@ stella.manager = {
     starResultType: null,  //  kind of result. set in newGame()
     starResultValue: null,
 
-    labSpectrumView: null, //  SpectrumView object
-    skySpectrumView: null,
-
 
     /**
      * Called on new game, in this case, on startup
@@ -51,15 +48,14 @@ stella.manager = {
         ElementalSpectra.initialize();  //  read the line data into objects
 
         stella.model.newGame();     //  make all the stars etc.
+        stella.spectrumManager.newGame( );
         this.playing = true;
 
-        this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
-        this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
         stella.skyView.initialize();   //  make the sky
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
         stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
-        stella.manager.spectrumParametersChanged();     //  reads the UI and sets various variables.
+        stella.spectrumManager.spectrumParametersChanged();     //  reads the UI and sets various variables.
         stella.manager.updateStella();              //  update the screen and text
     },
 
@@ -71,7 +67,7 @@ stella.manager = {
     updateStella: function () {
         stella.skyView.pointAtStar(this.focusStar);
         stella.model.skySpectrum = (this.focusStar === null) ? null : this.focusStar.setUpSpectrum();  //  make the spectrum
-        this.displayAllSpectra();
+        stella.spectrumManager.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
 
@@ -172,155 +168,12 @@ stella.manager = {
     },
 
 
-    /*
-     SPECTRA SECTION
 
-     */
-
-    /**
-     * Use has changed something in the spectrum tab.
-     * Make appropriate changes.
-     */
-    spectrumParametersChanged: function () {
-        this.setSpectrogramWavelengthsToTypedValues();       //  read min and max from boxes in the UI
-        this.updateLabSpectrum();
-        stella.manager.updateStella();
-    },
-
-    /**
-     * Actually display both spectra
-     */
-    displayAllSpectra: function () {
-        stella.manager.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
-        stella.manager.labSpectrumView.displaySpectrum(stella.model.labSpectrum);
-    },
-
-    /**
-     * Emit one spectrum's worth of data to CODAP
-     * @param iWhich    "sky" or "lab"
-     */
-    saveSpectrumToCODAP: function (iWhich) {
-
-        var tSpectrum, tTitle, tSpectrumView, tChannels;
-
-        switch (iWhich) {
-            case "sky":
-                tSpectrum = stella.model.skySpectrum;
-                tSpectrumView = stella.manager.skySpectrumView;
-                tChannels = tSpectrumView.zoomChannels;
-                tTitle = stella.manager.focusStar.id;
-                break;
-
-            case "lab":
-                tSpectrum = stella.model.labSpectrum;
-                tSpectrumView = stella.manager.labSpectrumView;
-                tChannels = tSpectrumView.zoomChannels;
-                tTitle = stella.model.labSpectrum.source.shortid;
-                break;
-
-            default:
-        }
-
-        if (tSpectrumView.channels.length > 0) {
-            stella.connector.emitSpectrum(tChannels, tTitle);
-            stella.model.stellaElapse(stella.constants.timeRequired.saveSpectrum);
-        }
-
-        stella.manager.updateStella();
-
-    },
-
-    /**
-     * Decide what kind of lab spectrum we're making, then have it made
-     */
-    updateLabSpectrum: function () {
-        //  first, figure out the Lab spectrum
-        var tSpectrumType = $('input[name=sourceType]:checked').val();
-        stella.model.dischargeTube = $("#dischargeTubeMenu").val();
-
-        if (tSpectrumType === "discharge") {
-            stella.model.installDischargeTube();
-        } else {
-            stella.model.installBlackbody();
-        }
-    },
-
-    /**
-     * Take the numbers in the boxes and use them to set the limits of the spectra
-     */
-    setSpectrogramWavelengthsToTypedValues: function () {
-        var tLMin = Number($("#lambdaMin").val());
-        var tLMax = Number($("#lambdaMax").val());
-
-        this.labSpectrumView.adjustLimits(tLMin, tLMax);
-        this.skySpectrumView.adjustLimits(tLMin, tLMax);
-    },
-
-    /**
-     * Handle a click in the SpectrumView
-     * Change the limits appropriately.
-     * @param e
-     */
-    clickInSpectrum: function (e) {
-        var tSpecView = stella.manager.labSpectrumView; //  todo: maybe make this work on the target, in case the skySpectrumView is of a different dimension
-
-        //  todo: consider whether this can all be avoided with viewBox and making TWO spectrumViews.
-        var uupos = tSpecView.paper.node.createSVGPoint();
-        uupos.x = e.clientX;
-        uupos.y = e.clientY;
-
-        var ctm = e.target.getScreenCTM().inverse();
-
-        if (ctm) {
-            uupos = uupos.matrixTransform(ctm);
-        }
-
-        //  now calculate the wavelength that got clicked.
-
-        var tLambda = 0;
-        var tRange = tSpecView.lambdaMax - tSpecView.lambdaMin; //  range in the zoomed spectrum
-
-        var tFrac = uupos.x / tSpecView.spectrumViewWidth;
-        var tZoomFactor = 0.7;
-
-        if (uupos.y <= tSpecView.mainSpectrumHeight) {
-            var tTotalRange = tSpecView.lambdaMaxPossible - tSpecView.lambdaMinPossible;
-            tLambda = tSpecView.lambdaMinPossible + tFrac * tTotalRange;
-        } else if (uupos.y >= tSpecView.mainSpectrumHeight + tSpecView.interspectrumGap) {
-            tLambda = tSpecView.lambdaMin + tFrac * tRange;
-            if (tLambda < tSpecView.lambdaMin || tLambda > tSpecView.lambdaMax) {
-                tZoomFactor = 1.0;      //      just translate if outside the zoom area
-            }
-        } else {
-            tZoomFactor = 2.0;    //      zoom back out
-            tLambda = (tSpecView.lambdaMax + tSpecView.lambdaMin) / 2;
-        }
-
-        tRange *= tZoomFactor;
-        var tMin = tLambda - tRange / 2;
-        var tMax = tLambda + tRange / 2;
-        tMin = tMin < tSpecView.lambdaMinPossible ? tSpecView.lambdaMinPossible : tMin;
-        tMax = tMax > tSpecView.lambdaMaxPossible ? tSpecView.lambdaMaxPossible : tMax;
-
-        tMin = Math.round(tMin * 10) / 10.0;
-        tMax = Math.round(tMax * 10) / 10.0;
-        if (tMax - tMin < 1.0) {
-            var tMid = (tMax + tMin) / 2;
-            tMax = tMid + 0.5;
-            tMin = tMid - 0.5;
-        }
-
-        stella.manager.labSpectrumView.adjustLimits(tMin, tMax);  //  sets lambdaMin, lambdaMax
-        stella.manager.skySpectrumView.adjustLimits(tMin, tMax);
-        stella.manager.displayAllSpectra();
-
-        stella.manager.updateStella();
-    },
 
     /*      "STAR RESULT" SECTION     */
 
     /**
-     * USer has chosen a different kind of measurement in the menu there
+     * User has chosen a different kind of measurement in the menu there
      */
     starResultTypeChanged: function () {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
@@ -355,6 +208,10 @@ stella.manager = {
         stella.manager.updateStella();
     },
 
+    /*
+        More control actions
+     */
+
     doubleClickOnAStar: function () {
         if (stella.skyView.magnification < 100) {
             return;
@@ -387,23 +244,18 @@ stella.manager = {
         stella.manager.updateStella();
     },
 
-    getAutomaticResult: function () {
+    getStarDataUsingBadge: function () {
         //  use is entitled to an automatic result because of badges,and has requested one.
 
-        var tValue = stella.manager.getAutomaticStarResult();
-        $("#starResultValue").val(tValue);
-        stella.manager.starResultValueChanged();
-
-    },
-
-    getAutomaticStarResult: function () {
-        var out = null;
+        var tValue = null;
         if (stella.manager.focusStar) {
             var tType = stella.manager.starResultType;
             var truth = stella.manager.focusStar.reportTrueValue(tType);
-            out = truth.trueDisplay;
+            tValue = truth.trueDisplay;
         }
-        return out;
+
+        $("#starResultValue").val(tValue);          //  put the value in the box
+        stella.manager.starResultValueChanged();    //  do what we do when someone puts a number in the box
     },
 
     /**
