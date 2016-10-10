@@ -75,7 +75,9 @@ stella.initialize = function () {
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
     stella.player.initialize();
-    stella.share.initialize(stella.constants.baseURL);
+    //  stella.share.initialize(stella.constants.baseURL);
+
+    //  temporary for testing badges
 
     var tFreeBadgeStatus = stella.badges.badgeStatus["temp"];
     tFreeBadgeStatus.level = 2;

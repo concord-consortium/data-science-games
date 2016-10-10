@@ -121,7 +121,7 @@ stella.spectrumManager = {
      * @param e
      */
     clickInSpectrum: function (e) {
-        var tSpecView = stella.manager.labSpectrumView; //  todo: maybe make this work on the target, in case the skySpectrumView is of a different dimension
+        var tSpecView = stella.spectrumManager.labSpectrumView; //  todo: maybe make this work on the target, in case the skySpectrumView is of a different dimension
 
         //  todo: consider whether this can all be avoided with viewBox and making TWO spectrumViews.
         var uupos = tSpecView.paper.node.createSVGPoint();

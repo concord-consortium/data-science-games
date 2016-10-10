@@ -84,19 +84,19 @@ stella.badges = {
             scoreInBadge: 0,       //  total score for all results that have scored
             badgeComponents: [
                 {
-                    description: "low temperature (< 3000 K)",
+                    description: "low temperature (< 3500 K)",
                     points: 0,
                     relevantResult: null,
                     fitsInComponent: function (iResult) {
-                        return (iResult.type === "temp" && iResult.trueDisplayValue < 3000);
+                        return (iResult.type === "temp" && iResult.trueDisplayValue < 3500);
                     }
                 },
                 {
-                    description: "medium temperature (3000 K <= T < 15000 K)",
+                    description: "medium temperature (3500 K <= T < 15000 K)",
                     points: 0,
                     relevantResult: null,
                     fitsInComponent: function (iResult) {
-                        return (iResult.type === "temp" && iResult.trueDisplayValue >= 3000 && iResult.trueDisplayValue < 15000);
+                        return (iResult.type === "temp" && iResult.trueDisplayValue >= 3500 && iResult.trueDisplayValue < 15000);
                     }
                 },
                 {
@@ -123,11 +123,19 @@ stella.badges = {
             scoreInBadge : 0,
             badgeComponents : [
                 {
-                    description: "any radial velocity",
+                    description: "radial velocity > 10",
                     points: 0,
                     relevantResult: null,
                     fitsInComponent: function (iResult) {
-                        return (iResult.type === "vel_r");
+                        return (iResult.type === "vel_r" && iResult.trueDisplayValue > 10);
+                    }
+                },
+                {
+                    description: "negative radial velocity",
+                    points: 0,
+                    relevantResult: null,
+                    fitsInComponent: function (iResult) {
+                        return (iResult.type === "vel_r" && iResult.trueDisplayValue < 0);
                     }
                 }
 

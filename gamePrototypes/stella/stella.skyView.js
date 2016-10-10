@@ -29,7 +29,7 @@
 
 /**
  * Main sky or telescope view, the one with all the stars.
- * Imprtantly, maintains an array of StarViews
+ * Importantly, maintains an array of StarViews
  *
  * @type {{paper: null, backgroundSkyRect: null, starViews: Array, reticleX: null, reticleY: null, magnification: number, baseStrokeWidth: number, pointAtStar: stella.skyView.pointAtStar, pointAtLocation: stella.skyView.pointAtLocation, magnify: stella.skyView.magnify, down: stella.skyView.down, up: stella.skyView.up, move: stella.skyView.move, starFromViewCoordinates: stella.skyView.starFromViewCoordinates, makeBackground: stella.skyView.makeBackground, makeAndInstallStarViews: stella.skyView.makeAndInstallStarViews, makeAndInstallReticles: stella.skyView.makeAndInstallReticles, initialize: stella.skyView.initialize}}
  */
