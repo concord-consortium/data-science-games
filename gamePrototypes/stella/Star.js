@@ -105,6 +105,43 @@ var Star = function( iStarData ) {
     this.doPhotometry();    //  calculate UBV (etc) magnitudes
 };
 
+Star.prototype.reportTrueValue = function( iValueType ) {
+    var out;
+    var outDisplay;
+
+    switch( iValueType ) {
+        case "temp":
+            out = this.logTemperature;
+            break;
+        case "vel_r":
+            out = this.pm.r;
+            break;
+        case "pm_x":
+            out = tStar.pm.x * 1000000;   //      because it's in microdegrees
+            break;
+        case "pm_y":
+            out = tStar.pm.y * 1000000;   //      because it's in microdegrees
+            break;
+        case "pos_x":
+            out = tStar.positionAtTime( stella.model.now).x;
+            break;
+        case "pos_y":
+            out = tStar.positionAtTime( stella.model.now).y;
+            break;
+        case "parallax":
+            out = tStar.parallax;
+            break;
+        default:
+            break;
+    }
+
+    outDisplay = out;
+    if ( iValueType === "temp") {
+        outDisplay = Math.pow( 10, out );
+    }
+    return {trueValue : out, trueDisplay : outDisplay };
+};
+
 Star.prototype.csvLine = function( ) {
     var o = "";
     o = this.id + "," + this.logMass + "," + this.logAge + "," +
@@ -146,6 +183,11 @@ Star.prototype.evolve = function(  ) {
 
         var tMSTemp = Math.pow(10, this.logMainSequenceTemperature);
         var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));
+
+        /*
+        todo: this routine has two random() references. This is a problem as initial (evolved) stars are therefore not the same.
+        */
+
         tCurrentTemp -= 500.0 * Math.random();      //  some variety in giant temperatures.
         this.logTemperature = Math.log10(tCurrentTemp);
         this.logRadius = this.logMainSequenceRadius + 2.0 * (this.logMainSequenceTemperature - this.logTemperature);

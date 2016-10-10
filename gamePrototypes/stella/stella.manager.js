@@ -30,18 +30,17 @@
 /**
  * Main controller for Stella
  *
- * @type {{playing: boolean, focusStar: null, starResultType: null, starResultValue: null, stellaScore: number, labSpectrumView: null, skySpectrumView: null, newGame: stella.manager.newGame, updateStella: stella.manager.updateStella, pointAtStar: stella.manager.pointAtStar, changeMagnificationTo: stella.manager.changeMagnificationTo, runTests: stella.manager.runTests, emitInitialStarsData: stella.manager.emitInitialStarsData, extractFromWithinBrackets: stella.manager.extractFromWithinBrackets, processSelectionFromCODAP: stella.manager.processSelectionFromCODAP, spectrumParametersChanged: stella.manager.spectrumParametersChanged, displayAllSpectra: stella.manager.displayAllSpectra, saveSpectrumToCODAP: stella.manager.saveSpectrumToCODAP, updateLabSpectrum: stella.manager.updateLabSpectrum, setSpectrogramWavelengthsToTypedValues: stella.manager.setSpectrogramWavelengthsToTypedValues, clickInSpectrum: stella.manager.clickInSpectrum, starResultTypeChanged: stella.manager.starResultTypeChanged, starResultValueChanged: stella.manager.starResultValueChanged, saveStarResult: stella.manager.saveStarResult, stellaDoCommand: stella.manager.stellaDoCommand}}
+ * @type {{playing: boolean, focusStar: null, starResultType: null, starResultValue: null, stellaScore: number, labSpectrumView: null, skySpectrumView: null, newGame: stella.manager.newGame, updateStella: stella.manager.updateStella, pointAtStar: stella.manager.pointAtStar, changeMagnificationTo: stella.manager.changeMagnificationTo, runTests: stella.manager.runTests, emitInitialStarsData: stella.manager.emitInitialStarsData, extractFromWithinBrackets: stella.manager.extractFromWithinBrackets, processSelectionFromCODAP: stella.manager.processSelectionFromCODAP, spectrumParametersChanged: stella.manager.spectrumParametersChanged, displayAllSpectra: stella.manager.displayAllSpectra, saveSpectrumToCODAP: stella.manager.saveSpectrumToCODAP, updateLabSpectrum: stella.manager.updateLabSpectrum, setSpectrogramWavelengthsToTypedValues: stella.manager.setSpectrogramWavelengthsToTypedValues, clickInSpectrum: stella.manager.clickInSpectrum, starResultTypeChanged: stella.manager.starResultTypeChanged, starResultValueChanged: stella.manager.starResultValueChanged, saveStarResult: stella.manager.saveMyOwnStarResult, stellaDoCommand: stella.manager.stellaDoCommand}}
  */
 stella.manager = {
 
-    playing : false,
-    focusStar : null,       //  what star are we pointing at?
-    starResultType : null,  //  kind of result. set in newGame()
-    starResultValue : null,
-    stellaScore : 0,        //  current "score"
+    playing: false,
+    focusStar: null,       //  what star are we pointing at?
+    starResultType: null,  //  kind of result. set in newGame()
+    starResultValue: null,
 
-    labSpectrumView : null, //  SpectrumView object
-    skySpectrumView : null,
+    labSpectrumView: null, //  SpectrumView object
+    skySpectrumView: null,
 
 
     /**
@@ -56,7 +55,7 @@ stella.manager = {
 
         this.skySpectrumView = new SpectrumView("skySpectrumDisplay");  //  ids of the two SVGs
         this.labSpectrumView = new SpectrumView("labSpectrumDisplay");
-        stella.skyView.initialize( );   //  make the sky
+        stella.skyView.initialize();   //  make the sky
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
         stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
@@ -69,9 +68,9 @@ stella.manager = {
      * Housekeeping. Synchronize things.
      * Often called when the user has changed something.
      */
-    updateStella : function() {
-        stella.skyView.pointAtStar( this.focusStar );
-        stella.model.skySpectrum = (this.focusStar === null) ? null :  this.focusStar.setUpSpectrum();  //  make the spectrum
+    updateStella: function () {
+        stella.skyView.pointAtStar(this.focusStar);
+        stella.model.skySpectrum = (this.focusStar === null) ? null : this.focusStar.setUpSpectrum();  //  make the spectrum
         this.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
@@ -80,16 +79,16 @@ stella.manager = {
      * Point at the given star.
      * @param iStar     The star. Pass `null` to be not pointing at anything.
      */
-    pointAtStar : function( iStar ) {
+    pointAtStar: function (iStar) {
         if (iStar) {
             this.focusStar = iStar;
-            stella.connector.selectStarInCODAPByCatalogID( iStar.caseID );
+            stella.connector.selectStarInCODAPByCatalogID(iStar.caseID);
 
             console.log(this.focusStar);
         } else {
             this.focusStar = null;
         }
-        stella.model.stellaElapse( stella.constants.timeRequired.changePointing );
+        stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
         this.updateStella();
     },
 
@@ -97,9 +96,9 @@ stella.manager = {
      * Change the magnification on the telescope
      * @param iNewMag
      */
-    changeMagnificationTo : function( iNewMag ) {
+    changeMagnificationTo: function (iNewMag) {
 
-        stella.skyView.magnify( iNewMag  );
+        stella.skyView.magnify(iNewMag);
         this.updateStella();    //  this will also point at the focusStar, if any
 
     },
@@ -107,34 +106,34 @@ stella.manager = {
     /**
      * For testing
      */
-    runTests : function() {
+    runTests: function () {
         var tT = "testing\n";
         var d = $("#debugText");
 
         tT = "Stars\nmass, temp, M, mapp, ageMY, x, y, z\n";
 
-        stella.model.stars.forEach( function(iStar ) {
+        stella.model.stars.forEach(function (iStar) {
             tT += iStar.toString() + "\n";
         });
 
-        d.text( tT );       //  sends that data to debug
+        d.text(tT);       //  sends that data to debug
     },
 
     /**
      * Send out the catalog at the beginning of the game.
      */
-    emitInitialStarsData : function() {
+    emitInitialStarsData: function () {
 
-        stella.model.stars.forEach( function( iStar ) {
+        stella.model.stars.forEach(function (iStar) {
             var tValues = iStar.dataValues();
             tValues.date = stella.model.epoch;
-            stella.connector.emitStarCatalogRecord( tValues, starRecordCreated );   //  emit the Stebber part
+            stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the Stebber part
 
-            function starRecordCreated(iResult ) {
+            function starRecordCreated(iResult) {
                 if (iResult.success) {
                     iStar.caseID = iResult.values[0].id;
                 } else {
-                    console.log("Failed to create case for star " + iStar.id );
+                    console.log("Failed to create case for star " + iStar.id);
                 }
             }
         });
@@ -148,8 +147,8 @@ stella.manager = {
      * @param iString
      * @returns {*}
      */
-    extractFromWithinBrackets : function( iString ) {
-        if (iString ) {
+    extractFromWithinBrackets: function (iString) {
+        if (iString) {
             return iString.substring(iString.lastIndexOf("[") + 1, iString.lastIndexOf("]"));
         } else {
             return null;
@@ -160,11 +159,11 @@ stella.manager = {
      * When CODAP tells us there's one selection in the Catalog, point the telescope there.
      * @param iResult
      */
-    processSelectionFromCODAP : function( iResult ) {
+    processSelectionFromCODAP: function (iResult) {
         if (iResult && iResult.success) {
             if (iResult.values.length === 1) {
-                var tStar =  stella.model.starFromCaseID( iResult.values[0].caseID );
-                stella.manager.pointAtStar( tStar );
+                var tStar = stella.model.starFromCaseID(iResult.values[0].caseID);
+                stella.manager.pointAtStar(tStar);
                 stella.manager.updateStella();
             }
         } else {
@@ -174,7 +173,7 @@ stella.manager = {
 
 
     /*
-            SPECTRA SECTION
+     SPECTRA SECTION
 
      */
 
@@ -182,7 +181,7 @@ stella.manager = {
      * Use has changed something in the spectrum tab.
      * Make appropriate changes.
      */
-    spectrumParametersChanged : function() {
+    spectrumParametersChanged: function () {
         this.setSpectrogramWavelengthsToTypedValues();       //  read min and max from boxes in the UI
         this.updateLabSpectrum();
         stella.manager.updateStella();
@@ -191,16 +190,16 @@ stella.manager = {
     /**
      * Actually display both spectra
      */
-    displayAllSpectra : function() {
-        stella.manager.skySpectrumView.displaySpectrum( stella.model.skySpectrum );
-        stella.manager.labSpectrumView.displaySpectrum( stella.model.labSpectrum );
+    displayAllSpectra: function () {
+        stella.manager.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
+        stella.manager.labSpectrumView.displaySpectrum(stella.model.labSpectrum);
     },
 
     /**
      * Emit one spectrum's worth of data to CODAP
      * @param iWhich    "sky" or "lab"
      */
-    saveSpectrumToCODAP : function( iWhich ) {
+    saveSpectrumToCODAP: function (iWhich) {
 
         var tSpectrum, tTitle, tSpectrumView, tChannels;
 
@@ -224,7 +223,7 @@ stella.manager = {
 
         if (tSpectrumView.channels.length > 0) {
             stella.connector.emitSpectrum(tChannels, tTitle);
-            stella.model.stellaElapse( stella.constants.timeRequired.saveSpectrum );
+            stella.model.stellaElapse(stella.constants.timeRequired.saveSpectrum);
         }
 
         stella.manager.updateStella();
@@ -234,27 +233,27 @@ stella.manager = {
     /**
      * Decide what kind of lab spectrum we're making, then have it made
      */
-    updateLabSpectrum : function() {
+    updateLabSpectrum: function () {
         //  first, figure out the Lab spectrum
         var tSpectrumType = $('input[name=sourceType]:checked').val();
         stella.model.dischargeTube = $("#dischargeTubeMenu").val();
 
         if (tSpectrumType === "discharge") {
-            stella.model.installDischargeTube(  );
+            stella.model.installDischargeTube();
         } else {
-            stella.model.installBlackbody(  );
+            stella.model.installBlackbody();
         }
     },
 
     /**
      * Take the numbers in the boxes and use them to set the limits of the spectra
      */
-    setSpectrogramWavelengthsToTypedValues : function() {
+    setSpectrogramWavelengthsToTypedValues: function () {
         var tLMin = Number($("#lambdaMin").val());
         var tLMax = Number($("#lambdaMax").val());
 
-        this.labSpectrumView.adjustLimits( tLMin, tLMax);
-        this.skySpectrumView.adjustLimits( tLMin, tLMax);
+        this.labSpectrumView.adjustLimits(tLMin, tLMax);
+        this.skySpectrumView.adjustLimits(tLMin, tLMax);
     },
 
     /**
@@ -303,36 +302,37 @@ stella.manager = {
         tMin = tMin < tSpecView.lambdaMinPossible ? tSpecView.lambdaMinPossible : tMin;
         tMax = tMax > tSpecView.lambdaMaxPossible ? tSpecView.lambdaMaxPossible : tMax;
 
-        tMin = Math.round(tMin*10)/10.0;
-        tMax = Math.round(tMax*10)/10.0;
+        tMin = Math.round(tMin * 10) / 10.0;
+        tMax = Math.round(tMax * 10) / 10.0;
         if (tMax - tMin < 1.0) {
-            var tMid = (tMax + tMin)/2;
+            var tMid = (tMax + tMin) / 2;
             tMax = tMid + 0.5;
             tMin = tMid - 0.5;
         }
 
-        stella.manager.labSpectrumView.adjustLimits( tMin, tMax );  //  sets lambdaMin, lambdaMax
-        stella.manager.skySpectrumView.adjustLimits( tMin, tMax );
+        stella.manager.labSpectrumView.adjustLimits(tMin, tMax);  //  sets lambdaMin, lambdaMax
+        stella.manager.skySpectrumView.adjustLimits(tMin, tMax);
         stella.manager.displayAllSpectra();
 
         stella.manager.updateStella();
     },
 
-/*      "STAR RESULT" SECTION     */
+    /*      "STAR RESULT" SECTION     */
 
     /**
      * USer has chosen a different kind of measurement in the menu there
      */
-    starResultTypeChanged : function() {
+    starResultTypeChanged: function () {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
-        stella.model.stellaElapse( stella.constants.timeRequired.changeResultType );
+        stella.model.stellaElapse(stella.constants.timeRequired.changeResultType);
+        $("#starResultValue").val("");      //  blank the value on type change
     },
 
     /**
      * User has entered a value
      */
-    starResultValueChanged : function() {
+    starResultValueChanged: function () {
         stella.manager.starResultValue = Number($("#starResultValue").val());
         stella.manager.updateStella();
     },
@@ -340,29 +340,12 @@ stella.manager = {
     /**
      * User has clicked Save for a result.
      */
-    saveStarResult: function (iValues) {
-        var tValues;
+    saveMyOwnStarResult: function (iStarResult) {
         if (stella.manager.focusStar) {
-            if (iValues) {
-                tValues = iValues;
-            } else {
-                tValues = {
-                    id: stella.manager.focusStar.id,
-                    type: stella.manager.starResultType,
-                    value: stella.manager.starResultValue,
-                    date: stella.model.now,
-                    units: stella.starResults[stella.manager.starResultType].units
-                };
-            }
+            var tStarResult = iStarResult;
 
-            var tScore = stella.model.evaluateResult(tValues);  //  we don't necessarily save all results!
-            if (tScore > 0) {
-                tValues.points = tScore;
-                stella.connector.emitStarResult(tValues, null);
-                stella.manager.stellaScore += tScore;
-                alert("Good job! " + stella.manager.starResultValue + " is close enough to get you " + tScore + " points!");
-            } else {
-                alert(stella.strings.resultIsWayOff);
+            if (!iStarResult) {
+                tStarResult = new StarResult(true);     //      here we create the StarResult
             }
         } else {
             alert(stella.strings.notPointingAtStarForResults);
@@ -399,15 +382,31 @@ stella.manager = {
         stella.connector.emitStarResult(tyValues, null);
 
         var tScore = stella.model.evaluateResult(tyValues);  //  we don't necessarily save all results!
-        stella.manager.stellaScore += tScore;
 
         stella.model.stellaElapse(stella.constants.timeRequired.savePositionFromDoubleclick);
         stella.manager.updateStella();
     },
 
+    getAutomaticResult: function () {
+        //  use is entitled to an automatic result because of badges,and has requested one.
 
+        var tValue = stella.manager.getAutomaticStarResult();
+        $("#starResultValue").val(tValue);
+        stella.manager.starResultValueChanged();
 
-/**
+    },
+
+    getAutomaticStarResult: function () {
+        var out = null;
+        if (stella.manager.focusStar) {
+            var tType = stella.manager.starResultType;
+            var truth = stella.manager.focusStar.reportTrueValue(tType);
+            out = truth.trueDisplay;
+        }
+        return out;
+    },
+
+    /**
      * responds to CODAP notifications.
      */
     stellaDoCommand: function (iCommand, iCallback) {
@@ -456,8 +455,8 @@ stella.manager = {
                         var tSaveObject = {
                             success: true,
                             values: {
-                                foo : 3,
-                                bar : "baz"
+                                foo: 3,
+                                bar: "baz"
                             }
                         };
                         codapHelper.sendSaveObject(
@@ -468,7 +467,7 @@ stella.manager = {
                         );
                         break;
                     default:
-                        console.log("stellaDoCommand unknown get command resource: " + iCommand.resource );
+                        console.log("stellaDoCommand unknown get command resource: " + iCommand.resource);
                         break;
                 }
                 break;

@@ -63,15 +63,19 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <script src="../common/snap.svg.js"></script>
 
     <!--            our game source         -->
+    <script src="stella.js" language="JavaScript"></script>
+
     <script src="Line.js" language="JavaScript"></script>
     <script src="Spectrum.js" language="JavaScript"></script>
     <script src="SpectrumView.js" language="JavaScript"></script>
     <script src="Star.js" language="JavaScript"></script>
     <script src="Planet.js" language="JavaScript"></script>cale
     <script src="ElementalSpectra.js" language="JavaScript"></script>
+    <script src="StarResult.js" language="JavaScript"></script>
 
 
-    <script src="stella.js" language="JavaScript"></script>
+    <script src="stella.badges.js" language="JavaScript"></script>
+    <script src="stella.player.js" language="JavaScript"></script>
     <script src="stella.manager.js" language="JavaScript"></script>
     <script src="stella.share.js" language="JavaScript"></script>
     <script src="stella.model.js" language="JavaScript"></script>
@@ -101,7 +105,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <li><a href="#spectraTab">Spectra</a></li>
         <li><a href="#starResultTab">Results</a></li>
         <li><a href="#instructionsTab">How To</a></li>
-        <li><a href="#backgroundTab">About</a></li>
+        <li><a href="#badgesTab">Badges</a></li>
         <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debug</a></li>
     </ul>
@@ -204,17 +208,22 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
 
         <h2 id="starResultHeadline"></h2>
         <p>Choose what type of result you're recording, enter a value, and press <b>save</b></p>
+
         <span id="starResultMenu"></span>
         <input id="starResultValue" type="number" maxlength="15" onblur="stella.manager.starResultValueChanged()"/>
         <span id="starResultUnits"></span>
-        <button id="saveStarResult" onclick="stella.manager.saveStarResult()">save</button>
+        <button id="saveStarResult" onclick="stella.manager.saveMyOwnStarResult()">save</button>
+        <br>
+        <span id="badgePrivilegeText"></span>
+        <button id="findAutoResult" onclick="stella.manager.getAutomaticResult()">auto</button>
+
 
 
     </div>
 
 
     <div id="instructionsTab">
-        <p>Simple goal for now: get points.</p>
+        <p>Simple goal for now: get points. And badges.</p>
         <p>Click on a star to point at it. Its record will appear in the catalog (if you
             have created the tables).</p>
         <p>Go to the <b>Spectra</b> tab to see and record spectra from the star you're pointing at. You can also create
@@ -229,8 +238,11 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     </div>
 
 
-    <div id="backgroundTab">
-        <p>For now, this is an astronomy "sandbox" in which you get to play with spectra and other things.</p>
+    <!--        BADGES tab      -->
+
+
+    <div id="badgesTab">
+        <p id="badgesHTML"></p>
     </div>
 
 

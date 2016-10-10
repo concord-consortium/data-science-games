@@ -31,7 +31,7 @@ stella.ui = {
 
     fixStellaUITextAndControls : function() {
 
-        var tTimeAndScoreText = "Date " + stella.model.now.toFixed(2) + " • score = " + stella.manager.stellaScore;
+        var tTimeAndScoreText = "Date " + stella.model.now.toFixed(2) + " • score = " + stella.player.stellaScore;
 
         this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 
@@ -68,20 +68,39 @@ stella.ui = {
         $("#lambdaMax").val( stella.manager.skySpectrumView.lambdaMax.toFixed(1));
 
         //  starResult text
+
         var tStarResultHeadText = " ";
+        var tStarResultUnitsText = " ";
+        var tBadgePrivilegeText = "";
 
         if (stella.manager.focusStar === null) {
-            tStarResultHeadText = "Point at a star to record ";
+            tStarResultHeadText = "Point at a star to record results";
         } else {
+            tStarResultUnitsText = stella.starResultTypes[stella.manager.starResultType].units;
+
             tStarResultHeadText = "Results for " + stella.manager.focusStar.id + ": ";
+            tStarResultHeadText += stella.manager.starResultType + " = ";
+            tStarResultHeadText += stella.manager.starResultValue !== null ? stella.manager.starResultValue : "(enter a value)";
+            tStarResultHeadText += " (" + tStarResultUnitsText + ")";
+        }
+        this.starResultHeadline.text( tStarResultHeadText );
+        this.starResultUnits.text(tStarResultUnitsText );
+
+        var tResultType = stella.manager.starResultType;
+        var tLevel = stella.badges.badgeLevelFor( tResultType );
+        if (tLevel > 0)    {   //      we have a badge!
+            tBadgePrivilegeText = "You're level " + tLevel +
+                " for " + tResultType + ", so you can get an automatic value!";
+            this.findAutoResultButton.show();
+        } else {    //  hide the button
+            tBadgePrivilegeText = "You do not have a badge for " + tResultType + ", so you cannot get an automatic value.";
+            this.findAutoResultButton.hide();
         }
 
-        tStarResultHeadText += stella.manager.starResultType + " = ";
-        tStarResultHeadText += stella.manager.starResultValue !== null ? stella.manager.starResultValue : "(enter a value)";
-        tStarResultHeadText += " (" + stella.starResults[stella.manager.starResultType].units + ")";
+        //  badges stuff
 
-        this.starResultHeadline.text( tStarResultHeadText );
-        this.starResultUnits.text( stella.starResults[stella.manager.starResultType].units);
+        this.badgePrivilegeText.html( tBadgePrivilegeText );
+        this.badgesreport.html( stella.badges.toHTML());
     },
 
 
@@ -95,9 +114,9 @@ stella.ui = {
     assembleStarResultMenu: function () {
         var oMenu = '<select  id="starResultTypeMenu" onchange="stella.manager.starResultTypeChanged()">\n';
 
-        for (var m in stella.starResults) {
-            if (stella.starResults.hasOwnProperty(m)) {
-                oMenu += '<option value="' + stella.starResults[m].id + '">' + stella.starResults[m].name + '</option>\n';
+        for (var m in stella.starResultTypes) {
+            if (stella.starResultTypes.hasOwnProperty(m)) {
+                oMenu += '<option value="' + stella.starResultTypes[m].id + '">' + stella.starResultTypes[m].name + '</option>\n';
             }
         }
 
@@ -112,15 +131,23 @@ stella.ui = {
         this.shortStatusField = $("#shortStatus");
         this.pointAtStarInputField = $("#pointAtStar");
 
-        this.labSpectrumLabel = $("#labSpectrumLabel");
-        this.skySpectrumLabel = $("#skySpectrumLabel");
 
+        //  results tab items
 
+        $("#starResultMenu").html( this.assembleStarResultMenu() );
+        this.badgePrivilegeText = $("#badgePrivilegeText");
+        this.findAutoResultButton = $("#findAutoResult");
         this.starResultHeadline = $("#starResultHeadline");
         this.starResultUnits = $("#starResultUnits");
 
-        $("#starResultMenu").html( this.assembleStarResultMenu() );
+        //  badges tab
 
+        this.badgesreport = $("#badgesHTML");
+
+        //  spectra tab
+
+        this.labSpectrumLabel = $("#labSpectrumLabel");
+        this.skySpectrumLabel = $("#skySpectrumLabel");
         this.gainSlider = $('#labSpectrographGainSlider');
         this.labTempSlider = $('#labTempSlider');
 
