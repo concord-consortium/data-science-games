@@ -1,0 +1,89 @@
+<!--
+==========================================================================
+
+ * Created by tim on 9/26/16.
+ 
+ 
+ ==========================================================================
+ reTree.html.html in reTree.
+
+HTML wrapper for ....
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+-->
+
+<!--
+Global
+http://www.eeps.com/dsg/Analysis/reTree.html
+
+or locally,
+http://localhost/~tim/gamePrototypes/reTree/reTree.html
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trees</title>
+
+    <link rel='stylesheet' type='text/css' href='trees.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+    <script src="common/snap.svg.js" language="javascript"></script>
+    <script src="common/events.js" language="javascript"></script>
+
+
+    <script src="Analysis.js" language="javascript"></script>
+    <script src="Tree.js" language="javascript"></script>
+    <script src="reTree.js" language="javascript"></script>
+    <script src="TreePanel.js" language="javascript"></script>
+    <script src="TreeView.js" language="javascript"></script>
+    <script src="NodeView.js" language="javascript"></script>
+    <script src="CorralAttView.js" language="javascript"></script>
+    <script src="DiagnosisView.js" language="javascript"></script>
+
+</head>
+<body>
+
+Dataset: <select id="dataContextSelector" onchange="reTree.changeDataContext();"></select>
+Collec!: <select id="collectionSelector" onchange="reTree.changeCollection();"></select>
+<hr>
+<div id="statusDiv">
+    <span id="statusText">status</span>&nbsp;|&nbsp
+    <span id="resultsText">No results yet</span>
+</div>
+<svg id="treePaper" class="noselect" width="500" height="500">
+</svg>
+
+</body>
+
+<script>
+    window.onload = function () {
+        reTree.initialize();
+    }
+</script>
+</html>
