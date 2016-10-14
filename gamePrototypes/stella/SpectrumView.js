@@ -199,7 +199,7 @@ SpectrumView.prototype.showNoData = function() {
     this.spectrum = null;
     this.channels = [];
     this.zoomChannels = [];
-    this.displayType = SpectrumView.displayTypes[0];
+    this.displayType = "photo";
     this.background = this.paper.rect(0, 0, this.paper.node.clientWidth, this.paper.node.clientHeight).attr({
         fill: "yellow"
     });
@@ -207,15 +207,6 @@ SpectrumView.prototype.showNoData = function() {
 
 };
 
-/**
- * Unused, I think todo: check, and remove is possible
- */
-SpectrumView.prototype.invalidate = function () {
-    this.paper.clear();
-    this.paper.text(20, 15, "press the button to get the spectrum");
-};
-
-SpectrumView.displayTypes = ["photo", "rail"];
 
 /**
  * Get a suitable (hex, string) color to use at a particular wavelength

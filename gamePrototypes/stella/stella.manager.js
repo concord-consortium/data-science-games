@@ -245,7 +245,7 @@ stella.manager = {
     },
 
     getStarDataUsingBadge: function () {
-        //  user is entitled to an automatic result because of badges,and has requested one.
+        //  user is entitled to an automatic result because of badges, and has requested one.
 
         var tValue = null;
         if (stella.manager.focusStar) {
@@ -260,6 +260,7 @@ stella.manager = {
             var tForBox = tValue.toFixed(1);
         }
 
+        //  todo: fix this so that we don't get points, and so that the number isn't in the box afterwards.
         $("#starResultValue").val(tForBox);          //  put the value in the box
         stella.manager.starResultValueChanged();    //  do what we do when someone puts a number in the box
     },
