@@ -208,9 +208,9 @@ stella.ui = {
                 values : 1,
                 step : 1,
                 slide : function(e, ui) {
-                    stella.manager.labSpectrumView.gain = Number( ui.value );
-                    $('#gainDisplay').text(stella.manager.labSpectrumView.gain);
-                    stella.manager.spectrumParametersChanged();
+                    stella.spectrumManager.labSpectrumView.gain = Number( ui.value );
+                    $('#gainDisplay').text(stella.spectrumManager.labSpectrumView.gain);
+                    stella.spectrumManager.spectrumParametersChanged();
                 }
             }
         );
@@ -223,7 +223,7 @@ stella.ui = {
                 slide : function(e, ui) {
                     stella.model.labBlackbodyTemperature = Number( ui.value );
                     $('#labTempDisplay').text(stella.model.labBlackbodyTemperature);
-                    stella.manager.spectrumParametersChanged();
+                    stella.spectrumManager.spectrumParametersChanged();
                 }
             }
         );
