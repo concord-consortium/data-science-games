@@ -245,16 +245,22 @@ stella.manager = {
     },
 
     getStarDataUsingBadge: function () {
-        //  use is entitled to an automatic result because of badges,and has requested one.
+        //  user is entitled to an automatic result because of badges,and has requested one.
 
         var tValue = null;
         if (stella.manager.focusStar) {
             var tType = stella.manager.starResultType;
             var truth = stella.manager.focusStar.reportTrueValue(tType);
-            tValue = truth.trueDisplay;
+            tValue = Number(truth.trueDisplay);
+            var tBadgeLevel = stella.badges.badgeLevelFor( tType );
+            var tProportionalErrors = [0.18, 0.06, 0.02];               //  todo: check these!
+            var tError = tProportionalErrors[ tBadgeLevel ] * tValue;
+
+            tValue += ((Math.random() - Math.random()) * tError);
+            var tForBox = tValue.toFixed(1);
         }
 
-        $("#starResultValue").val(tValue);          //  put the value in the box
+        $("#starResultValue").val(tForBox);          //  put the value in the box
         stella.manager.starResultValueChanged();    //  do what we do when someone puts a number in the box
     },
 

@@ -158,7 +158,6 @@ StarResult.prototype.evaluateResult = function(  ) {
  * Saved results -- objects with keys -- get assembled in .manager.
  * The manager sends them to the connector so they got to CODAP, and to .player so they get stored locally.
  * Results get evaluated for quality in model.evaluateResult();
- * todo: Maybe Results need their own class. Ya think?
  *
  * @type {{temp: {name: string, units: string, id: string}, pm_x: {id: string, name: string, units: string}, pm_y: {id: string, name: string, units: string}, parallax: {id: string, name: string, units: string}, vel_r: {id: string, name: string, units: string}}}
  */

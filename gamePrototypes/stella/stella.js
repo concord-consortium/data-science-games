@@ -106,7 +106,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001f",
+    version: "001g",
     baseURL: "http://localhost:8888/dsg/stella.php",
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
