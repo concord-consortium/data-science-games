@@ -129,8 +129,10 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             <input id="pointAtStar" class="textIO" onblur="stella.ui.pointingChangedByTyping( )"/>
         </div>
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(1)">1x</span>&nbsp;
-        <span class="buttonText" onclick="stella.manager.changeMagnificationTo(10)">10x</span>&nbsp;
+        <span class="buttonText" onclick="stella.manager.changeMagnificationTo(5)">5x</span>&nbsp;
+        <span class="buttonText" onclick="stella.manager.changeMagnificationTo(20)">20x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(100)">100x</span>&nbsp;
+        <span class="buttonText" onclick="stella.manager.changeMagnificationTo(10000)">10000x</span>&nbsp;
     </div>
 
 
@@ -210,10 +212,11 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <p>Choose what type of result you're recording, enter a value, and press <b>save</b></p>
 
         <span id="starResultMenu"></span>
-        <input id="starResultValue" type="number" maxlength="15" onblur="stella.manager.starResultValueChanged()"/>
+        <input id="starResultValue" type="number" maxlength="15" onblur="stella.manager.starResultValueChanged( false )"/>
         <span id="starResultUnits"></span>
         <button id="saveStarResult" onclick="stella.manager.saveMyOwnStarResult()">save</button>
         <br>
+        <span id="relevantValuesText"></span><br>
         <span id="badgePrivilegeText"></span>
         <button id="findAutoResult" onclick="stella.manager.getStarDataUsingBadge()">auto</button>
 

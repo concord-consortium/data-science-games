@@ -40,10 +40,6 @@ starMaker = {
 
     update : function() {
 
-        var s;      //  temp string
-
-        s = "star list";
-
         $("#starList").html( this.debugText );
     },
 
@@ -51,18 +47,20 @@ starMaker = {
         this.stars = [];
         this.parsec = 206265 * this.astronomicalUnit; //  must be computed
 
-        this.debugText = (this.oldMakeAllStars());
+        this.debugText = (this.makeAllStars());
         this.update();
     },
 
-    oldMakeAllStars : function() {
+    makeAllStars : function() {
 
-        var tRegularStars = 200;
-        var tClusterStars = 100;
+        var tBackgroundStars = 80;
+        var tFarClusterStars = 80;
+        var tNearStars = 20;
+        var tMidClusterStars = 50;
 
-        var i, tFrustum, tMotion, tS;
+        var i, tFrustum, tMotion, tS, tClusterCenter, tClusterSizeSD;
 
-        //  first, miscellaneous stars of middling age
+        //  first, miscellaneous background stars of middling age
 
         tFrustum = {
             xMin : 0,
@@ -79,44 +77,86 @@ starMaker = {
             r : 5,  sr : 25
         };
 
-        for (i = 0; i < tRegularStars; i++) {
-            tS = new Star( tFrustum, tMotion, 9.0 + 0.5 * Math.random() );
+        for (i = 0; i < tBackgroundStars; i++) {
+            var tWhere =  randomLocationInFrustum( tFrustum );
+            tS = new Star( tWhere, tMotion, 8.8 + 0.5 * Math.random() );
             this.stars.push( tS );
             //  console.log( tS.toString() );
         }
 
-        //  then, stars in a cluster
+        //  close stars. OUR cluster.
 
-
-        tMotion = {             //  motion of the cluster
-            x : 20,  sx : 5,
-            y : 40,  sy : 5,
-            r : 25,  sr : 5
+        tFrustum = {
+            xMin : 0,
+            yMin : 0,
+            width : this.universeWidth,
+            L1 : 0,
+            L2 : this.universeDistance / 12
         };
 
-        var tClusterStarXCBaseFrac = 0.3 + 0.4 * Math.random(); //  center of the cluster
-        var tClusterStarYCBaseFrac = 0.3 + 0.4 * Math.random();
-        var tClusterHalfWidthFrac = 0.1;        //  width of the star position frustum, sort of
+        //  motion parameter for pm and V_rad. Means and SDs.
+        tMotion = {
+            x : 0,  sx : 5,
+            y : 0,  sy : 5,
+            r : 0,  sr : 5
+        };
 
-        for ( i = 0; i < tClusterStars; i++) {
-            var tClusterStarXMIN = TEEUtils.randomNormal(tClusterStarXCBaseFrac, tClusterHalfWidthFrac);
-            var tClusterStarYMIN = TEEUtils.randomNormal(tClusterStarYCBaseFrac, tClusterHalfWidthFrac);
-            tFrustum = {
-                xMin : tClusterStarXMIN * starMaker.universeWidth,   //  0.2 * stella.constants.universeWidth,
-                yMin : tClusterStarYMIN * starMaker.universeWidth,   //  0.4 * stella.constants.universeWidth,
-                width : tClusterHalfWidthFrac * starMaker.universeWidth,
-                L1 : starMaker.universeDistance,
-                L2 : starMaker.universeDistance + 5
-            };
-
-            tS = new Star( tFrustum, tMotion, 7.0 + 0.1 * Math.random() );
+        for (i = 0; i < tNearStars; i++) {
+            var tWhere =  randomLocationInFrustum( tFrustum );
+            tS = new Star( tWhere, tMotion, 9.2 + 0.1 * Math.random() );
             this.stars.push( tS );
         }
 
-        //  Sort the stars by apparent magnitude
+        //  then, stars in the middle cluster
+
+        tMotion = {             //  motion of the cluster
+            x : -20,  sx : 4,
+            y : -2,  sy : 4,
+            r : -5,  sr : 2
+        };
+
+        tClusterCenter = {
+            x : (0.1 + 0.8 * Math.random()) * starMaker.universeWidth,
+            y : (0.1 + 0.8 * Math.random()) * starMaker.universeWidth,
+            z : 30 + (0.1 + 0.8 * Math.random()) * 10       //      between 20 and 30 pc distant
+        };
+
+        tClusterSizeSD = 3;
+
+
+        for ( i = 0; i < tMidClusterStars; i++) {
+            tWhere = randomLocationInCluster( tClusterCenter, tClusterSizeSD );
+            tS = new Star( tWhere, tMotion, 7.8 + 0.1 * Math.random() );
+            this.stars.push( tS );
+        }
+
+        //  then, stars in the far cluster
+
+
+        tMotion = {             //  motion of the cluster
+            x : 20,  sx : 7,
+            y : 40,  sy : 7,
+            r : 25,  sr : 7
+        };
+
+        tClusterCenter = {
+            x : (0.1 + 0.8 * Math.random()) * starMaker.universeWidth,
+            y : (0.1 + 0.8 * Math.random()) * starMaker.universeWidth,
+            z : 90 + Math.random() * 10       //      between 90 and 100 pc distant
+        };
+
+
+        for ( i = 0; i < tFarClusterStars; i++) {
+            tWhere = randomLocationInCluster( tClusterCenter, tClusterSizeSD );
+            tS = new Star( tWhere, tMotion, 6.9 + 0.1 * Math.random() );
+            this.stars.push( tS );
+        }
+
+
+        //  Sort the stars by brightness
 
         this.stars.sort( function(a,b) {
-            return a.mApp - b.mApp;
+            return b.logLuminosity - a.logLuminosity;
         });
 
         //  Now give them ids (text, NOT caseIDs) for the catalog.
@@ -153,7 +193,7 @@ stella.pmFromSpeedAndDistance = function (iSpeed, iDistance) {
     return oPM;
 };
 
-var Star = function( iFrustum, iMotion, iLogAge ) {
+var Star = function( iWhere, iMotion, iLogAge ) {
     this.caseID = -1;
 
     var t1 = Math.random();
@@ -172,13 +212,7 @@ var Star = function( iFrustum, iMotion, iLogAge ) {
     this.vy = TEEUtils.randomNormal( iMotion.y, iMotion.sy);
     this.vr = TEEUtils.randomNormal( iMotion.r, iMotion.sr);
 
-    var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
-
-    this.where = {
-        x : iFrustum.xMin + Math.random() * iFrustum.width,
-        y : iFrustum.yMin + Math.random() * iFrustum.width,
-        z : Math.pow(tDistanceCubed, 0.333)
-    };
+    this.where = iWhere;
 
     this.pm = {
         x : stella.pmFromSpeedAndDistance( this.vx, this.where.z),
@@ -193,6 +227,37 @@ var Star = function( iFrustum, iMotion, iLogAge ) {
     //  this.spectrum = this.setUpSpectrum();
     //  this.doPhotometry();    //  calculate UBV (etc) magnitudes
 };
+
+function    randomLocationInCluster( iCenter, iSize ) {
+    //  remember that x and y are in degrees and that z is in parsecs.
+
+    var xPC, yPC, zPC;   //      coordinates in parsecs
+
+    xPC = iCenter.x * iCenter.z * Math.PI/180.0;        //   CENTER of cluster   5° is about 0.1 radians.
+    xPC += TEEUtils.randomNormal(0, iSize);
+    yPC = iCenter.y * iCenter.z * Math.PI/180.0;        //   CENTER of cluster   5° is about 0.1 radians.
+    yPC += TEEUtils.randomNormal(0, iSize);
+    zPC = iCenter.z + TEEUtils.randomNormal(0, iSize);
+
+    var distance = Math.sqrt( xPC * xPC + yPC * yPC + zPC * zPC);
+    return {
+        x:  (xPC / distance) * 180.0 / Math.PI,
+        y:  (yPC / distance) * 180.0 / Math.PI,
+        z : zPC
+    }
+}
+
+function randomLocationInFrustum(iFrustum)  {
+    var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
+
+    var twhere = {
+        x : iFrustum.xMin + Math.random() * iFrustum.width,
+        y : iFrustum.yMin + Math.random() * iFrustum.width,
+        z : Math.pow(tDistanceCubed, 0.333)
+    };
+
+    return twhere;
+}
 
 Star.prototype.jsonRepresentation = function( ) {
     var j = {};

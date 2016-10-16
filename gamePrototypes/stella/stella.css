@@ -8,6 +8,14 @@ fieldset {
     background-color : #ccccee;
 }
 
+.noPointer {
+    pointer-events: none;
+}
+
+.headsUp {
+    font-size : 12px
+}
+
 .options   {
     background-color: #eca;
     padding: 4px;

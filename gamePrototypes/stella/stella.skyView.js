@@ -38,69 +38,110 @@ stella.skyView = {
     paper : null,
     backgroundSkyRect : null,
     starViews : [],
-    reticleX : null,
-    reticleY : null,
+    reticlePath : null,
+    positionHeadsUp : null,
     magnification : 1.0,
-    baseStrokeWidth : 0.05,
+    baseStrokeWidth : 0.03,
+
+    viewBoxString : "0 0 1 1",
+
+    telescopeWhere : { x : 0, y : 0},
+
+    /**
+     * Set up this view.
+     * Called from stella.initialize()
+     */
+    initialize : function( ) {
+        this.originalViewWidth = Number($("#stellaSkyView").attr("width"));
+
+        this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
+        this.paper.clear();
+
+        this.paper.node.addEventListener("click",   stella.skyView.click,false);
+        this.paper.node.addEventListener("mousedown",   stella.skyView.down,false);
+        this.paper.node.addEventListener("mouseup",     stella.skyView.up,false);
+        this.paper.node.addEventListener("mousemove",   stella.skyView.move,false);
+
+
+
+        this.makeBackground();
+        this.makeAndInstallStarViews( );  // now make all the star views
+        this.makeAndInstallReticles();       //  make the reticle views and heads-up
+
+        //  now point, and set this paper's "view box"
+        //  the middle of the pane
+        var tPointAt = { x : stella.constants.universeWidth/2, y : stella.constants.universeWidth/2};
+        this.pointAtLocation( tPointAt, null );
+
+        console.log("Done with skyView.initialize()");
+    },
 
     /**
      * Change the view to point at the given star. Called by .manager.pointAtStar()
      *
      * What you do depends on magnification.
      * At 1x, put the crosshairs (reticle) on it.
-     * at more than 1x, put the crosshairs in the middle and put the star on the crosshairs
+     * at more than 1x, put the crosshairs in the middle and put the catalog position on the crosshairs
      *
      * @param iStar
      */
     pointAtStar : function( iStar ) {
 
-        //  at this point, where.x is the catalog position. Maybe that should change to actual.
-
         if (iStar) {
+            stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
             var tWhereNow = iStar.positionAtTime( stella.model.now );
-            this.pointAtLocation( iStar.where, tWhereNow);    //  moves the star field if necessary
+            //  note that iStar.where is its catalog location.
+            this.pointAtLocation( iStar.where, true);    //  moves the star field if necessary. True = animate
+/*
             if (this.magnification === 1.0) {
                 var tNewY = stella.constants.universeWidth - iStar.where.y;
-                this.reticleX.attr({ visibility : "visible", y1 : tNewY, y2 : tNewY});
-                this.reticleY.attr({ visibility : "visible", x1 : iStar.where.x, x2 : iStar.where.x});
             }
-        } else {
-            //  no star, so no reticle.
-            //  this.pointAtLocation( null, null);
-            this.reticleX.attr({ visibility : "hidden"});
-            this.reticleY.attr({ visibility : "hidden"});
+*/
         }
-
     },
 
-    pointAtLocation : function( iWhereCatalog, iWhereNow ) {
-        var y = iWhereCatalog.y;
-        var x = iWhereCatalog.x;
+    pointAtLocation : function( iPointAt, iAnimate ) {
+        this.telescopeWhere = iPointAt;
 
-        y = stella.constants.universeWidth - y;     //  reverse coordinates
+        var x = iPointAt.x;
+        var y = stella.constants.universeWidth - iPointAt.y;     //  reverse y-coordinate
 
         var tWidth = stella.constants.universeWidth / this.magnification;
-        var tViewBoxString = "0 0 " + tWidth + " " + tWidth;
+        var tStrokeWidth = this.baseStrokeWidth / this.magnification;
+        this.viewBoxString = "0 0 " + tWidth + " " + tWidth;
 
         if ( this.magnification > 1 ) {
             var tX = x - tWidth/2;
             var tY = y - tWidth/2;
-            tViewBoxString = tX  + " " + tY + " " + tWidth + " " + tWidth;
-
-            //  reticles in the magnified case (always in the middle)
-
-            this.reticleX.attr({ visibility : "visible", y1 : y, y2 : y,
-                strokeWidth : this.baseStrokeWidth / this.magnification});
-            this.reticleY.attr({ visibility : "visible", x1 : x, x2 : x,
-                strokeWidth : this.baseStrokeWidth / this.magnification});
-        } else {
-            this.reticleX.attr({strokeWidth : this.baseStrokeWidth});
-            this.reticleY.attr({strokeWidth : this.baseStrokeWidth});
+            this.viewBoxString = tX  + " " + tY + " " + tWidth + " " + tWidth;
         }
 
-        //  nb: if magnification === 1, we are set to point correctly
+        if (iAnimate) {
+            this.reticlePath.animate({
+                path: this.reticlePathString(),
+                strokeWidth: tStrokeWidth
+            }, 1000);
+            this.paper.animate({viewBox: this.viewBoxString}, 1000);
+        } else {
+            this.reticlePath.attr({
+                path: this.reticlePathString(),
+                strokeWidth: tStrokeWidth
+            });
+            this.paper.attr({viewBox: this.viewBoxString});
+        }
 
-        this.paper.attr({ viewBox : tViewBoxString });
+        var tPosText = "x : " + this.telescopeWhere.x.toFixed(6) + " y: " + this.telescopeWhere.y.toFixed(6);
+        var tHeadsUpFontSize = 0.2 / this.magnification;
+        if (tHeadsUpFontSize < 0.02) tHeadsUpFontSize = 0.02;
+        var tPosHeadsUpAttrs =  {
+            "text" : tPosText,
+            x : x - 2/this.magnification,
+            y : y - 2/this.magnification,
+            fontSize : tHeadsUpFontSize
+        };
+        this.positionHeadsUp.attr(tPosHeadsUpAttrs);
+
+        //  console.log("pointAtLocation(): " + tPosText);
     },
 
     /**
@@ -111,10 +152,9 @@ stella.skyView = {
      */
     magnify : function( iMagnification  ) {
         this.magnification = iMagnification;
-        this.paper.clear();
-        this.makeBackground();
-        this.makeAndInstallStarViews( );  // now make all the star views
-        this.makeAndInstallReticles();       //  make the reticle views
+        this.starViews.forEach( function (iSV) {
+            iSV.setSizeEtc(  );
+        });
     },
 
     /**
@@ -122,7 +162,31 @@ stella.skyView = {
      * @param e
      */
     down : function( e ) {
+        //  console.log( "DOWN! *** VB : " + JSON.stringify(stella.skyView.paper.attr("viewBox").vb));
+    },
 
+    /**
+     * Click handler.
+     * Note that "this" in this routine is the SVG object itself
+     * @param e     the mouse event
+     */
+    click : function( e ) {
+        if (stella.skyView.magnification > 1) return;   //  only works at mag = 1!
+        var uupos = this.createSVGPoint();
+        uupos.x = e.clientX;
+        uupos.y = e.clientY;
+
+        var ctmInverse = e.target.getScreenCTM().inverse();
+
+        if (ctmInverse) {
+            uupos = uupos.matrixTransform( ctmInverse );
+        }
+
+        uupos.y = stella.constants.universeWidth - uupos.y;
+        console.log( "click at " + uupos.x.toFixed(3) + ", " + uupos.y.toFixed(3) );
+
+        var tStar = stella.skyView.starFromViewCoordinates( uupos );
+        stella.manager.pointAtStar( tStar );
     },
 
     /**
@@ -130,20 +194,14 @@ stella.skyView = {
      * Note that "this" in this routine is the SVG object itself
      * @param e     the mouse event
      */
-    up : function( e ) {
-        var uupos = this.createSVGPoint();
-        uupos.x = e.clientX;
-        uupos.y = e.clientY;
+    up: function (e) {
 
-        var ctm = e.target.getScreenCTM().inverse();
+        var tPointedAt = stella.skyView.starFromViewCoordinates(stella.skyView.telescopeWhere);
 
-        if (ctm) {
-            uupos = uupos.matrixTransform( ctm );
+        if (stella.manager.focusStar !== tPointedAt) {
+            stella.manager.focusOnStar(tPointedAt);
         }
-        console.log( uupos );
 
-        var tStar = stella.skyView.starFromViewCoordinates( uupos );
-        stella.manager.pointAtStar( tStar );
     },
 
     /**
@@ -151,22 +209,23 @@ stella.skyView = {
      * Use eventually when we do drag.
      * @param e
      */
-    move : function ( e ) {
-/*
-        if (!epiManager.draggingCritter) {
-            var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
-            var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
+    move: function (e) {
+        if (stella.skyView.magnification === 1) return;
 
-            if (e.button === 0 && e.buttons === 1) {
-                var tDx = e.movementX * tHScale;
-                var tDy = e.movementY * tVScale;
+        var tHScale = stella.constants.universeWidth / stella.skyView.originalViewWidth / stella.skyView.magnification;    //  degrees per pixel
+        var tVScale = tHScale;
+        var xCurrent = stella.skyView.telescopeWhere.x;
+        var yCurrent = stella.skyView.telescopeWhere.y;
 
-                epiWorldView.VBLeft -= tDx;
-                epiWorldView.VBTop -= tDy;
-                epiWorldView.updateViewBox();
-            }
+        if (e.button === 0 && e.buttons === 1) {
+            xCurrent -= e.movementX * tHScale;    //  now in degrees
+            yCurrent += e.movementY * tVScale;
+
+            var tViewCoords = {x : xCurrent, y: yCurrent};
+            stella.skyView.pointAtLocation(tViewCoords, false);  //  use false to avoid animation
+
         }
-*/
+
     },
 
     /**
@@ -176,9 +235,9 @@ stella.skyView = {
      * @returns {*}
      */
     starFromViewCoordinates : function( iPoint ) {
-        iPoint.y = stella.constants.universeWidth - iPoint.y;   //  change y direction
+        //  iPoint.y = stella.constants.universeWidth - iPoint.y;   //  change y direction
         var oStar = null;
-        var tDist = 1.0e30;     //  large number; Math.MAX_VALUE not working for some reason
+        var tDist = Number.MAX_VALUE;     //  large number
 
         stella.skyView.starViews.forEach( function(sv) {
             var tStar = sv.star;
@@ -191,7 +250,6 @@ stella.skyView = {
         });
 
         return oStar;
-
     },
 
     /**
@@ -216,46 +274,37 @@ stella.skyView = {
 
     },
 
-    makeAndInstallReticles : function() {
-        this.reticleX = this.paper.line(0, 0, stella.constants.universeWidth, 0).attr({
-            stroke : "green",
-            strokeWidth : this.baseStrokeWidth,
-            strokeOpacity : 0.7,
-            visibility : "hidden"
-        });
-        this.reticleY = this.paper.line(0, 0, 0, stella.constants.universeWidth ).attr({
-            stroke : "green",
-            strokeWidth : this.baseStrokeWidth,
-            strokeOpacity : 0.7,
-            visibility : "hidden"
-        });
+    reticlePathString : function( ) {
+        oPath = "";
 
+        var x = this.telescopeWhere.x;
+        var y = stella.constants.universeWidth - this.telescopeWhere.y;
+        var L = stella.constants.universeWidth / this.magnification / 10;
+
+        oPath = "M "  + (x + L) + " " + y + " L " + x + " " + (y + L) +
+                " L " + (x - L) + " " + y + " L " + x + " " + (y - L) + "Z" +
+                " L " + (x + L/3) + " " + y +
+            " M " + x + " " + (y + L) + " L " + x + " " + (y + L/3) +
+            " M " + (x - L) + " " + (y) + " L " + (x - L/3) + " " + (y) +
+            " M " + x + " " + (y - L) + " L " + x + " " + (y - L/3);
+
+        return oPath;
     },
 
-    /**
-     * Set up this view.
-     * Called from stella.initialize()
-     */
-    initialize : function( ) {
-        this.originalViewWidth = Number($("#stellaSkyView").attr("width"));
+    makeAndInstallReticles : function() {
 
-        this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
-        this.paper.clear();
-
-        this.paper.node.addEventListener("mousedown",   stella.skyView.down,false);
-        this.paper.node.addEventListener("mouseup",     stella.skyView.up,false);
-        this.paper.node.addEventListener("mousemove",   stella.skyView.move,false);
-
-        //  now set this paper's "view box"
-        this.paper.attr({
-            viewBox : "0 0 " + stella.constants.universeWidth + " " + stella.constants.universeWidth
+        this.reticlePath = this.paper.path( "M 0 0").attr({
+            stroke : "green",
+            strokeWidth : this.baseStrokeWidth,
+            strokeOpacity : 0.7,
+            fill : "transparent"
         });
 
-        this.makeBackground();
-        this.makeAndInstallStarViews( );  // now make all the star views
-        this.makeAndInstallReticles();       //  make the reticle views
+        this.reticlePath.addClass( "noPointer ");   //  so we click through
 
-        console.log("Done with skyView.initialize()");
+        this.positionHeadsUp = this.paper.text(0, 0, "position").attr({fill : "green"}).addClass("noPointer headsUp");
+
     }
+
 
 };

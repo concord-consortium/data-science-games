@@ -39,6 +39,8 @@ stella.manager = {
     starResultType: null,  //  kind of result. set in newGame()
     starResultValue: null,
 
+    starResultIsAuto : false,
+
 
     /**
      * Called on new game, in this case, on startup
@@ -65,10 +67,16 @@ stella.manager = {
      * Often called when the user has changed something.
      */
     updateStella: function () {
-        stella.skyView.pointAtStar(this.focusStar);
+        //  stella.skyView.pointAtStar(this.focusStar);
         stella.model.skySpectrum = (this.focusStar === null) ? null : this.focusStar.setUpSpectrum();  //  make the spectrum
         stella.spectrumManager.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
+    },
+
+    focusOnStar : function(iStar) {
+        this.focusStar = iStar;
+        stella.connector.selectStarInCODAPByCatalogID(iStar.caseID);
+        this.updateStella();
     },
 
     /**
@@ -77,15 +85,15 @@ stella.manager = {
      */
     pointAtStar: function (iStar) {
         if (iStar) {
-            this.focusStar = iStar;
-            stella.connector.selectStarInCODAPByCatalogID(iStar.caseID);
-
-            console.log(this.focusStar);
+            stella.skyView.pointAtStar(iStar);     //      added in...
+            this.focusOnStar( iStar );
+            console.log("Point at " + this.focusStar.id +
+                " at " + this.focusStar.where.x.toFixed(3) + ", " +
+                this.focusStar.where.y.toFixed(3));
         } else {
             this.focusStar = null;
+            this.updateStella();
         }
-        stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
-        this.updateStella();
     },
 
     /**
@@ -94,8 +102,14 @@ stella.manager = {
      */
     changeMagnificationTo: function (iNewMag) {
 
-        stella.skyView.magnify(iNewMag);
-        this.updateStella();    //  this will also point at the focusStar, if any
+        stella.skyView.magnify(iNewMag);    //  currently makes a whole new sky
+
+     //   if (this.focusStar) {
+     //       this.pointAtStar( this.focusStar );
+     //   } else {
+            stella.skyView.pointAtLocation( stella.skyView.telescopeWhere );
+    //    }
+        this.updateStella();
 
     },
 
@@ -179,13 +193,15 @@ stella.manager = {
         stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
         stella.model.stellaElapse(stella.constants.timeRequired.changeResultType);
-        $("#starResultValue").val("");      //  blank the value on type change
+        $("#starResultValue").val("");      //  blank the value in the box on type change
+        this.starResultValueChanged( true );  //  blank the internal value
     },
 
     /**
      * User has entered a value
      */
-    starResultValueChanged: function () {
+    starResultValueChanged: function ( iAuto ) {
+        stella.manager.starResultIsAuto = iAuto;
         stella.manager.starResultValue = Number($("#starResultValue").val());
         stella.manager.updateStella();
     },
@@ -198,7 +214,7 @@ stella.manager = {
             var tStarResult = iStarResult;
 
             if (!iStarResult) {
-                tStarResult = new StarResult(true);     //      here we create the StarResult
+                tStarResult = new StarResult(true, stella.manager.starResultIsAuto);     //      here we create the StarResult and try to save it
             }
         } else {
             alert(stella.strings.notPointingAtStarForResults);
@@ -247,22 +263,32 @@ stella.manager = {
     getStarDataUsingBadge: function () {
         //  user is entitled to an automatic result because of badges, and has requested one.
 
-        var tValue = null;
+        var tValue = null, tForRecord = null;
         if (stella.manager.focusStar) {
-            var tType = stella.manager.starResultType;
-            var truth = stella.manager.focusStar.reportTrueValue(tType);
-            tValue = Number(truth.trueDisplay);
-            var tBadgeLevel = stella.badges.badgeLevelFor( tType );
-            var tProportionalErrors = [0.18, 0.06, 0.02];               //  todo: check these!
-            var tError = tProportionalErrors[ tBadgeLevel ] * tValue;
+            var tResultType = stella.manager.starResultType;
 
-            tValue += ((Math.random() - Math.random()) * tError);
-            var tForBox = tValue.toFixed(1);
+            switch (tResultType) {
+                case 'pos_x':
+                    tForRecord = stella.skyView.telescopeWhere.x.toFixed(6);
+                    break;
+                case 'pos_y':
+                    tForRecord = stella.skyView.telescopeWhere.y.toFixed(6);
+                    break;
+                default:
+                    var truth = stella.manager.focusStar.reportTrueValue(tResultType);
+                    tValue = Number(truth.trueDisplay);
+                    var tBadgeLevel = stella.badges.badgeLevelForResult(tResultType);
+                    var tProportionalErrors = [0.18, 0.06, 0.02];               //  todo: change this to absolute and use the L1 value
+                    var tError = tProportionalErrors[tBadgeLevel] * tValue;
+
+                    tValue += ((Math.random() - Math.random()) * tError);
+                    tForRecord = tValue.toFixed(1);
+                    break;
+            }
+            //  todo: fix this so that we don't get points, and so that the number isn't in the box afterwards.
+            $("#starResultValue").val(tForRecord);          //  put the value in the box
+            stella.manager.starResultValueChanged( true );    //  do what we do when someone puts a number in the box
         }
-
-        //  todo: fix this so that we don't get points, and so that the number isn't in the box afterwards.
-        $("#starResultValue").val(tForBox);          //  put the value in the box
-        stella.manager.starResultValueChanged();    //  do what we do when someone puts a number in the box
     },
 
     /**

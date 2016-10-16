@@ -78,13 +78,13 @@ stella.initialize = function () {
     //  stella.share.initialize(stella.constants.baseURL);
 
     //  temporary for testing badges
-
+/*
     var tFreeBadgeStatus = stella.badges.badgeStatus["temp"];
     tFreeBadgeStatus.level = 2;
     tFreeBadgeStatus.badgeComponents.forEach(function (iC) {
         iC.points = 55;
     });
-
+*/
     stella.manager.newGame();   //  will create new stars, etc.
 };
 
@@ -106,7 +106,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001g",
+    version: "001h",
     baseURL: "http://localhost:8888/dsg/stella.php",
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
@@ -136,11 +136,11 @@ stella.constants = {
     //  Constants for how long things take in game time. Currently in years.
 
     timeRequired: {
-        changePointing: 0.04,
-        saveSpectrum: 0.05,
+        changePointing: 0.03,
+        saveSpectrum: 0.04,
         //   makeLabSpectrum : 0.03,
         changeResultType: 0.01,
-        saveResult: 0.02,
+        saveResult: 0.03,
         savePositionFromDoubleclick: 0.01
     },
     foo: null

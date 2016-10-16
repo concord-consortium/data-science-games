@@ -26,23 +26,23 @@
  */
 
 
-StarResult = function ( iMine ) {
+StarResult = function ( iMine, iAuto ) {
     this.id = stella.manager.focusStar.id;
-    this.myOwnResult = iMine;
+    this.myOwnResult = iMine;           //  Boolean
     this.type = stella.manager.starResultType;
-    this.value = stella.manager.starResultValue;
+    this.enteredValue = stella.manager.starResultValue;
     this.date = stella.model.now;
     this.units = stella.starResultTypes[this.type].units;
-    this.trueValue = -1;
-    this.trueDisplayValue = -1;
-    this.guessValue = -1;
+    this.trueResultValue = -1;
 
-    this.points = this.evaluateResult();    //  sets true, trueDisplay, guess
+    this.points = iAuto ? 0 : this.evaluateResult();    //  sets true, trueDisplay
 
-    if (this.points > 0) {
+    if (this.points > 0 || iAuto) {
         stella.connector.emitStarResult(this, null);
         stella.player.recordResultLocally( this );
-        alert("Good job! " + this.value + " is close enough to get you " + this.points + " points!");
+        if (!iAuto) {
+            alert("Good job! " + this.enteredValue + " is close enough to get you " + this.points + " points!");
+        }
 
     } else {
         alert(stella.strings.resultIsWayOff);
@@ -86,55 +86,43 @@ StarResult.prototype.evaluateResult = function(  ) {
      */
 
     var truth = tStar.reportTrueValue( this.type );
-    this.trueValue = truth.trueValue;
-    this.trueDisplayValue = truth.trueDisplay;  //  the way a user would enter it
-    this.guessValue = this.value;               //  what the user actually entered
-    tMaxPoints = 100;
+    this.trueResultValue = truth.trueDisplay;  //  the way a user would enter it
+
+    tMaxDiff = stella.starResultTypes[this.type].errorL1;
 
     switch( this.type ) {
         case "temp" :
-            this.guessValue = Math.log10( this.value );       //  we'll look at difference in the log
-            tMaxDiff = 0.1;
+            tMaxDiff = 0.1 * this.trueResultValue;    //  10% error
             break;
 
         case "vel_r":
-            tMaxDiff = 10;
             break;
 
         case "pm_x":
-            tMaxDiff = 10;
             break;
 
         case "pm_y":
-            tMaxDiff = 10;
             break;
 
         case "pos_x":
-            tMaxPoints = 10;        //  could be more; this is temp
-            tMaxDiff = 0.001;
             break;
 
         case "pos_y":
-            tMaxPoints = 10;        //  could be more; this is temp
-            tMaxDiff = 0.001;
             break;
 
         case "parallax":
-            tMaxPoints = 100;        //  could be more; this is temp
-            tMaxDiff = 1;
             break;
 
         default:
             var tMess = "Sorry, I don't know how to score " + stella.starResultTypes[ iValues.type].name + " yet.";
             displayDebugStringInConsole = false;
             alert(tMess);
-            this.trueValue = 1;    //      so it will not record the data
-            this.guessValue = this.value;
+            this.trueResultValue = -1;
             tMaxPoints = 0;
             break;
     }
 
-    tDiffValue = Math.abs(this.trueValue - this.guessValue);
+    tDiffValue = Math.abs(this.trueResultValue - this.enteredValue);
     oPoints = tMaxPoints * (1 - tDiffValue / tMaxDiff);
 
     if (oPoints < 0 ) {
@@ -143,7 +131,7 @@ StarResult.prototype.evaluateResult = function(  ) {
 
     debugString = "Evaluate " +
         stella.starResultTypes[ this.type].name + ": user said " +
-        this.value + ", true value " + this.trueDisplayValue +
+        this.enteredValue + ", true value " + this.trueResultValue +
         ". Awarding " + Math.round(oPoints) + " points.";
 
     if (displayDebugStringInConsole) {
@@ -165,37 +153,44 @@ stella.starResultTypes = {
     "temp": {
         id: "temp",
         name: "temperature",
-        units: "K"
+        units: "K",
+        errorL1 : 500
     },
     vel_r: {
         id : "vel_r",
         name: "radial velocity",
-        units: "km/sec"
+        units: "km/sec",
+        errorL1 : 5
     },
     parallax: {
         id : "parallax",
         name: "parallax",
-        units: "microdegrees"
+        units: "microdegrees",
+        errorL1 : 5
     },
     pm_x: {
         id : "pm_x",
         name: "proper motion (x)",
-        units: "microdegrees per year"
+        units: "microdegrees per year",
+        errorL1 : 10
     },
     pm_y: {
         id : "pm_y",
         name: "proper motion (y)",
-        units: "microdegrees per year"
+        units: "microdegrees per year",
+        errorL1 : 10
     },
     pos_x: {
         id : "pos_x",
         name: "position (x)",
-        units: "degrees"
+        units: "degrees",
+        errorL1 : 0.001
     },
     pos_y: {
         id : "pos_y",
         name: "position (y)",
-        units: "degrees"
+        units: "degrees",
+        errorL1 : 0.001
     }
 };
 

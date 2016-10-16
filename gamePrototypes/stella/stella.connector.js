@@ -83,7 +83,7 @@ stella.connector = {
                     date: iStarResult.date,
                     id: iStarResult.id,
                     type: iStarResult.type,
-                    value: iStarResult.value,
+                    value: iStarResult.enteredValue,
                     units: iStarResult.units,
                     points: iStarResult.points
                 }
@@ -267,6 +267,8 @@ stella.connector = {
                     attrs: [
                         {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
                         {name: "id", type: 'categorical',  description : "Stellar ID string"},
+                        {name: "bright", type: 'numeric', precision: 2, description: "luminosity"},
+                        {name: "logBright", type: 'numeric', precision: 2, description: "log luminosity"},
                         {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
                         {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
                         {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},

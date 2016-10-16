@@ -73,6 +73,8 @@ stella.ui = {
         var tStarResultUnitsText = " ";
         var tBadgePrivilegeText = "";
 
+        var tResultType = stella.manager.starResultType;
+
         if (stella.manager.focusStar === null) {
             tStarResultHeadText = "Point at a star to record results";
         } else {
@@ -86,14 +88,30 @@ stella.ui = {
         this.starResultHeadline.text( tStarResultHeadText );
         this.starResultUnits.text(tStarResultUnitsText );
 
-        var tResultType = stella.manager.starResultType;
-        var tLevel = stella.badges.badgeLevelFor( tResultType );
+        var tRelValText = "";
+        switch( tResultType) {
+            case "pos_x":
+            case "pos_y":
+                tRelValText += "telescope pointing x: " + stella.skyView.telescopeWhere.x.toFixed(6) +
+                "° y: " + stella.skyView.telescopeWhere.y.toFixed(6) + "°";
+                break;
+
+            default:
+                tRelValText += "Possibly relevant values go here.";
+
+        }
+
+        this.relevantValuesText.html( tRelValText );
+
+        var tLevel = stella.badges.badgeLevelForResult( tResultType );
+        var tBadgeName = stella.badges.badgeStatus[ stella.badges.badgeIDbyResultType[tResultType]].name;
+
         if (tLevel > 0)    {   //      we have a badge!
             tBadgePrivilegeText = "You're level " + tLevel +
-                " for " + tResultType + ", so you can get an automatic value!";
+                " for " + tBadgeName + ", so you can get an automatic value!";
             this.findAutoResultButton.show();
         } else {    //  hide the button
-            tBadgePrivilegeText = "You do not have a badge for " + tResultType + ", so you cannot get an automatic value.";
+            tBadgePrivilegeText = "You do not have the " + tBadgeName + " badge, so you cannot get an automatic value.";
             this.findAutoResultButton.hide();
         }
 
@@ -135,6 +153,7 @@ stella.ui = {
         //  results tab items
 
         $("#starResultMenu").html( this.assembleStarResultMenu() );
+        this.relevantValuesText = $("#relevantValuesText");
         this.badgePrivilegeText = $("#badgePrivilegeText");
         this.findAutoResultButton = $("#findAutoResult");
         this.starResultHeadline = $("#starResultHeadline");
