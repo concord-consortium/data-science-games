@@ -231,3 +231,16 @@ stella.pmFromSpeedAndDistance = function (iSpeed, iDistance) {
 
     return oPM;
 };
+
+
+/*
+var readyStateCheckInterval = setInterval(function () {
+    console.log("waiting...");
+
+    if (document.readyState === "complete") {
+        console.log("loaded!");
+        clearInterval(readyStateCheckInterval);
+        stella.initialize();
+    }
+}, 100);
+*/

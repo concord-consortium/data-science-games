@@ -288,19 +288,25 @@ stella.connector = {
 
 /**
  * We call this to initialize the data interactive.
- * Three parameters: an object containing the organization of the data,
+ * Two parameters: an object containing the organization of the data,
  * and a callback function when a doCommand is issued.
  * (We'll use it for save and restore)
  */
-codapHelper.initDataInteractive(
-    stella.connector.getInitFrameObject(),
-    stella.manager.stellaDoCommand         //  the callback needed
-);
 
-codapHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject());
-codapHelper.initDataSet(stella.connector.getStarResultsDataSetObject());
-codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject(), function() {
-    console.log("last data set done!");
-    stella.initialize();
-});
+function startCodapConnection() {
+
+    codapHelper.initDataInteractive(
+        stella.connector.getInitFrameObject(),
+        stella.manager.stellaDoCommand         //  the callback needed
+    );
+
+    codapHelper.initDataSet(stella.connector.getStarResultsDataSetObject());
+    codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject());
+    codapHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject(),
+        function () {
+            console.log("last data set done!");
+            stella.initialize();
+        }
+    );
+}
 
