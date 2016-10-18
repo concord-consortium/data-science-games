@@ -122,10 +122,12 @@ stella.ui = {
     },
 
 
-    pointingChangedByTyping : function() {
-        var tText = this.pointAtStarInputField.val();
-        var tStar = stella.model.starFromTextID( tText );
-        stella.manager.pointAtStar( tStar );
+    keypressInStarPointingBox : function(e) {
+        if (e.type === "blur" || e.keyCode === 13) {
+            var tText = this.pointAtStarInputField.val();
+            var tStar = stella.model.starFromTextID( tText );
+            stella.manager.pointAtStar( tStar );
+        }
     },
 
 

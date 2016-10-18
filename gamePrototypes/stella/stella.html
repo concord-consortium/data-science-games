@@ -127,7 +127,10 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             <span id="shortStatus"></span>
             &nbsp;| &nbsp;
             <label for="pointAtStar">point at star </label>
-            <input id="pointAtStar" class="textIO" onblur="stella.ui.pointingChangedByTyping( )"/>
+            <input id="pointAtStar" class="textIO"
+                   onblur = "stella.ui.keypressInStarPointingBox(event)"
+                   onkeypress = "stella.ui.keypressInStarPointingBox(event)"
+            />
         </div>
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(1)">1x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(5)">5x</span>&nbsp;
