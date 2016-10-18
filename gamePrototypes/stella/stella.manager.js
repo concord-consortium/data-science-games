@@ -107,7 +107,7 @@ stella.manager = {
      //   if (this.focusStar) {
      //       this.pointAtStar( this.focusStar );
      //   } else {
-            stella.skyView.pointAtLocation( stella.skyView.telescopeWhere );
+            stella.skyView.pointAtLocation( stella.skyView.telescopeWhere, true );
     //    }
         this.updateStella();
 

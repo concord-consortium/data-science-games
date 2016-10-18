@@ -432,13 +432,13 @@ StarView.prototype.setSizeEtc = function (  ) {
         tOpacity = 0;
     }
 
-    this.myCircle.attr({
+    this.myCircle.animate({
         cx: tCurrentWhere.x,
         cy: stella.constants.universeWidth - tCurrentWhere.y,
         r: tRadius * tDegreesPerPixel,
         fill: tColor,
         fillOpacity: tOpacity
-    });
+    }, 1000);
 
 };
 

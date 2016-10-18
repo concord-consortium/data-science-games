@@ -267,14 +267,14 @@ stella.connector = {
                     attrs: [
                         {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
                         {name: "id", type: 'categorical',  description : "Stellar ID string"},
+                        {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
+                        {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
                         {name: "bright", type: 'numeric', precision: 2, description: "luminosity"},
                         {name: "logBright", type: 'numeric', precision: 2, description: "log luminosity"},
                         {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
                         {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
                         {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},
                         {name: "V", type: 'numeric', precision: 2, description: "apparent magnitude in V"},
-                        {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
-                        {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
                         {name: "name", type: 'categorical'}
                     ]
                 }
