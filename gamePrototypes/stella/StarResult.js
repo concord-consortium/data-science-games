@@ -150,6 +150,18 @@ StarResult.prototype.evaluateResult = function(  ) {
  * @type {{temp: {name: string, units: string, id: string}, pm_x: {id: string, name: string, units: string}, pm_y: {id: string, name: string, units: string}, parallax: {id: string, name: string, units: string}, vel_r: {id: string, name: string, units: string}}}
  */
 stella.starResultTypes = {
+    pos_x: {
+        id : "pos_x",
+        name: "position (x)",
+        units: "degrees",
+        errorL1 : 0.001
+    },
+    pos_y: {
+        id : "pos_y",
+        name: "position (y)",
+        units: "degrees",
+        errorL1 : 0.001
+    },
     "temp": {
         id: "temp",
         name: "temperature",
@@ -160,13 +172,7 @@ stella.starResultTypes = {
         id : "vel_r",
         name: "radial velocity",
         units: "km/sec",
-        errorL1 : 5
-    },
-    parallax: {
-        id : "parallax",
-        name: "parallax",
-        units: "microdegrees",
-        errorL1 : 5
+        errorL1 : 8
     },
     pm_x: {
         id : "pm_x",
@@ -180,17 +186,11 @@ stella.starResultTypes = {
         units: "microdegrees per year",
         errorL1 : 10
     },
-    pos_x: {
-        id : "pos_x",
-        name: "position (x)",
-        units: "degrees",
-        errorL1 : 0.001
-    },
-    pos_y: {
-        id : "pos_y",
-        name: "position (y)",
-        units: "degrees",
-        errorL1 : 0.001
+    parallax: {
+        id : "parallax",
+        name: "parallax",
+        units: "microdegrees",
+        errorL1 : 5
     }
 };
 

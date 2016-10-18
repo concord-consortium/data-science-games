@@ -201,7 +201,7 @@ stella.skyView = {
         if (stella.manager.focusStar !== tPointedAt) {
             stella.manager.focusOnStar(tPointedAt);
         }
-
+        stella.ui.fixStellaUITextAndControls();
     },
 
     /**

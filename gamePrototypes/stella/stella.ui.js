@@ -41,7 +41,8 @@ stella.ui = {
         //  focusStar label and make sure it's got the right spectrum
         var focusStarText = stella.strings.notPointingText;
         if (stella.manager.focusStar) {
-            focusStarText = "Pointing at " + stella.manager.focusStar.infoText();
+            focusStarText = "Pointing at " + stella.manager.focusStar.id +
+                    " • " + stella.skyView.magnification + "X";
             this.pointAtStarInputField.val( stella.manager.focusStar.id );
 
             stella.model.skySpectrum = stella.manager.focusStar.setUpSpectrum();
