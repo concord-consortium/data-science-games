@@ -25,15 +25,32 @@
 
  */
 
-
+/**
+ * A StarResult is a measurement or calculation the user has made that's being saved for future use.
+ * It has a value and units, and is a measurement of some "type," that is, what's being measured.
+ * For example, a temperature measurement is of type "temp" and would have a value (5800) and units (K).
+ * The units are currently just for display.
+ *
+ * In addition, each result has a date -- the game time it was recorded.
+ *
+ * This object also records how many points you got for it.
+ *
+ * In the constructor, we find the true value and compare.
+ * If your value is too far off, you get zero points.
+ * If you have points, or it's an automatic result, the result gets saved.
+ *
+ * @param iMine
+ * @param iAuto
+ * @constructor
+ */
 StarResult = function ( iMine, iAuto ) {
     this.id = stella.manager.focusStar.id;
-    this.myOwnResult = iMine;           //  Boolean
+    this.myOwnResult = iMine;           //  Boolean. You could have a result discovered by someone else.
     this.type = stella.manager.starResultType;
-    this.enteredValue = stella.manager.starResultValue;
+    this.enteredValue = stella.manager.starResultValue;     //  the value in the form as entered. (i.e., not the log)
     this.date = stella.model.now;
     this.units = stella.starResultTypes[this.type].units;
-    this.trueResultValue = -1;
+    this.trueResultValue = -1;      //      the true value of the same result if the measurement had been perfect
 
     this.points = iAuto ? 0 : this.evaluateResult();    //  sets true, trueDisplay
 
@@ -49,6 +66,15 @@ StarResult = function ( iMine, iAuto ) {
     }
 };
 
+/**
+ * Tells whether this result could count towards a badge.
+ * If it's not your original work, returns false.
+ * If it's for a measurement and star you've worked on before,
+ * but you scored fewer points than another of your measurements, returns false.
+ * Otherwise true.
+ *
+ * @returns {boolean}
+ */
 StarResult.prototype.eligibleForBadge = function() {
 
     if (!this.myOwnResult) {

@@ -177,19 +177,19 @@ Star.prototype.evolve = function () {
     } else if (this.myGiantIndex <= 1) {        //  GIANT phase
         /*
          Our model is, at this point, that as you age, you will maintain your luminosity,
-         but your temperature will decline, linearly, to about 3000K
+         but your temperature will decline, linearly, to about 3300K
          (stella.constants.giantTemperature)
          */
 
         var tMSTemp = Math.pow(10, this.logMainSequenceTemperature);
-        var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));
+        var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));   //  linear
 
         /*
          todo: this routine has two random() references. This is a problem as initial (evolved) stars are therefore not the same.
          */
 
         tCurrentTemp -= 500.0 * Math.random();      //  some variety in giant temperatures.
-        this.logTemperature = Math.log10(tCurrentTemp);
+        this.logTemperature = Math.log10(tCurrentTemp); //  here is where we set the star's evolved temperature
         this.logRadius = this.logMainSequenceRadius + 2.0 * (this.logMainSequenceTemperature - this.logTemperature);
         //  R goes like T^2 for constant luminosity (L goes as R^2T^4)
     } else {            //          WHITE DWARF or...
@@ -224,7 +224,7 @@ Star.prototype.positionAtTime = function (iTime) {
     var tParallaxMax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;
     var tFracYear = iTime % 1;      //  the fractional part of the year
 
-    var tParallax = this.parallax * Math.cos(tFracYear * 2 * Math.PI);
+    var tParallax = this.parallax * Math.cos(tFracYear * 2 * Math.PI);  //  at year.0 and year.5, we're at extremes.
 
     if (stella.options.parallax) {
         oWhere.x += tParallax * 0.000001;       //  because tParallax is in microdegrees
@@ -439,55 +439,13 @@ StarView.prototype.setSizeEtc = function (  ) {
         fill: tColor,
         fillOpacity: tOpacity
     }, 1000);
-
 };
 
 
 StarView.prototype.clickOnAStar = function (e) {
-    stella.manager.pointAtStar( this.star )
+    if (stella.skyView.magnification === 1) {
+        stella.manager.pointAtStar( this.star );
+    }
 };
 
 
-/*      OLD CONSTRUCTOR
-
- var Star = function( iFrustum, iMotion, iLogAge ) {
- this.caseID = -1;
-
- var t1 = Math.random();
- var t2 = (1 - t1) * (1 - t1);
- this.logMass = (stella.constants.maxStarLogMass - stella.constants.minStarLogMass) * t2 - 1;
- this.logMainSequenceRadius = (2/3) * this.logMass;
- this.logRadius = this.logMainSequenceRadius;
- this.logLuminosity = 3.5 * this.logMass;
- this.logMainSequenceTemperature = 3.76 + 13/24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
- this.logTemperature = this.logMainSequenceTemperature;      //  start on main sequence
- this.logLifetime = 10 + this.logMass - this.logLuminosity;
- this.logAge = null;
- this.myGiantIndex = 0;
-
- this.vx = TEEUtils.randomNormal( iMotion.x, iMotion.sx);
- this.vy = TEEUtils.randomNormal( iMotion.y, iMotion.sy);
- this.vr = TEEUtils.randomNormal( iMotion.r, iMotion.sr);
-
- var tDistanceCubed = Math.pow(iFrustum.L1,3) +  Math.random() * (Math.pow(iFrustum.L2,3) - Math.pow(iFrustum.L1,3));
-
- this.where = {
- x : iFrustum.xMin + Math.random() * iFrustum.width,
- y : iFrustum.yMin + Math.random() * iFrustum.width,
- z : Math.pow(tDistanceCubed, 0.333)
- };
-
- this.pm = {
- x : stella.pmFromSpeedAndDistance( this.vx, this.where.z),
- y : stella.pmFromSpeedAndDistance( this.vy, this.where.z),
- r : this.vr
- };
-
- this.id = 42;       //  placeholder. Gets set elsewhere.
- this.logAge = iLogAge;
-
- this.evolve( );     //  old enough to move off the MS?
- //  this.spectrum = this.setUpSpectrum();
- this.doPhotometry();    //  calculate UBV (etc) magnitudes
- };
- */

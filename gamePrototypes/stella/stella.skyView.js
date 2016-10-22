@@ -100,6 +100,13 @@ stella.skyView = {
         }
     },
 
+    /**
+     * Point the telescope at a particular location. (Not necessarily a star)
+     * Called by pointAtStar( ) and also when we pan the field.
+     *
+     * @param iPointAt      Where are we pointing? {x : nnn, y : nnn}
+     * @param iAnimate      {boolean} should we animate the transitions?
+     */
     pointAtLocation : function( iPointAt, iAnimate ) {
         this.telescopeWhere = iPointAt;
 
@@ -130,18 +137,17 @@ stella.skyView = {
             this.paper.attr({viewBox: this.viewBoxString});
         }
 
-        var tPosText = "x : " + this.telescopeWhere.x.toFixed(6) + " y: " + this.telescopeWhere.y.toFixed(6);
-        var tHeadsUpFontSize = 0.2 / this.magnification;
-        if (tHeadsUpFontSize < 0.02) tHeadsUpFontSize = 0.02;
-        var tPosHeadsUpAttrs =  {
-            "text" : tPosText,
-            x : x - 2/this.magnification,
-            y : y - 2/this.magnification,
-            fontSize : tHeadsUpFontSize
-        };
-        this.positionHeadsUp.attr(tPosHeadsUpAttrs);
+        stella.ui.telescopeStatusText.text(
+            "x : " + this.telescopeWhere.x.toFixed(6) +
+            " y: " + this.telescopeWhere.y.toFixed(6) +
+                " (" + this.magnification + "X)"
+        );
 
-        //  console.log("pointAtLocation(): " + tPosText);
+        //  blank the result whenever we move the telescope
+
+        $("#starResultValue").val("");      //  blank the value in the box on type change
+        stella.manager.starResultValueChanged( true );  //  blank the internal value
+
     },
 
     /**
@@ -223,9 +229,7 @@ stella.skyView = {
 
             var tViewCoords = {x : xCurrent, y: yCurrent};
             stella.skyView.pointAtLocation(tViewCoords, false);  //  use false to avoid animation
-
         }
-
     },
 
     /**
@@ -260,7 +264,6 @@ stella.skyView = {
             0, 0,
             stella.constants.universeWidth,        //  full size. Cover the world view.
             stella.constants.universeWidth).attr( {fill : "black"});
-
     },
 
     /**
@@ -274,6 +277,12 @@ stella.skyView = {
 
     },
 
+    /**
+     * This creates the string used to draw the sky "reticle"
+     * Called in pointAtLocation()
+     *
+     * @returns {string}
+     */
     reticlePathString : function( ) {
         oPath = "";
 
@@ -291,10 +300,13 @@ stella.skyView = {
         return oPath;
     },
 
+    /**
+     * initialize the reticles
+     */
     makeAndInstallReticles : function() {
 
         this.reticlePath = this.paper.path( "M 0 0").attr({
-            stroke : "green",
+            stroke : stella.constants.cReticleColor,
             strokeWidth : this.baseStrokeWidth,
             strokeOpacity : 0.7,
             fill : "transparent"
@@ -302,7 +314,7 @@ stella.skyView = {
 
         this.reticlePath.addClass( "noPointer ");   //  so we click through
 
-        this.positionHeadsUp = this.paper.text(0, 0, "position").attr({fill : "green"}).addClass("noPointer headsUp");
+        //this.positionHeadsUp = this.paper.text(0, 0, "position").attr({fill : "green"}).addClass("noPointer headsUp");
 
     }
 

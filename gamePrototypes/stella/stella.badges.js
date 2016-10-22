@@ -42,8 +42,17 @@ to level one of the associated badge.
 
  */
 
+/**
+ * Global responsible for recording THIS USER'S badge achievements, his/her badge status.
+ * @type {{checkNewResultForBadgeProgress: stella.badges.checkNewResultForBadgeProgress, badgeLevelForResult: stella.badges.badgeLevelForResult, lowestComponentPoints: stella.badges.lowestComponentPoints, badgeIDbyResultType: {temp: string, vel_r: string, pos_x: string, pos_y: string, pm_x: string, pm_y: string, parallax: string}, badgeStatus: {temp: {setAwardLevel: stella.badges.badgeStatus.temp.setAwardLevel, level: number, name: string, scoreInBadge: number, badgeComponents: *[]}, vel_r: {setAwardLevel: stella.badges.badgeStatus.vel_r.setAwardLevel, level: number, name: string, scoreInBadge: number, badgeComponents: *[]}, position: {setAwardLevel: stella.badges.badgeStatus.position.setAwardLevel, level: number, name: string, scoreInBadge: number, badgeComponents: *[]}, pm: {setAwardLevel: stella.badges.badgeStatus.pm.setAwardLevel, level: number, name: string, scoreInBadge: number, badgeComponents: *[]}, parallax: {setAwardLevel: stella.badges.badgeStatus.parallax.setAwardLevel, level: number, name: string, scoreInBadge: number, badgeComponents: *[]}}, toHTML: stella.badges.toHTML, toString: stella.badges.toString}}
+ */
 stella.badges = {
 
+    /**
+     * We just got a new result that is deemed worthy.
+     * What badge(s) does it count towards?
+     * @param iResult
+     */
     checkNewResultForBadgeProgress: function (iResult) {
         for (var iBadge in this.badgeStatus) {
             if (this.badgeStatus.hasOwnProperty(iBadge)) {
@@ -69,11 +78,27 @@ stella.badges = {
         }
     },
 
+    /**
+     * Given a result type (e.g., "pos_x" find the level of the associated badge
+     * (here, "position," whose name is "Astrometry.")
+     *
+     * @param iResultType
+     * @returns {number|*}
+     */
     badgeLevelForResult : function( iResultType ) {
 
         return this.badgeStatus[ this.badgeIDbyResultType[iResultType]].level;
     },
 
+    /**
+     * Each badge has an array of components.
+     * Each component has earned points associated with it.
+     * This method finds the lowest points value for the components.
+     *
+     * So note: if the lowest value is greater than zero, the user has done something worthy in ALL components.
+     * @param iComponents
+     * @returns {Number}
+     */
     lowestComponentPoints : function( iComponents ) {
         var out = Number.MAX_VALUE;
         iComponents.forEach( function( iC ){
@@ -84,6 +109,10 @@ stella.badges = {
         return out;
     },
 
+    /**
+     * Which badge corresponds to which result?
+     * Use this object to find out.
+     */
     badgeIDbyResultType : {
         temp: "temp",
         vel_r: "vel_r",
@@ -94,6 +123,23 @@ stella.badges = {
         parallax: "parallax"
     },
 
+    /**
+     * Here is the actual user's badge status.
+     * There is a key for each badge type (mapped from result types above)
+     * The value associated with the badge type is itself an object.
+     *
+     * level    the current level the user has earned
+     * name     the full name of the badge
+     * scoreInBadge how many points the user has earned in this badge
+     * badgeComponents  Array of objects, one for each sub-achievement you need for the badge.
+     *      description text descriptionof the component
+     *      points  how many points you have earned in this component
+     *      relevantResult the most recent StarResult used to gain points
+     *      fitsInComponent a function(!) that takes a StarResult and returns a Boolean, whether it is appropriate for this component
+     *      (remember that the result will have been evaluated elsewhere for its precision)
+     *  SetAwardLevel   a function (up at the badge level) that returns the level of the badge.
+     *      This typically depends on the lowest component score and the total points scored in the badge.
+     */
     badgeStatus: {
 
         //  the Temperature badge
@@ -136,6 +182,8 @@ stella.badges = {
                 }
             ]
         },
+
+        //  Radial Velocity badge.
 
         vel_r: {
             setAwardLevel: function( ) {
@@ -237,7 +285,7 @@ stella.badges = {
             ]
         },
 
-        //  the proper motion (pm) badge. Needs both x and y.
+        //  the parallax badge.
 
         parallax : {
             setAwardLevel: function( ) {
@@ -274,6 +322,10 @@ stella.badges = {
     },
 
 
+    /**
+     * An HTML report of the current badge status
+     * @returns {string}
+     */
     toHTML : function() {
         var out = "<h2>Badge Progress</h2>";
         for (var iBadge in this.badgeStatus) {
@@ -291,6 +343,10 @@ stella.badges = {
         return out;
     },
 
+    /**
+     * a string (text) report of the current badge progress.
+     * @returns {string}
+     */
     toString: function () {
 
         var out = "\nNEW BADGE PROGRESS!\n";

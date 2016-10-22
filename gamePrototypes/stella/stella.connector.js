@@ -113,31 +113,31 @@ stella.connector = {
             },
             function (iResult) {
                 this.spectrumCaseID = iResult.values[0].id;     //  need for the channels sub-collection
+
+                //      assemble values array for the channels
+
+                var tChannelValues = [];
+
                 iChannels.forEach(function (ch) {
-                    stella.connector.emitSpectrumChannel(ch);   //  send that channel
-                });
+                    tChannelValues.push(
+                        {
+                            parent: this.spectrumCaseID,
+                            values: {
+                                wavelength: ch.min.toFixed(5),
+                                intensity: ch.intensity.toFixed(2)
+                            }
+                        }
+                    );
+                }.bind(this));
 
-            }.bind(this),
-            this.spectraDataSetName
-        );
-    },
+                codapHelper.createCases(
+                    this.channelCollectionName,
+                    tChannelValues,
+                    null,       //  no callback
+                    this.spectraDataSetName
+                );
 
-    /**
-     * emit a single channel
-     * todo: consider constructing an array and creating this whole collection in a single call with CreateCases
-     * @param iChannel
-     */
-    emitSpectrumChannel: function (iChannel ) {
-        codapHelper.createCase(
-            this.channelCollectionName,
-            {
-                parent : this.spectrumCaseID,
-                values : {
-                    wavelength : iChannel.min.toFixed(5),
-                    intensity :   iChannel.intensity.toFixed(2)
-                }
-            },
-            null,       //  no callback
+            }.bind(this),           //  end of create spectrum level case callback
             this.spectraDataSetName
         );
     },

@@ -27,12 +27,21 @@
 
 /* global $, stella, SpectrumView, Snap, console  */
 
+/**
+ * Global object to handle UI, especially text.
+ * this includes the text of buttons and other controls.
+ *
+ * @type {{fixStellaUITextAndControls: stella.ui.fixStellaUITextAndControls, keypressInStarPointingBox: stella.ui.keypressInStarPointingBox, assembleStarResultMenu: stella.ui.assembleStarResultMenu, initializeUINames: stella.ui.initializeUINames}}
+ */
 stella.ui = {
 
+    /**
+     * Called after any user action has changed anything that should be reflected in the text or controls.
+     */
     fixStellaUITextAndControls : function() {
 
-        var tTimeAndScoreText = "Date " + stella.model.now.toFixed(2) + " • score = " + stella.player.stellaScore;
 
+        //  below the sky pane
         this.shortStatusField.html(stella.manager.playing ? "game in progress" : "no game");
 
         //  correct title for new/abort game button
@@ -48,9 +57,14 @@ stella.ui = {
             stella.model.skySpectrum = stella.manager.focusStar.setUpSpectrum();
         }
 
+        //  Blue bar at the top of the screen
+
+        //  last part of the blue bar at the top of the screen
+        var tTimeAndScoreText = "Date " + stella.model.now.toFixed(2) + " • score = " + stella.player.stellaScore;
+        //  assemble the whole blue bar at the top
         this.starInfoTextField.text( focusStarText + " • " + tTimeAndScoreText );
 
-        //  spectra labels
+        //  Spectra tab: spectra labels
 
         if (stella.spectrumManager.skySpectrumView.spectrum) {
             this.skySpectrumLabel.text(stella.spectrumManager.skySpectrumView.toString());
@@ -68,30 +82,31 @@ stella.ui = {
         $("#lambdaMin").val( stella.spectrumManager.skySpectrumView.lambdaMin.toFixed(1));
         $("#lambdaMax").val( stella.spectrumManager.skySpectrumView.lambdaMax.toFixed(1));
 
-        //  starResult text
+        //  starResult tab
 
-        var tStarResultHeadText = " ";
+        var tStarResultHeadText = " ";      //  the results "headline"
         var tStarResultUnitsText = " ";
         var tBadgePrivilegeText = "";
 
-        var tResultType = stella.manager.starResultType;
+        var tResultType = stella.manager.starResultType;    //  e.g.,, "pos_x", "temp"
+        var tResultName = stella.starResultTypes[ tResultType].name;
 
         if (stella.manager.focusStar === null) {
             tStarResultHeadText = "Point at a star to record results";
         } else {
-            tStarResultUnitsText = stella.starResultTypes[stella.manager.starResultType].units;
+            tStarResultUnitsText = stella.starResultTypes[ tResultType ].units;
 
-            tStarResultHeadText = "Results for " + stella.manager.focusStar.id + ": ";
-            tStarResultHeadText += stella.manager.starResultType + " = ";
+            tStarResultHeadText = stella.manager.focusStar.id + ": ";
+            tStarResultHeadText += tResultName + " = ";
             tStarResultHeadText += stella.manager.starResultValue !== null ? stella.manager.starResultValue : "(enter a value)";
             tStarResultHeadText += " (" + tStarResultUnitsText + ")";
         }
         this.starResultHeadline.text( tStarResultHeadText );
-        this.starResultUnits.text(tStarResultUnitsText );
+        this.starResultUnits.text( tStarResultUnitsText );
 
-        var tRelValText = "";
+        var tRelValText = "";   //  for constructing "relevant values" to help the user know what to type
         switch( tResultType) {
-            case "pos_x":
+            case "pos_x":       //  for position, report the telescope pointing
             case "pos_y":
                 tRelValText += "telescope pointing x: " + stella.skyView.telescopeWhere.x.toFixed(6) +
                 "° y: " + stella.skyView.telescopeWhere.y.toFixed(6) + "°";
@@ -103,6 +118,8 @@ stella.ui = {
         }
 
         this.relevantValuesText.html( tRelValText );
+
+        //  results, continued: Construct the text about badges and their privileges.
 
         var tLevel = stella.badges.badgeLevelForResult( tResultType );
         var tBadgeName = stella.badges.badgeStatus[ stella.badges.badgeIDbyResultType[tResultType]].name;
@@ -116,22 +133,30 @@ stella.ui = {
             this.findAutoResultButton.hide();
         }
 
-        //  badges stuff
+        //  install this badges stuff
 
-        this.badgePrivilegeText.html( tBadgePrivilegeText );
-        this.badgesreport.html( stella.badges.toHTML());
+        this.badgePrivilegeText.html( tBadgePrivilegeText );    //  on the results tab
+        this.badgesreport.html( stella.badges.toHTML());        //  on the badges tab
     },
 
 
+    /**
+     * This handler triggers telescope pointing by typing text into the box on the Sky tab
+     * @param e     the keyboard event
+     */
     keypressInStarPointingBox : function(e) {
-        if (e.type === "blur" || e.keyCode === 13) {
+        if (e.type === "blur" || e.keyCode === 13) {    //  tab or enter, respectively
             var tText = this.pointAtStarInputField.val();
             var tStar = stella.model.starFromTextID( tText );
             stella.manager.pointAtStar( tStar );
         }
     },
 
-
+    /**
+     * Called at the beginning: make the menu that includes all possible star results
+     * stella.starResultTypes lives in StarResult.js.
+     * @returns {string}
+     */
     assembleStarResultMenu: function () {
         var oMenu = '<select  id="starResultTypeMenu" onchange="stella.manager.starResultTypeChanged()">\n';
 
@@ -145,12 +170,16 @@ stella.ui = {
         return oMenu;
     },
 
+    /**
+     * Define members corresponding to many id = "whatever" attributes in the html.
+     */
     initializeUINames : function() {
 
         this.newGameButton = $("#newGameButton");
-        this.starInfoTextField = $("#starInfo");
+        this.starInfoTextField = $("#starInfo");        //  the big blue bar text
         this.shortStatusField = $("#shortStatus");
         this.pointAtStarInputField = $("#pointAtStar");
+        this.telescopeStatusText = $("#telescopeStatusText");
 
 
         //  results tab items

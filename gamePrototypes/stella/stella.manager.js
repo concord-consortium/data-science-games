@@ -37,9 +37,9 @@ stella.manager = {
     playing: false,
     focusStar: null,       //  what star are we pointing at?
     starResultType: null,  //  kind of result. set in newGame()
-    starResultValue: null,
+    starResultValue: null,  //  the result text box.
 
-    starResultIsAuto : false,
+    starResultIsAuto : false,   //  did we get this latest result via the Auto button?
 
 
     /**
@@ -49,6 +49,7 @@ stella.manager = {
 
         ElementalSpectra.initialize();  //  read the line data into objects
 
+        stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
         stella.model.newGame();     //  make all the stars etc.
         stella.spectrumManager.newGame( );
         this.playing = true;
@@ -56,7 +57,6 @@ stella.manager = {
         stella.skyView.initialize();   //  make the sky
 
         stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
-        stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
         stella.spectrumManager.spectrumParametersChanged();     //  reads the UI and sets various variables.
         stella.manager.updateStella();              //  update the screen and text
     },
@@ -73,6 +73,13 @@ stella.manager = {
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
 
+    /**
+     * Called to make the given star the one we're working on.
+     * We get here by pointing, called from `pointAtStar( iStar )`.
+     * We get here by selection,
+     * We can also focus by panning. See up().
+     * @param iStar
+     */
     focusOnStar : function(iStar) {
         this.focusStar = iStar;
         stella.connector.selectStarInCODAPByCatalogID(iStar.caseID);
@@ -199,6 +206,7 @@ stella.manager = {
 
     /**
      * User has entered a value
+     * @param   iAuto   was this value entered using the "Auto"matic button?
      */
     starResultValueChanged: function ( iAuto ) {
         stella.manager.starResultIsAuto = iAuto;
@@ -208,6 +216,9 @@ stella.manager = {
 
     /**
      * User has clicked Save for a result.
+     * This is the button handler.
+     * The html calls this without a parameter, which invokes the call to new StarResult()
+     * @param iStarResult   the values for the result, being passed in
      */
     saveMyOwnStarResult: function (iStarResult) {
         if (stella.manager.focusStar) {
@@ -228,6 +239,7 @@ stella.manager = {
         More control actions
      */
 
+/*
     doubleClickOnAStar: function () {
         if (stella.skyView.magnification < 100) {
             return;
@@ -259,11 +271,17 @@ stella.manager = {
         stella.model.stellaElapse(stella.constants.timeRequired.savePositionFromDoubleclick);
         stella.manager.updateStella();
     },
+*/
 
+    /**
+     * user is entitled to an automatic result because of badges, and has requested one.
+     * This puts a propsed value in the text box.
+     * User still has to press save.
+     * (Which is normal, BUT the "auto" flag has been set)
+     */
     getStarDataUsingBadge: function () {
-        //  user is entitled to an automatic result because of badges, and has requested one.
-
         var tValue = null, tForRecord = null;
+
         if (stella.manager.focusStar) {
             var tResultType = stella.manager.starResultType;
 
