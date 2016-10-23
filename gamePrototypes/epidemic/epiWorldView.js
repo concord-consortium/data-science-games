@@ -35,7 +35,7 @@ epiWorldView = {
     /**
      *  snap.svg element that contains all the locations and critters. The whole world.
      */
-    snapWorld: null,
+    epiWorldPaper: null,
     model: null,
 
     /**
@@ -56,7 +56,7 @@ epiWorldView = {
     },
 
     /**
-     * Clear the snapWorld, then use information from the model to add all of the world's
+     * Clear the epiWorldPaper, then use information from the model to add all of the world's
      * locations and critters (in the form of their snapShapes).
      *
      * Called when we start a new game.
@@ -64,12 +64,12 @@ epiWorldView = {
     flushAndRedraw : function () {
 
         this.setGridSize();
-        this.snapWorld.clear();
+        this.epiWorldPaper.clear();
 
         var i;
         for (i = 0; i < this.model.locations.length; i++) {
             var tL = this.model.locations[i];
-            this.snapWorld.append(tL.snapShape);
+            this.epiWorldPaper.append(tL.snapShape);
         };
 
         /**
@@ -78,25 +78,25 @@ epiWorldView = {
          */
         for (i = 0; i < this.model.critters.length; i++) {
             var tC = this.model.critters[i];
-            this.snapWorld.append(tC.view.snapShape);
+            this.epiWorldPaper.append(tC.view.snapShape);
         }
     },
 
 
     /**
-     * Initialize the view. This creates this.snapWorld.
+     * Initialize the view. This creates this.epiWorldPaper.
      */
     initialize: function() {
-        this.snapWorld = Snap(document.getElementById( "epiWorldView" ));
+        this.epiWorldPaper = Snap(document.getElementById( "epiWorldView" ));
 
         //  these listeners are for zoom and pan
 
-        this.snapWorld.node.addEventListener("mousedown", epiWorldView.down,false);
-        this.snapWorld.node.addEventListener("mouseup", epiWorldView.up,false);
-        this.snapWorld.node.addEventListener("mousemove", epiWorldView.move,false);
+        this.epiWorldPaper.node.addEventListener("mousedown", epiWorldView.down,false);
+        this.epiWorldPaper.node.addEventListener("mouseup", epiWorldView.up,false);
+        this.epiWorldPaper.node.addEventListener("mousemove", epiWorldView.move,false);
 
-        this.actualHeight = this.snapWorld.attr("height");
-        this.actualWidth = this.snapWorld.attr("width");
+        this.actualHeight = this.epiWorldPaper.attr("height");
+        this.actualWidth = this.epiWorldPaper.attr("width");
 
         this.updateViewBox();
 
@@ -118,7 +118,7 @@ epiWorldView = {
         if (this.VBTop + this.VBHeight > this.VBMaxHeight) this.VBTop = this.VBMaxHeight - this.VBHeight;
 
         var tString = this.VBLeft.toString() + " " + this.VBTop + " " + this.VBWidth + " " + this.VBHeight;
-        this.snapWorld.attr({"viewBox" : tString});
+        this.epiWorldPaper.attr({"viewBox" : tString});
     },
 
     /**
@@ -158,7 +158,7 @@ epiWorldView = {
     },
 
     move : function ( e ) {
-        if (!epiManager.draggingCritter) {
+        if (!epiManager.draggingCritter) {      //      we are panning the main view
             var tHScale = epiWorldView.VBWidth / epiWorldView.actualWidth;
             var tVScale = epiWorldView.VBHeight / epiWorldView.actualHeight;
 

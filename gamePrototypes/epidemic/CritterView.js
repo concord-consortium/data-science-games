@@ -102,7 +102,7 @@ var CritterView = function( c ) {
             // todo: epiManager.handleMoveOfCritter();
         },
         onDragEnd = function( iEvent) {
-            var CTM = epiWorldView.snapWorld.node.getScreenCTM();   //  CTM = coordinate transformation matrix
+            var CTM = epiWorldView.epiWorldPaper.node.getScreenCTM();   //  CTM = coordinate transformation matrix
             var CTMI = CTM.inverse();
             var screenCoordinates = this.snapShape.node.createSVGPoint();
             screenCoordinates.x = iEvent.offsetX;

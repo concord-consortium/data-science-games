@@ -52,6 +52,7 @@ var codapHelper = {
             },
             function( iResult) {
                 if( !iResult.success) {
+                    console.log('The data set '+ iDataSetDescription.name +" did not exist. Better make it!");
                     // The dataset did not already exist, so go ahead and create it
                     this.codapPhone.call(
                         {
