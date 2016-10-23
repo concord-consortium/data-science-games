@@ -52,7 +52,6 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <script src="../common/iframe-phone.js" language="javascript"></script>
     <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
 
-    <script src="../common/dsgSQL.js" language="javascript"></script>
     <script src="../common/TEEUtils.js" language="javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
@@ -63,16 +62,21 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <script src="../common/snap.svg.js"></script>
 
     <!--            our game source         -->
+    <script src="stella.js" language="JavaScript"></script>
+
     <script src="Line.js" language="JavaScript"></script>
     <script src="Spectrum.js" language="JavaScript"></script>
     <script src="SpectrumView.js" language="JavaScript"></script>
     <script src="Star.js" language="JavaScript"></script>
     <script src="Planet.js" language="JavaScript"></script>cale
     <script src="ElementalSpectra.js" language="JavaScript"></script>
+    <script src="StarResult.js" language="JavaScript"></script>
 
 
-    <script src="stella.js" language="JavaScript"></script>
+    <script src="stella.badges.js" language="JavaScript"></script>
+    <script src="stella.player.js" language="JavaScript"></script>
     <script src="stella.manager.js" language="JavaScript"></script>
+    <script src="stella.spectrumManager.js" language="JavaScript"></script>
     <script src="stella.share.js" language="JavaScript"></script>
     <script src="stella.model.js" language="JavaScript"></script>
     <script src="stella.connector.js" language="JavaScript"></script>
@@ -101,7 +105,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <li><a href="#spectraTab">Spectra</a></li>
         <li><a href="#starResultTab">Results</a></li>
         <li><a href="#instructionsTab">How To</a></li>
-        <li><a href="#backgroundTab">About</a></li>
+        <li><a href="#badgesTab">Badges</a></li>
         <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debug</a></li>
     </ul>
@@ -136,10 +140,10 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <label>
             Wavelength range (nm):
             <input type="number" id="lambdaMin" value="350" maxlength="9" max="700" min="350"
-                   onblur="stella.manager.spectrumParametersChanged();">
+                   onblur="stella.spectrumManager.spectrumParametersChanged();">
             -
             <input type="number" id="lambdaMax" value="700" maxlength="9" max="700" min="350"
-                   onblur="stella.manager.spectrumParametersChanged();">
+                   onblur="stella.spectrumManager.spectrumParametersChanged();">
         </label>
 
         <h2 id="skySpectrumLabel">From a Star</h2>
@@ -147,7 +151,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             <svg id="skySpectrumDisplay" width="300" height="64">
                 <rect width="100" height="100" fill="dodgerblue"></rect>
             </svg>
-            <button id="saveSkySpectrumButton" onclick="stella.manager.saveSpectrumToCODAP('sky')">save</button>
+            <button id="saveSkySpectrumButton" onclick="stella.spectrumManager.saveSpectrumToCODAP('sky')">save</button>
         </div>
 
         <div class="vBox">
@@ -157,9 +161,9 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
                 <legend>Source</legend>
                 <div class="hBox">
                     <input type="radio" name="sourceType" value="discharge"
-                           onchange="stella.manager.spectrumParametersChanged();" checked>
+                           onchange="stella.spectrumManager.spectrumParametersChanged();" checked>
                     Discharge tube:
-                    <select name="source" id="dischargeTubeMenu" onchange="stella.manager.spectrumParametersChanged();">
+                    <select name="source" id="dischargeTubeMenu" onchange="stella.spectrumManager.spectrumParametersChanged();">
                         <option value="H">Hydrogen</option>
                         <option value="HeI">Helium</option>
                         <option value="LiI">Lithium (neutral)</option>
@@ -171,7 +175,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
 
                 <div class="hBox">
                     <input type="radio" name="sourceType" value="blackbody"
-                           onchange="stella.manager.spectrumParametersChanged();">
+                           onchange="stella.spectrumManager.spectrumParametersChanged();">
                     <label for="labTempSlider">
                         Blackbody spectrum at <span id="labTempDisplay">5800</span>
                         K:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;
@@ -194,7 +198,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <h2 id="labSpectrumLabel">From the Lab</h2>
         <div class="hBox">
             <svg id="labSpectrumDisplay" width="300" height="64"></svg>
-            <button id="saveLabSpectrumButton" onclick="stella.manager.saveSpectrumToCODAP('lab')">save</button>
+            <button id="saveLabSpectrumButton" onclick="stella.spectrumManager.saveSpectrumToCODAP('lab')">save</button>
         </div>
     </div>
 
@@ -204,17 +208,22 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
 
         <h2 id="starResultHeadline"></h2>
         <p>Choose what type of result you're recording, enter a value, and press <b>save</b></p>
+
         <span id="starResultMenu"></span>
         <input id="starResultValue" type="number" maxlength="15" onblur="stella.manager.starResultValueChanged()"/>
         <span id="starResultUnits"></span>
-        <button id="saveStarResult" onclick="stella.manager.saveStarResult()">save</button>
+        <button id="saveStarResult" onclick="stella.manager.saveMyOwnStarResult()">save</button>
+        <br>
+        <span id="badgePrivilegeText"></span>
+        <button id="findAutoResult" onclick="stella.manager.getStarDataUsingBadge()">auto</button>
+
 
 
     </div>
 
 
     <div id="instructionsTab">
-        <p>Simple goal for now: get points.</p>
+        <p>Simple goal for now: get points. And badges.</p>
         <p>Click on a star to point at it. Its record will appear in the catalog (if you
             have created the tables).</p>
         <p>Go to the <b>Spectra</b> tab to see and record spectra from the star you're pointing at. You can also create
@@ -229,8 +238,11 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     </div>
 
 
-    <div id="backgroundTab">
-        <p>For now, this is an astronomy "sandbox" in which you get to play with spectra and other things.</p>
+    <!--        BADGES tab      -->
+
+
+    <div id="badgesTab">
+        <p id="badgesHTML"></p>
     </div>
 
 

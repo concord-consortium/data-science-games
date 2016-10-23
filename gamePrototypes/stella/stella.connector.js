@@ -75,10 +75,19 @@ stella.connector = {
      * @param iValues
      * @param iCallback
      */
-    emitStarResult : function( iValues, iCallback ) {
+    emitStarResult : function( iStarResult, iCallback ) {
         codapHelper.createCase(
             this.starResultsCollectionName,
-            { values : iValues },
+            {
+                values : {
+                    date: iStarResult.date,
+                    id: iStarResult.id,
+                    type: iStarResult.type,
+                    value: iStarResult.value,
+                    units: iStarResult.units,
+                    points: iStarResult.points
+                }
+            },
             iCallback,           //  callback
             this.starResultsDataSetName
         );
@@ -174,7 +183,7 @@ stella.connector = {
                     labels: {
                         singleCase: "result",
                         pluralCase: "results",
-                        setOfCasesWithArticle: "results data set"
+                        setOfCasesWithArticle: "the results data set"
                     },
 
                     attrs: [
