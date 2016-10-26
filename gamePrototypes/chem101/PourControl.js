@@ -26,8 +26,8 @@
  */
 
 
-PourControl = function( iDOMID, iCallback ) {
-    this.paper = Snap(document.getElementById(iDOMID)).attr({viewBox : "0 0 80 24"});
+PourControl = function (iDOMID, iCallback) {
+    this.paper = Snap(document.getElementById(iDOMID)).attr({viewBox: "0 0 120 24"});
     this.callback = iCallback;
 
     this.w = this.paper.attr("width");
@@ -40,54 +40,62 @@ PourControl = function( iDOMID, iCallback ) {
     this.previous = null;
     this.pouring = false;
 
-    this.paper.mousedown( this.doMouseDown.bind(this) );
-    this.paper.mouseup( this.doMouseUp.bind(this) );
-    this.paper.mouseout( this.doMouseOut.bind(this) );
-    this.paper.mouseover( this.doMouseOver.bind(this) );
-    this.paper.mousemove( this.doMouseMove.bind(this) );
+    this.paper.text(16, 13, "POUR control").addClass("noPointer noSelect").attr({
+        fontFamily : "Verdana"
+    });
+    this.paper.text(97, 20, "fast").addClass("noPointer noSelect");
+    this.paper.text(2, 20, "slow").addClass("noPointer noSelect");
 
-    this.bgRect = this.paper.rect(0, 0, 80, 24).attr({fill : "goldenrod"});
+    this.paper.mousedown(this.doMouseDown.bind(this));
+    this.paper.mouseup(this.doMouseUp.bind(this));
+    this.paper.mouseout(this.doMouseOut.bind(this));
+    this.paper.mouseover(this.doMouseOver.bind(this));
+    this.paper.mousemove(this.doMouseMove.bind(this));
+
+    this.bgRect = this.paper.rect(0, 0, 120, 24).attr({fill: "goldenrod"}).attr({opacity:0.5});
 
 };
 
-PourControl.prototype.setPourSpeed = function( iEvent ) {
+PourControl.prototype.setPourSpeed = function (iEvent) {
     var uupos = this.paper.node.createSVGPoint();
     uupos.x = iEvent.clientX;
     uupos.y = iEvent.clientY;
     var ctm = iEvent.target.getScreenCTM().inverse();
-    if (ctm) {     uupos = uupos.matrixTransform( ctm ); }
+    if (ctm) {
+        uupos = uupos.matrixTransform(ctm);
+    }
     var tX = uupos.x;
 
-    this.pourSpeed = tX / this.w;
+    this.pourSpeed = (tX / this.w) * (tX / this.w);
 };
 
-PourControl.prototype.doMouseDown = function( iEvent ) {
+PourControl.prototype.doMouseDown = function (iEvent) {
     this.pouring = true;
-    this.setPourSpeed( iEvent );
-    this.trackPouring(  );
+    this.setPourSpeed(iEvent);
+    this.trackPouring();
 };
 
-PourControl.prototype.doMouseUp = function( iEvent ) {
+PourControl.prototype.doMouseUp = function (iEvent) {
     this.pouring = false;
     this.previous = null;
 };
 
-PourControl.prototype.doMouseOut = function( iEvent ) {
+PourControl.prototype.doMouseOut = function (iEvent) {
     this.pouring = false;
     this.previous = null;
 };
 
-PourControl.prototype.doMouseOver = function( iEvent ) {
+PourControl.prototype.doMouseOver = function (iEvent) {
     console.log("over");
 };
 
-PourControl.prototype.doMouseMove = function( iEvent ) {
-    this.setPourSpeed( iEvent );
+PourControl.prototype.doMouseMove = function (iEvent) {
+    this.setPourSpeed(iEvent);
 };
 
-PourControl.prototype.updatePour = function( iDt ) {
+PourControl.prototype.updatePour = function (iDt) {
     var tFlow = this.pourSpeed * this.maxRate * iDt;
-    this.callback( tFlow);
+    this.callback(tFlow);
 };
 
 /**
@@ -95,7 +103,7 @@ PourControl.prototype.updatePour = function( iDt ) {
  * @param timestamp
  */
 PourControl.prototype.trackPouring = function (timestamp) {
-    if (!this.previous )  this.previous = timestamp;
+    if (!this.previous)  this.previous = timestamp;
     var tDt = (timestamp - this.previous) / 1000.0;
     if (isNaN(tDt)) {
         tDt = 0;

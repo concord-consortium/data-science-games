@@ -27,7 +27,8 @@
 
 
 chem101.manager = {
-    theEquipment: null,      //      array of beakers, etc.
+    theFlowAndDragThing: null,      //      array of beakers, etc.
+    chemLabView : null,
     theSourceName: "H2O",
     theSampleBeaker : null,
     theSampleNumber : 0,
@@ -38,11 +39,15 @@ chem101.manager = {
 
     getNewSample : function() {
         this.theSampleNumber += 1;
-        this.theSampleBeaker = this.theEquipment.addBeaker("Sample " + this.theSampleNumber, 150);
+        this.theSampleBeaker = this.createEmptyBeaker(
+            chem101.glasswareSpec.beaker250,
+            "Sample " + this.theSampleNumber,
+            "beakerRR"
+        );
 
         //  make an acidic solution HCl, 100 mL, between molMin and molMax molarity.
 
-        var molMin = .097; var molMax = 0.102;
+        var molMin = .114; var molMax = 0.132;
         var tMolarity = molMin + Math.random() * (molMax - molMin);
         var tVolume = 0.1;      //  liters
         var tMoles = tMolarity * tVolume;
@@ -54,8 +59,15 @@ chem101.manager = {
         this.theSampleBeaker.addContentsToContainer(tContents);
     },
 
+    createEmptyBeaker : function( iGlasswareSpec, iLabel, iDropZoneID) {
+        var tSampleBeaker = new Beaker(iGlasswareSpec, iLabel );
+        this.chemLabView.addBeaker(tSampleBeaker,iDropZoneID);
+        //  this.theEquipment.containers.push( tSampleBeaker );
+        return tSampleBeaker;
+    },
+
     updateUI: function () {
-        $("#beakerContents").html(this.theEquipment.contentsHTML());    //  debugging info
+        $("#beakerContents").html(this.theFlowAndDragThing.contentsHTML());    //  debugging info
     },
 
     /**
@@ -74,8 +86,8 @@ chem101.manager = {
     adjustButtonTextAndDisability : function(iAmount, iWhat ) {
 
         //  What container (view)s are we using?
-        var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
-        var tToView = this.theEquipment.destinationContainerView;
+        var tFromZone = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
+        var tToZone = this.theFlowAndDragThing.destinationDropZone;
 
         //  fix the alteration text label
 
@@ -96,19 +108,19 @@ chem101.manager = {
 
         var tButtonText =  "";
 
-        if (tToView) {
-            if (tFromView) {
-                if (tToView === tFromView) {    //  same. fill from bank.
-                    tAlterationText += "Add " + iWhat + " to " + tToView.model.label;
+        if (tToZone) {
+            if (tFromZone) {
+                if (tToZone === tFromZone) {    //  same. fill from bank.
+                    tAlterationText += "Add " + iWhat + " to " + tToZone.labelText();
                 } else {     //  move from place to place
-                    tAlterationText = "Move solution from " + tFromView.model.label + " to " + tToView.model.label;
+                    tAlterationText = "Move solution from " + tFromZone.labelText() + " to " + tToZone.labelText();
                     tUnits = "mL";  //  all beaker-to-beaker flows are in mL
                 }
             } else {    //  no source. Fill from bank
-                tAlterationText += "Add " + iWhat + " to " + tToView.model.label;
+                tAlterationText += "Add " + iWhat + " to " + tToZone.labelText();
             }
-        } else if (tFromView) {    //  no destination? DRAIN.
-            tAlterationText += "Drain from " + tFromView.model.label;
+        } else if (tFromZone) {    //  no destination? DRAIN.
+            tAlterationText += "Drain from " + tFromZone.labelText();
         }
         if (iAmount === "drop") {
             tButtonText = (tUnits === "g" ? "pinch" : "drop");
@@ -125,8 +137,8 @@ chem101.manager = {
         if (iAmount === 'drop') iAmount = .001 / 12;
 
         //  What container (view)s are we using?
-        var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
-        var tToView = this.theEquipment.destinationContainerView;
+        var tFromView = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
+        var tToView = this.theFlowAndDragThing.destinationDropZone;
 
         //  if (!tToView) return;
 
@@ -139,17 +151,17 @@ chem101.manager = {
                     tContentsToBeAdded.addSubstance(this.theSourceName, iAmount);
                 } else {
                     //  both exist but are not the same. Move from "from" to "to"
-                    tContentsToBeAdded = tFromView.model.removeSolutionFromContainer( iAmount );
+                    tContentsToBeAdded = tFromView.pieceOfEquipment.model.removeSolutionFromContainer( iAmount );
                 }
             } else {
                 //  there is no source. So just fill from the bank.
                 tContentsToBeAdded.addSubstance(this.theSourceName, iAmount);
             }
             //  since there is a destination, add the new contents
-            tToView.model.addContentsToContainer( tContentsToBeAdded );  //  the beaker (etc) to add to
+            tToView.pieceOfEquipment.model.addContentsToContainer( tContentsToBeAdded );  //  the beaker (etc) to add to
         } else {
             if (tFromView) {    //  drain
-                tContentsToBeAdded = tFromView.model.removeSolutionFromContainer( iAmount );
+                tContentsToBeAdded = tFromView.pieceOfEquipment.model.removeSolutionFromContainer( iAmount );
                 //  but we discard them.
             }
         }
@@ -162,9 +174,14 @@ chem101.manager = {
 
     initialize: function () {
         this.thePourControl = new PourControl("pour", this.receivePour);
-        this.theEquipment = new Equipment(this, "theChemLabSetupView");
+        this.theFlowAndDragThing = new DragConsequenceManager( );
+        this.chemLabView = new ChemLabSetupView( "theChemLabSetupView");
 
-        this.theEquipment.addBeaker("Beaker 1", 50);
+        var tInitialBeaker = this.createEmptyBeaker( chem101.glasswareSpec.grad50, "G1", "beakerL");
+        var tNextBeaker = this.createEmptyBeaker( chem101.glasswareSpec.beaker250, "Beaker 2", "beakerR");
+        //  var tGrad10 = this.createEmptyBeaker( chem101.glasswareSpec.grad10, "G2", "beakerLL");
+
+        this.getNewSample();
         this.sourceChosen();
     }
 };

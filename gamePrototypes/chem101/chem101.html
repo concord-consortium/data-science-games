@@ -66,8 +66,9 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
     <script src="PourControl.js" language="JavaScript"></script>
     <script src="ChemSetupView.js" language="JavaScript"></script>
     <script src="Contents.js" language="JavaScript"></script>
+    <script src="equipment/Graduation.js" language="JavaScript"></script>
     <script src="equipment/Beaker.js" language="JavaScript"></script>
-    <script src="equipment/Equipment.js" language="JavaScript"></script>
+    <script src="DragConsequenceManager.js" language="JavaScript"></script>
     <script src="chem/Reaction.js" language="JavaScript"></script>
     <script src="chem/Chemistry.js" language="JavaScript"></script>
     <script src="chem/reactionList.js" language="JavaScript"></script>
@@ -94,18 +95,29 @@ Add to beaker:
 
 <br>
 
-<svg id="theChemLabSetupView" width="200" height="200"></svg>
+<svg id="theChemLabSetupView" width="300" height="200">
+    <!--<svg id="beakerLL" class="equipmentZone" width="50" height="200" x="0" y="0"></svg>-->
+    <svg id="beakerL" class="equipmentZone" width="50" height="200" x="50" y="0"></svg>
+    <svg id="beakerR" class="equipmentZone" width="100" height="200" x="100" y="0"></svg>
+    <svg id="beakerRR" class="equipmentZone" width="100" height="200" x="200" y="0"></svg>
+<!--
+    <svg id="zone1" class="equipmentZone" width="100" height="100" x="200" y="0"></svg>
+    <svg id="zone2" class="equipmentZone" width="100" height="100" x="200" y="100"></svg>
+    <svg id="zone3" class="equipmentZone" width="100" height="100" x="200" y="200"></svg>
+-->
+</svg>
 <br>
-<fieldset>
+
+<div>
 <span id="alterationLabel"></span><br>
-    <svg id="pour" height="24" width="80"></svg>
+    <svg id="pour" height="24" width="120"></svg>
 <button id="addSubstance_25" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.025)">25mL</button>
 <button id="addSubstance_5" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.005)">5mL</button>
 <button id="addSubstance_1" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.001)">1mL</button>
 <button id="addSubstance_drop" onclick="chem101.manager.moveOrAddSubstanceToAContainer('drop')">drop</button>
-</fieldset>
+</div>
 <button id="newSampleButton" onclick="chem101.manager.getNewSample()">new sample</button>
-<!--<p id="beakerContents"></p>-->
+<p id="beakerContents"></p>
 </body>
 
 <ul>

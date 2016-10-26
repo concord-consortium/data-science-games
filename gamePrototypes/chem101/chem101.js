@@ -37,7 +37,7 @@ var chem101 = {
 
         pixelsPerCentimeter : 10,
 
-        dropsPerML : 12,
+        dropsPerML : 20,        //      Tim's experience at Lick
 
         emptyIconURI : "../art/emptyIcon.png"
     },
@@ -50,5 +50,50 @@ var chem101 = {
 
     }
 
+
+};
+
+chem101.glasswareSpec = {
+    beaker250 : {
+        name : "250 mL beaker",
+        volume : 0.250,     //  L
+        diameter : 7,       //  cm
+        height : 9.5,       //  cm
+        graduations : {
+            range: 250,
+            majorTickSpacing: 50,
+            minorTickSpacing: 10,
+            firstTick: 50,
+            maxTick: 250
+        }
+    },
+
+    grad50 : {
+        name : "50 mL graduated ctlinder",
+        volume : 0.050,     //  L
+        diameter : 2.3,       //  cm (27 mm on site. I bet that's OD, not ID.
+        height : 16,       //  cm (200 mm on site. Silly.)
+        graduations : {
+            range: 50,
+            majorTickSpacing: 10,
+            minorTickSpacing: 2,
+            firstTick: 10,
+            maxTick: 50
+        }
+    },
+
+    grad10 : {
+        name : "10 mL graduated ctlinder",
+        volume : 0.010,     //  L
+        diameter : 1.8,       //  .
+        height : 16,       //
+        graduations : {
+            range: 10,
+            majorTickSpacing: 1,
+            minorTickSpacing: 0.2,
+            firstTick: 1,
+            maxTick: 10
+        }
+    }
 
 };

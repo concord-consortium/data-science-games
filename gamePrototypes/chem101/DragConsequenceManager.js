@@ -26,50 +26,39 @@
  */
 
 
-Equipment = function( iManager, iViewDOMString ) {
+DragConsequenceManager = function(  ) {
     this.containers = [];
-    this.destinationContainerView = null;
-    this.sourceContainerView = null;
-    this.theView = new ChemLabSetupView( iViewDOMString, this );
-
-    this.myManager = iManager;
+    this.destinationDropZone = null;
+    this.sourceDropZone = null;
 };
 
-Equipment.prototype.addBeaker = function( iLabel, iXPos ) {
-    var nBeaker = new Beaker( );
-    nBeaker.setContainerName( iLabel );
-    nBeaker.equipment = this;
-
-    nBeaker.eventDispatcher.addEventListener(
-        "contentsChanged", this.myManager.updateUI, this.myManager
-    );
-    var tBeakerView = new BeakerView( nBeaker );
-    this.theView.addEquipmentView( tBeakerView, iXPos, 20 );
-
-    this.containers.push( nBeaker );
-    return nBeaker;
-};
-
-Equipment.prototype.alterFlow = function( iWhichEnd, iWhat ) {
-    switch( iWhichEnd ) {
+DragConsequenceManager.prototype.handleMouseAction = function( iZone, iWhat )   {
+    console.log("Processing mouse " + iWhat + " for zone " + iZone.domElement.id);
+    //  iWhat is source or destination
+    switch( iWhat ) {
         case "source":
-            this.sourceContainerView = iWhat;
-            this.destinationContainerView = null;   //  new for draining
+            this.sourceDropZone = iZone;
+            this.destinationDropZone = null;   //  new for draining
             break;
 
         case "destination":
-            this.destinationContainerView = iWhat;
+            this.destinationDropZone = iZone;
             break;
     }
+
     //  we have to change the (temporary?) button text to reflect transfer versus add [ versus drain]
     chem101.manager.sourceChosen( ); //  todo: remove this violation in favor of perhaps events and notifications.
-    //  this.theView.updateFlowIndicator(this.sourceContainerView || this.destinationContainerView, this.destinationContainerView);
+    //  this.theView.updateFlowIndicator(this.sourceDropZone || this.destinationDropZone, this.destinationDropZone);
+
+    chem101.manager.chemLabView.updateFlowIndicator();
 };
 
-Equipment.prototype.contentsHTML = function( ) {
+
+DragConsequenceManager.prototype.contentsHTML = function( ) {
     var out = "";
     this.containers.forEach( function(ixCont) {
         out += "<p><strong>" + ixCont.label + "</strong></p>" + ixCont.contents.toString();
     });
     return out;
 };
+

@@ -51,8 +51,8 @@ chem101.manager = {
 
 
         //  What container (view)s are we using?
-        var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
-        var tToView = this.theEquipment.destinationContainerView;
+        var tFromView = this.theEquipment.sourceDropZone || this.theEquipment.destinationDropZone
+        var tToView = this.theEquipment.destinationDropZone;
 
         //  fix the alteration text label
 
@@ -94,8 +94,8 @@ chem101.manager = {
         if (iAmount === 'drop') iAmount = .001 / 12;
 
         //  What container (view)s are we using?
-        var tFromView = this.theEquipment.sourceContainerView || this.theEquipment.destinationContainerView
-        var tToView = this.theEquipment.destinationContainerView;
+        var tFromView = this.theEquipment.sourceDropZone || this.theEquipment.destinationDropZone
+        var tToView = this.theEquipment.destinationDropZone;
 
         if (!tToView) return;
 
@@ -112,7 +112,7 @@ chem101.manager = {
     },
 
     initialize: function () {
-        this.theEquipment = new Equipment(this, "theChemLabSetupView");
+        this.theEquipment = new DragConsequenceManager(this, "theChemLabSetupView");
 
         this.theEquipment.addBeaker("Beaker 1", 50);
         this.theEquipment.addBeaker("Beaker 2", 150);

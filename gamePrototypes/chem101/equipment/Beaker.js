@@ -28,16 +28,21 @@
 
 /*  global Event */
 
-Beaker = function () {
+Beaker = function ( iGlasswareSpec, iLabel ) {
     this.eventDispatcher = new EventDispatcher();
-    this.label = "Beaker";
-//      this.equipment = null;
+    this.label = iLabel;
+    this.glasswareSpec = iGlasswareSpec;
 
-    this.volume = 0.250;       //  L
-    this.diameter = 7;      //  cm
-    this.height = 9.5;        //  cm
+    this.volume = this.glasswareSpec.volume;       //  L
+    this.diameter = this.glasswareSpec.diameter;      //  cm
+    this.height = this.glasswareSpec.height;        //  cm
 
     this.contents = new Contents();     //  object describing contents
+
+    this.eventDispatcher.addEventListener(
+        "contentsChanged", chem101.manager.updateUI, chem101.manager
+    );
+
 };
 
 Beaker.prototype.doChemistryInContainer = function () {
@@ -79,6 +84,10 @@ Beaker.prototype.addContentsToContainer = function (iContents) {
 };
 
 
+/**
+ * height of the fluid in this thing's contents
+ * @returns {number}    in CENTIMETERS
+ */
 Beaker.prototype.fluidHeight = function () {
     var tArea = Math.PI * this.diameter / 2 * this.diameter / 2;
     var tVol = this.contents.fluidVolume() * 1000;  //  fluidVolume is in liters. We need ccs here.
@@ -103,7 +112,7 @@ Beaker.prototype.solidHeight = function () {
 
 
 BeakerView = function (b) {
-    this.parent = null;     //  the superview
+    this.zone = null;     //  the superview
     this.model = b;         //  the beaker itself
     this.model.eventDispatcher.addEventListener(
         "contentsChanged", this.updateEquipmentView, this
@@ -111,7 +120,7 @@ BeakerView = function (b) {
 
     this.myWidth = b.diameter * chem101.constants.pixelsPerCentimeter;
     this.myHeight = b.height * chem101.constants.pixelsPerCentimeter;
-    this.myCornerRadius = 10;
+    this.myCornerRadius = 10;       //  todo: fix this. Should be in the glassware spec
 
     this.paper = new Snap(this.myWidth, this.myHeight);
     this.origin = {
@@ -130,19 +139,26 @@ BeakerView = function (b) {
     this.label = this.paper.text(
         chem101.constants.glassThickness + 2,
         10, this.model.label).attr({fill: "#246", fontFamily: "Monaco", fontSize: 9});
+    this.label.node.setAttribute("class", "noSelect");  //  this is that css thing
 
 
     //  the click shape is ALMOST on top
+    //  todo: if working with the zones works, remove these handlers.
 
-    this.clickShape = this.colorBeakerShape(0, "transparent");
-
-    this.clickShape.mouseup(function (iEvent) {
-        chem101.manager.theEquipment.alterFlow("destination", this);
+    this.paper.mouseup(function (iEvent) {
+        //chem101.manager.theFlowAndDragThing.alterFlow("destination", this);
+        console.log("    >>>>    mouse UP in the beaker view itself");
     }.bind(this));
 
-    this.clickShape.mousedown(function (iEvent) {
-        chem101.manager.theEquipment.alterFlow("source", this);
+    this.paper.mousedown(function (iEvent) {
+        //chem101.manager.theFlowAndDragThing.alterFlow("source", this);
     }.bind(this));
+
+    //  next is the graduation
+
+    this.theGraduation = new Graduation( this );
+
+    this.paper.append(this.theGraduation);
 
     //  the "empty" icon is on top
 
@@ -152,6 +168,15 @@ BeakerView = function (b) {
         this.emptyThisContainer();
     }.bind(this.model));
 };
+
+
+BeakerView.prototype.mLToYCoordinate = function (iML) {
+    var tArea = Math.PI * this.model.diameter / 2 * this.model.diameter / 2;
+    var tVol = iML;
+    var tDepth = tVol / tArea;
+    return this.myHeight - (tDepth * chem101.constants.pixelsPerCentimeter) - chem101.constants.glassThickness;
+};
+
 
 BeakerView.prototype.updateEquipmentView = function () {
     var tFluidDepth = this.model.fluidHeight() * chem101.constants.pixelsPerCentimeter;
@@ -165,10 +190,10 @@ BeakerView.prototype.updateEquipmentView = function () {
 
     this.fluidMask.animate({
         x: 0,
-        y: this.myHeight - chem101.constants.glassThickness - tSolidDepth - tFluidDepth,
+        y: this.mLToYCoordinate(this.model.contents.fluidVolume() * 1000) - tSolidDepth,
         width: this.myWidth, height: tFluidDepth,
         fill: "#fff"
-    },250);
+    }, 250);
     this.fluid.attr({mask: this.fluidMask});
 
     this.solidMask = this.paper.rect(
@@ -195,3 +220,4 @@ BeakerView.prototype.colorBeakerShape = function (iInset, iColor) {
 
     return tShape;
 };
+

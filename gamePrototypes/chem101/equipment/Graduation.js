@@ -29,33 +29,41 @@
  * This class produces the image of a "graduation"
  * (for a cylinder or buret) and can supply both a Snap.svg "rect"
  * and associated coordinates.
- * @param   iParams  an object containing the info we need for the scale
+ * @param   iContainerView  the BEakerView (or whatever) this will be installed in
  * @constructor
  */
-Graduation = function( iParams ) {
-    this.graphicWidth = 100;
-    this.graphicHeight = 100;
-    this.paper = new Snap( this.graphicWidth, this.graphicHeight );
+Graduation = function (iContainerView) {
+    this.container = iContainerView;
+    this.graphicWidth = this.container.myWidth;
+    this.graphicHeight = this.container.myHeight;
+    this.paper = new Snap(this.graphicWidth, this.graphicHeight);
     //  this.theRect = this.paper.rect(0, 0, this.graphicWidth, this.graphicHeight);
-    this.scaleParameters = iParams;
+    this.scaleParameters = this.container.model.glasswareSpec.graduations;
 
     this.drawGraduation();
 
     return this.paper;
 };
 
-Graduation.prototype.mLToPixels = function( imL ) {
-    var tPixelsPerML = this.graphicHeight / this.scaleParameters.maxTick;
-    return imL * tPixelsPerML;
-};
 
-Graduation.prototype.drawGraduation = function( ) {
+Graduation.prototype.drawGraduation = function () {
     var ixCurrentML = this.scaleParameters.firstTick;
 
-    while ( ixCurrentML <= this.scaleParameters.range) {
-        var tY = this.mLToPixels( ixCurrentML );
-        var tXend = ( ixCurrentML % this.scaleParameters.majorTickSpacing === 0) ? this.graphicWidth : this.graphicWidth / 2;
-        this.paper.line(0, tY, tXend, tY);
+    while (ixCurrentML <= this.scaleParameters.range) {
+        var tY = this.container.mLToYCoordinate(ixCurrentML);
+        if (ixCurrentML % this.scaleParameters.majorTickSpacing === 0) {
+            tXend = this.graphicWidth;
+            var tLabel = this.paper.text(2, tY - 2, ixCurrentML.toFixed(0)).attr({fontSize: 8, fontFamily: "Verdana"});
+            var tLabelWidth = tLabel.node.getBBox().width;
+            tLabel.attr({x: this.graphicWidth - 4 - tLabelWidth});
+            tLabel.addClass("noSelect");
+            //  tLabel.node.setAttribute("class", "noSelect");  //  this is that css thing
+        } else {
+            tXend = this.graphicWidth / 2;
+        }
+        var theLine = this.paper.line(0, tY, tXend, tY);
+        theLine.attr({stroke: "black", strokeWidth: 0.5});
+
         ixCurrentML += this.scaleParameters.minorTickSpacing;
     }
 };
