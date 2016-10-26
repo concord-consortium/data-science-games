@@ -31,6 +31,8 @@ var chem101 = {
     theChemLabSetupView : null,
 
     constants: {
+        version : "001a",
+
         glassColor: "#445577",
         glassInterior: "#ace",
         glassThickness: 3,

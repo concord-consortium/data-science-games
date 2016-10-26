@@ -52,6 +52,10 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
     <link rel='stylesheet' type='text/css'
           href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
 
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
+
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
@@ -68,6 +72,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
     <script src="Contents.js" language="JavaScript"></script>
     <script src="equipment/Graduation.js" language="JavaScript"></script>
     <script src="equipment/Beaker.js" language="JavaScript"></script>
+    <script src="ChemTransfer.js" language="JavaScript"></script>
     <script src="DragConsequenceManager.js" language="JavaScript"></script>
     <script src="chem/Reaction.js" language="JavaScript"></script>
     <script src="chem/Chemistry.js" language="JavaScript"></script>
@@ -77,6 +82,17 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
 
     <script src="chem101.js" language="JavaScript"></script>
     <script src="chem101.manager.js" language="JavaScript"></script>
+    <script src="chem101.connector.js" language="JavaScript"></script>
+
+    <script>
+        /**
+         * Runs when everything is loaded.
+         */
+        $(function () {
+            //  $("#tabs").tabs();
+            startCodapConnection();
+        });
+    </script>
 
 </head>
 <body>
@@ -127,13 +143,6 @@ Add to beaker:
     <li>Click a button to move material in (or from beaker to beaker)
     <li>Click the <img src="../art/emptyIcon.png" width="8" height="8"/> icon to empty a beaker.</li>
 </ul>
-
-
-<script language="JavaScript">
-    window.onload = function() {
-        chem101.initialize();
-    };
-</script>
 
 
 </html>

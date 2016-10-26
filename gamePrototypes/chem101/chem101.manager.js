@@ -28,16 +28,17 @@
 
 chem101.manager = {
     theFlowAndDragThing: null,      //      array of beakers, etc.
-    chemLabView : null,
+    chemLabView: null,
     theSourceName: "H2O",
-    theSampleBeaker : null,
-    theSampleNumber : 0,
-    thePourControl : null,
+    theSampleBeaker: null,
+    theSampleNumber: 0,
+    thePourControl: null,
+    theCurrentTransfer: null,
 
-    previous : null,
-    pouring : false,
+    previous: null,
+    pouring: false,
 
-    getNewSample : function() {
+    getNewSample: function () {
         this.theSampleNumber += 1;
         this.theSampleBeaker = this.createEmptyBeaker(
             chem101.glasswareSpec.beaker250,
@@ -47,7 +48,8 @@ chem101.manager = {
 
         //  make an acidic solution HCl, 100 mL, between molMin and molMax molarity.
 
-        var molMin = .114; var molMax = 0.132;
+        var molMin = .114;
+        var molMax = 0.132;
         var tMolarity = molMin + Math.random() * (molMax - molMin);
         var tVolume = 0.1;      //  liters
         var tMoles = tMolarity * tVolume;
@@ -59,9 +61,9 @@ chem101.manager = {
         this.theSampleBeaker.addContentsToContainer(tContents);
     },
 
-    createEmptyBeaker : function( iGlasswareSpec, iLabel, iDropZoneID) {
-        var tSampleBeaker = new Beaker(iGlasswareSpec, iLabel );
-        this.chemLabView.addBeaker(tSampleBeaker,iDropZoneID);
+    createEmptyBeaker: function (iGlasswareSpec, iLabel, iDropZoneID) {
+        var tSampleBeaker = new Beaker(iGlasswareSpec, iLabel);
+        this.chemLabView.addBeaker(tSampleBeaker, iDropZoneID);
         //  this.theEquipment.containers.push( tSampleBeaker );
         return tSampleBeaker;
     },
@@ -76,14 +78,14 @@ chem101.manager = {
     sourceChosen: function () {
         this.theSourceName = $("#chemSourceSelector").find('option:selected').val();
 
-        this.adjustButtonTextAndDisability( 25, this.theSourceName );
-        this.adjustButtonTextAndDisability( 5, this.theSourceName );
-        this.adjustButtonTextAndDisability( 1, this.theSourceName );
-        this.adjustButtonTextAndDisability( "drop", this.theSourceName );
+        this.adjustButtonTextAndDisability(25, this.theSourceName);
+        this.adjustButtonTextAndDisability(5, this.theSourceName);
+        this.adjustButtonTextAndDisability(1, this.theSourceName);
+        this.adjustButtonTextAndDisability("drop", this.theSourceName);
 
     },
 
-    adjustButtonTextAndDisability : function(iAmount, iWhat ) {
+    adjustButtonTextAndDisability: function (iAmount, iWhat) {
 
         //  What container (view)s are we using?
         var tFromZone = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
@@ -101,12 +103,11 @@ chem101.manager = {
             $(tElementName).show();
         }
 
-
         var listedInChemicals = !(Chemistry.chemicals[iWhat] === undefined);
 
         var tUnits = (listedInChemicals && Chemistry.chemicals[iWhat].type === "solid") ? "g" : "mL";
 
-        var tButtonText =  "";
+        var tButtonText = "";
 
         if (tToZone) {
             if (tFromZone) {
@@ -132,53 +133,79 @@ chem101.manager = {
 
     },
 
+
     moveOrAddSubstanceToAContainer: function (iAmount) {
 
-        if (iAmount === 'drop') iAmount = .001 / 12;
+        if (iAmount === 'drop') iAmount = .001 / chem101.constants.dropsPerML;
 
         //  What container (view)s are we using?
-        var tFromView = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
-        var tToView = this.theFlowAndDragThing.destinationDropZone;
+        var tFromZone = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
+        var tToZone = this.theFlowAndDragThing.destinationDropZone;
 
-        //  if (!tToView) return;
 
         var tContentsToBeAdded = new Contents();
 
-        if (tToView) {
-            if (tFromView) {
-                if (tToView === tFromView) {
+        if (tToZone) {
+            if (tFromZone) {
+                if (tToZone === tFromZone) {
+                    //  mouse down AND up in the same area means "add"
                     //  just add substance from the bank
                     tContentsToBeAdded.addSubstance(this.theSourceName, iAmount);
                 } else {
                     //  both exist but are not the same. Move from "from" to "to"
-                    tContentsToBeAdded = tFromView.pieceOfEquipment.model.removeSolutionFromContainer( iAmount );
+                    tContentsToBeAdded = tFromZone.pieceOfEquipment.model.removeSolutionFromContainer(iAmount);
                 }
             } else {
                 //  there is no source. So just fill from the bank.
                 tContentsToBeAdded.addSubstance(this.theSourceName, iAmount);
             }
             //  since there is a destination, add the new contents
-            tToView.pieceOfEquipment.model.addContentsToContainer( tContentsToBeAdded );  //  the beaker (etc) to add to
+            tToZone.pieceOfEquipment.model.addContentsToContainer(tContentsToBeAdded);  //  the beaker (etc) to add to
         } else {
-            if (tFromView) {    //  drain
-                tContentsToBeAdded = tFromView.pieceOfEquipment.model.removeSolutionFromContainer( iAmount );
+            if (tFromZone) {    //  drain
+                tContentsToBeAdded = tFromZone.pieceOfEquipment.model.removeSolutionFromContainer(iAmount);
                 //  but we discard them.
             }
         }
+
+        //      process data for emission to CODAP
+
+        var tActualAmount = tContentsToBeAdded.fluidVolume();
+
+        var tNeedNewTransfer = (tFromZone !== this.theCurrentTransfer.fromZone || tToZone !== this.theCurrentTransfer.toZone);
+
+        if (tNeedNewTransfer) {
+            this.theCurrentTransfer = new ChemTransfer(tFromZone, tToZone, tActualAmount);
+            chem101.connector.emitTransfer(this.theCurrentTransfer.getValues());    //  emit the empty transfer
+        } else {
+            this.theCurrentTransfer.updateAmountBy(tActualAmount);    //  no need to update a new transfer
+        }
+
     },
 
-    receivePour : function( iFlow ) {
+    receivePour: function (iFlow) {
         var tAmount = iFlow * 0.1;
-        chem101.manager.moveOrAddSubstanceToAContainer( tAmount );
+        chem101.manager.moveOrAddSubstanceToAContainer(tAmount);
+    },
+
+    /**
+     * responds to CODAP notifications.
+     */
+    chem101DoCommand: function (iCommand, iCallback) {
+
+        console.log("chem101DoCommand: ");
+        console.log(iCommand);
     },
 
     initialize: function () {
         this.thePourControl = new PourControl("pour", this.receivePour);
-        this.theFlowAndDragThing = new DragConsequenceManager( );
-        this.chemLabView = new ChemLabSetupView( "theChemLabSetupView");
+        this.theFlowAndDragThing = new DragConsequenceManager();
+        this.chemLabView = new ChemLabSetupView("theChemLabSetupView");
 
-        var tInitialBeaker = this.createEmptyBeaker( chem101.glasswareSpec.grad50, "G1", "beakerL");
-        var tNextBeaker = this.createEmptyBeaker( chem101.glasswareSpec.beaker250, "Beaker 2", "beakerR");
+        this.theCurrentTransfer = new ChemTransfer(null, null, 0);
+
+        var tInitialBeaker = this.createEmptyBeaker(chem101.glasswareSpec.grad50, "G1", "beakerL");
+        var tNextBeaker = this.createEmptyBeaker(chem101.glasswareSpec.beaker250, "Beaker 2", "beakerR");
         //  var tGrad10 = this.createEmptyBeaker( chem101.glasswareSpec.grad10, "G2", "beakerLL");
 
         this.getNewSample();
