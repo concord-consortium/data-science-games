@@ -28,7 +28,7 @@
 
 ChemLabSetupView = function (iDOMString, iModel) {
 
-    this.equipmentModel = iModel;       //  this is an "DragConsequenceManager"
+    this.equipmentModel = iModel;       //  this is a "DragConsequenceManager"
     this.myDOMElement = document.getElementById(iDOMString);
     this.paper = Snap(this.myDOMElement);
     this.myWidth = Number(this.paper.attr("width"));
@@ -169,6 +169,11 @@ EquipmentDropZone.prototype.handleMouseUpInDropZone = function() {
 EquipmentDropZone.prototype.handleMouseDownInDropZone = function() {
     console.log("MOUSE DOWN in " + this.domElement.id);
     chem101.manager.theFlowAndDragThing.handleMouseAction(this, "source");
+};
+
+EquipmentDropZone.prototype.describeContents = function() {
+    var tContents = this.pieceOfEquipment.model.contents;
+    return tContents.toString();
 };
 
 EquipmentDropZone.prototype.toString = function() {

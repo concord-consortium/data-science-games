@@ -84,65 +84,96 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/ch
     <script src="chem101.manager.js" language="JavaScript"></script>
     <script src="chem101.connector.js" language="JavaScript"></script>
 
-    <script>
+    <script language="JavaScript">
         /**
          * Runs when everything is loaded.
          */
         $(function () {
-            //  $("#tabs").tabs();
-            startCodapConnection();
+            $("#tabs").tabs();
+            startCodapConnection(); //  ends up calliing chem101.initialize() too
         });
     </script>
 
 </head>
 <body>
-<h1>Chem 101</h1>
 
-Add to beaker:
-<select id="chemSourceSelector" onchange="chem101.manager.sourceChosen()">
-    <option value="H2O" selected>water (H2O)</option>
-    <option value="NaCl">salt (NaCl)</option>
-    <option value="KI">potassium iodide (KI)</option>
-    <option value="Pb_NO3_2">Lead nitrate (Pb(NO3)2)</option>
-    <option value="HCl_">acid (1M HCl)</option>
-    <option value="NaOH_">base (1M NaOH)</option>
-    <option value="Hin">phenolphthalein (1%)</option>
-</select>
+<div id="tabs">
 
-<br>
+    <!--    list the tabs for this jquery_ui widget -->
+    <ul>
+        <li><a href="#labTab">Lab</a></li>
+        <li><a href="#instructionsTab">What to do</a></li>
+        <li><a href="#debugTab">Debug</a></li>
+    </ul>
 
-<svg id="theChemLabSetupView" width="300" height="200">
-    <!--<svg id="beakerLL" class="equipmentZone" width="50" height="200" x="0" y="0"></svg>-->
-    <svg id="beakerL" class="equipmentZone" width="50" height="200" x="50" y="0"></svg>
-    <svg id="beakerR" class="equipmentZone" width="100" height="200" x="100" y="0"></svg>
-    <svg id="beakerRR" class="equipmentZone" width="100" height="200" x="200" y="0"></svg>
-<!--
-    <svg id="zone1" class="equipmentZone" width="100" height="100" x="200" y="0"></svg>
-    <svg id="zone2" class="equipmentZone" width="100" height="100" x="200" y="100"></svg>
-    <svg id="zone3" class="equipmentZone" width="100" height="100" x="200" y="200"></svg>
--->
-</svg>
-<br>
+    <!--    Now describe each tab separately, note how the list above references the IDs    -->
 
-<div>
-<span id="alterationLabel"></span><br>
-    <svg id="pour" height="24" width="120"></svg>
-<button id="addSubstance_25" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.025)">25mL</button>
-<button id="addSubstance_5" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.005)">5mL</button>
-<button id="addSubstance_1" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.001)">1mL</button>
-<button id="addSubstance_drop" onclick="chem101.manager.moveOrAddSubstanceToAContainer('drop')">drop</button>
+    <!--        LAB     -->
+
+    <div id="labTab">
+
+        Add to beaker:
+        <select id="chemSourceSelector" onchange="chem101.manager.sourceChosen()">
+            <option value="H2O" selected>water (H2O)</option>
+            <option value="NaCl">salt (NaCl)</option>
+            <option value="KI">potassium iodide (KI)</option>
+            <option value="Pb_NO3_2">Lead nitrate (Pb(NO3)2)</option>
+            <option value="HCl_">acid (1M HCl)</option>
+            <option value="NaOH_">base (1M NaOH)</option>
+            <option value="Hin">phenolphthalein (1%)</option>
+        </select>
+
+        <br>
+
+        <svg id="theChemLabSetupView" width="300" height="200">
+            <!--<svg id="beakerLL" class="equipmentZone" width="50" height="200" x="0" y="0"></svg>-->
+            <svg id="beakerL" class="equipmentZone" width="50" height="200" x="50" y="0"></svg>
+            <svg id="beakerR" class="equipmentZone" width="100" height="200" x="100" y="0"></svg>
+            <svg id="beakerRR" class="equipmentZone" width="100" height="200" x="200" y="0"></svg>
+            <!--
+                <svg id="zone1" class="equipmentZone" width="100" height="100" x="200" y="0"></svg>
+                <svg id="zone2" class="equipmentZone" width="100" height="100" x="200" y="100"></svg>
+                <svg id="zone3" class="equipmentZone" width="100" height="100" x="200" y="200"></svg>
+            -->
+        </svg>
+        <br>
+
+        <div>
+            <span id="alterationLabel"></span><br>
+            <svg id="pour" height="24" width="120"></svg>
+            <button id="addSubstance_25" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.025)">25mL</button>
+            <button id="addSubstance_5" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.005)">5mL</button>
+            <button id="addSubstance_1" onclick="chem101.manager.moveOrAddSubstanceToAContainer(0.001)">1mL</button>
+            <button id="addSubstance_drop" onclick="chem101.manager.moveOrAddSubstanceToAContainer('drop')">drop
+            </button>
+        </div>
+        <button id="newSampleButton" onclick="chem101.manager.getNewSample()">new sample</button>
+        <p id="beakerContents"></p>
+    </div>
+
+
+    <!--        INSTRUCTIONS     -->
+
+
+    <div id="instructionsTab">
+        <ul>
+            <li>Click in a beaker to set it to receive new material.
+            <li>Choose what you want to add from the menu above.
+            <li>Drag from beaker to beaker to set them up for transfer.
+            <li>Click a button to move material in (or from beaker to beaker)
+            <li>Click the <img src="../art/emptyIcon.png" width="8" height="8"/> icon to empty a beaker.</li>
+        </ul>
+    </div>
+
+    <!--        DEBUG     -->
+
+    <div id="debugTab">
+        <div id="debugText"></div>
+    </div>
+
+
 </div>
-<button id="newSampleButton" onclick="chem101.manager.getNewSample()">new sample</button>
-<p id="beakerContents"></p>
+
 </body>
-
-<ul>
-    <li>Click in a beaker to set it to receive new material.
-    <li>Choose what you want to add from the menu above.
-    <li>Drag from beaker to beaker to set them up for transfer.
-    <li>Click a button to move material in (or from beaker to beaker)
-    <li>Click the <img src="../art/emptyIcon.png" width="8" height="8"/> icon to empty a beaker.</li>
-</ul>
-
 
 </html>

@@ -14,3 +14,8 @@ body {
     background-color: ghostwhite;
 }
 
+#debugText {
+    font-size: 9px;
+    font-family: Verdana;
+}
+

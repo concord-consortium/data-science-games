@@ -30,8 +30,10 @@ ChemTransfer = function( iFromZone, iToZone, iAmount ) {
     this.fromZone = (iToZone !== iFromZone) ? iFromZone : null;
     this.toZone = iToZone;
     this.transferAmount = iAmount;
-    this.units = null;
+    this.units = "mL";
     this.when = null;
+    this.caseID = null;
+    this.hasCaseID = false;
 
     this.what = null;
 
@@ -39,19 +41,33 @@ ChemTransfer = function( iFromZone, iToZone, iAmount ) {
         this.what = "fluid";
     } else {
         this.what = chem101.manager.theSourceName;      //      pour from the store
+        var tChemical = Chemistry.chemicals[this.what];
+        if (tChemical.type === "solid") {
+            this.units = "g";
+        }
     }
 
 };
 
+ChemTransfer.prototype.setCaseID = function( iCaseID ) {
+    this.caseID = iCaseID;
+    this.hasCaseID = true;
+    this.updateAmountBy( 0 );
+};
+
 ChemTransfer.prototype.updateAmountBy = function(iAmount) {
     this.transferAmount += iAmount;
-    chem101.connector.updateTransfer(this.getValues());    //  update the emitted transfer
+
+    if (this.hasCaseID) {
+        chem101.connector.updateTransfer( );    //  update the emitted transfer
+    }
 };
 
 ChemTransfer.prototype.getValues = function(  ) {
     var ov = {};
 
     ov.when = new Date();
+    ov.units = this.units;
     ov.amount = this.transferAmount * 1000;     //  make it in milliliters
     ov.from = this.fromZone ? this.fromZone.pieceOfEquipment.model.label : "";
     ov.what = this.what;

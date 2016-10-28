@@ -33,28 +33,31 @@ chem101.connector = {
     transferDataSetTitle : "Transfers",
     transferCollectionName : "transfers",
 
-    transferCaseID : null,
+    chemTransfer : null,
 
     /**
      * Emit a "result" record of the user's work
      * @param iValues
      * @param iCallback
      */
-    emitTransfer : function( iValues ) {
+    emitTransfer : function( iTransfer ) {
+        this.chemTransfer = iTransfer;
+
         codapHelper.createCase(
             this.transferCollectionName,
-            {   values : iValues    },
+            {   values : this.chemTransfer.getValues()    },
             function( iResult) {
-                this.transferCaseID = iResult.values[0].id;     //  need this to update this case
+                this.chemTransfer.setCaseID(iResult.values[0].id);     //  need this to update this case
+
             }.bind(this),           //  callback
             this.transferDataSetName
         );
     },
 
-    updateTransfer : function (iValues) {
+    updateTransfer : function ( ) {
         codapHelper.updateCase(
-            {values: iValues},
-            this.transferCaseID, //  iCaseID,
+            {values: this.chemTransfer.getValues()},
+            this.chemTransfer.caseID,
             this.transferCollectionName,    // iCollectionName,
             this.transferDataSetName,   // iDataContextName,
             null        //  no callback?
@@ -98,6 +101,7 @@ chem101.connector = {
                     attrs: [
                         {name: "when", type: 'numeric', precision: 3, description: "transfer time"},
                         {name: "amount", type: 'numeric', precision: 3, description: "how much"},
+                        {name: "units", type: 'categorical', description: "units of the amount"},
                         {name: "what", type: 'categorical', description: "what"},
                         {name: "from", type: 'categorical', description: "from where"},
                         {name: "to", type: 'categorical', description: "to where"}

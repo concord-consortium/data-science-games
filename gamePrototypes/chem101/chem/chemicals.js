@@ -37,6 +37,7 @@ IMPORTANT: add whatever can in fact be added into Contents.js, the sneaky model 
 Chemistry.chemicals = {
     H2O: {
         commonName: "water",
+        html : "H<sub>2</sub>O",
         type: "liquid",
         density: 1,
         molWt: 18,
@@ -45,6 +46,7 @@ Chemistry.chemicals = {
     Hin : {
         chemicalName : "phenolphthalein 1%",
         commonName : "phenolphthalein 1%",
+        html : "H<sub>in</sub>",
         type: "prepared",
         density: 1,         //  solid: 1.277
         molWt : 318.33,
@@ -61,15 +63,18 @@ Chemistry.chemicals = {
     },
     HCl_: {
         commonName: "1M hydrochloric acid",
+        html : "HCl<sub>(aq)</sub>",
         type: "prepared",        //      at room temperature
     },
     NaOH_: {
         commonName: "1M sodium hydroxide",
+        html : "NaOH<sub>(aq)</sub>",
         type: "prepared",
     },
     NaCl: {
         chemicalName: "sodium chloride",
         commonName: "table salt",
+        html : "NaCl<sub>(s)</sub>",
         color : function() { return "white"},
         type : "solid",
         density: 2.165,
@@ -79,6 +84,7 @@ Chemistry.chemicals = {
     KI : {
         chemicalName: "potassium iodide",
         color : function() { return "white"},
+        html : "KI<sub>(s)</sub>",
         type : "solid",
         density: 3.123,
         molWt: 166.0028,
@@ -87,6 +93,7 @@ Chemistry.chemicals = {
     Pb_NO3_2: {
         chemicalName: "lead nitrate",
         type : "solid",
+        html : "PB(NO<sub>3</sub>)<sub>2</sub></sub><sub>(s)</sub>",
         color : function() { return "white"},
         density: 4.53,
         molWt: 331.2,
@@ -94,6 +101,7 @@ Chemistry.chemicals = {
     },
     PbCl2: {
         chemicalName: "lead chloride",
+        html : "PbCl<sub>2</sub><sub>(s)</sub>",
         type : "solid",
         color : function() { return "white"},
         density: 5.85,
@@ -103,6 +111,7 @@ Chemistry.chemicals = {
     PbI2: {
         chemicalName: "lead iodide",
         type : "solid",
+        html : "PbI<sub>2</sub><sub>(s)</sub>",
         color : function() { return "yellow"},
         density: 6.16,
         molWt: 461.01,
@@ -110,48 +119,56 @@ Chemistry.chemicals = {
     },
     "Na+": {
         chemicalName: "sodium ion",
+        html : "Na<sup>+</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 22.9898,
         charge: 1
     },
     "K+": {
         chemicalName: "potassium ion",
+        html : "K<sup>+</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 39.0983,
         charge: 1
     },
     "Cl-": {
         chemicalName: "chloride ion",
+        html : "Cl<sup>&#x2212</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 35.453,
         charge: -1
     },
     "I-": {
         chemicalName: "iodide ion",
+        html : "I<sup>&#x2212</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 126.90447,
         charge: -1
     },
     "Pb++": {
         chemicalName: "lead ion",
+        html : "Pb<sup>++</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 207,
         charge: 1
     },
     "NO3-": {
         chemicalName: "nitrate ion",
+        html : "NO<sub>3</sub><sup>&#x2212</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 62,
         charge: -1
     },
     "H3O+": {
         chemicalName: "hydronium ion",
+        html : "H<sub>3</sub>O<sup>+</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 19,
         charge: 1
     },
     "OH-": {
         chemicalName: "hydroxyl ion",
+        html : "OH<sup>&#x2212</sup><sub>(aq)</sub>",
         type : "aqueous",
         molWt: 17,
         charge: -1

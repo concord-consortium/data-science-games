@@ -227,7 +227,19 @@ Contents.prototype.removeSolutionFromContainer = function (iAmount) {
 };
 
 Contents.prototype.fluidVolume = function () {
-    return this.massH2O / 1000;   //   In LITERS. for now, just use the water. No expansion due to solutes.
+    return this.massH2O / 1000;   //   In LITERS. for now, just use the water. No volume change due to solutes.
+};
+
+Contents.prototype.solidMass = function() {
+    var oMass = 0;
+
+    for (species in this.solids) {
+        var tMoles = this.solids[ species];
+        var tMolWt = Chemistry.chemicals[species].molWt;
+        oMass += tMoles * tMolWt;
+    }
+
+    return oMass;
 };
 
 Contents.prototype.precipitateInfo = function () {
@@ -292,25 +304,29 @@ Contents.smartNumberString = function( iVal ) {
 };
 
 Contents.prototype.toString = function () {
-    var o = "Contents: ";
+    var o = "";
     var tMoles, species;
     o += Contents.smartNumberString(this.massH2O) + " g H2O ( " + this.fluidVolume().toFixed(4) + " L) ";
     if (this.pH()) {
         o += "pH : " + this.pH().toFixed(2);
     }
 
-    o += "<br>aqueous: ";
+    o += "<br><b>aqueous: </b>";
 
-    if (Object.keys(this.solutes).length > 0) {
-        for (species in this.solutes) {
+    if (Object.keys(this.solutes).length === 0) {
+        o += "none.";
+    } else {
+        for (species in this.solutes) {     //  species is a string rep of the name of the solute
             if (!this.solutes.hasOwnProperty(species)) continue;
             tMoles = this.solutes[species];
             var tMolarity = this.molarityOfSolute( species );
-            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) + " moles " + species +
-                " ( [" + species + "] = " + Contents.smartNumberString(tMolarity) + " )";
+            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) +
+                " moles " + Chemistry.chemicals[species].html +
+                " ( [" + Chemistry.chemicals[species].html + "] = " +
+                Contents.smartNumberString(tMolarity) + " )";
         }
     }
-    o += "<br>aswirl: ";
+    o += "<br><b>aswirl: </b>";
 
     if (Object.keys(this.swirlies).length === 0) {
         o += "none.";
@@ -319,12 +335,13 @@ Contents.prototype.toString = function () {
             if (!this.swirlies.hasOwnProperty(species)) continue;
             tMoles = this.swirlies[species];
             var tGrams = tMoles * Chemistry.chemicals[species].molWt;
-            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) + " moles " + species +
+            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) +
+                " moles " + Chemistry.chemicals[species].html +
                 " ( " + Contents.smartNumberString(tGrams) + "g )";
         }
     }
 
-    o += "<br>solids: ";
+    o += "<br><b>solids: </b>";
 
     if (Object.keys(this.solids).length === 0) {
         o += "none.";
@@ -333,10 +350,12 @@ Contents.prototype.toString = function () {
             if (!this.solids.hasOwnProperty(species)) continue;
             tMoles = this.solids[species];
             var tGrams = tMoles * Chemistry.chemicals[species].molWt;
-            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) + " moles " + species +
+            o += "<br>&nbsp;&nbsp;" + Contents.smartNumberString(tMoles) +
+                " moles " + Chemistry.chemicals[species].html +
                 " ( " + Contents.smartNumberString(tGrams) + "g )";
         }
     }
+
     return o;
 };
 

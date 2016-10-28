@@ -31,7 +31,7 @@ var chem101 = {
     theChemLabSetupView : null,
 
     constants: {
-        version : "001a",
+        version : "001b",
 
         glassColor: "#445577",
         glassInterior: "#ace",

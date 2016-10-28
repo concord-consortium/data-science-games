@@ -139,9 +139,8 @@ chem101.manager = {
         if (iAmount === 'drop') iAmount = .001 / chem101.constants.dropsPerML;
 
         //  What container (view)s are we using?
-        var tFromZone = this.theFlowAndDragThing.sourceDropZone || this.theFlowAndDragThing.destinationDropZone
+        var tFromZone = this.theFlowAndDragThing.sourceDropZone;    //      null if from bank
         var tToZone = this.theFlowAndDragThing.destinationDropZone;
-
 
         var tContentsToBeAdded = new Contents();
 
@@ -170,16 +169,25 @@ chem101.manager = {
 
         //      process data for emission to CODAP
 
-        var tActualAmount = tContentsToBeAdded.fluidVolume();
+        var tActualAmount = iAmount;
+        if (tFromZone && tToZone !== tFromZone) {
+            var tActualAmount = tContentsToBeAdded.fluidVolume();
+        }
 
-        var tNeedNewTransfer = (tFromZone !== this.theCurrentTransfer.fromZone || tToZone !== this.theCurrentTransfer.toZone);
+        var tNeedNewTransfer = (
+            tFromZone !== this.theCurrentTransfer.fromZone ||
+            tToZone !== this.theCurrentTransfer.toZone ||
+            chem101.manager.theSourceName !== this.theCurrentTransfer.what
+        );
 
         if (tNeedNewTransfer) {
             this.theCurrentTransfer = new ChemTransfer(tFromZone, tToZone, tActualAmount);
-            chem101.connector.emitTransfer(this.theCurrentTransfer.getValues());    //  emit the empty transfer
+            chem101.connector.emitTransfer(this.theCurrentTransfer);    //  emit the empty transfer
         } else {
             this.theCurrentTransfer.updateAmountBy(tActualAmount);    //  no need to update a new transfer
         }
+
+        $("#debugText").html(this.describeContainerContents());
 
     },
 
@@ -195,6 +203,21 @@ chem101.manager = {
 
         console.log("chem101DoCommand: ");
         console.log(iCommand);
+    },
+
+    describeContainerContents: function () {
+        var o = "";
+
+        for (var z in this.chemLabView.equipmentDropZones) {
+            if (this.chemLabView.equipmentDropZones.hasOwnProperty(z)) {
+                var tZone = this.chemLabView.equipmentDropZones[z];
+                o += "<fieldset><legend>" + tZone.labelText() + "</legend>";
+                o += tZone.describeContents();
+                o += "</fieldset>";
+            }
+        }
+
+        return o;
     },
 
     initialize: function () {
