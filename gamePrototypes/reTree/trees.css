@@ -8,3 +8,6 @@
     user-select: none;
 }
 
+.noPointer {
+     pointer-events: none;
+    }
