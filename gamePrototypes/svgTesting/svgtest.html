@@ -1,0 +1,60 @@
+<!--
+==========================================================================
+
+ * Created by tim on 10/24/16.
+ 
+ 
+ ==========================================================================
+ svgtest.html in gamePrototypes.
+
+HTML wrapper for ....
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG
+    testing</title>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <!-- Snap -->
+    <script src="../common/snap.svg.js"></script>
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+
+
+    <script src="svgTest.js" language="JavaScript"></script>
+
+    <script language="JavaScript">
+        $(function () {
+            svgTest.initialize();
+        });
+    </script>
+
+</head>
+<body>
+<hr>
+<svg height="400" width="400" id="testPaper"></svg>
+<hr>
+</body>
+</html>
