@@ -365,6 +365,7 @@ Contents.prototype.shortString = function () {
     oArray.push(this.massH2O.toFixed(0) + " g H2O");
 
     if (Object.keys(this.solutes).length > 0) {
+        oArray.push("AQ");
         for (species in this.solutes) {
             if (!this.solutes.hasOwnProperty(species)) continue;
             tMoles = this.solutes[species];
@@ -374,9 +375,19 @@ Contents.prototype.shortString = function () {
         }
     }
 
-    if (Object.keys(this.solids).length === 0) {
+    if (Object.keys(this.swirlies).length > 0) {
+        oArray.push("PP");
+        for (species in this.solswirliesids) {
+            if (!this.swirlies.hasOwnProperty(species)) continue;
+            tMoles = this.swirlies[species];
+            if (tMoles > 0) {
+                oArray.push(Contents.smartNumberString(tMoles) + " moles " + species);
+            }
+        }
+    }
 
-    } else {
+    if (Object.keys(this.solids).length > 0) {
+        oArray.push("SD");
         for (species in this.solids) {
             if (!this.solids.hasOwnProperty(species)) continue;
             tMoles = this.solids[species];

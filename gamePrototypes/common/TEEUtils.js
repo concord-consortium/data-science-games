@@ -135,7 +135,7 @@ var     TEEUtils = {
     },
 
     newtonsMethod : function( iExpression, iStartValue, iTolerance ) {
-        var maxIterations = 20;
+        var maxIterations = 50;
         var nIterations = 0;
         var xCurrentValue = iStartValue;
         var delta = iTolerance;   //  using iTolerance for delta x. Good idea??

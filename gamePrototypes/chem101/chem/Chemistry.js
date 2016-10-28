@@ -43,6 +43,8 @@ var Chemistry = {
              i.e., that there is a solid in the Contents that could potentially dissolve.
              Then totally dissolve that solid, so that everything as aqueous.
              We'll (re) precipitate everything out later.
+
+             Do the same for all swirlies, of course, since they're not technically aqueous.
              */
             var tReactionsUsed = [];
             var tOldSolids = {};
@@ -53,9 +55,24 @@ var Chemistry = {
             this.reactions.forEach(function (rr) {
                 //  check if the left hand side is alone, and if these reactants are present
                 if (
-                    iContents.solids.hasOwnProperty(rr.reactants[0].species) && rr.reactants.length === 1) {
+                    iContents.solids.hasOwnProperty(rr.reactants[0].species) &&
+                    rr.reactants.length === 1
+                ) {
                     if (iContents.solids[rr.reactants[0].species] > 0) {
-                        //  the solid is lited and there's more than zero of it....
+                        //  the solid is listed and there's more than zero of it....
+                        tReactionsUsed.push(rr);
+                        Chemistry.forceDissolve(rr, iContents);
+                    }
+                }
+
+                //  swirlies...
+
+                if (
+                    iContents.swirlies.hasOwnProperty(rr.reactants[0].species) &&
+                    rr.reactants.length === 1
+                ) {
+                    if (iContents.swirlies[rr.reactants[0].species] > 0) {
+                        //  the solid is listed and there's more than zero of it....
                         tReactionsUsed.push(rr);
                         Chemistry.forceDissolve(rr, iContents);
                     }
@@ -66,14 +83,14 @@ var Chemistry = {
                 return prev + " | " + curr.toString();
             }, "");
             console.log("Dissolve reactions used: " + tReactionListString);
-            console.log("--- Chemistry --- >>eveything is aqueous: " + iContents.shortString());
+            console.log("--- Chemistry --- >>everything is aqueous: " + iContents.shortString());
 
             //  Now go over any remaining reactions in which all "product" species are present
             //  in case they precipitate out
 
             //  first, get a list of the relevant reactions
             //  we get a list instead of simply processing in case we decide later
-            //  that you need to address themin some order.
+            //  that you need to address them in some order.
 
             var tPrecipitationReactions = [];
 
@@ -190,7 +207,7 @@ var Chemistry = {
 
         var tFinalContentsWouldBe = {};
         var tFinalProductOfUpdatedConcentrations = 1;
-        var tFluidVolume = iContents.fluidVolume();   //  in L, todo: disregarding expansion of H2O solution
+        var tFluidVolume = iContents.fluidVolume();   //  in L, todo: disregarding volume change of H2O solution
 
         //  begin by calculating whether it WILL fully dissolve (and we won't solve the equation...)
 

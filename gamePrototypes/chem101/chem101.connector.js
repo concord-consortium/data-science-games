@@ -99,7 +99,7 @@ chem101.connector = {
                     },
 
                     attrs: [
-                        {name: "when", type: 'numeric', precision: 3, description: "transfer time"},
+                        {name: "when", type: 'date', description: "transfer time"},
                         {name: "amount", type: 'numeric', precision: 3, description: "how much"},
                         {name: "units", type: 'categorical', description: "units of the amount"},
                         {name: "what", type: 'categorical', description: "what"},
