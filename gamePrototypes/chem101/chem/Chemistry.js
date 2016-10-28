@@ -116,14 +116,38 @@ var Chemistry = {
 
             //  now make those swirlies solid which were solid in the first place!
 
+            /*
+            2016-10-28
+            Note: about the constant kFudge.
+
+            TEE discovered that due to small errors in the Newton's method solutions, a first
+            precipitation calculation would appear correct, but not take quite enough out of solution.
+            Then the second such calculation would need to take a bit more.
+
+            this made aSwirl > toSolidify, causing a small amount of precipitate (swirly)
+            to be floating around in solution rather than being a solid.
+
+            kFudge, therefore, attempts to remedy this, reasoning that if we're within 0.1% of
+            accounting for ALL of a solid having been a solid before, we should pretend it's
+            all solid and leave none as a swirling precipitate.
+
+            Of course, its aqueous species are still in a saturated solution.
+             */
+
+            var kFudge = 1.001;
+
             for (ixSolid in tOldSolids) {
                 if (iContents.swirlies.hasOwnProperty(ixSolid)) {
-                    var aSwirl = iContents.swirlies[ixSolid];
-                    var toSolidify = tOldSolids[ixSolid];
-                    if (tOldSolids[ixSolid] > aSwirl) {
+                    var aSwirl = iContents.swirlies[ixSolid];   //  moles of this swirly
+                    var toSolidify = tOldSolids[ixSolid];       //  moles that were in old solids
+                    if (toSolidify * kFudge > aSwirl) {         //  see note above
                         toSolidify = aSwirl;
+                        aSwirl = 0;
+                    } else {
+                        aSwirl -= toSolidify;
                     }
-                    iContents.swirlies[ixSolid] = aSwirl - toSolidify;
+
+                    iContents.swirlies[ixSolid] = aSwirl;
                     iContents.solids[ ixSolid ] = toSolidify;
 
                 }
