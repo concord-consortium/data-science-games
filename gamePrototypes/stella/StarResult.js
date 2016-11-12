@@ -55,7 +55,9 @@ StarResult = function ( iMine, iAuto ) {
     this.points = iAuto ? 0 : this.evaluateResult();    //  sets true, trueDisplay
 
     if (this.points > 0 || iAuto) {
-        stella.connector.emitStarResult(this, null);
+        stella.connector.emitStarResult(this, function(iResult) {
+            console.log("StarResult callback says: " + JSON.stringify(iResult));
+        });
         stella.player.recordResultLocally( this );
         if (!iAuto) {
             alert("Good job! " + this.enteredValue + " is close enough to get you " + this.points + " points!");
@@ -91,8 +93,7 @@ StarResult.prototype.eligibleForBadge = function() {
 
 /**
  * When the user submits a Result, we check to see how close it is.
- *
- * @param iValues
+
  * @returns {number}
  */
 StarResult.prototype.evaluateResult = function(  ) {
@@ -140,7 +141,7 @@ StarResult.prototype.evaluateResult = function(  ) {
             break;
 
         default:
-            var tMess = "Sorry, I don't know how to score " + stella.starResultTypes[ iValues.type].name + " yet.";
+            var tMess = "Sorry, I don't know how to score " + stella.starResultTypes[ this.type].name + " yet.";
             displayDebugStringInConsole = false;
             alert(tMess);
             this.trueResultValue = -1;
@@ -164,7 +165,7 @@ StarResult.prototype.evaluateResult = function(  ) {
         console.log( debugString );
     }
     return Math.round(oPoints);
-},
+};
 
 /**
  * Object containing information about possible results users can submit

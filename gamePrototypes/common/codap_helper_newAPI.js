@@ -90,6 +90,33 @@ var codapHelper = {
 
     },
 
+    /**
+     * Create new data items (broader than cases; see the documentation for the API)
+     * Notes: (1) this refers only to the data context, not to any collections. Right? Has to.
+     * (2) notice how the values array does not have a "values" key inside it as with createCases.
+     *
+     * @param iValuesArray  the array (or not) of objects, each of which will be an item. The keys are attribute names.
+     * @param iCallback     callback function. iResult should contain {success : true, caseIDs : [5, 6, 7] }
+     * @param iDataContextName  the name of the data set (or "data context").
+     */
+    createItems : function(iValuesArray, iCallback, iDataContextName) {
+        if (iValuesArray && !Array.isArray(iValuesArray)) {
+            iValuesArray = [iValuesArray];
+        }
+
+        var tResourceString = iDataContextName ? "dataContext[" + iDataContextName + "].item" : "item";
+
+
+        var tCodapPhoneArg = {
+            action : 'create',
+            resource : tResourceString,
+            values : iValuesArray
+        };
+
+        this.codapPhone.call(tCodapPhoneArg, iCallback);
+
+    },
+
     createCase: function (iCollectionName, iValuesArray, iCallback, iDataContextName) {
         this.createCases(iCollectionName, iValuesArray, iCallback, iDataContextName);
     },

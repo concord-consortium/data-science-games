@@ -41,23 +41,24 @@
 stella.connector = {
     starCaseID: 0,
     spectrumCaseID: 0,
-    spectrumNumber : 0,
+    spectrumNumber: 0,
     spectraCollectionName: "spectra",
     starResultsCollectionName: "results",
     channelCollectionName: "channels",
     catalogCollectionName: "starCatalog",
-    catalogDataSetName : "starCatalog",
-    catalogDataSetTitle : "Star Catalog",
-    spectraDataSetName : "spectra",
-    spectraDataSetTitle : "Stellar Spectra",
-    starResultsDataSetName : "results",
-    starResultsDataSetTitle : "Your Results",
+    catalogDataSetName: "starCatalog",
+    catalogDataSetTitle: "Star Catalog",
+    spectraDataSetName: "spectra",
+    spectraDataSetTitle: "Stellar Spectra",
+    starResultsDataSetName: "results",
+    starResultsDataSetTitle: "Your Results",
 
 
     /**
      * Emit a "star" case, into the star catalog.
      * One case per Star.
-     * @param {[*]} iValues   the data values to be passed
+     * @param iValues   the values to be passed
+     * @param iCallback
      */
     emitStarCatalogRecord: function (iValues, iCallback) {
         codapHelper.createCase(
@@ -72,21 +73,19 @@ stella.connector = {
 
     /**
      * Emit a "result" record of the user's work
-     * @param iValues
+     * @param iStarResult   the result to be emitted
      * @param iCallback
      */
-    emitStarResult : function( iStarResult, iCallback ) {
-        codapHelper.createCase(
-            this.starResultsCollectionName,
+    emitStarResult: function (iStarResult, iCallback) {
+        codapHelper.createItems(        //      createCase(
+            //          this.starResultsCollectionName,
             {
-                values : {
-                    date: iStarResult.date,
-                    id: iStarResult.id,
-                    type: iStarResult.type,
-                    value: iStarResult.enteredValue,
-                    units: iStarResult.units,
-                    points: iStarResult.points
-                }
+                date: iStarResult.date,
+                id: iStarResult.id,
+                type: iStarResult.type,
+                value: iStarResult.enteredValue,
+                units: iStarResult.units,
+                points: iStarResult.points
             },
             iCallback,           //  callback
             this.starResultsDataSetName
@@ -98,7 +97,7 @@ stella.connector = {
      * @param iChannels the array of channels (each is an object)
      * @param iName     the name of the spectrum (star or lab designation)
      */
-    emitSpectrum: function ( iChannels, iName ) {
+    emitSpectrum: function (iChannels, iName) {
 
         this.spectrumNumber += 1;       //      serial
 
@@ -146,9 +145,9 @@ stella.connector = {
      * We have case IDs for the stars! Tell CODAP to select this star.
      * @param iCaseID
      */
-    selectStarInCODAPByCatalogID : function( iCaseID ) {
-        var theIDs = [ iCaseID ];
-        codapHelper.selectCasesByIDs( theIDs, this.catalogDataSetName );
+    selectStarInCODAPByCatalogID: function (iCaseID) {
+        var theIDs = [iCaseID];
+        codapHelper.selectCasesByIDs(theIDs, this.catalogDataSetName);
 
     },
 
@@ -188,11 +187,11 @@ stella.connector = {
 
                     attrs: [
                         {name: "date", type: 'numeric', precision: 3, description: "date of result (yr)"},
-                        {name: "id", type: 'categorical', description : "stellar ID string"},
+                        {name: "id", type: 'categorical', description: "stellar ID string"},
                         {name: "type", type: 'categorical', description: "result type"},
                         {name: "value", type: 'numeric', precision: 8, description: "result value"},
                         {name: "units", type: 'categorical', description: "units of the result"},
-                        {name: "points", type: 'numeric', description: "points awarded"},
+                        {name: "points", type: 'numeric', description: "points awarded"}
                     ]
                 }
             ]
@@ -266,7 +265,7 @@ stella.connector = {
 
                     attrs: [
                         {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
-                        {name: "id", type: 'categorical',  description : "Stellar ID string"},
+                        {name: "id", type: 'categorical', description: "Stellar ID string"},
                         {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
                         {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
                         {name: "bright", type: 'numeric', precision: 2, description: "luminosity"},
@@ -281,7 +280,6 @@ stella.connector = {
             ]
         };
     }
-
 
 
 };
