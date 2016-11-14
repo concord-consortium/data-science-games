@@ -190,7 +190,7 @@ steb.model = {
             tWhere = this.randomPlace();
         }
 
-        var tChildStebber = new Stebber( tColor, tWhere, this.lastStebberNumber );
+        var tChildStebber = new Stebber( tColor, tWhere, this.lastStebberNumber, iParentStebber.id );
         tChildStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
         this.stebbers.push( tChildStebber );            //  we keep the model Stebber in our array
 
@@ -204,7 +204,7 @@ steb.model = {
             this.lastStebberNumber += 1;
             tColor = steb.constants.fixedStebberColor[i];
             tWhere = this.randomPlace();
-            tNewStebber = new Stebber( tColor, tWhere, this.lastStebberNumber );
+            tNewStebber = new Stebber( tColor, tWhere, this.lastStebberNumber, 0 );
             tNewStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
             this.stebbers.push( tNewStebber );            //  we keep the model Stebber in our array
         }
@@ -265,7 +265,7 @@ steb.model = {
         var tDistance = Math.sqrt( dx * dx + dy * dy );
 
         return tDistance;
-    },
+    }
 
 
 

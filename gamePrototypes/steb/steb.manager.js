@@ -297,14 +297,10 @@ steb.manager = {
     },
 
     emitMealData : function( iStebber ) {
-        var tValues = {
-            meal : steb.model.meals,
-            score : steb.score.predatorPoints,
-            red : iStebber.trueColor[0],
-            green : iStebber.trueColor[1],
-            blue : iStebber.trueColor[2],
-            id : iStebber.id
-        };
+        tValues = iStebber.dataValues();
+
+        tValues.meal = steb.model.meals;
+        tValues.score = steb.score.predatorPoints;
 
         steb.connector.doMealRecord( tValues );
     },
@@ -378,7 +374,7 @@ steb.manager = {
                             values: {
                                 manager: {
                                     playing: steb.manager.playing,
-                                    gameNumber: steb.manager.gameNumber,
+                                    gameNumber: steb.manager.gameNumber
                                 },
                                 model: {
                                     stebbers: steb.model.stebbers.map(function (iStebber) {

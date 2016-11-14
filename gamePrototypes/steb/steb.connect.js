@@ -106,7 +106,7 @@ steb.connector = {
 
     /**
      * Called to rewrite and close a game-level case
-     * @param iResult {string}  result of the game
+     * @param iValues     the values to be sent
      */
     finishGameCase: function ( iValues ) {
         codapHelper.updateCase(
@@ -281,10 +281,11 @@ steb.connector = {
                                 'attribute-color': '#6688ff'    //
                             },
                             description: "how much blue (0 to 15)"},
-                        //  {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
-                        //  {name: "sat", type: 'numeric', precision: 3},
-                        //  {name: "value", type: 'numeric', precision: 3},
+                        {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
+                        {name: "sat", type: 'numeric', precision: 3},
+                        {name: "bright", type: 'numeric', precision: 3},
                         {name: "id", type: 'numeric', precision: 0},
+                        {name: "parent", type: 'numeric', precision: 0},
                         {name: "color", description: "use as a legend to color points in graph",
                             formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'}
                     ]
@@ -325,12 +326,28 @@ steb.connector = {
                     attrs: [
                         {name: "meal", type: 'numeric', precision: 0, description: "which meal was this?"},
                         {name: "score", type: 'numeric', precision: 0, description: "score"},
-                        {name: "red", type: 'numeric', precision: 1, description: "how much red (0 to 15)"},
-                        {name: "green", type: 'numeric', precision: 1, description: "how much green (0 to 15)"},
-                        {name: "blue", type: 'numeric', precision: 1, description: "how much blue (0 to 15)"},
+                        {name: "red", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#ff0000'    //
+                            },
+                            description: "how much red (0 to 15)"},
+                        {name: "green", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#00ff00'    //
+                            },
+                            description: "how much green (0 to 15)"},
+                        {name: "blue", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#6688ff'    //
+                            },
+                            description: "how much blue (0 to 15)"},
+                        {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
+                        {name: "sat", type: 'numeric', precision: 3},
+                        {name: "bright", type: 'numeric', precision: 3},
+                        {name: "parent", type: 'numeric', precision: 0},
+                        {name: "id", type: 'numeric', precision: 0},
                         {name: "color", description: "use as a legend to color points in graph",
-                                formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'},
-                        {name: "id", type: 'numeric', precision: 0}
+                                formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'}
                     ]
                 }
             ]

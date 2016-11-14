@@ -33,10 +33,11 @@
  * @param iID       its internal (serial) ID
  * @constructor
  */
-var Stebber = function( iColor, iWhere, iID ) {
+var Stebber = function( iColor, iWhere, iID, iParentID ) {
     this.trueColor = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
+    this.parentID = iParentID;
     this.caseIDs = [];  //  array of case IDs for this Stebber
     this.selected = false;
     this.colorDistanceToBackground = null;
@@ -137,12 +138,16 @@ Stebber.prototype.runFrom = function( iPoint ) {
  */
 Stebber.prototype.dataValues = function() {
 
-    //  var tSnapColorRecord = Snap.color( steb.makeColorString( this.color ));
+    var tSnapColorRecord = steb.getSnapColor( this.trueColor );
     return {
         red : this.trueColor[0],
         green : this.trueColor[1],
         blue : this.trueColor[2],
-        id : this.id
+        hue : tSnapColorRecord.h,
+        sat : tSnapColorRecord.s,
+        bright : tSnapColorRecord.b,
+        id : this.id,
+        parent : this.parentID
     };
 };
 

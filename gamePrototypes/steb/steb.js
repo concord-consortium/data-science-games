@@ -55,6 +55,13 @@ steb.makeColorString = function(iColor ) {
     return Snap.rgb( r, g, b );
 };
 
+steb.getSnapColor = function( iColor ) {
+    var tHexstring = steb.makeColorString( iColor );
+    var tSnapColor = Snap.color( tHexstring );
+
+    return tSnapColor;
+};
+
 /**
  * Wrap motion onto a torus
  * @param val   the input value
@@ -88,7 +95,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001p",
+    version : "001q_hsb",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
