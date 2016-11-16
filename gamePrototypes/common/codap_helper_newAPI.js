@@ -69,8 +69,12 @@ var codapHelper = {
                             }
                         }.bind(this));
                 }
-                else
+                else {
                     this.initDataSetAccomplished = true;    // Because it was restored and we found it
+                    if (iCallback) {
+                        iCallback();
+                    }
+                }
             }.bind( this)
         )
 
