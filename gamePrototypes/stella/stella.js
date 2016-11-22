@@ -77,14 +77,6 @@ stella.initialize = function () {
     stella.player.initialize();
     //  stella.share.initialize(stella.constants.baseURL);
 
-    //  temporary for testing badges
-/*
-    var tFreeBadgeStatus = stella.badges.badgeStatus["temp"];
-    tFreeBadgeStatus.level = 2;
-    tFreeBadgeStatus.badgeComponents.forEach(function (iC) {
-        iC.points = 55;
-    });
-*/
     stella.manager.newGame();   //  will create new stars, etc.
 };
 
@@ -106,7 +98,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001j",
+    version: "001k",
     baseURL: "http://localhost:8888/dsg/stella.php",
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
@@ -232,16 +224,3 @@ stella.pmFromSpeedAndDistance = function (iSpeed, iDistance) {
 
     return oPM;
 };
-
-
-/*
-var readyStateCheckInterval = setInterval(function () {
-    console.log("waiting...");
-
-    if (document.readyState === "complete") {
-        console.log("loaded!");
-        clearInterval(readyStateCheckInterval);
-        stella.initialize();
-    }
-}, 100);
-*/

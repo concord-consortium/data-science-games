@@ -101,7 +101,7 @@ stella.model = {
      */
     makeAllStars : function() {
         //  stella.share.retrieveStars();
-        var dText = "<table><tr><th>id</th><th>logMass</th><th>age</th><th>m</th><th>GI</th><th>dist</th></tr>";
+        var dText = "<table><tr><th>id</th><th>logMass</th><th>temp</th><th>age</th><th>m</th><th>GI</th><th>dist</th></tr>";
 
         stella.initialStarData.forEach(
             function( isd ) {

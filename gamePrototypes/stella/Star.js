@@ -77,31 +77,29 @@ var Star = function (iStarData) {
     this.id = iStarData.id;
 
     this.where = {
-        x: Number(iStarData.x),  //  millidegrees
-        y: Number(iStarData.y),
-        z: Number(iStarData.z)
+        x: Number(iStarData.where.x),
+        y: Number(iStarData.where.y),
+        z: Number(iStarData.where.r)
     };
 
     this.pm = {
-        x: stella.pmFromSpeedAndDistance(Number(iStarData.vx), this.where.z),
-        y: stella.pmFromSpeedAndDistance(Number(iStarData.vy), this.where.z),
-        r: Number(iStarData.vz)
+        x: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vx), this.where.z),
+        y: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vy), this.where.z),
+        r: Number(iStarData.whither.vr)
     };
 
     this.parallax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;   //  max in microdegrees
 
     //  what depends on mass and age...
 
-    this.logMainSequenceRadius = (2 / 3) * this.logMass;
-    this.logRadius = this.logMainSequenceRadius;
-    this.logLuminosity = 3.5 * this.logMass;
-    this.logMainSequenceTemperature = 3.76 + 13 / 24 * this.logMass;  //  3.76 = log10(5800), the nominal solar temperature
-    this.logTemperature = this.logMainSequenceTemperature;      //  start on main sequence
-    this.logLifetime = 10 + this.logMass - this.logLuminosity;
-    this.myGiantIndex = 0;
+    this.logRadius = iStarData.logRadius;
+    this.logLuminosity = iStarData.logLum;
+    this.logTemperature = iStarData.logTemp;      //  start on main sequence
+    this.logLifetime = iStarData.logLifetime;
+    this.myGiantIndex = iStarData.giant;
 
 
-    this.evolve();     //  old enough to move off the MS?
+    //  this.evolve();     //  old enough to move off the MS?
     this.doPhotometry();    //  calculate UBV (etc) magnitudes
 };
 
@@ -154,8 +152,9 @@ Star.prototype.csvLine = function () {
 Star.prototype.htmlTableRow = function () {
     var o = "<tr>";
     o += "<td>" + this.id + "</td>";
-    o += "<td>" + this.logMass + "</td>";
-    o += "<td>" + this.logAge + "</td>";
+    o += "<td>" + this.logMass.toFixed(2) + "</td>";
+    o += "<td>" + Math.pow(10,this.logTemperature).toFixed(0) + "</td>";
+    o += "<td>" + this.logAge.toFixed(2) + "</td>";
     o += "<td>" + this.mApp.toFixed(2) + "</td>";
     o += "<td>" + this.myGiantIndex.toFixed(2) + "</td>";
     o += "<td>" + this.where.z.toFixed(2) + "</td>";
@@ -168,6 +167,7 @@ Star.prototype.htmlTableRow = function () {
  * Has this Star moved off the MS? If so, how much?
  * Answer is stored in this.myGiantIndex, which is 0 on the MS, (0,1) transitioning, 1 for giant, and 1000 for WD, NS, etc
  */
+/*
 Star.prototype.evolve = function () {
     var tAge = Math.pow(10, this.logAge);           //  current age
     this.myGiantIndex = this.computeGiantIndex(tAge);
@@ -175,18 +175,18 @@ Star.prototype.evolve = function () {
     if (this.myGiantIndex <= 0) {
         this.myGiantIndex = 0;                 //      ON MAIN SEQUENCE. No evolution.
     } else if (this.myGiantIndex <= 1) {        //  GIANT phase
-        /*
+        /!*
          Our model is, at this point, that as you age, you will maintain your luminosity,
          but your temperature will decline, linearly, to about 3300K
          (stella.constants.giantTemperature)
-         */
+         *!/
 
         var tMSTemp = Math.pow(10, this.logMainSequenceTemperature);
         var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));   //  linear
 
-        /*
+        /!*
          todo: this routine has two random() references. This is a problem as initial (evolved) stars are therefore not the same.
-         */
+         *!/
 
         tCurrentTemp -= 500.0 * Math.random();      //  some variety in giant temperatures.
         this.logTemperature = Math.log10(tCurrentTemp); //  here is where we set the star's evolved temperature
@@ -205,6 +205,7 @@ Star.prototype.evolve = function () {
         this.logLuminosity = 2 * this.logRadius + 4 * Math.log10(tTempInSols);
     }
 };
+*/
 
 /**
  * Star's position (as an object) at the current time, based on PM and parallax
@@ -283,6 +284,7 @@ Star.prototype.setUpSpectrum = function () {
  * @param iAge
  * @returns {number}
  */
+/*
 Star.prototype.computeGiantIndex = function (iAge) {
     var result = 0;
     var tTimeOnMS = Math.pow(10, this.logLifetime);
@@ -301,6 +303,7 @@ Star.prototype.computeGiantIndex = function (iAge) {
 
     return result;
 };
+*/
 
 /**
  * UBV photometry using blackbody.
@@ -341,11 +344,12 @@ Star.prototype.doPhotometry = function () {
  * @returns {{x: string, y: string, m: string, id: *, U: string, B: string, V: string}}
  */
 Star.prototype.dataValues = function () {
+
+
     var out = {
         x: this.where.x.toFixed(6),
         y: this.where.y.toFixed(6),
-        bright: Math.pow(10, this.logLuminosity),
-        logBright : this.logLuminosity,
+        bright : this.bright().toFixed(1),
         m: this.mApp,
         id: this.id,
         U: Star.apparentMagnitude(this.uAbs, this.where.z).toFixed(2),
@@ -356,6 +360,9 @@ Star.prototype.dataValues = function () {
     return out;
 };
 
+Star.prototype.bright = function() {
+    return 4 + this.logLuminosity - 2 * Math.log10(this.where.z);
+}
 /**
  * String version of me
  * @returns {string}

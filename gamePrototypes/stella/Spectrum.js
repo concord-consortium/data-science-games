@@ -52,7 +52,7 @@ var Spectrum = function() {
 };
 
 /**
- * Ass a single Line to this Spectrum
+ * Add a single Line to this Spectrum
  * @param iLine the Line to add
  */
 Spectrum.prototype.addLine = function( iLine ) {
