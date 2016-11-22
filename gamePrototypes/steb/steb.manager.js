@@ -228,7 +228,7 @@ steb.manager = {
         var tEat = steb.manager.running && !steb.options.automatedPredator;
         if (tEat) {
             this.eatStebber(iStebberView);
-            steb.connector.logAction('Stebber eaten (manual)', null);
+            steb.connector.logMessage('Stebber eaten (manual)', null);
         } else {
             steb.connector.selectStebberInCODAP(iStebberView.stebber);
         }
@@ -236,7 +236,7 @@ steb.manager = {
 
     autoPredatorCatchesStebberView: function (iStebberView) {
         this.eatStebber(iStebberView);
-        steb.connector.logAction('Stebber eaten (auto)', null);
+        steb.connector.logMessage('Stebber eaten (auto)', null);
     },
 
     /**

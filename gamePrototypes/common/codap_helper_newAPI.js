@@ -12,10 +12,10 @@ var codapHelper = {
     initDataSetAccomplished: false,
     alerted : false,
 
-    logAction : function( iString, iSubs ) {
+    logMessage : function( iString, iSubs ) {
         var tArg = {
             action : "notify",
-            resource : "logAction",
+            resource : "logMessage",
             values : {
                 formatStr : iString,
                 replaceArgs : iSubs

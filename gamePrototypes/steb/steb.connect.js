@@ -50,8 +50,8 @@ steb.connector = {
     eatenCollectionName: "eatenStebbers",
 
 
-    logAction : function(iString, iSubs) {
-        codapHelper.logAction( iString, iSubs );
+    logMessage : function(iString, iSubs) {
+        codapHelper.logMessage( iString, iSubs );
     },
 
 
