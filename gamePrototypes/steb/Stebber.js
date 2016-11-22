@@ -136,7 +136,7 @@ Stebber.prototype.runFrom = function( iPoint ) {
  * Prepare an array of values for output to CODAP   //  todo: explain why we can use .color
  * @returns {*[]}
  */
-Stebber.prototype.dataValues = function() {
+Stebber.prototype.stebberDataValues = function() {
 
     var tSnapColorRecord = steb.getSnapColor( this.trueColor );
     return {

@@ -112,6 +112,7 @@ steb.ui = {
             }.bind(this),
                 steb.constants.timeOutTime);    //  two seconds by default
 
+            steb.connector.logAction('Crud click', null);
         }
     },
 

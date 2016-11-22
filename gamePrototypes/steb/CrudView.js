@@ -37,12 +37,15 @@
 var Crud = function(  ) {
     this.where = steb.model.randomPlace();
     this.speed = steb.constants.baseCrudSpeed;
+    this.determineColor();
+    this.setNewSpeedAndHeading();
+};
 
+Crud.prototype.determineColor = function() {
     this.trueColor = steb.color.mutateColor(
         steb.model.meanCrudColor,
         steb.constants.crudColorMutationArray
     );
-    this.setNewSpeedAndHeading();
 };
 
 /**

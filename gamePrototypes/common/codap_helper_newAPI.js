@@ -12,6 +12,20 @@ var codapHelper = {
     initDataSetAccomplished: false,
     alerted : false,
 
+    logAction : function( iString, iSubs ) {
+        var tArg = {
+            action : "notify",
+            resource : "logAction",
+            values : {
+                formatStr : iString,
+                replaceArgs : iSubs
+            }
+        };
+
+        this.codapPhone.call( tArg );
+    },
+
+
     initDataInteractive: function (iFrameDescription, doCommandFunc, restoreStateFunc) {
         this.codapPhone = new iframePhone.IframePhoneRpcEndpoint(doCommandFunc, "data-interactive", window.parent);
 

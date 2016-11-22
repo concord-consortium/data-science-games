@@ -53,7 +53,7 @@ steb.options = {
 
     /**
      * User changed the vision params on the panel.
-     * Therefore find out what those chnages were,
+     * Therefore find out what those changes were,
      * and make the world reflect them!
      */
     predatorVisionChange : function() {
@@ -62,6 +62,7 @@ steb.options = {
 
         this.setPredatorVisionParameters();
         steb.worldView.updateDisplayWithCurrentVisionParameters( );
+        steb.connector.logAction("Predator vision changed", null);
     },
 
     predatorAutomationChange : function() {

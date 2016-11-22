@@ -1,296 +1,1 @@
-<!--
-==========================================================================
-
- * Created by tim on 3/23/16.
- 
- 
- ==========================================================================
- steb.html in data-science-games.
-
-HTML wrapper for ....
-
-    Author:   Tim Erickson
-
-Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-limitations under the License.
-==========================================================================
-
--->
-<!--
-Workshop
-http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/steb/steb.html
-or locally,
-http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/steb/steb.html
-
-
-Here is the URL...
-
-http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/steb/steb.html
-
-or locally,
-http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/steb/steb.html
-
-temp
-
-http://codap.concord.org/~jsandoe/new_di_api_v2?di=http://www.eeps.com/dsg/steb/steb.html
-
-
--->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-
-    <!--        stylesheets         -->
-    <!--<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>-->
-    <link rel='stylesheet' type='text/css' href='http:////code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css'/>
-    <link rel='stylesheet' type='text/css' href='steb.css'/>
-
-    <!-- These two scripts take care of the communication with CODAP and commons -->
-    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>
-    <script src="../common/iframe-phone.js" language="javascript"></script>
-
-    <script src="../common/TEEUtils.js" language="javascript"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-
-    <title>Stebbins</title>
-
-    <!-- Snap -->
-    <script src="../common/snap.svg.js"></script>
-
-    <!--            our game source         -->
-
-    <script src="steb.js" language="JavaScript"></script>
-    <script src="steb.manager.js" language="JavaScript"></script>
-    <script src="steb.ui.js" language="JavaScript"></script>
-    <script src="steb.model.js" language="JavaScript"></script>
-    <script src="steb.color.js" language="JavaScript"></script>
-    <script src="steb.score.js" language="JavaScript"></script>
-    <script src="steb.options.js" language="JavaScript"></script>
-    <script src="steb.connect.js" language="JavaScript"></script>
-    <script src="steb.worldView.js" language="JavaScript"></script>
-    <script src="steb.colorBoxView.js" language="JavaScript"></script>
-
-    <script src="Stebber.js" language="JavaScript"></script>
-    <script src="StebberView.js" language="JavaScript"></script>
-    <script src="CrudView.js" language="JavaScript"></script>
-    <script src="steb.predator.js" language="JavaScript"></script>
-
-    <script>
-        $(function() {
-            steb.initialize();
-            $( "#tabs" ).tabs();
-        });
-    </script>
-
-
-</head>
-<body>
-
-<div id="tabs">
-    <!--    list the tabs for this jquery_ui widget -->
-    <ul>
-        <li><a href="#worldTab">World</a></li>
-        <li><a href="#predatorVisionTab">Vision</a></li>
-        <li><a href="#instructionsTab">How To</a></li>
-        <li><a href="#backgroundTab">About</a></li>
-        <li><a href="#optionsTab">Options</a></li>
-        <li><a href="#debugTab">Debug</a></li>
-    </ul>
-
-    <!--    Now describe each tab separately, note how the list above references the IDs    -->
-
-    <div id="worldTab">     <!--    The main tab, where the game is     -->
-        <div class="hBox" id="scoreDiv">
-            <!--Evolution Points: <div id="evolutionPoints"></div>&nbsp;-->
-            Predator Points: <div id="predatorPoints"></div>
-            &nbsp;&nbsp;
-            <span id="shortStatus"></span>
-        </div>
-
-
-        <svg id="stebSnapWorld" width="300" height="300" onclick="steb.ui.clickInWorld();">
-            <rect width="100" height="100" fill="dodgerblue"></rect>
-            <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>
-            <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>
-        </svg>
-
-
-        <div class="hBox">
-            <div class = "imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>
-            <div class = "textIO" style = "width : 90px">
-                t = <span id = "timeDisplay">0</span>
-                m = <span id = "mealDisplay">0</span>
-            </div>
-            <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>
-            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data now</button>
-        </div>
-        <div class="hBox">
-            <div id="isPredatorVisionNormalControl" onchange="steb.options.predatorVisionChange()">
-                <label for="isPredatorVisionNormalControl">Vision:</label>
-                <input type="radio" id="normalVision" name="isPredatorVisionNormalControl" value="normal" checked>
-                <label for="normalVision">normal</label>
-                <input type="radio" id="monocolorVision" name="isPredatorVisionNormalControl" value="mono">
-                <label for="monocolorVision">mono</label>
-            </div>
-            <div id="isPredatorAutomatedControl" onchange="steb.options.predatorAutomationChange()">
-                <label for="isPredatorAutomatedControl">Predator:</label>
-                <input type="radio" id="manualPredator" name="isPredatorAutomatedControl" value="manual" checked>
-                <label for="manualPredator">manual</label>
-                <input type="radio" id="autoPredator" name="isPredatorAutomatedControl" value="auto">
-                <label for="autoPredator">auto</label>
-            </div>
-        </div>
-
-        <svg id="colorBoxView" width="200" height="50"></svg>
-<!--
-        <button onclick="steb.connector.createLivingStebberTable()">table 1</button>
--->
-    </div>
-
-    <!--        VISION tab      -->
-
-    <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">
-        <div class="vBox visionOptions">
-            <h2>Predator Vision Parameters</h2>
-            <p>Mostly use the top (simple) box....</p>
-
-            <fieldset class="preGameOptions">
-                <legend>Simple version: What color are your goggles?</legend>
-                <div class="hBox">
-                    <button onclick="steb.options.setSimpleColor(0)">red</button>
-                    <button onclick="steb.options.setSimpleColor(1)">green</button>
-                    <button onclick="steb.options.setSimpleColor(2)">blue</button>
-                </div>
-            </fieldset>
-
-            <p>Advanced settings: Choose one 'vision method' and then fill in its parameters.</p>
-            <div class="hBox">
-                <input type="radio" name="predatorVisionMethodControl" value="dotProduct" checked>
-                <fieldset class="advancedVisionOptions">
-                    <legend>Color response (dot-product method)</legend>
-                    <div class="vBox" id="visionParameters">
-                        <label><input type="text" id="visionRed" value="1"> red (0 to 1)</label>
-                        <!-- todo: make these disappear when vision not in use -->
-                        <label><input type="text" id="visionGreen" value="0"> green (0 to 1)</label>
-                        <label><input type="text" id="visionBlue" value="0"> blue (0 to 1)</label>
-                    </div>
-                </fieldset>
-            </div>
-
-            <div class="hBox">
-                <input type="radio" name="predatorVisionMethodControl" value="formula">
-
-                <fieldset class="advancedVisionOptions">
-                    <legend> B/W response (enter coefficients)</legend>
-                    <br>
-                    <div id="redCoefficient"></div>
-                    <div id="redCoeffDisplay" class="sliderLabel"></div>
-                    <br><br>    <!--    the red slider -->
-                    <div id="greenCoefficient"></div>
-                    <div id="greenCoeffDisplay" class="sliderLabel"></div>
-                    <br><br>    <!--    the green slider -->
-                    <div id="blueCoefficient"></div>
-                    <div id="blueCoeffDisplay" class="sliderLabel"></div>
-                    <br><br>    <!--    the blue slider -->
-                    <div id="visionFormula">foo</div>
-                </fieldset>
-
-            </div>
-        </div>
-
-    </div>
-
-    <div id="instructionsTab">
-        <h2>The Basics</h2>
-        <p>Eat the circles. They're called "Stebbers."</p>
-        <p>Do NOT eat the "Crud." The Crud are round-cornered rectangles,
-            so they look a lot like Stebbers, but they're NOT STEBBERS.</p>
-        <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>
-        <p>Data are collected every ten meals, or whenever you press <b>data</b>.</p>
-
-        <h3>Levels and Game Play</h3>
-        <p>
-            In the <b>options</b> tab, you can select "presets."
-            In preset 5, you get the option to automate the predator.
-            The challenge is to keep the automated predator from going extinct (or just starving).
-            It starves when the score goes to zero.
-        </p>
-        <p>
-            Don't forget: you can pause automated play when you want to change the vision!
-        </p>
-    </div>
-
-
-    <div id="backgroundTab">
-        <p>Evolution simulation about protective coloration. You are the predator.</p>
-        <p>Based on the old, offline "Stebbins Game."</p>
-    </div>
-
-    <!--        OPTIONS tab      -->
-
-    <div id="optionsTab">
-        <div class="vBox options" id="gameOptions">
-            <h2>Game options. <span id="optionPresetText"></span></h2>
-            <fieldset class="preGameOptions">
-                <legend>Option "presets" (will turn into levels eventually)</legend>
-                <div class="hBox">
-                    <button onclick="steb.options.doPreset(1)">1</button>
-                    <button onclick="steb.options.doPreset(2)">2</button>
-                    <button onclick="steb.options.doPreset(3)">3 & 4</button>
-                    <button onclick="steb.options.doPreset(5)">5</button>
-                    <button onclick="steb.options.doPreset(42)">debug</button>
-                </div>
-            </fieldset>
-            <br>
-            <fieldset class="vBox preGameOptions"  onclick="steb.options.optionChange()">
-                <legend>Select before starting game</legend>
-                <label><input type="checkbox" id="backgroundCrud" checked>include Crud (not working properly)</label>
-                <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial Stebber colors</label>
-                <label><input type="checkbox" id="fixedInitialBG">fixed initial background and Crud colors</label>
-                <label><input type="checkbox" id="extremeBGColor">more extreme background color</label>
-                <label><input type="checkbox" id="beginGamePaused">begin game paused</label>
-                <label><input type="checkbox" id="crudSameShapeAsStebbers">Crud is the same shape as Stebbers
-                    (harder)</label>
-            </fieldset>
-            <br>
-            <fieldset class="vBox preGameOptions" onclick="steb.options.optionChange()">
-                <legend>You can change these "on the fly"</legend>
-                <!--<label><input type="checkbox" id="useStripes">use stripes</label>-->
-                <label><input type="checkbox" id="delayReproduction">delay reproduction (wait and do 5)</label>
-                <label><input type="checkbox" id="reducedMutation">reduced mutation</label>
-                <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>
-                <label><input type="checkbox" id="crudFlee">crud runs from predation</label>
-                <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>
-                <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label>
-                <br>
-                <label><input type="checkbox" id="colorVisionChoiceVisible">see vision choice option</label>
-                <label><input type="checkbox" id="automatedPredatorChoiceVisible">see automation option</label>
-            </fieldset>
-        </div>
-    </div>
-
-
-    <div id="debugTab">
-        <span id="debugText"></span>
-    </div>
-
-</div>
-
-</body>
-
-
-</html>
+<!--========================================================================== * Created by tim on 3/23/16.   ========================================================================== steb.html in data-science-games.HTML wrapper for ....    Author:   Tim EricksonCopyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.    Licensed under the Apache License, Version 2.0 (the "License");you may not use this file except in compliance with the License.    You may obtain a copy of the License athttp://www.apache.org/licenses/LICENSE-2.0    Unless required by applicable law or agreed to in writing, softwaredistributed under the License is distributed on an "AS IS" BASIS,    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    See the License for the specific language governing permissions andlimitations under the License.==========================================================================--><!--Workshophttp://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/steb/steb.htmlor locally,http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/steb/steb.htmlHere is the URL...http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/steb/steb.htmlhttps://codap.concord.org/releases/dsg?di=https://box541.Bluehost.com/~denofinq/dsg/steb/steb.htmlor locally,http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/steb/steb.html--><!DOCTYPE html><html lang="en"><head>    <meta charset="UTF-8">    <!--        stylesheets         -->    <!--<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>-->    <link rel='stylesheet' type='text/css' href='http:////code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css'/>    <link rel='stylesheet' type='text/css' href='steb.css'/>    <!-- These two scripts take care of the communication with CODAP and commons -->    <script src="../common/codap_helper_newAPI.js" language="javascript"></script>    <script src="../common/iframe-phone.js" language="javascript"></script>    <script src="../common/TEEUtils.js" language="javascript"></script>    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>    <title>Stebbins</title>    <!-- Snap -->    <script src="../common/snap.svg.js"></script>    <!--            our game source         -->    <script src="steb.js" language="JavaScript"></script>    <script src="steb.manager.js" language="JavaScript"></script>    <script src="steb.ui.js" language="JavaScript"></script>    <script src="steb.model.js" language="JavaScript"></script>    <script src="steb.color.js" language="JavaScript"></script>    <script src="steb.score.js" language="JavaScript"></script>    <script src="steb.options.js" language="JavaScript"></script>    <script src="steb.connect.js" language="JavaScript"></script>    <script src="steb.worldView.js" language="JavaScript"></script>    <script src="steb.colorBoxView.js" language="JavaScript"></script>    <script src="Stebber.js" language="JavaScript"></script>    <script src="StebberView.js" language="JavaScript"></script>    <script src="CrudView.js" language="JavaScript"></script>    <script src="steb.predator.js" language="JavaScript"></script>    <script>        $(function () {            steb.initialize();            $("#tabs").tabs();        });    </script></head><body><div id="tabs">    <!--    list the tabs for this jquery_ui widget -->    <ul>        <li><a href="#worldTab">World</a></li>        <li><a href="#predatorVisionTab">Vision</a></li>        <li><a href="#instructionsTab">How To</a></li>        <li><a href="#backgroundTab">About</a></li>        <li><a href="#optionsTab">Options</a></li>        <li><a href="#debugTab">Debug</a></li>    </ul>    <!--    Now describe each tab separately, note how the list above references the IDs    -->    <div id="worldTab">     <!--    The main tab, where the game is     -->        <div class="hBox" id="scoreDiv">            <!--Evolution Points: <div id="evolutionPoints"></div>&nbsp;-->            Predator Points:            <div id="predatorPoints"></div>            &nbsp;&nbsp;            <span id="shortStatus"></span>        </div>        <svg id="stebSnapWorld" width="300" height="300" onclick="steb.ui.clickInWorld();">            <rect width="100" height="100" fill="dodgerblue"></rect>            <rect width="100" height="100" x="200" y="200" fill="dodgerblue"></rect>            <rect width="200" height="200" x="50" y="50" fill="goldenrod" fill-opacity="0.5"></rect>        </svg>        <div class="hBox">            <div class="imageButton" id="startStop" onclick="steb.ui.pauseButtonPressed();"></div>            <div class="textIO" style="width : 90px">                t = <span id="timeDisplay">0</span>                m = <span id="mealDisplay">0</span>            </div>            <button id="newGameButton" onclick="steb.ui.newGameButtonPressed()">new game</button>            <button id="popDataButton" onclick="steb.manager.emitPopulationData()">data now</button>        </div>        <div class="hBox">            <div id="isPredatorVisionNormalControl" onchange="steb.options.predatorVisionChange()">                <label for="isPredatorVisionNormalControl">Vision:</label>                <input type="radio" id="normalVision" name="isPredatorVisionNormalControl" value="normal" checked>                <label for="normalVision">normal</label>                <input type="radio" id="monocolorVision" name="isPredatorVisionNormalControl" value="mono">                <label for="monocolorVision">mono</label>            </div>            <div id="isPredatorAutomatedControl" onchange="steb.options.predatorAutomationChange()">                <label for="isPredatorAutomatedControl">Predator:</label>                <input type="radio" id="manualPredator" name="isPredatorAutomatedControl" value="manual" checked>                <label for="manualPredator">manual</label>                <input type="radio" id="autoPredator" name="isPredatorAutomatedControl" value="auto">                <label for="autoPredator">auto</label>            </div>        </div>        <!--                <button onclick="steb.connector.createLivingStebberTable()">table 1</button>        -->    </div>    <!--        VISION tab      -->    <div id="predatorVisionTab" onchange="steb.options.predatorVisionChange()">        <div class="vBox visionOptions">            <h2>Predator Vision Parameters</h2>            <p>Mostly use the top (simple) box....</p>            <fieldset class="preGameOptions">                <legend>Simple version: What color are your goggles?</legend>                <div class="hBox">                    <button onclick="steb.options.setSimpleColor(0)">red</button>                    <button onclick="steb.options.setSimpleColor(1)">green</button>                    <button onclick="steb.options.setSimpleColor(2)">blue</button>                </div>            </fieldset>            <p>Advanced settings: Choose one 'vision method' and then fill in its parameters.</p>            <div class="hBox">                <input type="radio" name="predatorVisionMethodControl" value="dotProduct" checked>                <fieldset class="advancedVisionOptions">                    <legend>Color response (dot-product method)</legend>                    <div class="vBox" id="visionParameters">                        <label><input type="text" id="visionRed" value="1"> red (0 to 1)</label>                        <!-- todo: make these disappear when vision not in use -->                        <label><input type="text" id="visionGreen" value="0"> green (0 to 1)</label>                        <label><input type="text" id="visionBlue" value="0"> blue (0 to 1)</label>                    </div>                </fieldset>            </div>            <div class="hBox">                <input type="radio" name="predatorVisionMethodControl" value="formula">                <fieldset class="advancedVisionOptions">                    <legend> B/W response (enter coefficients)</legend>                    <br>                    <div id="redCoefficient"></div>                    <div id="redCoeffDisplay" class="sliderLabel"></div>                    <br><br>    <!--    the red slider -->                    <div id="greenCoefficient"></div>                    <div id="greenCoeffDisplay" class="sliderLabel"></div>                    <br><br>    <!--    the green slider -->                    <div id="blueCoefficient"></div>                    <div id="blueCoeffDisplay" class="sliderLabel"></div>                    <br><br>    <!--    the blue slider -->                    <div id="visionFormula">foo</div>                </fieldset>            </div>        </div>    </div>    <div id="instructionsTab">        <h2>The Basics</h2>        <p>Eat the circles. They're called "Stebbers."</p>        <p>Do NOT eat the "Crud." The Crud are round-cornered rectangles,            so they look a lot like Stebbers, but they're NOT STEBBERS.</p>        <p>Whenever you eat a Stebber, a new one is born from a randomly-chosen "parent."</p>        <p>Data are collected every ten meals, or whenever you press <b>data</b>.</p>        <h3>Levels and Game Play</h3>        <p>            In the <b>options</b> tab, you can select "presets."            In preset 5, you get the option to automate the predator.            The challenge is to keep the automated predator from going extinct (or just starving).            It starves when the score goes to zero.        </p>        <p>            Don't forget: you can pause automated play when you want to change the vision!        </p>    </div>    <div id="backgroundTab">        <p>Evolution simulation about protective coloration. You are the predator.</p>        <p>Based on the old, offline "Stebbins Game."</p>    </div>    <!--        OPTIONS tab      -->    <div id="optionsTab">        <div class="vBox options" id="gameOptions">            <h2>Game options. <span id="optionPresetText"></span></h2>            <fieldset class="preGameOptions">                <legend>Option "presets" (will turn into levels eventually)</legend>                <div class="hBox">                    <button onclick="steb.options.doPreset(1)">1</button>                    <button onclick="steb.options.doPreset(2)">2</button>                    <button onclick="steb.options.doPreset(3)">3 & 4</button>                    <button onclick="steb.options.doPreset(5)">5</button>                    <button onclick="steb.options.doPreset(42)">debug</button>                </div>            </fieldset>            <br>            <fieldset class="vBox preGameOptions" onclick="steb.options.optionChange()">                <legend>Select before starting game</legend>                <label><input type="checkbox" id="backgroundCrud" checked>include Crud (not working properly)</label>                <label><input type="checkbox" id="fixedInitialStebbers" checked>fixed initial Stebber colors</label>                <label><input type="checkbox" id="fixedInitialBG">fixed initial background and Crud colors</label>                <label><input type="checkbox" id="extremeBGColor">more extreme background color</label>                <label><input type="checkbox" id="beginGamePaused">begin game paused</label>                <label><input type="checkbox" id="crudSameShapeAsStebbers">Crud is the same shape as Stebbers                    (harder)</label>            </fieldset>            <br>            <fieldset class="vBox preGameOptions" onclick="steb.options.optionChange()">                <legend>You can change these "on the fly"</legend>                <!--<label><input type="checkbox" id="useStripes">use stripes</label>-->                <div class="hBox">                    <div class="vBox">                    <label><input type="checkbox" id="delayReproduction">delay reproduction (wait and do 5)</label>                    <label><input type="checkbox" id="reducedMutation">reduced mutation</label>                    <label><input type="checkbox" id="flee" checked>stebbers run from predation</label>                    <label><input type="checkbox" id="crudFlee">crud runs from predation</label>                </div>                <div class="vBox">                    <label><input type="checkbox" id="crudScurry" checked>crud scurries on predation</label>                    <label><input type="checkbox" id="eldest" checked>only the eldest spawns</label><br>                    <label><input type="checkbox" id="colorVisionChoiceVisible">see vision choice option</label>                    <label><input type="checkbox" id="automatedPredatorChoiceVisible">see automation option</label>                </div>                    </div>                <br>            </fieldset>            <br>            <fieldset class="vBox preGameOptions">                <legend>Force change to background and crud colors</legend>                (Type in 3- or 6-char hex value, no #, then press TAB)<br>                <label>background                    <input id="bgHexColor"                           onblur="steb.worldView.forceNewBackgroundColor()"                           onselect="steb.worldView.forceNewBackgroundColor()">                </label>                <label>mean crud                    <input id="meanCrudHexColor"                           onblur="steb.worldView.forceNewMeanCrudColor()"                           onselect="steb.worldView.forceNewMeanCrudColor()">                </label>                <svg id="colorBoxView" width="200" height="50"></svg>            </fieldset>        </div>    </div>    <div id="debugTab">        <span id="debugText"></span>    </div></div></body></html>

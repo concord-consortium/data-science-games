@@ -50,6 +50,11 @@ steb.connector = {
     eatenCollectionName: "eatenStebbers",
 
 
+    logAction : function(iString, iSubs) {
+        codapHelper.logAction( iString, iSubs );
+    },
+
+
     selectStebberInCODAP : function( iStebber ) {
         codapHelper.selectCasesByIDs( iStebber.caseIDs, steb.constants.dataSetName_Living );
     },
@@ -61,113 +66,8 @@ steb.connector = {
         );
     },
 
-    /**
-     * Called when we create a case for a new game
-     * @param iValues      object containing values to be stored
-     */
-    newGameCase: function ( iValues ) {
-
-        //  first for the living stebber data set
-
-        codapHelper.createCase(
-            this.gameCollectionName,
-            { values : iValues },       //  format for new API, no parent.
-            function (iResult) {
-                if (iResult.success) {
-                    this.gameCaseIDInLiving = iResult.values[0].id;
-                    steb.manager.emitPopulationData();  //      to get data at beginning of game
-                    console.log('Created case ' + this.gameCaseIDInLiving + ' for living');
-                } else {
-                    alert("Error creating new 'Living' game case");
-                }
-
-            }.bind(this),
-            steb.constants.dataSetName_Living
-        );
-
-        //  now for the meals data set
-        //  note we are using the same iValues because the attribute (gameNo) has the same name.
-
-        codapHelper.createCase(
-            this.gameCollectionName,    //  still "games"
-            { values : iValues },       //  format for new API, no parent.
-            function (iResult) {
-                if (iResult.success) {
-                    this.gameCaseIDInEaten = iResult.values[0].id;
-                    console.log('Created case ' + this.gameCaseIDInEaten + ' for meals');
-                } else {
-                    alert("Error creating new 'Meals' game case");
-                }
-
-            }.bind(this),
-            steb.constants.dataSetName_Eaten
-        );
-    },
-
-    /**
-     * Called to rewrite and close a game-level case
-     * @param iValues     the values to be sent
-     */
-    finishGameCase: function ( iValues ) {
-        codapHelper.updateCase(
-            { values : iValues },
-            this.gameCaseIDInLiving,
-            this.gameCollectionName,
-            steb.constants.dataSetName_Living,
-            null        //  no callback
-        );
-        this.gameCaseID = 0;     //  so we know there is no open case
-    },
-
-    /**
-     * Create a new case in the middle-in-the-hierarchy "bucket" collection in the BART game.
-     * @param iValues {*} Object containing values to be stored
-     * @param iCallback     the callback function
-     */
-    newBucketCase : function( iValues, iCallback ) {
-        this.bucketNumber += 1;     //  not currently stored
-
-        codapHelper.createCase(
-            this.bucketCollectionName,
-            {
-                parent : this.gameCaseIDInLiving,
-                values : iValues
-            },
-            iCallback,              //  needed to figure out the bucket case ID
-            steb.constants.dataSetName_Living
-        );
-    },
-
-    /**
-     * Emit an "event" case, low level in the hierarchy.
-     * One case per Stebber.
-     * Called from steb.manager.bucketCreated
-     * @param {[*]} iValues   the data values to be passed
-     * @param iCallback the callback function to get iResult
-     */
-    doStebberRecord: function (iValues, iCallback) {
-        codapHelper.createCase(
-            this.stebberCollectionName,
-            {
-                parent : this.bucketCaseID,
-                values : iValues
-            },
-            iCallback,   //  needed because selection requires case IDs in the new API
-            steb.constants.dataSetName_Living
-        );
-    },
-
-    doMealRecord : function( iValues) {
-        codapHelper.createCase(
-            this.eatenCollectionName,
-            {
-                parent : this.gameCaseIDInEaten,
-                values : iValues
-            },
-            null,
-            steb.constants.dataSetName_Eaten
-        ); // no callback.
-
+    emitStebberRecord : function( iValues, iCallback, iDataSet ) {
+        codapHelper.createItems( iValues, iCallback, iDataSet);
     },
 
     createLivingStebberTable : function() {
@@ -208,7 +108,8 @@ steb.connector = {
             version: steb.constants.version,
             name: 'Stebbins',
             title: 'Stebbins',
-            dimensions: {width: 444, height: 555}
+            dimensions: {width: 444, height: 555},
+            preventDataContextReorg : false         //  let the user reorganize
 
             /*, Temporarily, at least, we let CODAP set the default dimensions
             dimensions: {width: 380, height: 500}*/
@@ -235,8 +136,6 @@ steb.connector = {
                     // The parent collection spec:
                     attrs: [
                         {name: "gameNo", type: 'categorical'},
-                        {name: "bgColor", type: 'categorical', description: "[red, green, blue] of the background"},
-                        {name: "crudColor", type: 'categorical', description: "[red, green, blue] of the average Crud"},
                         {name: "result", type: 'categorical'}
                     ],
                     childAttrName: "bucket"
@@ -252,7 +151,9 @@ steb.connector = {
                     // The bucket collection spec:
                     attrs: [
                         {name: "meals", type: 'categorical', description: 'how many stebbers you have eaten'},
-                        {name: "score", type: 'numeric', precision: 1, description: 'score at this time'}
+                        {name: "score", type: 'numeric', precision: 1, description: 'score at this time'},
+                        {name: "bgColor", type: 'categorical', description: "[red, green, blue] of the background"},
+                        {name: "crudColor", type: 'categorical', description: "[red, green, blue] of the average Crud"}
                     ],
                     childAttrName: "survivor"
                 },
@@ -312,19 +213,19 @@ steb.connector = {
                     attrs: [
                         {name: "gameNo", type: 'categorical'}
                     ],
-                    childAttrName: "meal"
+                    childAttrName: "meals"
                 },
                 {
                     name: this.eatenCollectionName,
                     parent: this.gameCollectionName,
                     labels: {
-                        singleCase: "meal",
+                        singleCase: "meals",
                         pluralCase: "meals",
                         setOfCasesWithArticle: "a set of meals"
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "meal", type: 'numeric', precision: 0, description: "which meal was this?"},
+                        {name: "meals", type: 'numeric', precision: 0, description: "which meal was this?"},
                         {name: "score", type: 'numeric', precision: 0, description: "score"},
                         {name: "red", type: 'numeric', precision: 1,
                             colormap: {
@@ -346,6 +247,8 @@ steb.connector = {
                         {name: "bright", type: 'numeric', precision: 3},
                         {name: "parent", type: 'numeric', precision: 0},
                         {name: "id", type: 'numeric', precision: 0},
+                        {name: "bgColor", type: 'categorical', description: "[red, green, blue] of the background"},
+                        {name: "crudColor", type: 'categorical', description: "[red, green, blue] of the average Crud"},
                         {name: "color", description: "use as a legend to color points in graph",
                                 formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'}
                     ]

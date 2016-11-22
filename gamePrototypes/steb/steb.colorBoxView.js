@@ -33,7 +33,7 @@ steb.colorBoxView = {
     crudColor : null,
     paper : null,
     bgBox : null,
-    crudBox : null,
+    crudCircle : null,
     bgText : null,
     crudText : null,
 
@@ -42,14 +42,10 @@ steb.colorBoxView = {
         this.paper = new Snap(document.getElementById("colorBoxView"));    //    create the underlying svg "paper"
 
         var tW = this.paper.node.clientWidth;
-        var tH2 = this.paper.node.clientHeight / 2;
+        var tH = this.paper.node.clientHeight;
 
-        this.crudText = this.paper.text(8, tH2 - 8,"Crud");
-        this.crudBox = this.paper.rect( 0, tH2, tW/2, 50).attr({fill : "orange"});
-        this.bgText = this.paper.text(tW/2 + 8, tH2 - 8, "Background");
-        this.bgBox = this.paper.rect( tW/2, tH2, tW/2, tH2).attr({fill : "red"});
-
-        this.bgText.node.innerHTML = "Yes! BG!";
+        this.bgBox = this.paper.rect( 0, 0, tW, tH).attr({fill : "red", strokeWidth : 4, stroke : "black"});
+        this.crudCircle = this.paper.circle( tW/2, tH/2, tH/3).attr({fill : "orange"});
     },
 
     newGame : function( ) {
@@ -60,15 +56,15 @@ steb.colorBoxView = {
         if (iCrud) {
             this.crudColor = iCrud;
             var tCrudColor = steb.makeColorString( this.crudColor );
-            this.crudText.node.innerHTML = "Crud: " + iCrud.toString();
-            this.crudBox.attr({fill : tCrudColor});
+            //  this.crudText.node.innerHTML = "Crud: " + iCrud.toString();
+            this.crudCircle.attr({fill : tCrudColor});
         } else {
-            this.crudText.node.innerHTML = "no crud this time";
+            //  this.crudText.node.innerHTML = "no crud this time";
         }
 
         this.bgColor = iBG;
         var tBGColor = steb.makeColorString( this.bgColor );
-        this.bgText.node.innerHTML = "BG: " + iBG.toString();
+        //  this.bgText.node.innerHTML = "BG: " + iBG.toString();
         this.bgBox.attr({fill : tBGColor});
     }
 };
