@@ -275,7 +275,7 @@ steb.manager = {
 
             function stebberRecordCreated(jResult) {
                 if (jResult.success) {
-                    iSteb.caseIDs.push(jResult.values[0].id);
+                    iSteb.caseIDs.push(jResult.values[0]);
                     //  console.log('Stebber ' + iSteb.id + ' has case IDs ' + iSteb.caseIDs.toString());
                 } else {
                     console.log("Failed to create stebber case.");
@@ -335,7 +335,7 @@ steb.manager = {
      * For saving. TBD.
      */
     stebDoCommand: function (iCommand, iCallback) {
-        console.log("stebDoCommand: ");
+        console.log("stebDoCommand: " + iCommand.action);
 
         var tCommandObject = "";
 
@@ -379,7 +379,8 @@ steb.manager = {
                                         return {
                                             id: iStebber.id,
                                             where: iStebber.where,
-                                            color: iStebber.color,
+                                            trueColor: iStebber.trueColor,
+                                            parentID : iStebber.parentID,
                                             caseIDs: iStebber.caseIDs
                                         };
                                     }),
@@ -413,7 +414,11 @@ steb.manager = {
                                     automatedPredatorChoiceVisible: steb.options.automatedPredatorChoiceVisible,
                                     colorVisionChoiceVisible: steb.options.colorVisionChoiceVisible,
 
-                                    currentPreset: steb.options.currentPreset
+                                    currentPreset: steb.options.currentPreset,
+
+                                    noMutation : steb.options.noMutation,
+                                    constantCrud : steb.options.constantCrud
+
                                 },
                                 predator: {
                                     where: steb.predator.where,
@@ -466,8 +471,14 @@ steb.manager = {
             steb.model.meals = tModel.meals;
             steb.model.meanCrudColor = tModel.meanCrudColor;
             steb.model.trueBackgroundColor = tModel.trueBackgroundColor;
+
             steb.model.stebbers = tModel.stebbers.map(function (iStebState) {
-                var tStebber = new Stebber(iStebState.color, iStebState.where, iStebState.id);
+                var tStebber = new Stebber(
+                    iStebState.trueColor,
+                    iStebState.where,
+                    iStebState.id,
+                    iStebState.parentID
+                );
                 tStebber.caseIDs = iStebState.caseIDs;
                 return tStebber;
             });
@@ -494,6 +505,8 @@ steb.manager = {
             steb.options.automatedPredatorChoiceVisible = tOptions.automatedPredatorChoiceVisible;
             steb.options.colorVisionChoiceVisible = tOptions.colorVisionChoiceVisible;
             steb.options.currentPreset = tOptions.currentPreset;
+            steb.options.noMutation = tOptions.noMutation;
+            steb.options.constantCrud = tOptions.constantCrud;
 
             steb.predator.where = tPredator.where;
             steb.predator.state = tPredator.state;

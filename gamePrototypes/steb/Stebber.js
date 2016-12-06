@@ -33,7 +33,7 @@
  * @param iID       its internal (serial) ID
  * @constructor
  */
-var Stebber = function( iColor, iWhere, iID, iParentID ) {
+var Stebber = function (iColor, iWhere, iID, iParentID) {
     this.trueColor = iColor ? iColor : [8, 8, 8];
     this.where = iWhere;
     this.id = iID;
@@ -47,7 +47,7 @@ var Stebber = function( iColor, iWhere, iID, iParentID ) {
     trueDarkStripeWidth = 4;
 
 
-        this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
+    this.setNewSpeedAndHeading();   //  todo: check if we need this here as well as in reproduce
     this.updateColorDistances();    //  todo: do we need this? The view doesn't exist yet, right?
 };
 
@@ -56,8 +56,8 @@ var Stebber = function( iColor, iWhere, iID, iParentID ) {
  * Set the speed
  * Also set the timer for the next change.
  */
-Stebber.prototype.setNewSpeedAndHeading = function() {
-    this.heading = Math.PI*2 * Math.random();
+Stebber.prototype.setNewSpeedAndHeading = function () {
+    this.heading = Math.PI * 2 * Math.random();
     this.timeToChange = 1 + Math.random() * 2;
     this.speed = steb.constants.baseStebberSpeed + Math.random() * steb.constants.stebberSpeedRange;
 };
@@ -65,7 +65,7 @@ Stebber.prototype.setNewSpeedAndHeading = function() {
 /**
  * Determine this Stebber's color distances based on the predator's vision parameters.
  */
-Stebber.prototype.updateColorDistances = function() {
+Stebber.prototype.updateColorDistances = function () {
     this.colorDistanceToBackground = steb.color.colorDistance(
         steb.color.getPredatorVisionColor(steb.model.trueBackgroundColor),
         steb.color.getPredatorVisionColor(this.trueColor)
@@ -86,7 +86,7 @@ Stebber.prototype.updateColorDistances = function() {
  * Update the position and speed
  * @param idt   seconds in interval
  */
-Stebber.prototype.update = function( idt ) {
+Stebber.prototype.update = function (idt) {
 
     //  if we've been running, decelerate
     if (this.speed > steb.constants.baseStebberSpeed) {
@@ -94,21 +94,23 @@ Stebber.prototype.update = function( idt ) {
     }
 
     //  what's our projected change in position?
-    var tDx = this.speed * Math.cos( this.heading ) * idt;
-    var tDy = this.speed * Math.sin( this.heading ) * idt;
+    var tDx = this.speed * Math.cos(this.heading) * idt;
+    var tDy = this.speed * Math.sin(this.heading) * idt;
 
     this.where.x += tDx;
     this.where.y += tDy;
 
     //  torus topology
-    this.where.x = steb.rangeWrap( this.where.x, 0, steb.constants.worldViewBoxSize);
-    this.where.y = steb.rangeWrap( this.where.y, 0, steb.constants.worldViewBoxSize);
+    this.where.x = steb.rangeWrap(this.where.x, 0, steb.constants.worldViewBoxSize);
+    this.where.y = steb.rangeWrap(this.where.y, 0, steb.constants.worldViewBoxSize);
 
     //  decrement the time
     this.timeToChange -= idt;
 
     // see if we need to change direction
-    if (this.timeToChange < 0) { this.setNewSpeedAndHeading(); }   //  this resets this.timeToChange
+    if (this.timeToChange < 0) {
+        this.setNewSpeedAndHeading();
+    }   //  this resets this.timeToChange
 
 };
 
@@ -116,7 +118,7 @@ Stebber.prototype.update = function( idt ) {
  * Run from the point: Set the velocity to be large and away.
  * @param iPoint
  */
-Stebber.prototype.runFrom = function( iPoint ) {
+Stebber.prototype.runFrom = function (iPoint) {
     if (steb.options.flee) {
         var dx = this.where.x - iPoint.x;
         var dy = this.where.y - iPoint.y;
@@ -136,23 +138,23 @@ Stebber.prototype.runFrom = function( iPoint ) {
  * Prepare an array of values for output to CODAP   //  todo: explain why we can use .color
  * @returns {*[]}
  */
-Stebber.prototype.stebberDataValues = function() {
+Stebber.prototype.stebberDataValues = function () {
 
-    var tSnapColorRecord = steb.getSnapColor( this.trueColor );
+    var tSnapColorRecord = steb.getSnapColor(this.trueColor);
     return {
-        red : this.trueColor[0],
-        green : this.trueColor[1],
-        blue : this.trueColor[2],
-        hue : tSnapColorRecord.h,
-        sat : tSnapColorRecord.s,
-        bright : tSnapColorRecord.b,
-        id : this.id,
-        parent : this.parentID
+        red: this.trueColor[0],
+        green: this.trueColor[1],
+        blue: this.trueColor[2],
+        hue: tSnapColorRecord.h,
+        sat: tSnapColorRecord.s,
+        bright: tSnapColorRecord.b,
+        id: this.id,
+        parent: this.parentID
     };
 };
 
 /*
-was in the Stebber record before...
+ was in the Stebber record before...
 
  h : tSnapColorRecord.h,
  s : tSnapColorRecord.s,
@@ -163,9 +165,9 @@ was in the Stebber record before...
  * String display of this Stebber
  * @returns {string}
  */
-Stebber.prototype.toString = function() {
+Stebber.prototype.toString = function () {
     var o = "stebber id " + this.id;
-    o += " color : " + JSON.stringify( this.color );
+    o += " color : " + JSON.stringify(this.color);
     return o;
 };
 

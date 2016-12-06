@@ -127,8 +127,8 @@ steb.model = {
         var i;
 
         if (steb.options.fixedInitialBG) {
-            this.trueBackgroundColor = steb.constants.defaultBackgroundColor;
-            this.meanCrudColor = steb.constants.defaultCrudColor;
+            //  this.trueBackgroundColor = steb.constants.defaultBackgroundColor;
+            //  this.meanCrudColor = steb.constants.defaultCrudColor;
         } else {
             this.trueBackgroundColor = this.inventBackgroundColor();
             this.meanCrudColor = steb.options.backgroundCrud ?
