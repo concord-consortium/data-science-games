@@ -53,7 +53,7 @@
  * @constructor
  */
 
-/* global Snap, Spectrum, stella, ElementalSpectra, TEEUtils */
+/* global Snap, Spectrum, stella, elementalSpectra, TEEUtils */
 
 /**
  * Notes on position
@@ -267,11 +267,11 @@ Star.prototype.setUpSpectrum = function () {
     tSpectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
 
     //  NB: no Lithium
-    tSpectrum.addLinesFrom(ElementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
-    tSpectrum.addLinesFrom(ElementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
-    tSpectrum.addLinesFrom(ElementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
-    tSpectrum.addLinesFrom(ElementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
-    tSpectrum.addLinesFrom(ElementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
+    tSpectrum.addLinesFrom(elementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
+    tSpectrum.addLinesFrom(elementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
+    tSpectrum.addLinesFrom(elementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
+    tSpectrum.addLinesFrom(elementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
+    tSpectrum.addLinesFrom(elementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
 
     tSpectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
     tSpectrum.source.id = this.id;

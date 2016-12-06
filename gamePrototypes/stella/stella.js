@@ -37,7 +37,7 @@
 
  Controllers: .manager, .ui, .options, .connector
 
- Model:  .model, Star, Spectrum, Line, ElementalSpectra, [Planet] (not currently in use)
+ Model:  .model, Star, Spectrum, Line, elementalSpectra, [Planet] (not currently in use)
 
  Views:  .skyView, SpectrumView, StarView (in Star.js)
 
@@ -53,14 +53,14 @@
  which determine temperature and lifespan.
 
  A Spectrum is essentially a collection of Lines at particular intensities. You get the Lines from
- ElementalSpectra, which get made at startup from NIST data. See that class for the actual lines data.
+ elementalSpectra, which get made at startup from NIST data. See that class for the actual lines data.
 
  A stellar Spectrum gets created on the fly when needed (foreseeing variable stars).
  When the user can see a Spectrum, you update a SpectrumView with the new Spectrum.
  */
 
 
-/* global ElementalSpectra, Math */
+/* global elementalSpectra, Math */
 
 var stella = {           //  top level global
 

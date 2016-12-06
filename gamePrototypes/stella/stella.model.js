@@ -26,7 +26,7 @@
 
  */
 
-/* global $, stella, Star, Spectrum, console, ElementalSpectra, alert, TEEUtils */
+/* global $, stella, Star, Spectrum, console, elementalSpectra, alert, TEEUtils */
 
 /**
  * Overarching model class
@@ -135,7 +135,7 @@ stella.model = {
 
     /**
      * Install a discharge tube in the lab.
-     * Get the lines form the ElementalSpectra.
+     * Get the lines form the elementalSpectra.
      */
     installDischargeTube: function () {
         this.labSpectrum = new Spectrum();
@@ -145,27 +145,27 @@ stella.model = {
 
         switch (this.dischargeTube) {
             case "H":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.H, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.H, 100);
                 break;
 
             case "HeI":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.HeI, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.HeI, 100);
                 break;
 
             case "LiI":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.LiI, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.LiI, 100);
                 break;
 
             case "NaI":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.NaI, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.NaI, 100);
                 break;
 
             case "CaII":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.CaII, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.CaII, 100);
                 break;
 
             case "FeI":
-                this.labSpectrum.addLinesFrom(ElementalSpectra.FeI, 100);
+                this.labSpectrum.addLinesFrom(elementalSpectra.FeI, 100);
                 break;
         }
         this.labSpectrum.source.id = this.dischargeTube + " " + " tube";

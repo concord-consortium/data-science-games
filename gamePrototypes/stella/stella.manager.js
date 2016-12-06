@@ -25,7 +25,7 @@
 
  */
 
-/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert, ElementalSpectra  */
+/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert, elementalSpectra  */
 
 /**
  * Main controller for Stella
@@ -47,7 +47,7 @@ stella.manager = {
      */
     newGame: function () {
 
-        ElementalSpectra.initialize();  //  read the line data into objects
+        elementalSpectra.initialize();  //  read the line data into objects
 
         stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
         stella.model.newGame();     //  make all the stars etc.
@@ -144,6 +144,7 @@ stella.manager = {
         stella.model.stars.forEach(function (iStar) {
             var tValues = iStar.dataValues();
             tValues.date = stella.model.epoch;
+
             stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the Stebber part
 
             function starRecordCreated(iResult) {

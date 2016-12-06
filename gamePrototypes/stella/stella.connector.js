@@ -98,47 +98,27 @@ stella.connector = {
      * @param iName     the name of the spectrum (star or lab designation)
      */
     emitSpectrum: function (iChannels, iName) {
-
         this.spectrumNumber += 1;       //      serial
 
-        codapHelper.createCase(
-            this.spectraCollectionName,
-            {
-                values: {
-                    specNum: this.spectrumNumber,
-                    name: iName,
-                    date: stella.model.now
-                }
-            },
-            function (iResult) {
-                this.spectrumCaseID = iResult.values[0].id;     //  need for the channels sub-collection
+        var tChannelValues = [];
 
-                //      assemble values array for the channels
+        iChannels.forEach(function (ch) {
+            var tOneChannel = {
+                specNum: this.spectrumNumber,
+                name: iName,
+                date: stella.model.now,
+                wavelength: ch.min.toFixed(5),
+                intensity: ch.intensity.toFixed(2)
+            };
+            tChannelValues.push( tOneChannel );
+        }.bind(this));
 
-                var tChannelValues = [];
-
-                iChannels.forEach(function (ch) {
-                    tChannelValues.push(
-                        {
-                            parent: this.spectrumCaseID,
-                            values: {
-                                wavelength: ch.min.toFixed(5),
-                                intensity: ch.intensity.toFixed(2)
-                            }
-                        }
-                    );
-                }.bind(this));
-
-                codapHelper.createCases(
-                    this.channelCollectionName,
-                    tChannelValues,
-                    null,       //  no callback
-                    this.spectraDataSetName
-                );
-
-            }.bind(this),           //  end of create spectrum level case callback
+        codapHelper.createItems(
+            tChannelValues,
+            null,       //  no callback
             this.spectraDataSetName
         );
+
     },
 
     /**
@@ -279,9 +259,8 @@ stella.connector = {
             ]
         };
     }
-
-
 };
+
 
 /**
  * We call this to initialize the data interactive.

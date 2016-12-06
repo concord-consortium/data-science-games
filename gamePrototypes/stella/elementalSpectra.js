@@ -32,9 +32,9 @@
  * These are set so the maximum intensity is (about) 100.
  * So you will need to scale them to get the height that's appropriate.
  *
- * @type {{H: null, HeI: null, CaII: null, NaI: null, FeI: null, mainSequenceWidth: number, giantWidth: number, initialize: ElementalSpectra.initialize}}
+ * @type {{H: null, HeI: null, CaII: null, NaI: null, FeI: null, mainSequenceWidth: number, giantWidth: number, initialize: elementalSpectra.initialize}}
  */
-var ElementalSpectra = {
+var elementalSpectra = {
     H : null,
     HeI : null,
     LiI : null,
@@ -65,7 +65,7 @@ var ElementalSpectra = {
         tSpectrum.addLine(new Line(410.1734, this.mainSequenceWidth, 14, tWhat ));
         tSpectrum.addLine(new Line(397.0075, this.mainSequenceWidth, 6, tWhat ));
         tSpectrum.addLine(new Line(388.9064, this.mainSequenceWidth, 14, tWhat ));
-        ElementalSpectra.H = tSpectrum;
+        elementalSpectra.H = tSpectrum;
 
         //  Helium
         tSpectrum = new Spectrum();         //  http://physics.nist.gov/cgi-bin/ASD/lines1.pl  //   divide intensities by 5
@@ -87,14 +87,14 @@ var ElementalSpectra = {
         tSpectrum.addLine(new Line(587.5621, this.mainSequenceWidth, 100, tWhat ));
         tSpectrum.addLine(new Line(587.5966, this.mainSequenceWidth, 20, tWhat ));
         tSpectrum.addLine(new Line(667.8151, this.mainSequenceWidth, 20, tWhat ));
-        ElementalSpectra.HeI = tSpectrum;
+        elementalSpectra.HeI = tSpectrum;
 
         //  Lithium I (neutral. Not present in stellar atmospheres because it gets eaten.)
         tWhat = "LiI";
         tSpectrum = new Spectrum();     //  divide by 3600
         tSpectrum.addLine(new Line(670.7, this.mainSequenceWidth, 100, tWhat ));
         tSpectrum.addLine(new Line(610.3, this.mainSequenceWidth, 9, tWhat ));
-        ElementalSpectra.LiI = tSpectrum;
+        elementalSpectra.LiI = tSpectrum;
 
 
         //  Ca II (singly ionized)
@@ -119,7 +119,7 @@ var ElementalSpectra = {
 
         tSpectrum.addLine(new Line(645.687, this.mainSequenceWidth, 32, tWhat ));
 
-        ElementalSpectra.CaII = tSpectrum;
+        elementalSpectra.CaII = tSpectrum;
 
 
         //  Na I (neutral)
@@ -127,7 +127,7 @@ var ElementalSpectra = {
         tSpectrum = new Spectrum();         //  http://physics.nist.gov/cgi-bin/ASD/lines1.pl  //   only the D doublet :)
         tSpectrum.addLine(new Line(588.995, this.mainSequenceWidth, 100, tWhat ));
         tSpectrum.addLine(new Line(589.5924237, this.mainSequenceWidth, 50, tWhat ));     //  D
-        ElementalSpectra.NaI = tSpectrum;
+        elementalSpectra.NaI = tSpectrum;
 
         //  Fe I (neutral)
         tWhat = "FeI";
@@ -319,6 +319,6 @@ var ElementalSpectra = {
         tSpectrum.addLine(new Line(362.319, this.mainSequenceWidth, 2, tWhat ));
         tSpectrum.addLine(new Line(384.326, this.mainSequenceWidth, 2, tWhat ));
 
-        ElementalSpectra.FeI = tSpectrum;
+        elementalSpectra.FeI = tSpectrum;
     }
 };
