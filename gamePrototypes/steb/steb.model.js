@@ -49,6 +49,17 @@ steb.model = {
     meanCrudColor : null,
     trueBackgroundColor : null,
 
+    /**
+     * Ensure that member variables have plausible values so that other routines don't blow up.
+     * ACTUAL values get set in newGame()
+     */
+    initialize : function() {
+        this.elapsed = 0;
+        this.meals = 0;
+        this.lastStebberNumber = 0;
+        this.meanCrudColor = steb.constants.defaultCrudColor;
+        this.trueBackgroundColor = steb.constants.defaultBackgroundColor;
+    },
 
     /**
      * Perform reproduction in the Stebber set
@@ -182,7 +193,9 @@ steb.model = {
             var tMute = steb.options.reducedMutation ?
                 steb.constants.stebberColorReducedMutationArray :
                 steb.constants.stebberColorMutationArray;
-            tColor = steb.color.mutateColor( iParentStebber.trueColor, tMute );
+            tColor = steb.options.noMutation ?
+                iParentStebber.trueColor :
+                steb.color.mutateColor( iParentStebber.trueColor, tMute );
             tWhere.x = iParentStebber.where.x;
             tWhere.y = iParentStebber.where.y;
         } else {    //  beginning of the game, no parent

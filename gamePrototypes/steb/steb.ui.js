@@ -76,6 +76,7 @@ steb.ui = {
 
         $("#isPredatorAutomatedControl").css("visibility", steb.options.automatedPredatorChoiceVisible ? "visible" : "hidden");
         $("#isPredatorVisionNormalControl").css("visibility", steb.options.colorVisionChoiceVisible ? "visible" : "hidden");
+
     },
 
     /**

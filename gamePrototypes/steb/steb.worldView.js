@@ -119,6 +119,10 @@ steb.worldView = {
         this.paper.attr({
             viewBox: "0 0 " + steb.constants.worldViewBoxSize + " " + steb.constants.worldViewBoxSize
         });
+
+        this.paper.clear();
+        this.makeBackground();
+        this.installCrudViewFor( new Crud());
     },
 
     /**
@@ -192,6 +196,7 @@ steb.worldView = {
      */
     setBackgroundColor: function () {
         steb.worldView.applyPredatorVisionToObject(this.backgroundRect, steb.model.trueBackgroundColor);
+        steb.options.setColorChoiceText();
     },
 
     setCrudColors: function () {
@@ -207,14 +212,14 @@ steb.worldView = {
             steb.manager.emitPopulationData();
         }
 
-        var tHex = "#" + $("#bgHexColor").val();
-        console.log("New bg will be " + tHex);
-        var tSnapColor = Snap.color(tHex);
+        var tColorStringArray = $("#bgColorText").val().split(/[^-\d.]+/);
+
         steb.model.trueBackgroundColor = [
-            tSnapColor.r / 17,
-            tSnapColor.g / 17,
-            tSnapColor.b / 17
+            Number(tColorStringArray[0]),
+            Number(tColorStringArray[1]),
+            Number(tColorStringArray[2])
         ];
+
         this.setBackgroundColor();
         steb.colorBoxView.setColors(steb.model.trueBackgroundColor, steb.model.meanCrudColor);
         steb.connector.logMessage("New BG color &@ &@ &@",steb.model.trueBackgroundColor);
@@ -226,14 +231,14 @@ steb.worldView = {
             steb.manager.emitPopulationData();
         }
 
-        var tHex = "#" + $("#meanCrudHexColor").val();
-        console.log("New crud will be " + tHex);
-        var tSnapColor = Snap.color(tHex);
+        var tColorStringArray = $("#meanCrudColorText").val().split(/[^-\d.]+/);
+
         steb.model.meanCrudColor = [
-            tSnapColor.r / 17,
-            tSnapColor.g / 17,
-            tSnapColor.b / 17
+            Number(tColorStringArray[0]),
+            Number(tColorStringArray[1]),
+            Number(tColorStringArray[2])
         ];
+
         this.setCrudColors();
         steb.colorBoxView.setColors(steb.model.trueBackgroundColor, steb.model.meanCrudColor);
         steb.connector.logMessage("New Crud color &@ &@ &@",steb.model.meanCrudColor);

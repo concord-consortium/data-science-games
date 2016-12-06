@@ -43,9 +43,10 @@ steb.colorBoxView = {
 
         var tW = this.paper.node.clientWidth;
         var tH = this.paper.node.clientHeight;
+        var crudRadius = tH > 60 ? 20 : tH / 3;
 
         this.bgBox = this.paper.rect( 0, 0, tW, tH).attr({fill : "red", strokeWidth : 4, stroke : "black"});
-        this.crudCircle = this.paper.circle( tW/2, tH/2, tH/3).attr({fill : "orange"});
+        this.crudCircle = this.paper.circle( tW/2, tH/2, crudRadius).attr({fill : "orange"});
     },
 
     newGame : function( ) {

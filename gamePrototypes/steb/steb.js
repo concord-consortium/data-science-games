@@ -34,11 +34,13 @@ var steb = {};  //  the "upper level" central global. It holds steb.manager, ste
  */
 steb.initialize = function() {
 
+    this.model.initialize();
     this.constants.captureSlope =       //  compute the slope for the capture probability function
         1.0 / (this.constants.certaintyDistance - this.constants.invisibilityDistance);
     this.ui.initialize();
     this.worldView.initialize();
     this.colorBoxView.initialize( );
+    this.colorBoxView.setColors( steb.model.trueBackgroundColor, steb.model.meanCrudColor);
     steb.options.doPreset(1);
     steb.ui.fixUI();
 };
@@ -95,7 +97,7 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001s",
+    version : "001t",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
@@ -107,30 +109,9 @@ steb.constants = {
     stebberColorReducedMutationArray : [-1, -0.5, -0.5, 0, 0, 0.5, 0.5, 1],   //  same if reduced mutation option selected
     crudColorMutationArray : [-0.8, -0.4, -0.1, 0,0.1,0.4,0.8],   //  how much Crud varies from its original mean
 
-    /*
-    defaultBackgroundColor : [7, 11, 9],
-    defaultCrudColor : [5, 9, 6],
-    */
-
     defaultBackgroundColor : [5, 9, 7],
     defaultCrudColor : [3, 7, 5],
 
-    /*
-    fixedStebberColor : [
-        [8, 8, 12],
-        [8, 12, 8],
-        [12, 8, 8],
-        [8, 8, 4],
-        [8, 4, 8],
-        [4, 8, 8],
-        [8, 10, 10],
-        [10, 8, 10],
-        [10, 10, 8],
-        [8, 6, 6],
-        [6, 8, 6],
-        [6, 6, 8]
-    ],
-    */
 
     fixedStebberColor : [
         [4, 4, 8],

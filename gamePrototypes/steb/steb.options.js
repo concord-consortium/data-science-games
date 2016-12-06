@@ -49,6 +49,9 @@ steb.options = {
     automatedPredatorChoiceVisible : false,
     colorVisionChoiceVisible : false,
 
+    noMutation : false,
+    constantCrud : false,
+
     currentPreset : 0,
 
     /**
@@ -155,6 +158,9 @@ steb.options = {
                 this.colorVisionChoiceVisible = false;
                 this.automatedPredatorChoiceVisible = false;
 
+                this.noMutation = false;
+                this.constantCrud = false;
+
                 break;
 
             case 2:
@@ -189,6 +195,10 @@ steb.options = {
                 this.automatedPredatorChoiceVisible = false;
 
                 steb.color.predatorVisionDotProductColorVector = [0, 1, 0];
+
+                this.noMutation = false;
+                this.constantCrud = false;
+
                 break;
 
             case 3:
@@ -215,6 +225,10 @@ steb.options = {
                 this.automatedPredatorChoiceVisible = false;
 
                 steb.color.predatorVisionBWCoefficientVector = [0, 1, 0];
+
+                this.noMutation = false;
+                this.constantCrud = false;
+
                 break;
 
             case 5:
@@ -240,6 +254,10 @@ steb.options = {
                 this.automatedPredatorChoiceVisible = false; //  the change
 
                 steb.color.predatorVisionBWCoefficientVector = [0, 0, 1];    //  NB: blue
+
+                this.noMutation = false;
+                this.constantCrud = false;
+
                 break;
 
             case 42:
@@ -267,6 +285,37 @@ steb.options = {
                 this.automatedPredatorChoiceVisible = true; //  the change
 
                 steb.color.predatorVisionBWCoefficientVector = [1, 0, 0];    //  NB: red
+
+                this.noMutation = false;
+                this.constantCrud = false;
+
+                break;
+
+            case 37:
+                this.backgroundCrud = true;
+                this.fixedInitialStebbers = true;
+                this.fixedInitialBG = true;
+                this.extremeBGColor = false;
+                this.beginGamePaused = false;
+                this.crudSameShapeAsStebbers = true;
+
+                this.delayReproduction = false;
+                this.reducedMutation = false;
+                this.flee = true;
+                this.crudFlee = false;
+                this.crudScurry = true;
+                this.eldest = false;
+                this.automatedPredator = false;
+
+                this.useVisionParameters = false;
+                this.predatorVisionMethod = 'formula';  //  unnecessary since use params = false
+
+                this.colorVisionChoiceVisible = false;
+                this.automatedPredatorChoiceVisible = false;
+
+                this.noMutation = true;
+                this.constantCrud = true;
+
                 break;
 
             default:
@@ -309,6 +358,8 @@ steb.options = {
         this.colorVisionChoiceVisible = document.getElementById("colorVisionChoiceVisible").checked;
         this.automatedPredatorChoiceVisible = document.getElementById("automatedPredatorChoiceVisible").checked;
 
+        this.constantCrud = document.getElementById("constantCrud").checked;
+        this.noMutation = document.getElementById("noMutation").checked;
         steb.ui.fixUI();
     },
 
@@ -337,6 +388,22 @@ steb.options = {
         document.getElementById("colorVisionChoiceVisible").checked = this.colorVisionChoiceVisible;
         document.getElementById("automatedPredatorChoiceVisible").checked = this.automatedPredatorChoiceVisible;
 
+        document.getElementById("noMutation").checked = this.noMutation;
+        document.getElementById("constantCrud").checked = this.constantCrud;
+
         steb.ui.fixUI();
-    }
+    },
+
+    /**
+     * Set the color text on the options tab to match the internal variable values
+     */
+    setColorChoiceText : function() {
+        //  set color text to match the internal variables
+
+        var tBGColorText = steb.model.trueBackgroundColor.join(", ");
+        $("#bgColorText").val(tBGColorText);
+        var tCrudColorText = steb.model.meanCrudColor.join(", ");
+        $("#meanCrudColorText").val(tCrudColorText);
+    },
+
 };
