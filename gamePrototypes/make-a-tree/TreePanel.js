@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- TreeView.js in reTree.
+ TreeView.js in make-a-tree.
 
  Author:   Tim Erickson
 
@@ -32,8 +32,8 @@ TreePanel = function (iManager, iDOMName) {
     this.lastMouseDownNodeView = null;
     this.corralViews = [];
     this.dependentVariableView = null;      //      this is a CorralAttView, one of the corralViews[]
-    this.positiveDiagnosisView = new DiagnosisView(reTree.constants.diagnosisPlus, this);
-    this.negativeDiagnosisView = new DiagnosisView(reTree.constants.diagnosisMinus, this);
+    this.positiveDiagnosisView = new DiagnosisView(maTree.constants.diagnosisPlus, this);
+    this.negativeDiagnosisView = new DiagnosisView(maTree.constants.diagnosisMinus, this);
 
 
     this.paper = Snap(document.getElementById(iDOMName));
@@ -41,12 +41,12 @@ TreePanel = function (iManager, iDOMName) {
     this.h = Number(this.paper.attr("height"));
 
     this.background = this.paper.rect(0, 0, this.w, this.h).attr(
-        {fill: reTree.constants.panelBackgroundColor}
+        {fill: maTree.constants.panelBackgroundColor}
     );
-    this.corral = this.paper.rect(0, 0, this.w, reTree.constants.corralHeight).attr(
-        {fill: reTree.constants.corralBackgroundColor}
+    this.corral = this.paper.rect(0, 0, this.w, maTree.constants.corralHeight).attr(
+        {fill: maTree.constants.corralBackgroundColor}
     );
-    this.equalsSignText = this.paper.text(0, 0, reTree.constants.leftArrowCode).attr({fill : "white", fontSize : 20});
+    this.equalsSignText = this.paper.text(0, 0, maTree.constants.leftArrowCode).attr({fill : "white", fontSize : 20});
 
     //  this.freshTreeView();
 };
@@ -85,7 +85,7 @@ TreePanel.prototype.addAttributeToCorral = function( iAttribute )  {
 };
 
 TreePanel.prototype.refreshCorral = function( ) {
-    var tPad = reTree.constants.treeObjectPadding;
+    var tPad = maTree.constants.treeObjectPadding;
     var x = tPad;
 
     //  display the dependent variable first
@@ -105,10 +105,10 @@ TreePanel.prototype.refreshCorral = function( ) {
         }
     }.bind(this));
 
-    x = this.w - tPad - reTree.constants.diagWidth;
+    x = this.w - tPad - maTree.constants.diagWidth;
     this.paper.append(this.negativeDiagnosisView.paper);
     this.negativeDiagnosisView.moveTo(x, tPad);
-    x -= (tPad + reTree.constants.diagWidth);
+    x -= (tPad + maTree.constants.diagWidth);
     this.paper.append(this.positiveDiagnosisView.paper);
     this.positiveDiagnosisView.moveTo(x, tPad);
 };
@@ -129,16 +129,16 @@ TreePanel.prototype.setLastMouseDownNodeView = function( iCorralView ) {
 };
 
 TreePanel.prototype.redrawEntireTree = function () {
-    var tPad = reTree.constants.treeObjectPadding;
+    var tPad = maTree.constants.treeObjectPadding;
     var tViewWidth = this.w - 2 * tPad;
-    var tViewHeight = this.h - 2 * tPad - reTree.constants.corralHeight;
+    var tViewHeight = this.h - 2 * tPad - maTree.constants.corralHeight;
 
     this.mainTreeView.redrawEntireTree({
         x : tPad,
-        y : reTree.constants.corralHeight + tPad,
+        y : maTree.constants.corralHeight + tPad,
         width: tViewWidth,
         height: tViewHeight
     });
 
-    reTree.displayResults( reTree.tree.resultString());
+    maTree.displayResults( maTree.tree.resultString());
 };

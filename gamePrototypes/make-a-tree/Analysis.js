@@ -27,6 +27,13 @@
 
 /* global $, codapHelper, console, iframePhone, alert */
 
+/**
+ * An "Analysis" is in charge of connecting an abstract analysis (a chart, a visualization)
+ * to data contexts, collections, etc. in CODAP.
+ *
+ * @param iHost
+ * @constructor
+ */
 var Analysis = function (iHost ) {
 
     this.host = iHost;            //  the object that has invoked this analysis

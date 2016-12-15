@@ -398,6 +398,8 @@ steb.options = {
      * Set the color text on the options tab to match the internal variable values
      */
     setColorChoiceText : function() {
+        console.log("scct");
+
         //  set color text to match the internal variables
 
         var tBGColorText = steb.model.trueBackgroundColor.join(", ");

@@ -5,7 +5,7 @@
  
  
  ==========================================================================
- reTree.html.html in reTree.
+ make-a-tree.html in make-a-tree.
 
 HTML wrapper for ....
 
@@ -30,10 +30,10 @@ limitations under the License.
 
 <!--
 Global
-http://www.eeps.com/dsg/Analysis/reTree.html
+http://www.eeps.com/dsg/Analysis/make-a-tree.html
 
 or locally,
-http://localhost/~tim/gamePrototypes/reTree/reTree.html
+http://localhost/~tim/gamePrototypes/make-a-tree/make-a-tree.html
 
 -->
 
@@ -58,8 +58,8 @@ http://localhost/~tim/gamePrototypes/reTree/reTree.html
 
 
     <script src="Analysis.js" language="javascript"></script>
-    <script src="Tree.js" language="javascript"></script>
-    <script src="reTree.js" language="javascript"></script>
+    <script src="TreeAndNode.js" language="javascript"></script>
+    <script src="maTree.js" language="javascript"></script>
     <script src="TreePanel.js" language="javascript"></script>
     <script src="TreeView.js" language="javascript"></script>
     <script src="NodeView.js" language="javascript"></script>
@@ -69,8 +69,8 @@ http://localhost/~tim/gamePrototypes/reTree/reTree.html
 </head>
 <body>
 
-Dataset: <select id="dataContextSelector" onchange="reTree.changeDataContext();"></select>
-Collec!: <select id="collectionSelector" onchange="reTree.changeCollection();"></select>
+Dataset: <select id="dataContextSelector" onchange="maTree.changeDataContext();"></select>
+Collec!: <select id="collectionSelector" onchange="maTree.changeCollection();"></select>
 <hr>
 <div id="statusDiv">
     <span id="statusText">status</span>&nbsp;|&nbsp
@@ -83,7 +83,7 @@ Collec!: <select id="collectionSelector" onchange="reTree.changeCollection();"><
 
 <script>
     window.onload = function () {
-        reTree.initialize();
+        maTree.initialize();
     }
 </script>
 </html>

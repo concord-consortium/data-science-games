@@ -27,7 +27,12 @@
 
 //          Tree class
 
-
+/**
+ * The Tree represents the whole tree. It has a rootNode, which will
+ * in turn connect to the other Nodes.
+ *
+ * @constructor
+ */
 Tree = function () {
     var tInitialBoolean = ["true"];
 
@@ -41,13 +46,13 @@ Tree.prototype.dispatchTreeEvent = function (iEvent) {
 };
 
 Tree.prototype.totalNumberOfCases = function () {
-    return reTree.analysis.cases.length;
+    return maTree.analysis.cases.length;
 };
 
 Tree.prototype.casesByFilter = function (iFilterArray) {
     var tFilter = iFilterArray.join(" && ");
     var out = [];
-    reTree.analysis.cases.forEach(function (c) {
+    maTree.analysis.cases.forEach(function (c) {
         if (eval(tFilter)) {
             out.push(c);
         }
@@ -72,16 +77,16 @@ Tree.prototype.resultString = function() {
 };
 
 Tree.constants = {
-    yLeafNode: 1,
-    yFullNode: 2,
-    yStopNode: 99
+    yLeafNode: 1,       //  this node has NO attribute.
+    yFullNode: 2,       //  this node has an attribute assigned to it, therefore branches
+    yStopNode: 99       //  this node has no attribute, but DOES have a stop assigned
 };
 
 
 //      Node class
 
 Node = function (iTree, iParent, iLabel, iBoolean) {
-    this.tree = iTree;      //      what tree (large, MODEL) are in?
+    this.tree = iTree;      //      what tree (large, MODEL) are we in?
     this.parent = iParent;  //  parent NODE (model)
     this.valueInLabel = iLabel;
     this.data = {};     //      the Attribute is here (data.attribute.attributeName, etc)
@@ -90,7 +95,7 @@ Node = function (iTree, iParent, iLabel, iBoolean) {
     this.filterArray = iBoolean;
     this.cases = this.parent.casesByFilter(this.filterArray);
 
-    this.numerator = this.numberOfCasesWhere(reTree.dependentVariableBoolean);
+    this.numerator = this.numberOfCasesWhere(maTree.dependentVariableBoolean);
     this.denominator = this.totalNumberOfCases();
     this.rate = Math.round(100000 * this.numerator / this.denominator);
 
@@ -167,10 +172,10 @@ Node.prototype.getResultCounts = function () {
     };
 
     if (this.nodeType === Tree.constants.yStopNode) {
-        if (this.data.sign === reTree.constants.diagnosisPlus) {
+        if (this.data.sign === maTree.constants.diagnosisPlus) {
             tOut.plusNumerator = this.numerator;
             tOut.plusDenominator = this.denominator;
-        } else if (this.data.sign === reTree.constants.diagnosisMinus) {
+        } else if (this.data.sign === maTree.constants.diagnosisMinus) {
             tOut.minusNumerator = this.numerator;
             tOut.minusDenominator = this.denominator;
         } else {

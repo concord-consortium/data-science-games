@@ -26,9 +26,9 @@
  */
 
 
-var reTree = {
+var maTree = {
 
-    analysis : null,
+    analysis : null,        //      connects to CODAP
     tree: null,
     treePanel: null,
     attributes : [],
@@ -58,7 +58,7 @@ var reTree = {
         var tAttNumber = 0;
         this.originalAttributeList.forEach( function( iAtt ){
             var tA = new Attribute( iAtt.name, [] );
-            tA.attributeColor = reTree.constants.attributeColors[tAttNumber];
+            tA.attributeColor = maTree.constants.attributeColors[tAttNumber];
             this.attributes.push( tA );
             this.treePanel.addAttributeToCorral( tA );
             tAttNumber += 1;
@@ -153,7 +153,7 @@ Attribute = function( iName, iCategories ) {
     this.attributeColor = "gray";
 };
 
-reTree.constants = {
+maTree.constants = {
     diagWidth : 24,
     diagHeight : 24,
     nodeWidth: 100,

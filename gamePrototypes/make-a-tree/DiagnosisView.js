@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- DiagnosisView.js in reTree.
+ DiagnosisView.js in make-a-tree.
 
  Author:   Tim Erickson
 
@@ -27,13 +27,13 @@
 
 DiagnosisView = function (iSign, iPanel) {
     this.data = {};
-    this.data.sign = iSign;     //      reTree.constants.diagnosisPlus, ...Minus
-    this.labelText = this.data.sign === reTree.constants.diagnosisPlus
-        ? reTree.constants.heavyPlus
-        : reTree.constants.heavyMinus;
+    this.data.sign = iSign;     //      make-a-tree.constants.diagnosisPlus, ...Minus
+    this.labelText = this.data.sign === maTree.constants.diagnosisPlus
+        ? maTree.constants.heavyPlus
+        : maTree.constants.heavyMinus;
     this.panel = iPanel;
-    this.w = reTree.constants.diagWidth;
-    this.h = reTree.constants.diagHeight;
+    this.w = maTree.constants.diagWidth;
+    this.h = maTree.constants.diagHeight;
 
     this.where = {x: 0, y: 0};
 
@@ -43,11 +43,11 @@ DiagnosisView = function (iSign, iPanel) {
 
     this.backShape = this.paper.rect(
         0, 0, this.w, this.h
-    ).attr({fill: iSign === reTree.constants.diagnosisPlus ? "green" : "red"});
+    ).attr({fill: iSign === maTree.constants.diagnosisPlus ? "green" : "red"});
 
     //  create label
 
-    this.label = this.paper.text(reTree.constants.treeObjectPadding - 4, 17, this.labelText).attr({
+    this.label = this.paper.text(maTree.constants.treeObjectPadding - 4, 17, this.labelText).attr({
         fill : "white"
     });
     this.label.node.setAttribute("class", "noselect");  //  this is that css thing

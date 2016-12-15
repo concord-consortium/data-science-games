@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- NodeView.js in reTree.
+ NodeView.js in make-a-tree.
 
  Author:   Tim Erickson
 
@@ -31,9 +31,9 @@ NodeView = function (iNode, iMyTreeView) {
     this.bg1 = this.paper.rect(0, 0, 10, 10);
     this.bg2 = this.paper.rect(0, 0, 10, 10);
     this.bg3 = this.paper.rect(0, 0, 10, 10);
-    this.valueInLabel = this.paper.text(reTree.constants.treeObjectPadding, 15, "");
-    this.countLabel = this.paper.text(reTree.constants.treeObjectPadding, 34, "");
-    this.attOutLabel = this.paper.text(reTree.constants.treeObjectPadding, 53, "");
+    this.valueInLabel = this.paper.text(maTree.constants.treeObjectPadding, 15, "");
+    this.countLabel = this.paper.text(maTree.constants.treeObjectPadding, 34, "");
+    this.attOutLabel = this.paper.text(maTree.constants.treeObjectPadding, 53, "");
 
     //  handlers
 
@@ -71,7 +71,7 @@ NodeView = function (iNode, iMyTreeView) {
 };
 
 NodeView.prototype.calculateSize = function () {
-    var tPad = reTree.constants.treeObjectPadding;
+    var tPad = maTree.constants.treeObjectPadding;
     var valueInLabelW =  this.valueInLabel.getBBox().width + 2 * tPad;
     var countLabelW =  this.countLabel.getBBox().width + 2 * tPad;
     var attOutLabelW =  this.attOutLabel.getBBox().width + 2 * tPad;
@@ -86,7 +86,7 @@ NodeView.prototype.calculateSize = function () {
 
 NodeView.prototype.redrawMe = function ( ) {
 
-    var tPad = reTree.constants.treeObjectPadding;
+    var tPad = maTree.constants.treeObjectPadding;
     var tBackColor1 = "gray", tBackColor3 = "lightgray", tFullNodeViewHeight = 60, tValueInText, tAttOutText, tCountText;
     var tArgs = {};
     var tValueInColor = "white"; tCountTextColor = "#633"; tAttOutColor = "white";
@@ -97,19 +97,19 @@ NodeView.prototype.redrawMe = function ( ) {
     if (this.myNode.parent.data) {
         tBackColor1 = this.myNode.parent.data.attribute.attributeColor;
     } else {
-        tBackColor1 = reTree.dependentVariable.attributeColor;
+        tBackColor1 = maTree.dependentVariable.attributeColor;
     }
 
     switch (this.myNode.nodeType) {
         case Tree.constants.yLeafNode:
-            tAttOutText = "drop " + reTree.constants.targetCode ;
+            tAttOutText = "drop " + maTree.constants.targetCode ;
             break;
         case Tree.constants.yFullNode:
             tBackColor3 = this.myNode.data.attribute.attributeColor;
             tAttOutText = this.myNode.data.attribute.attributeName;
             break;
         case Tree.constants.yStopNode:
-            tBackColor3 = this.myNode.data.sign === reTree.constants.diagnosisPlus ? "green" : "red";
+            tBackColor3 = this.myNode.data.sign === maTree.constants.diagnosisPlus ? "green" : "red";
             tAttOutText = "stop! (" + this.myNode.data.sign + ")";
             break;
     }

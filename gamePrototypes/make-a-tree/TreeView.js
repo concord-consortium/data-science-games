@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- TreeView.js in reTree.
+ TreeView.js in make-a-tree.
 
  Author:   Tim Erickson
 
@@ -25,12 +25,20 @@
 
  */
 
+/**
+ * A TreeView is the rectangular area the nodes appear in.
+ * a NodeView is the image for the node itself.
+ *
+ * @param iNode
+ * @param iParent
+ * @constructor
+ */
 TreeView = function ( iNode, iParent) {
 
     this.myParentView = iParent;    //
     this.myNode = iNode;
     this.myPanel = iParent.myPanel; //  is the panel for the root view, everybody gets this from me.
-    this.paper = Snap(5, 5);
+    this.paper = Snap(5, 5);        //  tiny, but it exists
     this.w = 10;
     this.h = 10;
 
@@ -41,7 +49,7 @@ TreeView = function ( iNode, iParent) {
 };
 
 
-TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  has x, y, width, height
+TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  object with x, y, width, height
 
     //  this.paper.clear();
     this.paper.attr(inThisSpace);
@@ -53,10 +61,10 @@ TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  has x, y, wi
     this.background.attr({
         width: this.w,
         height: this.h,
-        fill: reTree.constants.treeBackgroundColors[ this.myNode.depth() ]
+        fill: maTree.constants.treeBackgroundColors[ this.myNode.depth() ]
     });
 
-    var tCurrentY = reTree.constants.treeObjectPadding;   //  where do we put these?
+    var tCurrentY = maTree.constants.treeObjectPadding;   //  where do we put these?
 
     //  draw the node
 
@@ -76,7 +84,7 @@ TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  has x, y, wi
             break;
         case Tree.constants.yFullNode:
             var nBranches = this.myNode.branchCount();
-            var tPad = reTree.constants.treeObjectPadding;
+            var tPad = maTree.constants.treeObjectPadding;
             tCurrentY += tNodeHeight + tPad;    //  Number(this.myNodeView.paper.attr("height")) + tPad;
 
             var tCurrentX;
