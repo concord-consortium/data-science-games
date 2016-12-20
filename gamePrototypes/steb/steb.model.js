@@ -79,6 +79,8 @@ steb.model = {
             tParent = this.findParent();
             tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
             steb.manager.addViewForChildStebber( tChild );
+
+            console.log("Parent #" + tParent.id + " spawns child #" + tChild.id);
         }
     },
 
@@ -237,6 +239,7 @@ steb.model = {
      * @param iStebber  the Stebber to be axed
      */
     removeStebber : function( iStebber ) {
+        console.log("Eating steb #" + iStebber.id );
         this.meals += 1;
         var tKilledColor = steb.makeColorString( iStebber.trueColor );  //  todo: use in future dataset
         var tIndex = this.stebbers.indexOf( iStebber );

@@ -147,7 +147,7 @@ Stebber.prototype.stebberDataValues = function () {
         blue: this.trueColor[2],
         hue: tSnapColorRecord.h,
         sat: tSnapColorRecord.s,
-        bright: tSnapColorRecord.b,
+        bright: tSnapColorRecord.v,
         id: this.id,
         parent: this.parentID
     };

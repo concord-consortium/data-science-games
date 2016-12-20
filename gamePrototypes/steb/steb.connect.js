@@ -48,7 +48,7 @@ steb.connector = {
     bucketCollectionName: "snapshots",
     stebberCollectionName: "survivors",
     eatenCollectionName: "eatenStebbers",
-
+    environmentCollectionName: "environs",
 
     logMessage : function(iString, iSubs) {
         codapHelper.logMessage( iString, iSubs );
@@ -138,7 +138,7 @@ steb.connector = {
                         {name: "gameNo", type: 'categorical'},
                         {name: "result", type: 'categorical'}
                     ],
-                    childAttrName: "bucket"
+                    childAttrName: "snapshot"
                 },
                 {
                     name: this.bucketCollectionName,
@@ -152,8 +152,10 @@ steb.connector = {
                     attrs: [
                         {name: "meals", type: 'categorical', description: 'how many stebbers you have eaten'},
                         {name: "score", type: 'numeric', precision: 1, description: 'score at this time'},
-                        {name: "bgColor", type: 'categorical', description: "[red, green, blue] of the background"},
-                        {name: "crudColor", type: 'categorical', description: "[red, green, blue] of the average Crud"}
+                        {name: "bgRGB", type: 'categorical', description: "[red, green, blue] of the background"},
+                        {name: "crudRGB", type: 'categorical', description: "[red, green, blue] of the average Crud"},
+                        {name: "bgHSB", type: 'categorical', description: "[hue, sat, bright] of the background"},
+                        {name: "crudHSB", type: 'categorical', description: "[hue, sat, bright] of the average Crud"}
                     ],
                     childAttrName: "survivor"
                 },
@@ -187,7 +189,7 @@ steb.connector = {
                         {name: "bright", type: 'numeric', precision: 3},
                         {name: "id", type: 'numeric', precision: 0},
                         {name: "parent", type: 'numeric', precision: 0},
-                        {name: "color", description: "use as a legend to color points in graph",
+                        {name: "ptColor", description: "use as a legend to color points in graph",
                             formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'}
                     ]
                 }
@@ -200,8 +202,8 @@ steb.connector = {
         return {
             name: steb.constants.dataSetName_Eaten,
             title: steb.constants.dataSetName_Eaten,
-            description: 'the Stebbins data set',
-            collections: [  // There are three collections: game, bucket, stebber
+            description: 'The Stebbers we ate',
+            collections: [  // There are three collections: game, environ, stebber
                 {
                     name: this.gameCollectionName,
                     labels: {
@@ -213,11 +215,28 @@ steb.connector = {
                     attrs: [
                         {name: "gameNo", type: 'categorical'}
                     ],
+                    childAttrName: "environs"
+                },
+                {
+                    name: this.environmentCollectionName,
+                    parent :    this.gameCollectionName,
+                    labels: {
+                        singleCase: "environ",
+                        pluralCase: "environs",
+                        setOfCasesWithArticle: "a set of environs"
+                    },
+                    // The environment collection spec. Records the colors:
+                    attrs: [
+                        {name: "bgRGB", type: 'categorical', description: "[red, green, blue] of the background"},
+                        {name: "crudRGB", type: 'categorical', description: "[red, green, blue] of the average Crud"},
+                        {name: "bgHSB", type: 'categorical', description: "[hue, sat, bright] of the background"},
+                        {name: "crudHSB", type: 'categorical', description: "[hue, sat, bright] of the average Crud"}
+                    ],
                     childAttrName: "meals"
                 },
                 {
                     name: this.eatenCollectionName,
-                    parent: this.gameCollectionName,
+                    parent: this.environmentCollectionName,
                     labels: {
                         singleCase: "meals",
                         pluralCase: "meals",
@@ -247,9 +266,7 @@ steb.connector = {
                         {name: "bright", type: 'numeric', precision: 3},
                         {name: "parent", type: 'numeric', precision: 0},
                         {name: "id", type: 'numeric', precision: 0},
-                        {name: "bgColor", type: 'categorical', description: "[red, green, blue] of the background"},
-                        {name: "crudColor", type: 'categorical', description: "[red, green, blue] of the average Crud"},
-                        {name: "color", description: "use as a legend to color points in graph",
+                        {name: "ptColor", description: "use as a legend to color points in graph",
                                 formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'}
                     ]
                 }

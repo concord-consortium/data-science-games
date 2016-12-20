@@ -145,14 +145,6 @@ steb.manager = {
 
         this.emitPopulationData();
 
-        /*
-         steb.connector.newGameCase({
-         gameNo: this.gameNumber,
-         bgColor: JSON.stringify(steb.model.trueBackgroundColor),
-         crudColor: JSON.stringify(steb.model.meanCrudColor)
-         });
-         */
-
         //  and start time!
 
         this.restart();
@@ -244,7 +236,7 @@ steb.manager = {
      * Then reproduce, account for the score, emit data, and scare things away from the site
      * @param iStebberView
      */
-    eatStebber: function (iStebberView) {
+     eatStebber: function (iStebberView) {
         steb.score.meal();      //  update score before emitting data
         steb.manager.emitMealData(iStebberView.stebber);
 
@@ -285,10 +277,15 @@ steb.manager = {
     },
 
     highLevelDataValues: function () {
+        var tbgHSVArray = steb.makeHSBArray(steb.getSnapColor(steb.model.trueBackgroundColor));
+        var tCrudHSVArray = steb.makeHSBArray(steb.getSnapColor(steb.model.meanCrudColor));
+
         return {
             gameNo: this.gameNumber,
-            bgColor: (steb.model.trueBackgroundColor).join(),
-            crudColor: (steb.model.meanCrudColor).join(),
+            bgRGB: (steb.model.trueBackgroundColor).join(),
+            crudRGB: (steb.model.meanCrudColor).join(),
+            bgHSB: tbgHSVArray.join(),
+            crudHSB: tCrudHSVArray.join(),
             result: null,
             meals: steb.model.meals,
             score: steb.score.predatorPoints    //  do we need the other kind?

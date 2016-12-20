@@ -64,6 +64,13 @@ steb.getSnapColor = function( iColor ) {
     return tSnapColor;
 };
 
+steb.makeHSBArray = function( iSnapColor ) {
+  return [
+      iSnapColor.h.toFixed(2),
+      iSnapColor.s.toFixed(2),
+      iSnapColor.v.toFixed(2)
+  ]
+};
 /**
  * Wrap motion onto a torus
  * @param val   the input value
@@ -93,11 +100,11 @@ steb.rangePin = function( val, lo, hi )    {
 
 
 /**
- * Constants for the Stebbing game
+ * Constants for the Stebbins game
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001t",
+    version : "001u",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
