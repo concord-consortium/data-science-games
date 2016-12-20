@@ -28,54 +28,63 @@
 
 var maTree = {
 
-    analysis : null,        //      connects to CODAP
+    analysis: null,        //      connects to CODAP
     tree: null,
     treePanel: null,
-    attributes : [],
-    originalAttributeList : null,
-    dependentVariableBoolean : ["true"],
-    dependentVariable : null,
-    focusCategory : null,
+    attributes: [],
+    windowWidth: null,
+    originalAttributeList: null,
+    dependentVariableBoolean: ["true"],
+    dependentVariable: null,
+    focusCategory: null,
     iFrameDescription: {
-        version: "000a",
+        version: "000b",
         name: 'Tree Analysis',
         title: "Tree",
         dimensions: {width: 525, height: 544}
     },
 
     initialize: function () {
-        this.analysis = new Analysis( this );
-        this.analysis.initialize( this.iFrameDescription ); //  gets data structure and cases
-        this.treePanel = new TreePanel(this, "treePaper");  //  the main view. Creates the tree.
+        this.analysis = new Analysis(this);
+        this.analysis.initialize(this.iFrameDescription); //  gets data structure and cases
+        this.treePanel = new TreePanelView(this, "treePaper");  //  the main view. Creates the tree.
+        this.windowWidth = window.innerWidth;
+        window.addEventListener("resize", this.resizeWindow)
     },
 
-    gotCases : function(  ) {
+    resizeWindow: function (iEvent) {
+        this.windowWidth = window.innerWidth;
+        //  console.log("Width is now " + this.windowWidth);
+        maTree.treePanel.drawTreePanelViewSetup();
+        maTree.treePanel.redrawEntireTree();
+    },
+
+    gotCases: function () {
         //  now this.analysis.cases has all the cases in its member variable
 
-        //  first, we partse the attribute list...
+        //  first, we parse the attribute list...
 
         this.attributes = [];           //      new attribute list whenever we change collection? Correct? maybe not.
         var tAttNumber = 0;
-        this.originalAttributeList.forEach( function( iAtt ){
-            var tA = new Attribute( iAtt.name, [] );
+        this.originalAttributeList.forEach(function (iAtt) {
+            var tA = new AttributeProperties(iAtt.name, []);
             tA.attributeColor = maTree.constants.attributeColors[tAttNumber];
-            this.attributes.push( tA );
-            this.treePanel.addAttributeToCorral( tA );
+            this.attributes.push(tA);
+            this.treePanel.addAttributeToCorral(tA);
             tAttNumber += 1;
         }.bind(this));
 
         this.assembleAttributeAndCategoryNames();
         console.log(" *** GOT " + this.analysis.cases.length + " cases!");
-        this.treePanel.freshTreeView();
-        //  pieChart.ui.fixUI();
+        this.treePanel.freshTreeView();     //  todo: not sure if this needs to happen
     },
 
     /**
-     * Called from the TreePanel, because this is from the view.
+     * Called from the TreePanelView, because this is from the view.
      * DO NOT CALL DIRECTLY (or the view won't get moved)
      * @param iAttribute
      */
-    makeDependentVariable : function( iAttribute ) {
+    makeDependentVariable: function (iAttribute) {
         this.dependentVariable = iAttribute;
         this.focusCategory = this.dependentVariable.categories[0];
         this.dependentVariableBoolean =          //  e.g., " (Phlox = 'true') " (NOT an array)
@@ -86,75 +95,68 @@ var maTree = {
         this.displayStatus("<b>" + this.dependentVariable.attributeName + " = " + this.focusCategory + "</b>");
     },
 
-    gotDataContextList : function( iList ) {
-        console.log( "Got list!" + JSON.stringify(iList));
+    gotDataContextList: function (iList) {
+        console.log("Got list!" + JSON.stringify(iList));
 
-        $("#dataContextSelector").empty().append( this.analysis.makeOptionsList( iList ) );
+        $("#dataContextSelector").empty().append(this.analysis.makeOptionsList(iList));
 
-        $("#dataContextSelector").val( iList[0].name ); //  set the UI to the first item by default
+        $("#dataContextSelector").val(iList[0].name); //  set the UI to the first item by default
         this.changeDataContext();   //  make sure the analysis knows
     },
 
-    gotCollectionList : function( iList ) {
+    gotCollectionList: function (iList) {
 
-        $("#collectionSelector").empty().append( this.analysis.makeOptionsList( iList ) );
+        $("#collectionSelector").empty().append(this.analysis.makeOptionsList(iList));
 
-        $("#collectionSelector").val( iList[0].name );  //  first item by default
-        this.changeCollection( );  //  make sure analysis knows
+        $("#collectionSelector").val(iList[0].name);  //  first item by default
+        this.changeCollection();  //  make sure analysis knows
 
     },
 
-    gotAttributeList : function( iList ) {
+    gotAttributeList: function (iList) {
 
         this.originalAttributeList = iList;
-        console.log("gotAttributeList: " + JSON.stringify( iList ));
+        console.log("gotAttributeList: " + JSON.stringify(iList));
 
     },
 
-    changeDataContext : function( ) {
-        this.analysis.specifyCurrentDataContext( $("#dataContextSelector").find('option:selected').text() );
+    changeDataContext: function () {
+        this.analysis.specifyCurrentDataContext($("#dataContextSelector").find('option:selected').text());
     },
 
-    changeCollection : function( ) {
-        this.analysis.specifyCurrentCollection( $("#collectionSelector").find('option:selected').text() );
+    changeCollection: function () {
+        this.analysis.specifyCurrentCollection($("#collectionSelector").find('option:selected').text());
     },
 
-    displayStatus : function( iHTML ) {
+    displayStatus: function (iHTML) {
         $("#statusText").html(iHTML);
     },
-    displayResults : function( iHTML ) {
+
+    displayResults: function (iHTML) {
         $("#resultsText").html(iHTML);
     },
 
-    assembleAttributeAndCategoryNames : function( ) {
+    assembleAttributeAndCategoryNames: function () {
         //  loop through all cases, get all the category names.
         var theCases = this.analysis.cases;
 
         //  make sure we have listed all categories
 
-        theCases.forEach( function( c ) {
-            this.attributes.forEach( function( a ) {
-                var tVal = c[a.attributeName ];
-                if (a.categories.indexOf(tVal) < 0) {
-                    a.categories.push( tVal );
-                }
+        theCases.forEach(function (c) {
+            this.attributes.forEach(function (a) {
+                a.considerValue(c[a.attributeName])
             })
-
         }.bind(this));
-
     }
+}
 
-
-};
-
-Attribute = function( iName, iCategories ) {
-    this.attributeName = iName;
-    this.categories = iCategories;
-    this.attributeColor = "gray";
-};
-
+/**
+ * Various constants for the tree tool
+ *
+ * @type {{diagWidth: number, diagHeight: number, nodeWidth: number, nodeHeightInCorral: number, leafNodeHeight: number, fullNodeHeight: number, stopNodeHeight: number, attrWidth: number, attrHeight: number, corralHeight: number, treeObjectPadding: number, leftArrowCode: string, targetCode: string, heavyMinus: string, heavyPlus: string, diagnosisPlus: string, diagnosisMinus: string, nodeValueLabelColor: string, nodeAttributeLabelColor: string, corralBackgroundColor: string, panelBackgroundColor: string, treeBackgroundColors: [*], attributeColors: [*], attributeColor: string, selectedAttributeColor: string, dropLocationColor: string, closeIconURI: string}}
+ */
 maTree.constants = {
-    diagWidth : 24,
+    diagWidth : 24,     //      width of a diagnosis icon (+ or –)
     diagHeight : 24,
     nodeWidth: 100,
     nodeHeightInCorral: 20,
@@ -186,4 +188,9 @@ maTree.constants = {
     dropLocationColor: "tan",
 
     closeIconURI: "art/closeAttributeIcon.png"
-}
+};
+
+function showHideAttributeDialog() {
+    el = document.getElementById("attributeDialog");
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+};

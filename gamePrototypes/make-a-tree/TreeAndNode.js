@@ -28,8 +28,8 @@
 //          Tree class
 
 /**
- * The Tree represents the whole tree. It has a rootNode, which will
- * in turn connect to the other Nodes.
+ * The Tree is a model that represents the whole tree.
+ * It has a rootNode, which will in turn connect to the other Nodes.
  *
  * @constructor
  */
@@ -89,7 +89,7 @@ Node = function (iTree, iParent, iLabel, iBoolean) {
     this.tree = iTree;      //      what tree (large, MODEL) are we in?
     this.parent = iParent;  //  parent NODE (model)
     this.valueInLabel = iLabel;
-    this.data = {};     //      the Attribute is here (data.attribute.attributeName, etc)
+    this.data = {};     //      the AttributeProperties is here (data.attribute.attributeName, etc)
     this.nodeType = Tree.constants.yLeafNode;
     this.branches = [];     //  an array of sub-Nodes
     this.filterArray = iBoolean;
@@ -99,8 +99,9 @@ Node = function (iTree, iParent, iLabel, iBoolean) {
     this.denominator = this.totalNumberOfCases();
     this.rate = Math.round(100000 * this.numerator / this.denominator);
 
-    console.log("New node with " + this.cases.length + " using " + this.filterArray);
+    //  console.log("New node with " + this.cases.length + " using " + this.filterArray);
 };
+
 
 Node.prototype.casesByFilter = function (iFilterArray) {
     var tFilter = iFilterArray.join(" && ");
@@ -141,6 +142,7 @@ Node.prototype.installData = function (iData) {
         this.branches.push(tNewNode);     //  array of Nodes
     }.bind(this));
 
+    console.log("Node.prototype.installData, set to change tree.");
     this.tree.dispatchTreeEvent(new Event("changeTree"));
 };
 
@@ -149,6 +151,7 @@ Node.prototype.makeStopNode = function (iData) {
     this.branches = [];     //  reset
     this.data = iData;
     this.label = this.data.sign;
+    console.log("Node.prototype.makeStopNode (will change tree)");
     this.tree.dispatchTreeEvent(new Event("changeTree"));
 };
 
@@ -158,6 +161,19 @@ Node.prototype.depth = function () {
 
 Node.prototype.branchCount = function () {
     return this.branches.length;
+};
+
+Node.prototype.leafCount = function() {
+    var oLeafCount = 0;
+    if (this.nodeType === Tree.constants.yFullNode) {
+        this.branches.forEach( function( iBranch ) {
+            oLeafCount += iBranch.leafCount();
+        }.bind(this));
+    } else {
+        oLeafCount = 1;
+    }
+
+    return oLeafCount;
 };
 
 /**

@@ -57,10 +57,11 @@ http://localhost/~tim/gamePrototypes/make-a-tree/make-a-tree.html
     <script src="common/events.js" language="javascript"></script>
 
 
+    <script src="AttributeProperties.js" language="javascript"></script>
     <script src="Analysis.js" language="javascript"></script>
     <script src="TreeAndNode.js" language="javascript"></script>
     <script src="maTree.js" language="javascript"></script>
-    <script src="TreePanel.js" language="javascript"></script>
+    <script src="TreePanelView.js" language="javascript"></script>
     <script src="TreeView.js" language="javascript"></script>
     <script src="NodeView.js" language="javascript"></script>
     <script src="CorralAttView.js" language="javascript"></script>
@@ -70,7 +71,9 @@ http://localhost/~tim/gamePrototypes/make-a-tree/make-a-tree.html
 <body>
 
 Dataset: <select id="dataContextSelector" onchange="maTree.changeDataContext();"></select>
-Collec!: <select id="collectionSelector" onchange="maTree.changeCollection();"></select>
+Collection: <select id="collectionSelector" onchange="maTree.changeCollection();"></select>
+<a href='#' onclick='showHideAttributeDialog()'>Click here to show the overlay</a>
+
 <hr>
 <div id="statusDiv">
     <span id="statusText">status</span>&nbsp;|&nbsp
@@ -78,6 +81,15 @@ Collec!: <select id="collectionSelector" onchange="maTree.changeCollection();"><
 </div>
 <svg id="treePaper" class="noselect" width="500" height="500">
 </svg>
+
+
+<div id="attributeDialog">
+    <div>
+        <p>Content you want the user to see goes here.</p>
+        Click here to [<a href='#' onclick='showHideAttributeDialog()'>close</a>]
+
+    </div>
+</div>
 
 </body>
 

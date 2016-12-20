@@ -33,77 +33,131 @@
  * @param iParent
  * @constructor
  */
-TreeView = function ( iNode, iParent) {
+TreeView = function (iNode, iParent) {
 
-    this.myParentView = iParent;    //
-    this.myNode = iNode;
     this.myPanel = iParent.myPanel; //  is the panel for the root view, everybody gets this from me.
+    // this.myParentView = iParent;    //
+
+    this.myNode = iNode;
     this.paper = Snap(5, 5);        //  tiny, but it exists
+    this.widthInPixels = 0;
+
     this.w = 10;
     this.h = 10;
 
     this.background = this.paper.rect();    //  we will resize this of course
 
-    this.myNodeView = new NodeView(iNode, this );
+    this.myNodeView = new NodeView(iNode, this);
+    this.myNodeView.redrawMe();
     this.paper.append(this.myNodeView.paper);
+
+    //  make the subTreeViews.
+
+    this.subTreeViews = [];     //  begin empty.
+
+    if (this.myNode.nodeType === Tree.constants.yFullNode) {
+        this.myNode.branches.forEach(function (iChildNode) {
+            var tTreeView = new TreeView(iChildNode, this); //  makes a view of a subtree, as a TreeView
+            this.subTreeViews.push(tTreeView);        //  we're maintaining the view tree
+            this.paper.append(tTreeView.paper);
+        }.bind(this))
+    }
 };
 
+TreeView.prototype.debugLabel = function () {
+    return (this.myNode.numerator + "/" + this.myNode.denominator);
+};
 
+TreeView.prototype.calculateTreeWidth = function () {
+
+    if (this.widthInPixels !== 0) {
+        return this.widthInPixels;
+    }
+
+    var tPad = maTree.constants.treeObjectPadding;
+    var out;
+
+    if (this.subTreeViews.length === 0) {
+        var tNodeSize = this.myNodeView.calculateNodeViewSize();    //  has {width: www; size: sss}
+        out = 2 * tPad + tNodeSize.width;
+    } else {
+        out = tPad;
+        this.subTreeViews.forEach(function (iSubTree) {
+            out += tPad;
+            out += iSubTree.calculateTreeWidth();
+        });
+    }
+
+    this.widthInPixels = out;
+
+    //  console.log("TreeWidth! for node " + this.debugLabel() + " = " + out);
+    return out;
+};
+
+/**
+ * Redraw this entire tree, recursively creating subTreeViews and asking them to redraw.
+ * @param inThisSpace
+ */
 TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  object with x, y, width, height
 
-    //  this.paper.clear();
+    //  calculate various dimensions we need for drawing
+
+    var tPad = maTree.constants.treeObjectPadding;
+    var tTreeWidth = this.calculateTreeWidth();         //  can do this since the subTreeViews exist now
+    var tTotalLeafCount = this.myNode.leafCount();     //  how many "columns" will this have altogether?
+    var tCurrentY = tPad;   //  where do we put objects?
+
+    //  set up important members
+
     this.paper.attr(inThisSpace);
 
-    this.w = inThisSpace.width;
+    this.w = tTreeWidth;        //      inThisSpace.width;
     this.h = inThisSpace.height;
 
     //  draw the background
     this.background.attr({
         width: this.w,
         height: this.h,
-        fill: maTree.constants.treeBackgroundColors[ this.myNode.depth() ]
+        stroke: "black",
+        fill: maTree.constants.treeBackgroundColors[this.myNode.depth()]
     });
-
-    var tCurrentY = maTree.constants.treeObjectPadding;   //  where do we put these?
 
     //  draw the node
 
-    this.myNodeView.redrawMe();
-    var tNodeWidth = Number(this.myNodeView.paper.attr("width"));
-    var tNodeHeight = Number(this.myNodeView.paper.attr("height"));
+    var tNodeViewSize = this.myNodeView.calculateNodeViewSize();
 
-    this.myNodeView.moveTo({
-        x: this.w / 2 - tNodeWidth / 2,
-        y: tCurrentY
-    });
+    //  move the node to where it belongs
+
+    this.myNodeView.moveTo({x: this.w / 2 - tNodeViewSize.width / 2, y: tCurrentY});
 
     //  in addition to the node itself, you need subTreeViews
 
     switch (this.myNode.nodeType) {
         case Tree.constants.yLeafNode:
             break;
+
         case Tree.constants.yFullNode:
             var nBranches = this.myNode.branchCount();
-            var tPad = maTree.constants.treeObjectPadding;
-            tCurrentY += tNodeHeight + tPad;    //  Number(this.myNodeView.paper.attr("height")) + tPad;
+            tCurrentY += tNodeViewSize.height + tPad;
 
-            var tCurrentX;
-            var tSubViewWidth = (this.w - tPad) / nBranches - tPad;
+            var tCurrentX = tPad;  //  start on the left edge
+            var tWidthAvailableForSubViews = this.w - (nBranches + 1) * tPad;
+            var tWidthPerSubView = tWidthAvailableForSubViews / tTotalLeafCount;
 
-            for (var ib = 0; ib < nBranches; ib++) {
-                tCurrentX = tPad + ib * (tSubViewWidth + tPad);
-
-                var tNode = this.myNode.branches[ib];
+            this.subTreeViews.forEach(function (iSubTreeView) {
+                var tWidthOfThisSubTree = iSubTreeView.calculateTreeWidth();
                 var tSpace = {
-                    x : tCurrentX,
-                    y : tCurrentY,
-                    width : tSubViewWidth,
-                    height : this.h - (tCurrentY) - tPad
+                    x: tCurrentX,
+                    y: tCurrentY,
+                    width: tWidthOfThisSubTree,
+                    height: this.h - (tCurrentY) - tPad
                 };
-                var tTreeView = new TreeView( tNode, this); //  makes a node view
-                this.paper.append( tTreeView.paper );
-                tTreeView.redrawEntireTree( tSpace );       //  includes the node view
-            }
+                iSubTreeView.redrawEntireTree(tSpace);       //  includes the node view
+
+                tCurrentX += tPad + tWidthOfThisSubTree;
+
+            }.bind(this));
+
             break;
 
         case Tree.constants.yStopNode:

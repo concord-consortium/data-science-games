@@ -25,22 +25,23 @@
 
 
 NodeView = function (iNode, iMyTreeView) {
+    var tPad = maTree.constants.treeObjectPadding;
+    this.kNodeHeight = 60;
+
     this.myNode = iNode;
     this.myTreeView = iMyTreeView;
-    this.paper = new Snap(100, 60).attr({viewBox : "-50, 0, 100, 60"});        //  todo: fix this size!
+    this.paper = new Snap(100, this.kNodeHeight); //  .attr({viewBox : "-50, 0, 100, 60"});        //  todo: fix this size!
     this.bg1 = this.paper.rect(0, 0, 10, 10);
     this.bg2 = this.paper.rect(0, 0, 10, 10);
     this.bg3 = this.paper.rect(0, 0, 10, 10);
-    this.valueInLabel = this.paper.text(maTree.constants.treeObjectPadding, 15, "");
-    this.countLabel = this.paper.text(maTree.constants.treeObjectPadding, 34, "");
-    this.attOutLabel = this.paper.text(maTree.constants.treeObjectPadding, 53, "");
+    this.valueInLabel = this.paper.text(tPad, 15, "");
+    this.countLabel = this.paper.text(tPad, 34, "");
+    this.attOutLabel = this.paper.text(tPad, 53, "");
 
     //  handlers
 
     this.paper.mousedown(function (iEvent) {
         this.myTreeView.myPanel.lastMouseDownNodeView = this;
-        console.log("mouse down in nodeView " + this.myNode.label);
-
     }.bind(this));
 
     this.paper.mouseup(function (iEvent) {
@@ -70,7 +71,11 @@ NodeView = function (iNode, iMyTreeView) {
 
 };
 
-NodeView.prototype.calculateSize = function () {
+NodeView.prototype.calculateNodeWidth = function( ) {
+    return this.calculateNodeViewSize().width;
+};
+
+NodeView.prototype.calculateNodeViewSize = function () {
     var tPad = maTree.constants.treeObjectPadding;
     var valueInLabelW =  this.valueInLabel.getBBox().width + 2 * tPad;
     var countLabelW =  this.countLabel.getBBox().width + 2 * tPad;
@@ -81,13 +86,14 @@ NodeView.prototype.calculateSize = function () {
         (countLabelW > attOutLabelW) ? countLabelW : attOutLabelW;
     var tOneLabelHeight = this.valueInLabel.getBBox().height;
 
-    return {width : tWidth, height : tOneLabelHeight};
+    return {width : tWidth, height : this.kNodeHeight};
 };
 
 NodeView.prototype.redrawMe = function ( ) {
 
     var tPad = maTree.constants.treeObjectPadding;
-    var tBackColor1 = "gray", tBackColor3 = "lightgray", tFullNodeViewHeight = 60, tValueInText, tAttOutText, tCountText;
+    var tBackColor1 = "gray", tBackColor3 = "lightgray";
+    var tValueInText, tAttOutText, tCountText;
     var tArgs = {};
     var tValueInColor = "white"; tCountTextColor = "#633"; tAttOutColor = "white";
 
@@ -113,14 +119,14 @@ NodeView.prototype.redrawMe = function ( ) {
             tAttOutText = "stop! (" + this.myNode.data.sign + ")";
             break;
     }
-    var tXPos = -this.calculateSize().width/2 - tPad;
+    var tXPos = 0;  //  -this.calculateNodeViewSize().width/2 - tPad;
 
     this.valueInLabel.attr({text : tValueInText, x : tXPos + tPad, fill : tValueInColor});    //  must do this before calculating width
     this.countLabel.attr({text : tCountText,  x : tXPos + tPad, fill : tCountTextColor});    //  must do this before calculating width
     this.attOutLabel.attr({text : tAttOutText,  x : tXPos + tPad, fill : tAttOutColor});
 
-    tArgs.height = tFullNodeViewHeight / 3;
-    tArgs.width = this.calculateSize().width;
+    tArgs.height = this.kNodeHeight / 3;
+    tArgs.width = this.calculateNodeViewSize().width;
     tArgs.x = tXPos;
     tArgs.y = 0;
 
@@ -135,3 +141,4 @@ NodeView.prototype.redrawMe = function ( ) {
 NodeView.prototype.moveTo = function( iWhere ) {    //  {x : jkjklj, y : uyet }
   this.paper.attr( iWhere );
 };
+
