@@ -46,13 +46,13 @@ Tree.prototype.dispatchTreeEvent = function (iEvent) {
 };
 
 Tree.prototype.totalNumberOfCases = function () {
-    return maTree.analysis.cases.length;
+    return baum.analysis.cases.length;
 };
 
 Tree.prototype.casesByFilter = function (iFilterArray) {
     var tFilter = iFilterArray.join(" && ");
     var out = [];
-    maTree.analysis.cases.forEach(function (c) {
+    baum.analysis.cases.forEach(function (c) {
         if (eval(tFilter)) {
             out.push(c);
         }
@@ -95,7 +95,7 @@ Node = function (iTree, iParent, iLabel, iBoolean) {
     this.filterArray = iBoolean;
     this.cases = this.parent.casesByFilter(this.filterArray);
 
-    this.numerator = this.numberOfCasesWhere(maTree.dependentVariableBoolean);
+    this.numerator = this.numberOfCasesWhere(baum.dependentVariableBoolean);
     this.denominator = this.totalNumberOfCases();
     this.rate = Math.round(100000 * this.numerator / this.denominator);
 
@@ -188,10 +188,10 @@ Node.prototype.getResultCounts = function () {
     };
 
     if (this.nodeType === Tree.constants.yStopNode) {
-        if (this.data.sign === maTree.constants.diagnosisPlus) {
+        if (this.data.sign === baum.constants.diagnosisPlus) {
             tOut.plusNumerator = this.numerator;
             tOut.plusDenominator = this.denominator;
-        } else if (this.data.sign === maTree.constants.diagnosisMinus) {
+        } else if (this.data.sign === baum.constants.diagnosisMinus) {
             tOut.minusNumerator = this.numerator;
             tOut.minusDenominator = this.denominator;
         } else {

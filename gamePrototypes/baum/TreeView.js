@@ -74,7 +74,7 @@ TreeView.prototype.calculateTreeWidth = function () {
         return this.widthInPixels;
     }
 
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     var out;
 
     if (this.subTreeViews.length === 0) {
@@ -102,7 +102,7 @@ TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  object with 
 
     //  calculate various dimensions we need for drawing
 
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     var tTreeWidth = this.calculateTreeWidth();         //  can do this since the subTreeViews exist now
     var tTotalLeafCount = this.myNode.leafCount();     //  how many "columns" will this have altogether?
     var tCurrentY = tPad;   //  where do we put objects?
@@ -119,7 +119,7 @@ TreeView.prototype.redrawEntireTree = function (inThisSpace) {  //  object with 
         width: this.w,
         height: this.h,
         stroke: "black",
-        fill: maTree.constants.treeBackgroundColors[this.myNode.depth()]
+        fill: baum.constants.treeBackgroundColors[this.myNode.depth()]
     });
 
     //  draw the node

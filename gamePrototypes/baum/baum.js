@@ -26,7 +26,7 @@
  */
 
 
-var maTree = {
+var baum = {
 
     analysis: null,        //      connects to CODAP
     tree: null,
@@ -55,8 +55,8 @@ var maTree = {
     resizeWindow: function (iEvent) {
         this.windowWidth = window.innerWidth;
         //  console.log("Width is now " + this.windowWidth);
-        maTree.treePanel.drawTreePanelViewSetup();
-        maTree.treePanel.redrawEntireTree();
+        baum.treePanel.drawTreePanelViewSetup();
+        baum.treePanel.redrawEntireTree();
     },
 
     gotCases: function () {
@@ -68,7 +68,7 @@ var maTree = {
         var tAttNumber = 0;
         this.originalAttributeList.forEach(function (iAtt) {
             var tA = new AttributeProperties(iAtt.name, []);
-            tA.attributeColor = maTree.constants.attributeColors[tAttNumber];
+            tA.attributeColor = baum.constants.attributeColors[tAttNumber];
             this.attributes.push(tA);
             this.treePanel.addAttributeToCorral(tA);
             tAttNumber += 1;
@@ -155,7 +155,7 @@ var maTree = {
  *
  * @type {{diagWidth: number, diagHeight: number, nodeWidth: number, nodeHeightInCorral: number, leafNodeHeight: number, fullNodeHeight: number, stopNodeHeight: number, attrWidth: number, attrHeight: number, corralHeight: number, treeObjectPadding: number, leftArrowCode: string, targetCode: string, heavyMinus: string, heavyPlus: string, diagnosisPlus: string, diagnosisMinus: string, nodeValueLabelColor: string, nodeAttributeLabelColor: string, corralBackgroundColor: string, panelBackgroundColor: string, treeBackgroundColors: [*], attributeColors: [*], attributeColor: string, selectedAttributeColor: string, dropLocationColor: string, closeIconURI: string}}
  */
-maTree.constants = {
+baum.constants = {
     diagWidth : 24,     //      width of a diagnosis icon (+ or –)
     diagHeight : 24,
     nodeWidth: 100,

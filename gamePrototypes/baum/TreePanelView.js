@@ -26,7 +26,7 @@
  */
 
 /**
- * This is a view that contains ALL of the views of the maTree display.
+ * This is a view that contains ALL of the views of the baum display.
  * The corral view, for example, is up at the top.
  *
  * @param iManager
@@ -41,19 +41,19 @@ TreePanelView = function (iManager, iDOMName) {
     this.lastMouseDownNodeView = null;
     this.corralViews = [];
     this.dependentVariableView = null;      //      this is a CorralAttView, one of the corralViews[]
-    this.positiveDiagnosisView = new DiagnosisView(maTree.constants.diagnosisPlus, this);
-    this.negativeDiagnosisView = new DiagnosisView(maTree.constants.diagnosisMinus, this);
+    this.positiveDiagnosisView = new DiagnosisView(baum.constants.diagnosisPlus, this);
+    this.negativeDiagnosisView = new DiagnosisView(baum.constants.diagnosisMinus, this);
 
     this.paper = Snap(document.getElementById(iDOMName));
-    this.corral = this.paper.rect(0, 0, 100, maTree.constants.corralHeight).attr(
-        {fill: maTree.constants.corralBackgroundColor}
+    this.corral = this.paper.rect(0, 0, 100, baum.constants.corralHeight).attr(
+        {fill: baum.constants.corralBackgroundColor}
     );
     this.rootPaper = Snap( 100, 100 );
     this.paper.append(this.rootPaper);
     this.treeBackground = this.rootPaper.rect(
-        0, 0, 100, 100).attr({fill: maTree.constants.panelBackgroundColor});
+        0, 0, 100, 100).attr({fill: baum.constants.panelBackgroundColor});
 
-    this.equalsSignText = this.paper.text(0, 0, maTree.constants.leftArrowCode).attr({fill: "white", fontSize: 20});
+    this.equalsSignText = this.paper.text(0, 0, baum.constants.leftArrowCode).attr({fill: "white", fontSize: 20});
 
     this.drawTreePanelViewSetup();
 };
@@ -73,11 +73,11 @@ TreePanelView.prototype.drawTreePanelViewSetup = function() {
     this.corral.attr({ width : this.w });
     this.rootPaper.attr({
         width : this.w,
-        height: this.h - maTree.constants.corralHeight,
+        height: this.h - baum.constants.corralHeight,
         x : 0,
-        y : maTree.constants.corralHeight
+        y : baum.constants.corralHeight
     });
-    this.treeBackground.attr({width : this.w, height: this.h - maTree.constants.corralHeight })
+    this.treeBackground.attr({width : this.w, height: this.h - baum.constants.corralHeight })
 
     /*
      the rootPaper holds the lower, "tree" part of the TreePanelView.
@@ -120,7 +120,7 @@ TreePanelView.prototype.addAttributeToCorral = function (iAttribute) {
 TreePanelView.prototype.refreshCorral = function () {
     console.log('TreePanelView.prototype.refreshCorral');
 
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     var x = tPad;
 
     //  display the dependent variable first
@@ -140,10 +140,10 @@ TreePanelView.prototype.refreshCorral = function () {
         }
     }.bind(this));
 
-    x = this.w - tPad - maTree.constants.diagWidth;
+    x = this.w - tPad - baum.constants.diagWidth;
     this.paper.append(this.negativeDiagnosisView.paper);
     this.negativeDiagnosisView.moveTo(x, tPad);
-    x -= (tPad + maTree.constants.diagWidth);
+    x -= (tPad + baum.constants.diagWidth);
     this.paper.append(this.positiveDiagnosisView.paper);
     this.positiveDiagnosisView.moveTo(x, tPad);
 };
@@ -166,7 +166,7 @@ TreePanelView.prototype.setLastMouseDownNodeView = function (iCorralView) {
 TreePanelView.prototype.redrawEntireTree = function () {
     this.rootPaper.clear();
     this.treeBackground = this.rootPaper.rect(0, 0, this.rootPaper.attr("width"), this.rootPaper.attr("height")).attr(
-        {fill: maTree.constants.panelBackgroundColor}
+        {fill: baum.constants.panelBackgroundColor}
     );
 
     if (this.manager.tree) {    //  if not, there is no root node, and we display only the background
@@ -178,9 +178,9 @@ TreePanelView.prototype.redrawEntireTree = function () {
 
         //  inset the treeView tPad in from all sides
 
-        var tPad = maTree.constants.treeObjectPadding;
+        var tPad = baum.constants.treeObjectPadding;
         var tViewWidth = this.w - 2 * tPad;
-        var tViewHeight = this.h - 2 * tPad - maTree.constants.corralHeight;
+        var tViewHeight = this.h - 2 * tPad - baum.constants.corralHeight;
 
         this.mainTreeView.redrawEntireTree({
             x: tPad,
@@ -189,7 +189,7 @@ TreePanelView.prototype.redrawEntireTree = function () {
             height: tViewHeight
         });
 
-        maTree.displayResults(maTree.tree.resultString());
+        baum.displayResults(baum.tree.resultString());
     }
 
 };

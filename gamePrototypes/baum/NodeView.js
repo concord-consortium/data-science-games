@@ -25,7 +25,7 @@
 
 
 NodeView = function (iNode, iMyTreeView) {
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     this.kNodeHeight = 60;
 
     this.myNode = iNode;
@@ -76,7 +76,7 @@ NodeView.prototype.calculateNodeWidth = function( ) {
 };
 
 NodeView.prototype.calculateNodeViewSize = function () {
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     var valueInLabelW =  this.valueInLabel.getBBox().width + 2 * tPad;
     var countLabelW =  this.countLabel.getBBox().width + 2 * tPad;
     var attOutLabelW =  this.attOutLabel.getBBox().width + 2 * tPad;
@@ -91,7 +91,7 @@ NodeView.prototype.calculateNodeViewSize = function () {
 
 NodeView.prototype.redrawMe = function ( ) {
 
-    var tPad = maTree.constants.treeObjectPadding;
+    var tPad = baum.constants.treeObjectPadding;
     var tBackColor1 = "gray", tBackColor3 = "lightgray";
     var tValueInText, tAttOutText, tCountText;
     var tArgs = {};
@@ -103,19 +103,19 @@ NodeView.prototype.redrawMe = function ( ) {
     if (this.myNode.parent.data) {
         tBackColor1 = this.myNode.parent.data.attribute.attributeColor;
     } else {
-        tBackColor1 = maTree.dependentVariable.attributeColor;
+        tBackColor1 = baum.dependentVariable.attributeColor;
     }
 
     switch (this.myNode.nodeType) {
         case Tree.constants.yLeafNode:
-            tAttOutText = "drop " + maTree.constants.targetCode ;
+            tAttOutText = "drop " + baum.constants.targetCode ;
             break;
         case Tree.constants.yFullNode:
             tBackColor3 = this.myNode.data.attribute.attributeColor;
             tAttOutText = this.myNode.data.attribute.attributeName;
             break;
         case Tree.constants.yStopNode:
-            tBackColor3 = this.myNode.data.sign === maTree.constants.diagnosisPlus ? "green" : "red";
+            tBackColor3 = this.myNode.data.sign === baum.constants.diagnosisPlus ? "green" : "red";
             tAttOutText = "stop! (" + this.myNode.data.sign + ")";
             break;
     }
