@@ -27,53 +27,48 @@
 
 
 /**     ------------------------------------------------------
- * AttributeProperties
+ * AttInBaum
  * Holds relevant properties for a single attribute,
  * so we can use it in the tree.
+ * There is one of these for each attribute, and the array of these
+ * lives in the global baum.
  *
  * @param iName     name of the attribute
  * @constructor
  */
-AttributeProperties = function(iName) {
+AttInBaum = function(iName) {
     this.attributeName = iName;
-    this.categories = [];               //  array of categories
-    this.minimum = Number.MAX_VALUE;    //  true at the beginning!
-    this.maximum = Number.MIN_VALUE;
-
     this.attributeColor = "gray";       //  you can set the color for its representation
-    this.oneLabel = "yes";
-    this.zeroLabel = "no";
-    this.oneBoolean = "true";
+
+    this.valueAssignments = [];         //  the way(s) this attribute can be recoded as binary
+
     this.isCategorical = true;
+
+    //  if it's categorical....
+    this.categories = [];               //  array of categories
+
+    //  if it's numerical....
+    this.minimum = Number.MAX_VALUE;    //  true at the beginning!
+    this.maximum = -Number.MAX_VALUE;
+
+    this.oneBoolean = "true";
+
     this.caseCount = 0;
     this.numericCount = 0;
 };
 
-AttributeProperties.prototype.setLabels = function( iZero, iOne )  {
-    if (iZero) {
-        this.zeroLabel = iZero;
-    }
 
-    if (iOne) {
-        this.oneLabel = iOne;
-    }
-};
-
-AttributeProperties.prototype.setCutPoint = function( iValue, iOperator ) {
+AttInBaum.prototype.setCutPoint = function(iValue, iOperator ) {
     this.oneBoolean = iOperator + " " + iValue;
     console.log("Set Boolean: " + this.attributeName + " " + this.oneBoolean );
 };
 
-AttributeProperties.prototype.classify = function( iValue ) {
-    var tOne = eval( iValue + this.oneBoolean);
-    var tLabel = tOne ? this.oneLabel : this.zeroLabel;
-    return {
-        isOne : tOne,
-        label : tLabel
-    };
-};
 
-AttributeProperties.prototype.considerValue = function( iValue ) {
+/**
+ * Called by baum.assembleAttributeAndCategoryNames()
+ * @param iValue    A value for this particular atttribute (identified by name)
+ */
+AttInBaum.prototype.considerValue = function( iValue ) {
     this.caseCount += 1;
     if (jQuery.isNumeric(iValue))   {
         this.numericCount += 1;

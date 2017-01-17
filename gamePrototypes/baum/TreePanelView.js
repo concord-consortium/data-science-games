@@ -51,7 +51,8 @@ TreePanelView = function (iManager, iDOMName) {
     this.rootPaper = Snap( 100, 100 );
     this.paper.append(this.rootPaper);
     this.treeBackground = this.rootPaper.rect(
-        0, 0, 100, 100).attr({fill: baum.constants.panelBackgroundColor});
+        0, 0, 100, 100
+    ).attr({fill: baum.constants.panelBackgroundColor});
 
     this.equalsSignText = this.paper.text(0, 0, baum.constants.leftArrowCode).attr({fill: "white", fontSize: 20});
 
@@ -104,6 +105,10 @@ TreePanelView.prototype.freshTreeView = function () {
     this.redrawEntireTree();
 };
 
+/**
+ * Gets called when the user double-clicks an attribute in the corral.
+ * @param iCorralAttView
+ */
 TreePanelView.prototype.makeDependentVariable = function (iCorralAttView) {
     this.manager.makeDependentVariable(iCorralAttView.data.attribute);
     this.dependentVariableView = iCorralAttView;

@@ -88,12 +88,14 @@ Tree.constants = {
 Node = function (iTree, iParent, iLabel, iBoolean) {
     this.tree = iTree;      //      what tree (large, MODEL) are we in?
     this.parent = iParent;  //  parent NODE (model)
-    this.valueInLabel = iLabel;
-    this.data = {};     //      the AttributeProperties is here (data.attribute.attributeName, etc)
+    this.valueInLabel = iLabel; //  the text of the "top", i.e., incoming label from the previous (parent) node
+    this.data = {};     //      the "categories" is here (data.categories.attributeName, etc)
     this.nodeType = Tree.constants.yLeafNode;
     this.branches = [];     //  an array of sub-Nodes
     this.filterArray = iBoolean;
     this.cases = this.parent.casesByFilter(this.filterArray);
+
+    this.valueAssignment = null;    //  how cases get assigned based on values when this node gets leafed out
 
     this.numerator = this.numberOfCasesWhere(baum.dependentVariableBoolean);
     this.denominator = this.totalNumberOfCases();
@@ -102,7 +104,11 @@ Node = function (iTree, iParent, iLabel, iBoolean) {
     //  console.log("New node with " + this.cases.length + " using " + this.filterArray);
 };
 
-
+/**
+ * Called by the constructor OF A CHILD to fill in its this.cases array
+ * @param iFilterArray
+ * @returns {Array}
+ */
 Node.prototype.casesByFilter = function (iFilterArray) {
     var tFilter = iFilterArray.join(" && ");
     var out = [];
@@ -129,11 +135,19 @@ Node.prototype.numberOfCasesWhere = function (iBoolean) {
     return out;
 };
 
+/**
+ * Called when the user drops an attribute in a node.
+ * The NodeView sends the data from the "mouse down place" to this (mouse up) node.
+ * @param iData
+ */
 Node.prototype.installData = function (iData) {
     this.data = iData;
     this.nodeType = Tree.constants.yFullNode;
 
     this.branches = [];     //  reset
+
+    //  here is where we make the new nodes and constrict their Booleans.
+
     this.data.attribute.categories.forEach(function (ixBranch) {
         var tNewBoolean = this.filterArray.slice(0);     //  clone the array
         tNewBoolean.push("(c." + this.data.attribute.attributeName + " === '" + ixBranch + "')");

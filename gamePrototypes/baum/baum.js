@@ -25,29 +25,44 @@
 
  */
 
+/**
+ * Where's the data and everything?
+ *
+ * The ANALYSIS holds the whole set of cases.
+ * Each NODE holds its particular set of cases.
+ *
+ * The baum.attsInBaum array holds one complete list of attributes
+ * A ValueAssignment holds one way to recode an attribute to binary
+ *      But the AttInBaum holds an array of possible ValueAssignments
+ *      You get a default ValueAssignment if possible
+ */
+/**
+ * Where
+ * @type {{analysis: null, tree: null, treePanelView: null, attsInBaum: Array, windowWidth: null, originalAttributeList: null, dependentVariableBoolean: [*], dependentVariable: null, focusCategory: null, iFrameDescription: {version: string, name: string, title: string, dimensions: {width: number, height: number}}, initialize: baum.initialize, resizeWindow: baum.resizeWindow, gotCases: baum.gotCases, makeDependentVariable: baum.makeDependentVariable, gotDataContextList: baum.gotDataContextList, gotCollectionList: baum.gotCollectionList, gotAttributeList: baum.gotAttributeList, changeDataContext: baum.changeDataContext, changeCollection: baum.changeCollection, displayStatus: baum.displayStatus, displayResults: baum.displayResults, assembleAttributeAndCategoryNames: baum.assembleAttributeAndCategoryNames}}
+ */
 
 var baum = {
 
     analysis: null,        //      connects to CODAP
     tree: null,
-    treePanel: null,
-    attributes: [],
+    treePanelView: null,
+    attsInBaum: [],
     windowWidth: null,
     originalAttributeList: null,
     dependentVariableBoolean: ["true"],
     dependentVariable: null,
-    focusCategory: null,
+    focusCategory: null,        //  the particular category we're looking for in the dependent variable
     iFrameDescription: {
-        version: "000b",
+        version: "001b",
         name: 'Tree Analysis',
-        title: "Tree",
+        title: "Baum",
         dimensions: {width: 525, height: 544}
     },
 
     initialize: function () {
-        this.analysis = new Analysis(this);
+        this.analysis = new Analysis(this);         //  the global, baum, is the "host" for the analysis
         this.analysis.initialize(this.iFrameDescription); //  gets data structure and cases
-        this.treePanel = new TreePanelView(this, "treePaper");  //  the main view. Creates the tree.
+        this.treePanelView = new TreePanelView(this, "treePaper");  //  the main view. Creates the tree.
         this.windowWidth = window.innerWidth;
         window.addEventListener("resize", this.resizeWindow)
     },
@@ -55,28 +70,27 @@ var baum = {
     resizeWindow: function (iEvent) {
         this.windowWidth = window.innerWidth;
         //  console.log("Width is now " + this.windowWidth);
-        baum.treePanel.drawTreePanelViewSetup();
-        baum.treePanel.redrawEntireTree();
+        baum.treePanelView.drawTreePanelViewSetup();
+        baum.treePanelView.redrawEntireTree();
     },
 
     gotCases: function () {
         //  now this.analysis.cases has all the cases in its member variable
-
         //  first, we parse the attribute list...
 
-        this.attributes = [];           //      new attribute list whenever we change collection? Correct? maybe not.
+        this.attsInBaum = [];           //      new attribute list whenever we change collection? Correct? maybe not.
         var tAttNumber = 0;
         this.originalAttributeList.forEach(function (iAtt) {
-            var tA = new AttributeProperties(iAtt.name, []);
+            var tA = new AttInBaum(iAtt.name);
             tA.attributeColor = baum.constants.attributeColors[tAttNumber];
-            this.attributes.push(tA);
-            this.treePanel.addAttributeToCorral(tA);
+            this.attsInBaum.push(tA);
+            this.treePanelView.addAttributeToCorral(tA);
             tAttNumber += 1;
         }.bind(this));
 
         this.assembleAttributeAndCategoryNames();
         console.log(" *** GOT " + this.analysis.cases.length + " cases!");
-        this.treePanel.freshTreeView();     //  todo: not sure if this needs to happen
+        this.treePanelView.freshTreeView();     //  todo: not sure if this needs to happen
     },
 
     /**
@@ -137,13 +151,17 @@ var baum = {
     },
 
     assembleAttributeAndCategoryNames: function () {
-        //  loop through all cases, get all the category names.
+        this.attsInBaum.forEach(function (a) {
+            a.caseCount = 0;
+            a.numericCount = 0;
+        });
+
         var theCases = this.analysis.cases;
 
         //  make sure we have listed all categories
 
         theCases.forEach(function (c) {
-            this.attributes.forEach(function (a) {
+            this.attsInBaum.forEach(function (a) {
                 a.considerValue(c[a.attributeName])
             })
         }.bind(this));

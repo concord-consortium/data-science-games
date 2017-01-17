@@ -27,7 +27,7 @@
 
 /**
  * This is an attribute value assignment.
- * An "AttributeProperties" will have an array of these.
+ * An "AttInBaum" will have an array of these.
  *
  * This contains information you need to assign any case to one of two classes,
  * and label it properly.
@@ -38,8 +38,29 @@
  * @param iCases    the cases from this Node
  * @constructor
  */
+
 ValueAssignment = function( iAttribute, iCases ) {
 
-    this.trueLabel = "yes";
-    this.falseLabel = "no";
-}
+    this.posLabel = "yes";
+    this.negLabel = "no";
+    this.theBoolean = "true";
+};
+
+ValueAssignment.prototype.setLabels = function(iNegLabel, iPosLabel)  {
+    if (iNegLabel) {
+        this.negLabel = iNegLabel;
+    }
+
+    if (iPosLabel) {
+        this.posLabel = iPosLabel;
+    }
+};
+
+ValueAssignment.prototype.classify = function( iNodeBoolean ) {
+    var tPosP = eval( iNodeBoolean + " && " + this.theBoolean);
+    var tLabel = tPosP ? this.posLabel : this.negLabel;
+    return {
+        isPos : tPosP,
+        label : tLabel
+    };
+};
