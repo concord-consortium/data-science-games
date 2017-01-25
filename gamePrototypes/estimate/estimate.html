@@ -38,16 +38,38 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/es
 <head>
     <meta charset="UTF-8">
     <title>Estimate</title>
+
+    <script src="../common/jquery.js" language="javascript"></script>
+    <script src="../common/snap.svg.js" language="javascript"></script>
+
+    <script src="../common/iframe-phone.js" language="JavaScript"></script>
+    <script src="../common/CodapInterface.js" language="JavaScript"></script>
+
+    <script src="pluginHelper.js" language="JavaScript"></script>
+    <script src="estimate.js" language="JavaScript"></script>
+
+    <script>
+        /**
+         * Runs when everything is loaded.
+         */
+        $(function () {
+            startCodapConnection();
+        });
+    </script>
+
 </head>
 <body>
     <h1>Estimation Game</h1>
-    Enter your name: <input id="yourName" type="text">
+    <p>Enter your name: <input id="yourName" type="text"></p>
     <br>
-    <svg id="estimationField" width="300" height="50">
-        <rect height="50" width="300" fill="dodgerblue">
+    <svg id="estimationStrip" width="300" height="50">
+        <rect height="50" width="300" fill="dodgerblue"></rect>
     </svg>
     <br>
     Value: <input id="valueField" type="text">
-    <button id="saveButton">Save</button>
+    <button id="newTurnButton" onclick="estimate.endTurn()">Submit estimate</button>
+    <br>
+    <button id="newGameButton" onclick="estimate.newGame()">New Game</button>
+
 </body>
 </html>
