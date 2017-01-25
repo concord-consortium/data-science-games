@@ -359,8 +359,7 @@ stella.manager = {
                         var tSaveObject = {
                             success: true,
                             values: {
-                                foo: 3,
-                                bar: "baz"
+                                state: stella
                             }
                         };
                         codapHelper.sendSaveObject(

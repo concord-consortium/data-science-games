@@ -57,10 +57,10 @@ stella.skyView = {
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
         this.paper.clear();
 
-        this.paper.node.addEventListener("click",   stella.skyView.click,false);
-        this.paper.node.addEventListener("mousedown",   stella.skyView.down,false);
-        this.paper.node.addEventListener("mouseup",     stella.skyView.up,false);
-        this.paper.node.addEventListener("mousemove",   stella.skyView.move,false);
+        this.paper.node.addEventListener("click",   stella.skyView.click, false);
+        this.paper.node.addEventListener("mousedown",   stella.skyView.down, false);
+        this.paper.node.addEventListener("mouseup",     stella.skyView.up, false);
+        this.paper.node.addEventListener("mousemove",   stella.skyView.move, false);
 
 
 
