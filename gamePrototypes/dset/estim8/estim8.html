@@ -5,7 +5,7 @@
  
  
  ==========================================================================
- estimate.html.html in gamePrototypes.
+ dset.html.html in gamePrototypes.
 
 HTML wrapper for ....
 
@@ -30,14 +30,17 @@ limitations under the License.
 
 <!--
  LOCAL access. Edit to match your setup
-http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/estimate/estimate.html
+http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/dset/estim8/estim8.html
+
+sandoe:
+http://codap.concord.org/~jsandoe/build/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/dset/estim8/estim8.html
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Estimate</title>
+    <title>Estim8</title>
 
     <script src="../common/jquery.js" language="javascript"></script>
     <script src="../common/snap.svg.js" language="javascript"></script>
@@ -45,8 +48,8 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/es
     <script src="../common/iframe-phone.js" language="JavaScript"></script>
     <script src="../common/CodapInterface.js" language="JavaScript"></script>
 
-    <script src="pluginHelper.js" language="JavaScript"></script>
-    <script src="estimate.js" language="JavaScript"></script>
+    <script src="../common/pluginHelper.js" language="JavaScript"></script>
+    <script src="estim8.js" language="JavaScript"></script>
 
     <script>
         /**
@@ -59,17 +62,19 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/es
 
 </head>
 <body>
-    <h1>Estimation Game</h1>
-    <p>Enter your name: <input id="yourName" type="text"></p>
-    <br>
-    <svg id="estimationStrip" width="300" height="50">
-        <rect height="50" width="300" fill="dodgerblue"></rect>
-    </svg>
-    <br>
+<h1>Estimation Game</h1>
+<p>Enter your name: <input id="yourName" type="text"></p>
+<br>
+<svg id="estimationStrip" width="300" height="40">
+    <rect height="40" width="300" fill="dodgerblue"></rect>
+</svg>
+
+<div id="estimationControls">
     Value: <input id="valueField" type="text">
-    <button id="newTurnButton" onclick="estimate.endTurn()">Submit estimate</button>
-    <br>
-    <button id="newGameButton" onclick="estimate.newGame()">New Game</button>
+    <button id="newTurnButton" onclick="estim8.endTurn()">Submit estimate</button>
+</div>
+
+<button id="newGameButton" onclick="estim8.newGame()">New Game</button>
 
 </body>
 </html>
