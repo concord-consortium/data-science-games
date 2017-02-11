@@ -36,7 +36,7 @@ function startCodapConnection() {
     console.log("Starting codap connection");
 
     codapInterface.init(config).then(
-        function () { //  interactive state is populated!
+        function () { //  at this point, estim8.state is populated!
             estim8.state = codapInterface.getInteractiveState();  // |S| initialize state variable!
             estim8.initialize();
             return Promise.resolve();
@@ -61,31 +61,18 @@ var estim8 = {
                 this.stripView.movePointerTo(this.state.currentTruth);
                 this.stripView.setPointerVisibility(true);
             }
-            estim8.makeAGraph("Asked for a graph, restored data");
         } else {        //  we're starting fresh, with a new data set.
-            pluginHelper.initDataSet(estim8.dataSetDescription).then(
-                function () {
-                    estim8.makeAGraph("Asked for a graph, new Data Context");
-                }
-            );
+            pluginHelper.initDataSet(estim8.dataSetDescription);
         }
         this.state.restored = true;
     },
 
-    makeAGraph: function (iMessage) {
-        codapInterface.sendRequest(estim8.constants.graphCreationObject).then(
-            function () {
-                console.log(iMessage);
-            }
-        )
-    },
 
     /**
      * Called when the user asks for a new game (by pressing the button)
      */
     newGame: function () {
         //  |M| in Part 2, this is where you will tell CODAP we're interested in selection
-        codapInterface.on('notify', estim8.constants.resourceString, estim8.codapSelects);  //  remove
 
         this.state.playing = true;
         this.state.turnNumber = 0;
@@ -103,47 +90,57 @@ var estim8 = {
         this.state.playing = false;
         var tMessage = "Game over! Your score is " + this.state.currentScore.toFixed(2);
         alert(tMessage);
+        this.fixUI();       // not used in the bare-bones plugin
     },
 
     /**
      * Called to initiate a new turn.
      * Here is where we pick the random value for the number
+     * and display the black circle on the strip
      */
     newTurn: function () {
         this.state.turnNumber += 1;
         this.state.currentTruth = Math.random();
         this.stripView.movePointerTo(this.state.currentTruth);
         this.stripView.setPointerVisibility(true);
+        this.fixUI();       // not used in the bare-bones plugin
     },
 
     /**
-     * Called when the user submits an estim8.
+     * Called when the user submits an estimate.
      * Finds the value the user entered, computes the difference,
      * updates the score, records the resulats
      */
     endTurn: function () {
-        var valueFieldString = document.getElementById("valueField").value;
-        estim8.state.lastInputNumber = Number(valueFieldString);
 
-        var tDelta = this.state.currentTruth - this.state.lastInputNumber;
+        if (estim8.state.playing) {     // nb: unnecessary of the button is hidden if not playing!
 
-        //  |A| set the value of the player name here.
+            var valueFieldString = document.getElementById("valueField").value;
 
-        var tCaseValues = {
-            truth: this.state.currentTruth,
-            estimate: this.state.lastInputNumber,
-            player: this.state.playerName
-            //  |C|     here is where you put additional values to save. Watch out for commas!
-        };
-        pluginHelper.createItems(tCaseValues);
+            if (!isNaN(valueFieldString) && valueFieldString.length > 0 ) {
+                estim8.state.lastInputNumber =  Number(valueFieldString);
+                var tDelta = this.state.currentTruth - this.state.lastInputNumber;
 
-        this.state.currentScore += Math.abs(tDelta);
-        console.log("Turn " + this.state.turnNumber + " score " + this.state.currentScore);
-        if (this.state.turnNumber >= this.constants.turnsPerGame) {
-            this.endGame();
+                //  |A| set the value of the player name here.
+
+                var tCaseValues = {
+                    truth: this.state.currentTruth,         // the "true" value you're estimating
+                    estimate: this.state.lastInputNumber,   // numerical value of what the user typed
+                    player: this.state.playerName           // the name of the player
+                    //  |C|     here is where you put additional values to save. Watch out for commas!
+                };
+                pluginHelper.createItems(tCaseValues);      // actually send the data to CODAP
+
+                this.state.currentScore += Math.abs(tDelta);    // primitive scoring system
+                console.log("Turn " + this.state.turnNumber + " score " + this.state.currentScore);
+                if (this.state.turnNumber >= this.constants.turnsPerGame) {
+                    this.endGame();
+                } else {
+                    this.newTurn();
+                }
+            }
+
         }
-        this.fixUI();
-        this.newTurn();
     }
 };
 
@@ -161,32 +158,15 @@ estim8.fixUI = function () {
 
 /**
  * Called when the user selects a case (or cases) in CODAP
+ * We deal with this in session 2.
  * @param iMessage
  */
-estim8.codapSelects = function (iMessage) {      //  |N| part of part 2 solution
+estim8.codapSelects = function (iMessage) {      //  |N| part of session 2 solution
     var tMessageValue = iMessage.values;
     if (Array.isArray(tMessageValue)) {
         tMessageValue = tMessageValue[0]; //      the first of the values in the message
     }
     console.log("Received a " + tMessageValue.operation + " message");
-
-    //      remove
-
-    if (tMessageValue.operation == "selectCases") {
-        var tFirstCase = tMessageValue.result.cases[0];
-        if (tFirstCase) {
-            var tTruth = tFirstCase.values.truth;
-            var tGuess = tFirstCase.values.estimate;
-            console.log("Found selected truth = " + tTruth);
-            estim8.stripView.moveSelectionValues(tTruth, tGuess);
-            estim8.stripView.setSelectionVisibility(true);
-        } else {
-            console.log("No one is selected!")
-        }
-    }
-
-    //      end remove
-
 };
 
 /**
@@ -208,28 +188,12 @@ estim8.state = {
 
 /**
  * A convenient place to stash constants
- * @type {{version: string, stripWidth: number, turnsPerGame: number}}
+ * @type
  */
 estim8.constants = {
     version: "001",
     resourceString: 'dataContextChangeNotice\\[estimates\\]',
-    graphCreationObject: {
-        action: 'create',
-        resource: 'component',
-        values: {
-            type: 'graph',
-            name: 'comparison',
-            dimensions: {
-                width: 240,
-                height: 240
-            },
-            position: 'top',
-            dataContext: 'estimates',
-            xAttributeName: 'truth',
-            yAttributeName: 'estimate'
-        }
-    },
-    stripWidth: 300,
+    stripWidth: 300,        //  we could (should) calculate this, but for now, OK
     turnsPerGame: 10
 };
 
@@ -315,7 +279,7 @@ function findLocalPoint(iEvent) {
 }
 
 /**
- * Constant CODAP needs to initialize our data set (a.k.a. Data Context)
+ * Constant object CODAP uses to initialize our data set (a.k.a. Data Context)
  *
  * @type {{name: string, title: string, description: string, collections: [*]}}
  */
