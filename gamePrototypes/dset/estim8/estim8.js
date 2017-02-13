@@ -193,9 +193,25 @@ estim8.state = {
 estim8.constants = {
     version: "001",
     resourceString: 'dataContextChangeNotice\\[estimates\\]',
-    stripWidth: 300,        //  we could (should) calculate this, but for now, OK
+    graphCreationObject: {      //  used in session 2
+        action: 'create',
+        resource: 'component',
+        values: {
+            type: 'graph',
+            name: 'comparison',
+            dimensions: {
+                width: 240,
+                height: 240
+            },
+            position: 'top',
+            dataContext: 'estimates',
+            xAttributeName: 'truth',
+            yAttributeName: 'estimate'
+        }
+    },
+    stripWidth: 300,
     turnsPerGame: 10
-};
+}
 
 /**
  * This is a view.
