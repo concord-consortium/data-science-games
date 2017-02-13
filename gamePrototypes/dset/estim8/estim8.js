@@ -67,6 +67,16 @@ var estim8 = {
         }
     },
 
+    /**
+     * Ask CODAP to create a graph object.
+     * Used in session 2 of the Connecting Tech workshop
+     * @param iMessage
+     */
+    makeAGraph: function (iMessage) {
+        codapInterface.sendRequest(estim8.constants.graphCreationObject).then(
+            function () { console.log(iMessage);  }
+        )
+    },
 
     /**
      * Called when the user asks for a new game (by pressing the button)
@@ -211,7 +221,7 @@ estim8.constants = {
     },
     stripWidth: 300,
     turnsPerGame: 10
-}
+};
 
 /**
  * This is a view.
