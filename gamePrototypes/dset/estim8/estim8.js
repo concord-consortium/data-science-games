@@ -63,8 +63,8 @@ var estim8 = {
             }
         } else {        //  we're starting fresh, with a new data set.
             pluginHelper.initDataSet(estim8.dataSetDescription);
+            this.state.restored = true;
         }
-        this.state.restored = true;
     },
 
 
