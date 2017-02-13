@@ -1253,7 +1253,7 @@ Snap.closestPoint = function (path, x, y) {
         }
     }
 
-    // binary search for precise estimate
+    // binary search for precise dset
     precision *= .5;
     while (precision > .5) {
         var before,

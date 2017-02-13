@@ -254,7 +254,8 @@ estim8.stripView = {
     click: function (iEvent) {
         var tWhere = findLocalPoint(iEvent);
         estim8.state.lastClickPosition = tWhere.x / estim8.constants.stripWidth;
-        estim8.endTurn();
+        console.log("Click at " + tWhere.x + " pixels, or " + estim8.state.lastClickPosition.toFixed(3));
+        //  estim8.endTurn();
     }
 
 };

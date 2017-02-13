@@ -212,7 +212,6 @@ var pieChart = {
               }
               );
 
-
               //    get ready for next iteration
 
               tStartingDegree = tEndingDegree;
