@@ -71,6 +71,7 @@ var stella = {           //  top level global
  */
 stella.initialize = function () {
 
+    console.log("In stella.initialize");
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
@@ -98,7 +99,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001Lsave",
+    version: "001m",
     baseURL: "http://localhost:8888/dsg/stella.php",
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 

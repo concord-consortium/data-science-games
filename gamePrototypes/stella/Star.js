@@ -61,15 +61,12 @@
  * where x and y are IN DEGREES and r is in pc.
  */
 
+
 /**
  * Construct a model Star. Called from stella.model.initGame()
- *
- * @param iFrustum  volume of space in which we choose a random spot
- * @param iMotion   motion parameters. An object with components in x, y, and r. Also has SDs.
- * @param iLogAge   log base 10 of the star's age. Will be used to see if it has evolved.
+ * @param iStarData
  * @constructor
  */
-
 var Star = function (iStarData) {
 
     this.logMass = Number(iStarData.logMass);
@@ -141,12 +138,9 @@ Star.prototype.reportTrueValue = function (iValueType) {
 };
 
 Star.prototype.csvLine = function () {
-    var o = "";
-    o = this.id + "," + this.logMass + "," + this.logAge + "," +
+    return this.id + "," + this.logMass + "," + this.logAge + "," +
         this.where.x + "," + this.where.y + "," + this.where.z + "," +
         this.vx + "," + this.vy + "," + this.vr;
-
-    return o;
 };
 
 Star.prototype.htmlTableRow = function () {
@@ -222,7 +216,7 @@ Star.prototype.positionAtTime = function (iTime) {
 
     //  parallax
 
-    var tParallaxMax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;
+    //  var tParallaxMax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;
     var tFracYear = iTime % 1;      //  the fractional part of the year
 
     var tParallax = this.parallax * Math.cos(tFracYear * 2 * Math.PI);  //  at year.0 and year.5, we're at extremes.
@@ -317,8 +311,8 @@ Star.prototype.doPhotometry = function () {
     var solarU = 5.61;  //  solar mags from http://www.ucolick.org/~cnaw/sun.html
     var solarB = 5.48;
     var solarV = 4.83;
-    var solarR = 4.42;
-    var solarI = 4.08;
+    //  var solarR = 4.42;
+    //  var solarI = 4.08;
 
     var tSolar = 5800;
 
@@ -362,7 +356,8 @@ Star.prototype.dataValues = function () {
 
 Star.prototype.bright = function() {
     return 4 + this.logLuminosity - 2 * Math.log10(this.where.z);
-}
+};
+
 /**
  * String version of me
  * @returns {string}
@@ -383,9 +378,8 @@ Star.prototype.toString = function () {
  * @returns {string}
  */
 Star.prototype.infoText = function () {
-    var out = this.id + " m = " + this.mApp.toFixed(2);
 
-    return out;
+    return this.id + " m = " + this.mApp.toFixed(2);
 };
 
 //------------------------------------------
@@ -449,7 +443,7 @@ StarView.prototype.setSizeEtc = function (  ) {
 };
 
 
-StarView.prototype.clickOnAStar = function (e) {
+StarView.prototype.clickOnAStar = function ( iEvent ) {
     if (stella.skyView.magnification === 1) {
         stella.manager.pointAtStar( this.star );
     }

@@ -141,6 +141,8 @@ stella.manager = {
      */
     emitInitialStarsData: function () {
 
+        console.log("starting  ... manager.emitInitialStarsData()");
+
         stella.model.stars.forEach(function (iStar) {
             var tValues = iStar.dataValues();
             tValues.date = stella.model.epoch;
@@ -149,14 +151,14 @@ stella.manager = {
 
             function starRecordCreated(iResult) {
                 if (iResult.success) {
-                    iStar.caseID = iResult.values[0].id;
+                    iStar.caseID = iResult.values[0];   //  .id;
                 } else {
                     console.log("Failed to create case for star " + iStar.id);
                 }
             }
         });
 
-
+        console.log("done with ... manager.emitInitialStarsData()");
     },
 
     /**

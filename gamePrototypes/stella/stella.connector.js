@@ -57,17 +57,14 @@ stella.connector = {
     /**
      * Emit a "star" case, into the star catalog.
      * One case per Star.
-     * @param iValues   the values to be passed
+     * @param iCaseValues   the values to be passed
      * @param iCallback
      */
-    emitStarCatalogRecord: function (iValues, iCallback) {
-        codapHelper.createCase(
-            this.catalogCollectionName,
-            {
-                values: iValues
-            },
-            iCallback,   //  callback is in .manager. To record the case ID (for selection work)
-            this.catalogDataSetName
+    emitStarCatalogRecord: function (iCaseValues, iCallback) {
+        pluginHelper.createItems(
+            iCaseValues,
+            this.catalogDataSetName,
+            iCallback   //  callback is in .manager. To record the case ID (for selection work)
         );
     },
 
@@ -126,23 +123,19 @@ stella.connector = {
      * @param iCaseID
      */
     selectStarInCODAPByCatalogID: function (iCaseID) {
-        var theIDs = [iCaseID];
-        codapHelper.selectCasesByIDs(theIDs, this.catalogDataSetName);
+        var theIDs = [iCaseID];     //  we know to make it an array before we ever start
+        pluginHelper.selectCasesByIDs(theIDs, this.catalogDataSetName);
 
     },
 
     /**
-     * Initialize the frame structure
-     * @returns {{name: string, title: string, version: string, dimensions: {width: number, height: number}}}
+     * constant to initialize the frame structure
      */
-    getInitFrameObject: function () {
-
-        return {
+    kPluginConfiguration : {
             name: 'Stella',
             title: 'Stella',
             version: stella.constants.version,
             dimensions: {width: 444, height: 500}
-        };
     },
 
     /**
@@ -270,19 +263,27 @@ stella.connector = {
  */
 
 function startCodapConnection() {
+    console.log("In stella.connector, startCodapConnection()");
 
-    codapHelper.initDataInteractive(
-        stella.connector.getInitFrameObject(),
-        stella.manager.stellaDoCommand         //  the callback needed
-    );
-
-    codapHelper.initDataSet(stella.connector.getStarResultsDataSetObject());
-    codapHelper.initDataSet(stella.connector.getInitSpectraDataSetObject());
-    codapHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject(),
-        function () {
-            console.log("last data set done!");
-            stella.initialize();
+    codapInterface.init( stella.connector.kPluginConfiguration ).then(
+        function() {
+            stella.state = codapInterface.getInteractiveState();
+            pluginHelper.initDataSet(stella.connector.getStarResultsDataSetObject()).then(
+                function () {
+                    pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()).then(
+                        function() {
+                            pluginHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject()).then(
+                                function () {
+                                    console.log("last data set done!");
+                                    stella.initialize();
+                                }
+                            );
+                        }
+                    );
+                }
+            )
         }
     );
+        //  stella.manager.stellaDoCommand         //  the callback needed
 }
 
