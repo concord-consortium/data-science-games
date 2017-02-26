@@ -37,8 +37,6 @@
 stella.model = {
 
     stars : [],
-    now : null,
-    epoch : null,
     skySpectrum : null,
     labSpectrum : null,
 
@@ -50,8 +48,6 @@ stella.model = {
         this.stars = [];
 
         this.makeAllStars();
-        this.now = 2525.0;       //  new Date(2525, 0);   //  Jan 1 2525
-        this.epoch = 2500.0;     //  new Date(2500, 0);   //  Jan 1 2525
 
         stella.model.labBlackbodyTemperature = stella.constants.solarTemperature;
 
@@ -78,7 +74,7 @@ stella.model = {
      * @param iTime     currently in YEARS.
      */
     stellaElapse : function( iTime ) {
-      this.now += iTime;
+      stella.state.now += iTime;
     },
 
     /**

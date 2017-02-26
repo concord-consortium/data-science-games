@@ -36,7 +36,7 @@
  * @type {{gameCaseID: number, bucketCaseID: number, gameNumber: number, bucketNumber: number, gameCollectionName: string, bucketCollectionName: string, stebberCollectionName: string, newGameCase: steb.connector.newGameCase, finishGameCase: steb.connector.finishGameCase, newBucketCase: steb.connector.newBucketCase, doStebberRecord: steb.connector.doStebberRecord, getInitSimObject: steb.connector.getInitSimObject}}
  */
 
-/* global stella, alert, codapHelper, console */
+/* global stella, alert, pluginHelper, console */
 
 stella.connector = {
     starCaseID: 0,
@@ -74,7 +74,7 @@ stella.connector = {
      * @param iCallback
      */
     emitStarResult: function (iStarResult, iCallback) {
-        codapHelper.createItems(        //      createCase(
+        pluginHelper.createItems(        //      createCase(
             //          this.starResultsCollectionName,
             {
                 date: iStarResult.date,
@@ -84,8 +84,8 @@ stella.connector = {
                 units: iStarResult.units,
                 points: iStarResult.points
             },
-            iCallback,           //  callback
-            this.starResultsDataSetName
+            this.starResultsDataSetName,
+            iCallback           //  callback
         );
     },
 
@@ -97,23 +97,23 @@ stella.connector = {
     emitSpectrum: function (iChannels, iName) {
         this.spectrumNumber += 1;       //      serial
 
-        var tChannelValues = [];
+        var tChannelValues = [];    //  we will collect all the channels to emit at once
 
         iChannels.forEach(function (ch) {
             var tOneChannel = {
                 specNum: this.spectrumNumber,
                 name: iName,
-                date: stella.model.now,
+                date: stella.state.now,
                 wavelength: ch.min.toFixed(5),
                 intensity: ch.intensity.toFixed(2)
             };
-            tChannelValues.push( tOneChannel );
+            tChannelValues.push(tOneChannel);
         }.bind(this));
 
-        codapHelper.createItems(
+        pluginHelper.createItems(
             tChannelValues,
-            null,       //  no callback
-            this.spectraDataSetName
+            this.spectraDataSetName,
+            null       //  no callback
         );
 
     },
@@ -122,20 +122,35 @@ stella.connector = {
      * We have case IDs for the stars! Tell CODAP to select this star.
      * @param iCaseID
      */
-    selectStarInCODAPByCatalogID: function (iCaseID) {
-        var theIDs = [iCaseID];     //  we know to make it an array before we ever start
-        pluginHelper.selectCasesByIDs(theIDs, this.catalogDataSetName);
+    selectStarInCODAP: function (iStar) {
+        var theStarName = iStar.id;     //  we know to make it an array before we ever start
+
+        var tSelectionExpression = "[id==" + theStarName + "]";
+        var tMessage = {
+            action : "get",
+            resource : "dataContext[" + this.catalogDataSetName + "].collection[" +
+                this.catalogCollectionName + "].caseSearch" + tSelectionExpression
+        }
+
+        var tSearchPromise = codapInterface.sendRequest( tMessage ).then(
+            function( iResult ){
+                if (iResult.success) {
+                    var tCaseID = iResult.values[0].id;
+                    pluginHelper.selectCasesByIDs(tCaseID, this.catalogDataSetName);
+                }
+            }
+        );
 
     },
 
     /**
      * constant to initialize the frame structure
      */
-    kPluginConfiguration : {
-            name: 'Stella',
-            title: 'Stella',
-            version: stella.constants.version,
-            dimensions: {width: 444, height: 500}
+    kPluginConfiguration: {
+        name: 'Stella',
+        title: 'Stella',
+        version: stella.constants.version,
+        dimensions: {width: 444, height: 500}
     },
 
     /**
@@ -265,25 +280,39 @@ stella.connector = {
 function startCodapConnection() {
     console.log("In stella.connector, startCodapConnection()");
 
-    codapInterface.init( stella.connector.kPluginConfiguration ).then(
-        function() {
+    codapInterface.init(stella.connector.kPluginConfiguration, null).then(
+        function () {
             stella.state = codapInterface.getInteractiveState();
-            pluginHelper.initDataSet(stella.connector.getStarResultsDataSetObject()).then(
+            if (jQuery.isEmptyObject(stella.state)) {
+                stella.state = stella.freshState();
+            }
+
+            //  array of promises to make data sets
+            var tInitDatasetPromises = [
+                pluginHelper.initDataSet(stella.connector.getStarResultsDataSetObject()),
+                pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()),
+                pluginHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject())
+            ];
+
+            Promise.all(tInitDatasetPromises).then(
                 function () {
-                    pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()).then(
-                        function() {
-                            pluginHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject()).then(
-                                function () {
-                                    console.log("last data set done!");
-                                    stella.initialize();
-                                }
-                            );
-                        }
+                    console.log("Promise.all complete: all data sets initialized!");
+
+                    //  initialize all the stella variables
+                    stella.initialize();
+
+                    //  register to receive notifications about changes in the start catalog (esp selection)
+                    codapInterface.on(
+                        'notify',
+                        'dataContext[' + stella.connector.catalogDataSetName + ']',
+                        stella.manager.stellaDoCommand
                     );
                 }
-            )
+            ).catch(function () {
+                alert("Problem creating data sets. Are you connected to CODAP?");
+            });
         }
     );
-        //  stella.manager.stellaDoCommand         //  the callback needed
+    //  stella.manager.stellaDoCommand         //  the callback needed
 }
 

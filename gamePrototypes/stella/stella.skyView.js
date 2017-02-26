@@ -52,6 +52,7 @@ stella.skyView = {
      * Called from stella.initialize()
      */
     initialize : function( ) {
+        console.log(" ****  In stella.skyView.initialize()");
         this.originalViewWidth = Number($("#stellaSkyView").attr("width"));
 
         this.paper = Snap(document.getElementById("stellaSkyView"));    //    create the underlying svg "paper"
@@ -73,7 +74,7 @@ stella.skyView = {
         var tPointAt = { x : stella.constants.universeWidth/2, y : stella.constants.universeWidth/2};
         this.pointAtLocation( tPointAt, null );
 
-        console.log("Done with skyView.initialize()");
+        console.log("Done with stella.skyView.initialize()");
     },
 
     /**
@@ -89,7 +90,7 @@ stella.skyView = {
 
         if (iStar) {
             stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
-            var tWhereNow = iStar.positionAtTime( stella.model.now );
+            var tWhereNow = iStar.positionAtTime( stella.state.now );
             //  note that iStar.where is its catalog location.
             this.pointAtLocation( iStar.where, true);    //  moves the star field if necessary. True = animate
 /*

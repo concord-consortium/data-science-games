@@ -63,17 +63,36 @@
 /* global elementalSpectra, Math */
 
 var stella = {           //  top level global
-
 };
+
+
+stella.freshState = function() {
+    return {
+        focusStarNumber: -1,
+        epoch: 2500.0,
+        now: 2525.0,
+        restored: false
+    };
+}
 
 /**
  * Initialze the whole thing.
  */
 stella.initialize = function () {
 
+
     console.log("In stella.initialize");
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
+
+    if (stella.state.restored) {
+        console.log("    ****    Restored from file    **** ");
+        console.log("STATE: " + JSON.stringify(stella.state));
+
+    } else {
+        stella.state.restored = true;
+        console.log("    ****    This is a new game, not restored from a file    **** ")
+    }
 
     stella.player.initialize();
     //  stella.share.initialize(stella.constants.baseURL);
@@ -137,7 +156,7 @@ stella.constants = {
         savePositionFromDoubleclick: 0.01
     },
 
-    cReticleColor : "green"
+    cReticleColor: "green"
 };
 
 //      utilities
@@ -147,9 +166,9 @@ stella.constants = {
  * @param iMS
  */
 stella.elapse = function (iMS) {
-    //var tMS = stella.model.now.getTime();     //  uncomment if we go back to dateTimes
+    //var tMS = stella.state.now.getTime();     //  uncomment if we go back to dateTimes
     tMS += iMS;
-    //stella.model.now.setTime( tMS );
+    //stella.state.now.setTime( tMS );
 };
 
 /**
@@ -163,7 +182,7 @@ stella.distance = function (iL1, iL2) {
 };
 
 /**
- * Compute apparent maginitude
+ * Compute apparent magnitude
  * @param iAbs      Absolute magnitude
  * @param iDistance Distance in parsecs
  * @returns {number}
@@ -180,7 +199,7 @@ stella.apparentMagnitude = function (iAbs, iDistance) {
  */
 stella.orbitXYZ = function (iObject, iDate) {
 
-    var dt = iDate - stella.model.epoch;    //  time since epoch in ms.
+    var dt = iDate - stella.state.epoch;    //  time since epoch in ms.
     var motionPerSecond = 360.0 / iObject.period;       //  degrees per second
     var meanLongitude = 0;      //  todo: fix this
 

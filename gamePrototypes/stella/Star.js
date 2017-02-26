@@ -118,10 +118,10 @@ Star.prototype.reportTrueValue = function (iValueType) {
             out = this.pm.y * 1000000;   //      because it's in microdegrees
             break;
         case "pos_x":
-            out = this.positionAtTime(stella.model.now).x;
+            out = this.positionAtTime(stella.state.now).x;
             break;
         case "pos_y":
-            out = this.positionAtTime(stella.model.now).y;
+            out = this.positionAtTime(stella.state.now).y;
             break;
         case "parallax":
             out = this.parallax;
@@ -227,7 +227,7 @@ Star.prototype.positionAtTime = function (iTime) {
 
     //  proper motion
 
-    var iDT = iTime - stella.model.epoch;
+    var iDT = iTime - stella.state.epoch;
 
     if (stella.options.properMotion) {
         oWhere.x += iDT * this.pm.x;
@@ -424,7 +424,7 @@ StarView.prototype.setSizeEtc = function (  ) {
 
     //  convert to current positions!
 
-    var tCurrentWhere = this.star.positionAtTime(stella.model.now);
+    var tCurrentWhere = this.star.positionAtTime(stella.state.now);
 
     //  actually make the circle! Be sure to reverse the y coordinate.
 

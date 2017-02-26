@@ -25,7 +25,7 @@
 
  */
 
-/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, codapHelper, alert, elementalSpectra  */
+/* global $, stella, Math, Planet, Star, SpectrumView, Snap, console, alert, elementalSpectra  */
 
 /**
  * Main controller for Stella
@@ -39,24 +39,38 @@ stella.manager = {
     starResultType: null,  //  kind of result. set in newGame()
     starResultValue: null,  //  the result text box.
 
-    starResultIsAuto : false,   //  did we get this latest result via the Auto button?
+    starResultIsAuto: false,   //  did we get this latest result via the Auto button?
 
 
     /**
      * Called on new game, in this case, on startup
      */
     newGame: function () {
+        console.log("In stella.manager.newGame()");
 
         elementalSpectra.initialize();  //  read the line data into objects
 
         stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
         stella.model.newGame();     //  make all the stars etc.
-        stella.spectrumManager.newGame( );
+        stella.spectrumManager.newGame();
         this.playing = true;
 
         stella.skyView.initialize();   //  make the sky
 
-        stella.manager.emitInitialStarsData();  //      to get data at beginning of game. Remove if saving game data
+        codapInterface.sendRequest({
+            action: 'get',
+            resource: 'dataContext[' + stella.connector.catalogDataSetName +
+            '].collection[' + stella.connector.catalogCollectionName + '].caseCount'
+        }).then(function (iResult) {
+            if (iResult.success) {
+                tCount = iResult.values;
+                console.log('Restored ' + tCount + ' stars to the catalog');
+                if (tCount === 0) {
+                    stella.manager.emitInitialStarsData();  //  Not called if restoring from file
+                }
+            }
+        });
+
         stella.spectrumManager.spectrumParametersChanged();     //  reads the UI and sets various variables.
         stella.manager.updateStella();              //  update the screen and text
     },
@@ -80,9 +94,10 @@ stella.manager = {
      * We can also focus by panning. See up().
      * @param iStar
      */
-    focusOnStar : function(iStar) {
+    focusOnStar: function (iStar) {
         this.focusStar = iStar;
-        stella.connector.selectStarInCODAPByCatalogID(iStar.caseID);
+        stella.state.focusStarNumber = iStar.caseID;
+        stella.connector.selectStarInCODAP(iStar);
         this.updateStella();
     },
 
@@ -93,7 +108,7 @@ stella.manager = {
     pointAtStar: function (iStar) {
         if (iStar) {
             stella.skyView.pointAtStar(iStar);     //      added in...
-            this.focusOnStar( iStar );
+            this.focusOnStar(iStar);
             console.log("Point at " + this.focusStar.id +
                 " at " + this.focusStar.where.x.toFixed(3) + ", " +
                 this.focusStar.where.y.toFixed(3));
@@ -111,11 +126,11 @@ stella.manager = {
 
         stella.skyView.magnify(iNewMag);    //  currently makes a whole new sky
 
-     //   if (this.focusStar) {
-     //       this.pointAtStar( this.focusStar );
-     //   } else {
-            stella.skyView.pointAtLocation( stella.skyView.telescopeWhere, true );
-    //    }
+        //   if (this.focusStar) {
+        //       this.pointAtStar( this.focusStar );
+        //   } else {
+        stella.skyView.pointAtLocation(stella.skyView.telescopeWhere, true);
+        //    }
         this.updateStella();
 
     },
@@ -145,9 +160,9 @@ stella.manager = {
 
         stella.model.stars.forEach(function (iStar) {
             var tValues = iStar.dataValues();
-            tValues.date = stella.model.epoch;
+            tValues.date = stella.state.epoch;
 
-            stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the Stebber part
+            stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the catalog case
 
             function starRecordCreated(iResult) {
                 if (iResult.success) {
@@ -177,12 +192,12 @@ stella.manager = {
 
     /**
      * When CODAP tells us there's one selection in the Catalog, point the telescope there.
-     * @param iResult
+     * @param iCasesFromCODAP   An array. Each one's .id is the case ID.
      */
-    processSelectionFromCODAP: function (iResult) {
-        if (iResult && iResult.success) {
-            if (iResult.values.length === 1) {
-                var tStar = stella.model.starFromCaseID(iResult.values[0].caseID);
+    processSelectionFromCODAP: function (iCasesFromCODAP) {
+        if (iCasesFromCODAP.length > 0) {
+            if (iCasesFromCODAP.length === 1) {
+                var tStar = stella.model.starFromCaseID(iCasesFromCODAP[0].id);
                 stella.manager.pointAtStar(tStar);
                 stella.manager.updateStella();
             }
@@ -190,8 +205,6 @@ stella.manager = {
             console.log('Failed to retrieve selected case IDs.');
         }
     },
-
-
 
 
     /*      "STAR RESULT" SECTION     */
@@ -204,14 +217,14 @@ stella.manager = {
         stella.manager.updateStella();
         stella.model.stellaElapse(stella.constants.timeRequired.changeResultType);
         $("#starResultValue").val("");      //  blank the value in the box on type change
-        this.starResultValueChanged( true );  //  blank the internal value
+        this.starResultValueChanged(true);  //  blank the internal value
     },
 
     /**
      * User has entered a value
-     * @param   iAuto   was this value entered using the "Auto"matic button?
+     * @param   iAuto   was this value entered using the "Automatic" button?
      */
-    starResultValueChanged: function ( iAuto ) {
+    starResultValueChanged: function (iAuto) {
         stella.manager.starResultIsAuto = iAuto;
         stella.manager.starResultValue = Number($("#starResultValue").val());
         stella.manager.updateStella();
@@ -239,42 +252,42 @@ stella.manager = {
     },
 
     /*
-        More control actions
+     More control actions
      */
 
-/*
-    doubleClickOnAStar: function () {
-        if (stella.skyView.magnification < 100) {
-            return;
-        }
-        console.log("double click on a star!");
-        var tStar = stella.manager.focusStar;
-        var tNow = stella.model.now;
-        var tPos = tStar.positionAtTime(tNow);
+    /*
+     doubleClickOnAStar: function () {
+     if (stella.skyView.magnification < 100) {
+     return;
+     }
+     console.log("double click on a star!");
+     var tStar = stella.manager.focusStar;
+     var tNow = stella.state.now;
+     var tPos = tStar.positionAtTime(tNow);
 
-        var txValues = {
-            id: tStar.id,
-            type: "pos_x",
-            value: tPos.x,
-            date: tNow,
-            units: stella.starResults.pos_x.units
-        };
-        var tyValues = {
-            id: tStar.id,
-            type: "pos_y",
-            value: tPos.y,
-            date: tNow,
-            units: stella.starResults.pos_y.units
-        };
-        stella.connector.emitStarResult(txValues, null);
-        stella.connector.emitStarResult(tyValues, null);
+     var txValues = {
+     id: tStar.id,
+     type: "pos_x",
+     value: tPos.x,
+     date: tNow,
+     units: stella.starResults.pos_x.units
+     };
+     var tyValues = {
+     id: tStar.id,
+     type: "pos_y",
+     value: tPos.y,
+     date: tNow,
+     units: stella.starResults.pos_y.units
+     };
+     stella.connector.emitStarResult(txValues, null);
+     stella.connector.emitStarResult(tyValues, null);
 
-        var tScore = stella.model.evaluateResult(tyValues);  //  we don't necessarily save all results!
+     var tScore = stella.model.evaluateResult(tyValues);  //  we don't necessarily save all results!
 
-        stella.model.stellaElapse(stella.constants.timeRequired.savePositionFromDoubleclick);
-        stella.manager.updateStella();
-    },
-*/
+     stella.model.stellaElapse(stella.constants.timeRequired.savePositionFromDoubleclick);
+     stella.manager.updateStella();
+     },
+     */
 
     /**
      * user is entitled to an automatic result because of badges, and has requested one.
@@ -308,7 +321,7 @@ stella.manager = {
             }
             //  todo: fix this so that we don't get points, and so that the number isn't in the box afterwards.
             $("#starResultValue").val(tForRecord);          //  put the value in the box
-            stella.manager.starResultValueChanged( true );    //  do what we do when someone puts a number in the box
+            stella.manager.starResultValueChanged(true);    //  do what we do when someone puts a number in the box
         }
     },
 
@@ -317,10 +330,8 @@ stella.manager = {
      */
     stellaDoCommand: function (iCommand, iCallback) {
 
-        console.log("stellaDoCommand: ");
-        console.log(iCommand);
-
-        var tCommandObject = "";
+        //console.log("stellaDoCommand: ");
+        //console.log(iCommand);
 
         switch (iCommand.action) {
             case "notify":
@@ -328,21 +339,16 @@ stella.manager = {
                 if (!Array.isArray(tValues)) {
                     tValues = [tValues];
                 }
-                switch (tValues[0].operation) {
+                var tOperation = tValues[0].operation;
+                switch (tOperation) {
 
+                    /**
+                     * CODAP is telling us that user has selected cases. We have CODAP
+                     * send the selection list to our function, stella.manager.processSelectionFromCODAP
+                     */
                     case "selectCases":
-
-                        /**
-                         * CODAP is telling us that user has selected cases. We have CODAP
-                         * send the selection list to our function, stella.manager.processSelectionFromCODAP
-                         */
-
                         // todo: Note that this is set up to work only with the star catalog data set. Expand!
-
-                        var tDataSet = stella.manager.extractFromWithinBrackets(iCommand.resource);
-                        if (tDataSet === stella.connector.catalogDataSetName) {
-                            codapHelper.getSelectionList(tDataSet, stella.manager.processSelectionFromCODAP);
-                        }
+                        stella.manager.processSelectionFromCODAP(tValues[0].result.cases);   //  array of cases, case.id is the caseID.
                         break;
 
                     default:
@@ -350,9 +356,10 @@ stella.manager = {
                 }
                 break;
 
-        /**
-         * For saving
-         */
+            /**
+             * For saving
+             */
+/*
             case "get":
                 console.log("stellaDoCommand: action : get.");
                 switch (iCommand.resource) {
@@ -376,6 +383,7 @@ stella.manager = {
                         break;
                 }
                 break;
+*/
 
             default:
                 console.log("stellaDoCommand: no action.");

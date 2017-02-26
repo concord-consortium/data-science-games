@@ -26,18 +26,28 @@
  */
 
 var pluginHelper = {
+
+    /**
+     * Create a new data set (data context) using the input object
+     * @param iDataSetDescription  the object that describes the data set. See the API documentation.
+     * @returns {Promise}   which, when resolved, means that the data set exists
+     */
     initDataSet: function (iDataSetDescription) {
         return new Promise( function( resolve, reject ) {
             var tDataContextResourceString = 'dataContext[' + iDataSetDescription.name + ']';
             var tMessage = { action: 'get', resource: tDataContextResourceString };
+
+            //  if the data set already exists, we will not ask CODAP to create one. So we check...
             var tAlreadyExistsPromise = codapInterface.sendRequest( tMessage );
 
             tAlreadyExistsPromise.then(
+                //  iValue is the result of the resolved "get dataContext" call
                 function( iValue ) {
                     if (iValue.success) {
                         console.log("dataContext[" + iDataSetDescription.name + "] already exists");
                         resolve( iValue );
                     } else {
+                        //  the data set did not exist. (Since get dataContext returned success = false)
                         console.log("Creating dataContext[" + iDataSetDescription.name + "]" );
                         tMessage = {
                             action: 'create',
@@ -45,6 +55,7 @@ var pluginHelper = {
                             values: iDataSetDescription
                         };
                         codapInterface.sendRequest( tMessage ).then(
+                            //  iValue is the result of the resolved "create dataContext" call.
                             function( iValue ) {
                                 resolve( iValue );
                             }
@@ -67,18 +78,20 @@ var pluginHelper = {
      * @param iDataContextName  the name of the data set (or "data context").
      */
     createItems : function(iValuesArray, iDataContextName, iCallback) {
-        iValuesArray = pluginHelper.arrayify( iValuesArray );
+        return new Promise( function(resolve, reject) {
+            iValuesArray = pluginHelper.arrayify( iValuesArray );
 
-        var tResourceString = iDataContextName ? "dataContext[" + iDataContextName + "].item" : "item";
+            var tResourceString = iDataContextName ? "dataContext[" + iDataContextName + "].item" : "item";
 
-        var tMessage = {
-            action : 'create',
-            resource : tResourceString,
-            values : iValuesArray
-        };
+            var tMessage = {
+                action : 'create',
+                resource : tResourceString,
+                values : iValuesArray
+            };
 
-        var tCreateItemsPromise = codapInterface.sendRequest( tMessage, iCallback );
-        return tCreateItemsPromise;
+            var tCreateItemsPromise = codapInterface.sendRequest( tMessage, iCallback );
+            resolve( tCreateItemsPromise );
+        })
     },
 
     createCases : function(iValues, iCollection, iDataContext, iCallback) {
@@ -86,25 +99,38 @@ var pluginHelper = {
         console.log("DO NOT CALL pluginHelper.createCases YET!!");
     },
 
+    /**
+     *
+     * @param IDs   array of case IDs to be selected
+     * @param iDataContextName  name of the data context in which these things live. OK if absent.
+     * @returns {Promise}
+     */
     selectCasesByIDs: function (IDs, iDataContextName) {
-        IDs = pluginHelper.arrayify( IDs );
+        return new Promise( function( resolve, reject ) {
+            IDs = pluginHelper.arrayify( IDs );
 
-        var tResourceString = "selectionList";
+            var tResourceString = "selectionList";
 
-        if (typeof iDataContextName !== 'undefined') {
-            tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
-        }
+            if (typeof iDataContextName !== 'undefined') {
+                tResourceString = 'dataContext[' + iDataContextName + '].' + tResourceString;
+            }
 
-        var tMessage = {
-            action: 'create',
-            resource: tResourceString,
-            values: IDs
-        };
+            var tMessage = {
+                action: 'create',
+                resource: tResourceString,
+                values: IDs
+            };
 
-        var tSelectCasesPromise = codapInterface.sendRequest(tMessage);
-        return tSelectCasesPromise;
+            var tSelectCasesPromise = codapInterface.sendRequest(tMessage);
+            resolve( tSelectCasesPromise );
+        })
     },
 
+    /**
+     * Change the input to an array if it is not one!
+     * @param iValuesArray  the thing which might be an array
+     * @returns {*} if it was not an array, a single-item array with the thing. Otherwise, the array.
+     */
     arrayify : function( iValuesArray ) {
         if (iValuesArray && !Array.isArray(iValuesArray)) {
             iValuesArray = [iValuesArray];
