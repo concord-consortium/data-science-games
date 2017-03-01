@@ -82,6 +82,7 @@ steb.model = {
 
             console.log("Parent #" + tParent.id + " spawns child #" + tChild.id);
         }
+        return tChild;
     },
 
     /**
@@ -222,6 +223,8 @@ steb.model = {
             tNewStebber = new Stebber( tColor, tWhere, this.lastStebberNumber, 0 );
             tNewStebber.setNewSpeedAndHeading();          //  it should immediately diverge from the parent
             this.stebbers.push( tNewStebber );            //  we keep the model Stebber in our array
+            steb.manager.emitBirthData( tNewStebber );      //  emit original stebbers to Born set.
+
         }
     },
 

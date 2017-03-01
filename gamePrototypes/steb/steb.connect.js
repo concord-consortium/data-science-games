@@ -48,6 +48,7 @@ steb.connector = {
     bucketCollectionName: "snapshots",
     stebberCollectionName: "survivors",
     eatenCollectionName: "eatenStebbers",
+    bornCollectionName: "bornStebbers",
     environmentCollectionName: "environs",
 
     logMessage : function(iString, iSubs) {
@@ -187,9 +188,9 @@ steb.connector = {
                         {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
                         {name: "sat", type: 'numeric', precision: 3},
                         {name: "bright", type: 'numeric', precision: 3},
-                        {name: "id", type: 'numeric', precision: 0},
-                        {name: "parent", type: 'numeric', precision: 0},
-                        {name: "ptColor", description: "use as a legend to color points in graph",
+                        {name: "id", type: 'numeric', precision: 0, description: "id of this stebber"},
+                        {name: "mom", type: 'numeric', precision: 0, description: "id of the parent"},
+                        {name: "myColor", description: "use as a legend to color points in graph",
                             formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'}
                     ]
                 }
@@ -238,7 +239,7 @@ steb.connector = {
                     name: this.eatenCollectionName,
                     parent: this.environmentCollectionName,
                     labels: {
-                        singleCase: "meals",
+                        singleCase: "meal",
                         pluralCase: "meals",
                         setOfCasesWithArticle: "a set of meals"
                     },
@@ -264,15 +265,93 @@ steb.connector = {
                         {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
                         {name: "sat", type: 'numeric', precision: 3},
                         {name: "bright", type: 'numeric', precision: 3},
-                        {name: "parent", type: 'numeric', precision: 0},
-                        {name: "id", type: 'numeric', precision: 0},
-                        {name: "ptColor", description: "use as a legend to color points in graph",
-                                formula: '"rgb("+red*16+","+green*16+","+blue*16+")"'}
+                        {name: "id", type: 'numeric', precision: 0, description: "id of this stebber"},
+                        {name: "mom", type: 'numeric', precision: 0, description: "id of the parent"},
+                        {name: "myColor", description: "use as a legend to color points in graph",
+                                formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'}
+                    ]
+                }
+            ]
+        };
+    },
+
+    getBornStebberDataSetObject: function (  ) {
+        return {
+            name: steb.constants.dataSetName_Born,
+            title: steb.constants.dataSetName_Born,
+            description: 'The Stebbers that were born',
+            collections: [  // There are three collections: game, environ, stebber
+                {
+                    name: this.gameCollectionName,
+                    labels: {
+                        singleCase: "game",
+                        pluralCase: "games",
+                        setOfCasesWithArticle: "a set of games"
+                    },
+                    // The parent collection spec:
+                    attrs: [
+                        {name: "gameNo", type: 'categorical'}
+                    ],
+                    childAttrName: "environs"
+                },
+                {
+                    name: this.environmentCollectionName,
+                    parent :    this.gameCollectionName,
+                    labels: {
+                        singleCase: "environ",
+                        pluralCase: "environs",
+                        setOfCasesWithArticle: "a set of environs"
+                    },
+                    // The environment collection spec. Records the colors:
+                    attrs: [
+                        {name: "bgRGB", type: 'categorical', description: "[red, green, blue] of the background"},
+                        {name: "crudRGB", type: 'categorical', description: "[red, green, blue] of the average Crud"},
+                        {name: "bgHSB", type: 'categorical', description: "[hue, sat, bright] of the background"},
+                        {name: "crudHSB", type: 'categorical', description: "[hue, sat, bright] of the average Crud"}
+                    ],
+                    childAttrName: "meals"
+                },
+                {
+                    name: this.bornCollectionName,
+                    parent: this.environmentCollectionName,
+                    labels: {
+                        singleCase: "births",
+                        pluralCase: "births",
+                        setOfCasesWithArticle: "a set of births"
+                    },
+                    // The child collection specification:
+                    attrs: [
+                        {name: "meals", type: 'numeric', precision: 0, description: "at which meal was this?"},
+                        {name: "score", type: 'numeric', precision: 0, description: "score"},
+                        {name: "red", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#ff0000'    //
+                            },
+                            description: "how much red (0 to 15)"},
+                        {name: "green", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#00ff00'    //
+                            },
+                            description: "how much green (0 to 15)"},
+                        {name: "blue", type: 'numeric', precision: 1,
+                            colormap: {
+                                'attribute-color': '#6688ff'    //
+                            },
+                            description: "how much blue (0 to 15)"},
+                        {name: "hue", type: 'numeric', precision: 3, description: "hue (0 to 1)"},
+                        {name: "sat", type: 'numeric', precision: 3},
+                        {name: "bright", type: 'numeric', precision: 3},
+                        {name: "id", type: 'numeric', precision: 0, description: "id of this stebber"},
+                        {name: "mom", type: 'numeric', precision: 0, description: "id of the parent"},
+                        {name: "myColor", description: "use as a legend to color points in graph",
+                            formula: '"rgb("+red*17+","+green*17+","+blue*17+")"'
+                        }
                     ]
                 }
             ]
         };
     }
+
 
 };
 

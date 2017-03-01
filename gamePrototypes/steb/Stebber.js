@@ -149,7 +149,7 @@ Stebber.prototype.stebberDataValues = function () {
         sat: tSnapColorRecord.s,
         bright: tSnapColorRecord.v,
         id: this.id,
-        parent: this.parentID
+        mom: this.parentID
     };
 };
 

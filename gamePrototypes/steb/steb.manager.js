@@ -197,8 +197,6 @@ steb.manager = {
         this.playing = false;
         this.running = false;
         this.emitPopulationData();      //  send data on the remaining Stebbers to CODAP
-        //  todo: consider emitting meal data. But if you do, you have to condition on iStebber. also, maybe increase "meals" by 1 or 0.5.
-
     },
 
     selectStebberByID: function (id) {
@@ -242,7 +240,8 @@ steb.manager = {
 
         steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
         steb.worldView.removeStebberView(iStebberView);     //  remove its view
-        steb.model.reproduce();     //      reproduce (from the remaining stebbers)
+        var tBaby = steb.model.reproduce();     //      reproduce (from the remaining stebbers)
+        steb.manager.emitBirthData( tBaby );
 
         //   the living stebber data includes the new one.
 
@@ -300,6 +299,11 @@ steb.manager = {
         // steb.connector.doMealRecord( tValues );
     },
 
+    emitBirthData: function (iStebber) {
+        var tValues = $.extend({}, this.highLevelDataValues(), iStebber.stebberDataValues());
+        steb.connector.emitStebberRecord(tValues, null, steb.constants.dataSetName_Born);
+    },
+
     /**
      * Called by model.reproduce(). Given the model, make the appropriate view.
      * @param iChildStebber     the model Stebber
@@ -333,8 +337,6 @@ steb.manager = {
      */
     stebDoCommand: function (iCommand, iCallback) {
         console.log("stebDoCommand: " + iCommand.action);
-
-        var tCommandObject = "";
 
         switch (iCommand.action) {
             case "notify":
@@ -451,7 +453,7 @@ steb.manager = {
 
     /**
      * This function is passed to
-     * @param iSavedState
+     * @param iValues
      */
     stebRestoreState: function (iValues) {
         if (iValues.savedState) {
@@ -520,9 +522,9 @@ steb.manager = {
             steb.manager.reinstateGame();
         }
 
+        codapHelper.initDataSet(steb.connector.getInitLivingStebberDataSetObject());
         codapHelper.initDataSet(steb.connector.getInitStebberMealsDataSetObject());
-
-        codapHelper.initDataSet(steb.connector.getInitLivingStebberDataSetObject());   //  second one is the default??
+        codapHelper.initDataSet(steb.connector.getBornStebberDataSetObject());
     }
 
 };
