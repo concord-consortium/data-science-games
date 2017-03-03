@@ -282,10 +282,6 @@ function startCodapConnection() {
 
     codapInterface.init(stella.connector.kPluginConfiguration, null).then(
         function () {
-            stella.state = codapInterface.getInteractiveState();
-            if (jQuery.isEmptyObject(stella.state)) {
-                stella.state = stella.freshState();
-            }
 
             //  array of promises to make data sets
             var tInitDatasetPromises = [
@@ -297,6 +293,7 @@ function startCodapConnection() {
             Promise.all(tInitDatasetPromises).then(
                 function () {
                     console.log("Promise.all complete: all data sets initialized!");
+
 
                     //  initialize all the stella variables
                     stella.initialize();

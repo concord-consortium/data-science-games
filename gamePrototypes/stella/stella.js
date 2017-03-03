@@ -63,6 +63,7 @@
 /* global elementalSpectra, Math */
 
 var stella = {           //  top level global
+    state : {}
 };
 
 
@@ -79,9 +80,15 @@ stella.freshState = function() {
  * Initialze the whole thing.
  */
 stella.initialize = function () {
-
-
     console.log("In stella.initialize");
+
+    //  create (or restore) stella.state
+
+    stella.state = codapInterface.getInteractiveState();
+    if (jQuery.isEmptyObject(stella.state)) {
+        codapInterface.updateInteractiveState( stella.freshState());
+    }
+
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
