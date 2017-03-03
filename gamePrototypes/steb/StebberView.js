@@ -32,8 +32,6 @@
  * @constructor
  */
 
-//  todo: decide if we really need the paper or if we should just draw the circles on the worldView
-
 var StebberView = function( iStebber ) {
     this.stebber = iStebber;    //  its model
 
