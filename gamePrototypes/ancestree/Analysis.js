@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- Analysis.js in data-science-games.
+ analysis.js in data-science-games.
 
  Author:   Tim Erickson
 

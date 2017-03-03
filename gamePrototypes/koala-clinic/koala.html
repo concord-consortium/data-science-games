@@ -1,0 +1,74 @@
+<!--
+==========================================================================
+
+ * Created by tim on 2/27/17.
+ 
+ 
+ ==========================================================================
+ koala.html in gamePrototypes.
+
+HTML wrapper for ....
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+-->
+
+
+<!--
+Here are the URLs...
+
+http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/koala-clinic/koala.html
+
+
+local:
+http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/koala-clinic/koala.html
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codapInterface.js" language="javascript"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+    <!--            our game source         -->
+    <script src="koala.js" language="JavaScript"></script>
+
+    <title>Koala</title>
+
+    <script>
+        /**
+         * Runs when everything is loaded.
+         */
+        $(function () {
+            $("#tabs").tabs();
+            koala.setUp();
+        });
+    </script>
+
+</head>
+<body>
+<h1>koala</h1>
+</body>
+</html>

@@ -126,6 +126,26 @@ var pluginHelper = {
         })
     },
 
+    getCaseValuesByCaseID: function (iCaseID, iDataContext) {
+        return new Promise(function (resolve, reject) {
+            var tMessage = {
+                action: 'get',
+                resource: "dataContext["
+                + iDataContext + "].caseByID["
+                + iCaseID + "]"
+            };
+
+            codapInterface.sendRequest(tMessage).then(
+                function (iResult) {
+                    if (iResult.success) {
+                        var tCaseValues = iResult.values.case.values;
+                        resolve(tCaseValues);
+                    }
+                }
+            )
+        })
+    },
+
     /**
      * Change the input to an array if it is not one!
      * @param iValuesArray  the thing which might be an array
