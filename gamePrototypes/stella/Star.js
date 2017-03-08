@@ -63,7 +63,7 @@
 
 
 /**
- * Construct a model Star. Called from stella.model.initGame()
+ * Construct a model Star. Called from stella.model.makeAllStars()
  * @param iStarData
  * @constructor
  */
@@ -403,14 +403,14 @@ var StarView = function (iStar, iPaper) {
 StarView.prototype.setSizeEtc = function (  ) {
     var tOpacity = 1.0;
     var tRadius = 1;
-    var tDegreesPerPixel = stella.constants.universeWidth / stella.skyView.magnification / stella.skyView.originalViewWidth;
+    var tDegreesPerPixel = stella.constants.universeWidth / stella.state.magnification / stella.skyView.originalViewWidth;
     var tGray = 17;
     var tMagnitudeElbow, tMagnitudeLimit;
 
     //  The scale and brightness of stars depends on magnification
 
-    tMagnitudeElbow = 6.0 * Math.log10(stella.skyView.magnification);
-    tMagnitudeLimit = 11.0 + 3 * Math.log10(stella.skyView.magnification);
+    tMagnitudeElbow = 6.0 * Math.log10(stella.state.magnification);
+    tMagnitudeLimit = 11.0 + 3 * Math.log10(stella.state.magnification);
 
     if (this.star.mApp < tMagnitudeElbow) {
         tRadius *= tMagnitudeElbow - this.star.mApp + 1;
@@ -444,7 +444,7 @@ StarView.prototype.setSizeEtc = function (  ) {
 
 
 StarView.prototype.clickOnAStar = function ( iEvent ) {
-    if (stella.skyView.magnification === 1) {
+    if (stella.state.magnification === 1.0) {
         stella.manager.pointAtStar( this.star );
     }
 };

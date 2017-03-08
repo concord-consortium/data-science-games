@@ -63,18 +63,25 @@
 /* global elementalSpectra, Math */
 
 var stella = {           //  top level global
-    state : {}
+    state : {},
+
+    freshState : function() {
+        return {
+            focusStarCatalogName: "S1001",
+            magnification : 1.0,
+            epoch: 2500.0,
+            now: 2525.0,
+            spectrumNumber : 0,
+            restored: false
+        }
+    },
+
+    restoreGame : function() {
+        var tFocusStar = stella.model.starFromTextID( stella.state.focusStarNumber );
+        stella.manager.pointAtStar( tFocusStar );
+    }
 };
 
-
-stella.freshState = function() {
-    return {
-        focusStarNumber: -1,
-        epoch: 2500.0,
-        now: 2525.0,
-        restored: false
-    };
-}
 
 /**
  * Initialze the whole thing.
@@ -89,12 +96,30 @@ stella.initialize = function () {
         codapInterface.updateInteractiveState( stella.freshState());
     }
 
+    /*
+    We need state (especially the current time) in order to compute the current star positions.
+    And we need star positions before we can restore the game state, e.g., telescope pointing.
+    So we now read in and move all the stars.
+     */
+
     stella.ui.initializeUINames();  //  so we can refer to DOM objects by name.
+    // todo: this next line should really be somewhere else, or maybe the result type saved in state.
+    //  stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
+
+    stella.model.newGame(); //  reads in the stars, sets up the lab.
+    stella.spectrumManager.newGame();   //  sets up the two spectrum views
+    stella.skyView.initialize();   //  make the sky
+    elementalSpectra.initialize();  //  read the line data into objects
+
+    /*
+    Now, if we have read in the state from a file, we "restore" the game.
+     */
 
     if (stella.state.restored) {
         console.log("    ****    Restored from file    **** ");
         console.log("STATE: " + JSON.stringify(stella.state));
+        stella.restoreGame();
 
     } else {
         stella.state.restored = true;
@@ -104,7 +129,7 @@ stella.initialize = function () {
     stella.player.initialize();
     //  stella.share.initialize(stella.constants.baseURL);
 
-    stella.manager.newGame();   //  will create new stars, etc.
+    stella.manager.newGame();
 };
 
 

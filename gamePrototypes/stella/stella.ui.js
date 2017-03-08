@@ -35,6 +35,9 @@
  */
 stella.ui = {
 
+    starResultType : null,      //  the type of result chosen in the dropdown on the result tab
+    starResultValue: null,  //  the result text box.
+
     /**
      * Called after any user action has changed anything that should be reflected in the text or controls.
      */
@@ -47,11 +50,11 @@ stella.ui = {
         //  correct title for new/abort game button
         this.newGameButton.html( stella.manager.playing ? "abort game" : "new game");
 
-        //  focusStar label and make sure it's got the right spectrum
+        //  make focusStar label and make sure it's got the right spectrum
         var focusStarText = stella.strings.notPointingText;
         if (stella.manager.focusStar) {
             focusStarText = "Pointing at " + stella.manager.focusStar.id +
-                    " • " + stella.skyView.magnification + "X";
+                    " • " + stella.state.magnification + "X";
             this.pointAtStarInputField.val( stella.manager.focusStar.id );
 
             stella.model.skySpectrum = stella.manager.focusStar.setUpSpectrum();
@@ -84,11 +87,13 @@ stella.ui = {
 
         //  starResult tab
 
+        stella.ui.starResultType = $("#starResultTypeMenu").val();
+
         var tStarResultHeadText = " ";      //  the results "headline"
         var tStarResultUnitsText = " ";
         var tBadgePrivilegeText = "";
 
-        var tResultType = stella.manager.starResultType;    //  e.g.,, "pos_x", "temp"
+        var tResultType = stella.ui.starResultType;    //  e.g.,, "pos_x", "temp"
         var tResultName = stella.starResultTypes[ tResultType].name;
 
         if (stella.manager.focusStar === null) {
@@ -98,7 +103,7 @@ stella.ui = {
 
             tStarResultHeadText = stella.manager.focusStar.id + ": ";
             tStarResultHeadText += tResultName + " = ";
-            tStarResultHeadText += stella.manager.starResultValue !== null ? stella.manager.starResultValue : "(enter a value)";
+            tStarResultHeadText += stella.ui.starResultValue !== null ? stella.ui.starResultValue : "(enter a value)";
             tStarResultHeadText += " (" + tStarResultUnitsText + ")";
         }
         this.starResultHeadline.text( tStarResultHeadText );

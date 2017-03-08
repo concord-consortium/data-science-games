@@ -46,8 +46,8 @@
 StarResult = function ( iMine, iAuto ) {
     this.id = stella.manager.focusStar.id;
     this.myOwnResult = iMine;           //  Boolean. You could have a result discovered by someone else.
-    this.type = stella.manager.starResultType;
-    this.enteredValue = stella.manager.starResultValue;     //  the value in the form as entered. (i.e., not the log)
+    this.type = stella.ui.starResultType;
+    this.enteredValue = stella.ui.starResultValue;     //  the value in the form as entered. (i.e., not the log)
     this.date = stella.state.now;
     this.units = stella.starResultTypes[this.type].units;
     this.trueResultValue = -1;      //      the true value of the same result if the measurement had been perfect

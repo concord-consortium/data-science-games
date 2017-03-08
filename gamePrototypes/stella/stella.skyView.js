@@ -40,7 +40,6 @@ stella.skyView = {
     starViews : [],
     reticlePath : null,
     positionHeadsUp : null,
-    magnification : 1.0,
     baseStrokeWidth : 0.03,
 
     viewBoxString : "0 0 1 1",
@@ -114,11 +113,11 @@ stella.skyView = {
         var x = iPointAt.x;
         var y = stella.constants.universeWidth - iPointAt.y;     //  reverse y-coordinate
 
-        var tWidth = stella.constants.universeWidth / this.magnification;
-        var tStrokeWidth = this.baseStrokeWidth / this.magnification;
+        var tWidth = stella.constants.universeWidth / stella.state.magnification;
+        var tStrokeWidth = this.baseStrokeWidth / stella.state.magnification;
         this.viewBoxString = "0 0 " + tWidth + " " + tWidth;
 
-        if ( this.magnification > 1 ) {
+        if ( stella.state.magnification > 1 ) {
             var tX = x - tWidth/2;
             var tY = y - tWidth/2;
             this.viewBoxString = tX  + " " + tY + " " + tWidth + " " + tWidth;
@@ -141,7 +140,7 @@ stella.skyView = {
         stella.ui.telescopeStatusText.text(
             "x : " + this.telescopeWhere.x.toFixed(6) +
             " y: " + this.telescopeWhere.y.toFixed(6) +
-                " (" + this.magnification + "X)"
+                " (" + stella.state.magnification + "X)"
         );
 
         //  blank the result whenever we move the telescope
@@ -158,7 +157,7 @@ stella.skyView = {
      * @param iMagnification
      */
     magnify : function( iMagnification  ) {
-        this.magnification = iMagnification;
+        stella.state.magnification = iMagnification;
         this.starViews.forEach( function (iSV) {
             iSV.setSizeEtc(  );
         });
@@ -178,7 +177,7 @@ stella.skyView = {
      * @param e     the mouse event
      */
     click : function( e ) {
-        if (stella.skyView.magnification > 1) return;   //  only works at mag = 1!
+        if (stella.state.magnification > 1) return;   //  only works at mag = 1!
         var uupos = this.createSVGPoint();
         uupos.x = e.clientX;
         uupos.y = e.clientY;
@@ -217,9 +216,9 @@ stella.skyView = {
      * @param e
      */
     move: function (e) {
-        if (stella.skyView.magnification === 1) return;
+        if (stella.state.magnification === 1) return;
 
-        var tHScale = stella.constants.universeWidth / stella.skyView.originalViewWidth / stella.skyView.magnification;    //  degrees per pixel
+        var tHScale = stella.constants.universeWidth / stella.skyView.originalViewWidth / stella.state.magnification;    //  degrees per pixel
         var tVScale = tHScale;
         var xCurrent = stella.skyView.telescopeWhere.x;
         var yCurrent = stella.skyView.telescopeWhere.y;
@@ -289,7 +288,7 @@ stella.skyView = {
 
         var x = this.telescopeWhere.x;
         var y = stella.constants.universeWidth - this.telescopeWhere.y;
-        var L = stella.constants.universeWidth / this.magnification / 10;
+        var L = stella.constants.universeWidth / stella.state.magnification / 10;
 
         oPath = "M "  + (x + L) + " " + y + " L " + x + " " + (y + L) +
                 " L " + (x - L) + " " + y + " L " + x + " " + (y - L) + "Z" +

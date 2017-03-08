@@ -36,8 +36,6 @@ stella.manager = {
 
     playing: false,
     focusStar: null,       //  what star are we pointing at?
-    starResultType: null,  //  kind of result. set in newGame()
-    starResultValue: null,  //  the result text box.
 
     starResultIsAuto: false,   //  did we get this latest result via the Auto button?
 
@@ -48,14 +46,8 @@ stella.manager = {
     newGame: function () {
         console.log("In stella.manager.newGame()");
 
-        elementalSpectra.initialize();  //  read the line data into objects
-
-        stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
-        stella.model.newGame();     //  make all the stars etc.
-        stella.spectrumManager.newGame();
+        //  stella.model.newGame();     //  make all the stars etc.
         this.playing = true;
-
-        stella.skyView.initialize();   //  make the sky
 
         codapInterface.sendRequest({
             action: 'get',
@@ -96,7 +88,7 @@ stella.manager = {
      */
     focusOnStar: function (iStar) {
         this.focusStar = iStar;
-        stella.state.focusStarNumber = iStar.caseID;
+        stella.state.focusStarNumber = iStar.id;
         stella.connector.selectStarInCODAP(iStar);
         this.updateStella();
     },
@@ -213,7 +205,6 @@ stella.manager = {
      * User has chosen a different kind of measurement in the menu there
      */
     starResultTypeChanged: function () {
-        stella.manager.starResultType = $("#starResultTypeMenu").val();
         stella.manager.updateStella();
         stella.model.stellaElapse(stella.constants.timeRequired.changeResultType);
         $("#starResultValue").val("");      //  blank the value in the box on type change
@@ -226,7 +217,7 @@ stella.manager = {
      */
     starResultValueChanged: function (iAuto) {
         stella.manager.starResultIsAuto = iAuto;
-        stella.manager.starResultValue = Number($("#starResultValue").val());
+        stella.ui.starResultValue = Number($("#starResultValue").val());
         stella.manager.updateStella();
     },
 
@@ -299,7 +290,7 @@ stella.manager = {
         var tValue = null, tForRecord = null;
 
         if (stella.manager.focusStar) {
-            var tResultType = stella.manager.starResultType;
+            var tResultType = stella.ui.starResultType;
 
             switch (tResultType) {
                 case 'pos_x':
@@ -355,35 +346,6 @@ stella.manager = {
                         break;
                 }
                 break;
-
-            /**
-             * For saving
-             */
-/*
-            case "get":
-                console.log("stellaDoCommand: action : get.");
-                switch (iCommand.resource) {
-                    case "interactiveState":
-                        console.log("stellaDoCommand save document ");
-                        var tSaveObject = {
-                            success: true,
-                            values: {
-                                state: stella
-                            }
-                        };
-                        codapHelper.sendSaveObject(
-                            tSaveObject,
-                            function () {
-                                console.log("Save complete?");
-                            }
-                        );
-                        break;
-                    default:
-                        console.log("stellaDoCommand unknown get command resource: " + iCommand.resource);
-                        break;
-                }
-                break;
-*/
 
             default:
                 console.log("stellaDoCommand: no action.");

@@ -30,7 +30,6 @@
  *
  * Three-layer hierarchy
  * GAME
- * //   BUCKET (for a set of Stebbers, has current score, etc). Every 10 "meals"
  * STARS one case per Star, //  subordinate to the bucket
  *
  * @type {{gameCaseID: number, bucketCaseID: number, gameNumber: number, bucketNumber: number, gameCollectionName: string, bucketCollectionName: string, stebberCollectionName: string, newGameCase: steb.connector.newGameCase, finishGameCase: steb.connector.finishGameCase, newBucketCase: steb.connector.newBucketCase, doStebberRecord: steb.connector.doStebberRecord, getInitSimObject: steb.connector.getInitSimObject}}
@@ -41,7 +40,6 @@
 stella.connector = {
     starCaseID: 0,
     spectrumCaseID: 0,
-    spectrumNumber: 0,
     spectraCollectionName: "spectra",
     starResultsCollectionName: "results",
     channelCollectionName: "channels",
@@ -95,13 +93,13 @@ stella.connector = {
      * @param iName     the name of the spectrum (star or lab designation)
      */
     emitSpectrum: function (iChannels, iName) {
-        this.spectrumNumber += 1;       //      serial
+        stella.state.spectrumNumber += 1;       //      serial
 
         var tChannelValues = [];    //  we will collect all the channels to emit at once
 
         iChannels.forEach(function (ch) {
             var tOneChannel = {
-                specNum: this.spectrumNumber,
+                specNum: stella.state.spectrumNumber,
                 name: iName,
                 date: stella.state.now,
                 wavelength: ch.min.toFixed(5),
@@ -120,7 +118,7 @@ stella.connector = {
 
     /**
      * We have case IDs for the stars! Tell CODAP to select this star.
-     * @param iCaseID
+     * @param iStar  the relevant star
      */
     selectStarInCODAP: function (iStar) {
         var theStarName = iStar.id;     //  we know to make it an array before we ever start
@@ -130,7 +128,7 @@ stella.connector = {
             action : "get",
             resource : "dataContext[" + this.catalogDataSetName + "].collection[" +
                 this.catalogCollectionName + "].caseSearch" + tSelectionExpression
-        }
+        };
 
         var tSearchPromise = codapInterface.sendRequest( tMessage ).then(
             function( iResult ){
@@ -294,14 +292,13 @@ function startCodapConnection() {
                 function () {
                     console.log("Promise.all complete: all data sets initialized!");
 
-
                     //  initialize all the stella variables
                     stella.initialize();
 
-                    //  register to receive notifications about changes in the start catalog (esp selection)
+                    //  register to receive notifications about changes in the star catalog (esp selection)
                     codapInterface.on(
                         'notify',
-                        'dataContext[' + stella.connector.catalogDataSetName + ']',
+                        'dataContext[' + stella.connector.catalogDataSetName + ']', // todo: dataContextChangeNotice??
                         stella.manager.stellaDoCommand
                     );
                 }
