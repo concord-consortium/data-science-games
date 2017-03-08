@@ -2,9 +2,8 @@
  * Created by tim on 1/6/16.
  */
 
-
 var clinicManager = {
-    version : "\u03b1001",      //  that's alpha, \u03b1
+    version : "001b",      //  that's alpha, \u03b1
 
     /**
      * Manages calls to CODAP for init and for making new cases
@@ -18,14 +17,24 @@ var clinicManager = {
     recordMeasurement : function( iClass, iWhat, iVal ) {
         var tResultString = this.currentPatient.name + " " + iWhat + ": " + iVal;
 
-        var tValues = [
-            this.formatDateTime(this.gameTime),
-            iWhat,  //type
-            iVal,    //result
-            iClass, //class
-            this.gameTime.getTime()
-        ];
-        this.CODAPConnector.createRecordCase( this.currentPatient, tValues);
+        var tValues = {
+            gameNumber: clinic.codapConnector.gameNumber,
+            outcome: "",
+
+            name: clinicManager.currentPatient.name,
+            sex: clinicManager.currentPatient.sex,
+            age: clinicManager.currentPatient.age,
+
+            when: this.formatDateTime(this.gameTime),
+            what: iWhat,  //type
+            value: iVal,    //result
+            class: iClass, //class
+            time: this.gameTime.getTime(),
+
+            id: clinicManager.currentPatient.patientID
+        };
+
+        clinic.codapConnector.createRecordItem( tValues, clinic.constants.kRecordCollectionName );
         console.log( tResultString );
     },
 
@@ -61,13 +70,24 @@ var clinicManager = {
     },
 
     newPatientButton : function() {
-        var tP = new Patient( TEEUtils.pickRandomItemFrom(["Male", "Female"]) );
+        var tCopyInSet = true;
+        var tP = null;
+        while (tCopyInSet) {
+            tCopyInSet = false;
+            tP = TEEUtils.pickRandomItemFrom(clinic.population);
+            this.patients.forEach( function(iP ) {
+                if (iP.patientID === tP.patientID) {
+                    tCopyInSet = true;
+                    //break;
+                }
+            })
+        }
         this.patients.push(tP);
         this.currentPatient = tP;
         console.log("New patient: " + this.currentPatient.name);
 
-        //  Create the case in CODAP
-        this.CODAPConnector.createPatientCase( tP );
+        //  Create the case in CODAP (NO! We do not need the patient item!
+        //  this.clinic.codapConnector.emitPatient( tP );
         this.passTime( 1 );
     },
 
@@ -83,13 +103,13 @@ var clinicManager = {
         this.updateDisplay();
     },
 
-    formatDateTime : function(input) {
+    formatDateTime : function(iDateTime) {
         var result = "";
         var monthArray = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-        result += input.getFullYear() + "-" + monthArray[input.getMonth()] + "-" + this.padIntegerToTwo(input.getDate());
+        result += iDateTime.getFullYear() + "-" + monthArray[iDateTime.getMonth()] + "-" + this.padIntegerToTwo(iDateTime.getDate());
 
-        result += " " + this.padIntegerToTwo(input.getHours()) + ":" + this.padIntegerToTwo(input.getMinutes());
+        result += " " + this.padIntegerToTwo(iDateTime.getHours()) + ":" + this.padIntegerToTwo(iDateTime.getMinutes());
         return result;
     },
 
@@ -137,7 +157,7 @@ var clinicManager = {
      */
     newGame: function() {
 
-        if (this.CODAPConnector.gameCaseID > 0) {
+        if (clinic.codapConnector.gameCaseID > 0) {
             clinicManager.finishGameCase( "aborted" );
         }
 
@@ -145,13 +165,11 @@ var clinicManager = {
         this.patients = [];
         this.currentPatient = null;
 
-        this.CODAPConnector.newGameCase( );
         this.passTime( 0. );
     },
 
 
     start : function() {
-        this.CODAPConnector = new ClinicCODAPConnector();
         $('#files').on("click",".patientListElement",
             function(event) {
                 var tText = event.target.textContent;

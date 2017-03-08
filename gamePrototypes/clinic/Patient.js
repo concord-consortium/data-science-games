@@ -5,14 +5,23 @@
 
 var Patient;
 
-Patient = function (inSex) {
+Patient = function (iPerson) {
     this.caseID = null;
-    this.name = Patient.newName(inSex);
-    this.age = 20 + Math.round(35 * Math.random());
-    this.sex = ( inSex );
+    this.patientID = iPerson.patientID;
+    this.sex = iPerson.sex;
+    this.first = iPerson.first;
+    this.last = iPerson.last;
+    this.name = iPerson.first + " " + iPerson.last;
+
+    this.age = iPerson.age;
+    this.address = iPerson.address;
+
+    this.lat = iPerson.lat;
+    this.long = iPerson.long;
+
     this.baseTemp = 98 + 1.5 * Math.random();
-    this.baseWeight = (this.sex == "Male" ? 160 : 110) + 30 * (Math.random() - Math.random());
-    this.baseHeight = (this.sex == "Male" ? 175 : 165) +(Math.random() - Math.random()) * 20;
+    this.baseWeight = (this.sex == "male" ? 160 : 110) + 30 * (Math.random() - Math.random());
+    this.baseHeight = (this.sex == "male" ? 175 : 165) +(Math.random() - Math.random()) * 20;
     this.maladyStates = {};       //      a key-value list of malady parameters
 };
 
@@ -21,45 +30,41 @@ Patient.prototype.toString = function() {
 };
 
 Patient.prototype.measure = function( what ) {
-    var result;
+    var oValue;
     switch( what ) {
         case "temp":
-            result = this.baseTemp + 0.3 * (Math.random() - Math.random());
-            result = Math.round(10.0 * result) / 10.0;
+            oValue = this.baseTemp + 0.3 * (Math.random() - Math.random());
+            oValue = Math.round(10.0 * oValue) / 10.0;
             break;
         case "weight":
-            result = this.baseWeight + 1 * (Math.random() - Math.random());
-            result = Math.round(10.0 * result) / 10.0;
+            oValue = this.baseWeight + 1 * (Math.random() - Math.random());
+            oValue = Math.round(10.0 * oValue) / 10.0;
             break;
         case "height":
-            result = this.baseHeight + 0.5 * (Math.random() - Math.random());
-            result = Math.round(10.0 * result) / 10.0;
+            oValue = this.baseHeight + 0.5 * (Math.random() - Math.random());
+            oValue = Math.round(10.0 * oValue) / 10.0;
             break;
         default:
-            result = -1;
+            oValue = -1;
             break;
     }
 
-    return result
+    return oValue
 };
 
 
-Patient.newName = function( inSex ) {
-    var tName = "";
+Patient.prototype.populationValueObject = function(  ) {
+    var out = {};
 
-    switch( inSex ) {
-        case "Male":
-            tName += namesForGames.getName( "maleFirst");
-            break;
-        case "Female":
-            tName += namesForGames.getName( "femaleFirst");
-            break;
-        default:
-            tName += "Aloysius-Marie";
-            break;
-    };
-    tName += " ";
-    tName += namesForGames.getName("last");
+    out.id = this.patientID;
+    out.last = this.last;
+    out.first = this.first;
+    out.age = this.age;
+    out.sex = this.sex;
+    out.address = this.address;
+    out.lat = this.lat;
+    out.long = this.long;
+    out.name = this.name;
 
-    return tName;
+    return out;
 };

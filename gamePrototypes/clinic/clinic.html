@@ -23,16 +23,31 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
-    <script src="../common/codap_helper.js" language="javascript"></script>
+    <script src="../common/pluginHelper.js" language="javascript"></script>
+    <script src="../common/codapInterface.js" language="javascript"></script>
 
-    <script src="../common/jquery.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script src="../common/TEEUtils.js" language="javascript"></script>
 
     <!--        actual game code        -->
+    <script src="clinic.js"></script>
     <script src="clinicManager.js"></script>
-    <script src="clinicCODAPConnector.js"></script>
+    <script src="clinic.codapConnector.js"></script>
+    <script src="clinic.selectionManager.js"></script>
     <script src="Patient.js"></script>
-    <script src="namesForGames.js"></script>
+    <script src="staticPeople.js"></script>
+
+
+    <script>
+        /**
+         * Runs when everything is loaded.
+         */
+        $(function () {
+            $("#tabs").tabs();
+            clinic.setUp();
+        });
+    </script>
 
 </head>
 <body>
@@ -52,8 +67,6 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 <div id="files">
 
 </div>
-<script>
-    clinicManager.start();
-</script>
+
 </body>
 </html>
