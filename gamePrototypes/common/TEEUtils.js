@@ -166,6 +166,26 @@ var     TEEUtils = {
         return { success : (nIterations < maxIterations), x : xCurrentValue, y : yCurrentValue , iterations : nIterations};
     },
 
+    /**
+     * Assumes a flat earth, where difference in longitude is scaled to the cosine of the latitude.
+     * That is, we do NOT go to the trouble of a great-circle calculation.
+     *
+     * @param lat1
+     * @param long1
+     * @param lat2
+     * @param long2
+     * @returns {number}    distance in km
+     */
+    earthDistanceNoGreatCircle : function (lat1, long1, lat2, long2) {
+        R = 40000.00 / 2.0 / Math.PI;       //  radius in km
+
+        var dLat = R * (lat2 - lat1) * Math.PI / 180.0;
+        var cosLat = Math.cos( (lat2 + lat1) * Path.PI / 180.0 / 2.0);  //  cosine of average latitude
+        var dLong = R * cosLat * (long2 - long1) * Math.PI / 180.0;
+
+        return Math.sqrt(dLat * dLat + dLong * dLong);  //  distance in kilometers
+    }
+
 };
 
 //  Thanks, stackOverflow!

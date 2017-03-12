@@ -12,8 +12,7 @@ clinic.codapConnector = {
 
     /**
      * Emit a "record" case, low level in the hierarchy.
-     * @param patient       the patient this belons to (so we can attach it to the right case)
-     * @param values
+     * @param iValues   the case values
      */
     createRecordItem: function ( iValues) {
         pluginHelper.createItems(
@@ -22,12 +21,12 @@ clinic.codapConnector = {
         ); // no callback.
     },
 
-    createPopulationItem : function(iValues ) {
+    createPopulationItems : function(iValues ) {
         pluginHelper.createItems(
             iValues,
             clinic.constants.kPopulationDataSetName
         )
-    },
+    }
 
 };
 
@@ -43,7 +42,8 @@ clinic.codapConnector.recordsDataContextSetupString = {
     name: clinic.constants.kRecordsDataSetName,
     title : 'clinic records',
     description : 'Records of your actions',
-    collections: [  // There are three collections: games / patients / records
+    collections: [  // There are three collections: games / patientsAtClinic / records
+/*
         {
             name: clinic.constants.kRecordsGameCollectionName,
             labels: {
@@ -58,19 +58,21 @@ clinic.codapConnector.recordsDataContextSetupString = {
             ],
             childAttrName: "patient"
         },
+*/
         {
             name: clinic.constants.kRecordsPatientsCollectionName,
-            parent: clinic.constants.kRecordsGameCollectionName,
+            //  parent: clinic.constants.kRecordsGameCollectionName,
             labels: {
                 singleCase: "patient",
-                pluralCase: "patients",
+                pluralCase: "patientsAtClinic",
                 setOfCasesWithArticle: "a population"
             },
             // The child collection specification:
             attrs: [
                 {name: "name", type: 'categorical'},
                 {name: "sex", type: 'categorical'},
-                {name: "age", type: 'numeric', precision: 1}
+                {name: "age", type: 'numeric', precision: 1},
+                {name: "id", type: 'categorical', hidden : true}
             ],
             childAttrName: "record"
         },
@@ -84,12 +86,13 @@ clinic.codapConnector.recordsDataContextSetupString = {
             },
             // The child collection specification:
             attrs: [
-                {name: "when", type: 'categorical'},
+                {name: "when", type: 'date'},
                 {name: "what", type: 'categorical'},
-                {name: "value", type: 'categorical'},
-                {name: "class", type: 'categorical'},
-                {name: "time", type: 'numeric', unit: 'ms', precision: 0},
-                {name: "id", type: 'categorical'}
+                {name: "value", type: 'numeric', precision: 1},
+                {name: "class", type: 'categorical'}
+/*
+                {name: "time", type: 'numeric', unit: 'ms', precision: 0}
+*/
             ]
         }
     ]   //  end of collections
@@ -98,7 +101,7 @@ clinic.codapConnector.recordsDataContextSetupString = {
  clinic.codapConnector.populationDataContextSetupString = {
      name: clinic.constants.kPopulationDataSetName,
      title: clinic.constants.kPopulationDataSetTitle,
-     description: 'a catalog of all the possible patients',
+     description: 'a catalog of all the possible patientsAtClinic',
      collections: [
          {
              name: clinic.constants.kPopulationCollectionName,
@@ -114,11 +117,12 @@ clinic.codapConnector.recordsDataContextSetupString = {
                  {name: "age", type: 'numeric', precision: 0, description: "age"},
                  {name: "sex", type: 'categorical', description: "sex"},
                  {name: "address", type: 'categorical', description: "address"},
-                 {name: "lat", type: 'numeric', precision: 4, description: "latitude of dwelling"},
-                 {name: "long", type: 'numeric', precision: 4, description: "longitude of dwelling"},
+                 {name: "zip", type: 'categorical', description: "zip code"},
+                 {name: "lat", type: 'numeric', precision: 4, description: "latitude of dwelling", hidden : true},
+                 {name: "long", type: 'numeric', precision: 4, description: "longitude of dwelling", hidden : true},
                  {name: "last", type: 'categorical', description: "last name"},
                  {name: "first", type: 'categorical', description: "first name"},
-                 {name: "id", type: 'categorical', description: "patient ID"}
+                 {name: "id", type: 'categorical', description: "patient ID", hidden: true}
              ]
          }
      ]

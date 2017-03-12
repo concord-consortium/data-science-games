@@ -19,6 +19,8 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 <head>
     <meta charset="UTF-8">
     <title>Clinic</title>
+    <link rel='stylesheet' type='text/css'
+          href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
     <link rel='stylesheet' type='text/css' href='clinic.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
@@ -33,17 +35,17 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <!--        actual game code        -->
     <script src="clinic.js"></script>
     <script src="clinicManager.js"></script>
+    <script src="clinic.model.js"></script>
+    <script src="health.js"></script>
     <script src="clinic.codapConnector.js"></script>
     <script src="clinic.selectionManager.js"></script>
     <script src="Patient.js"></script>
-    <script src="staticPeople.js"></script>
+    <script src="staticPeopleAndDwellings.js"></script>
 
 
-    <script>
-        /**
-         * Runs when everything is loaded.
-         */
+    <script language="JavaScript">
         $(function () {
+            /** Runs when everything is loaded. */
             $("#tabs").tabs();
             clinic.setUp();
         });
@@ -51,22 +53,74 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
 </head>
 <body>
-<h1 id="mainTitle">Clinic</h1>
-<p id = "gameTime">now</p>
-<p id = "currentStatus">waiting</p>
 
-<button id="newPatient" onclick="clinicManager.newPatientButton()">new patient</button>
-<div id="commands">
-    <button id="temp" onclick="clinicManager.doButton(event)">take temp</button>
-    <button id="bp" onclick="clinicManager.doButton(event)">take bp</button>
-    <button id="weight" onclick="clinicManager.doButton(event)">weight</button>
-    <button id="height" onclick="clinicManager.doButton(event)">height</button>
-</div>
+<div id="tabs">
 
-<hr>
-<div id="files">
+    <!--    list the tabs for this jquery_ui widget -->
+    <ul>
+        <li><a href="#mainTab">Clinic</a></li>
+        <li><a href="#infoTab">Info</a></li>
+        <li><a href="#optionsTab">Options</a></li>
+        <li><a href="#debugTab">Debug</a></li>
+    </ul>
 
-</div>
+    <!--    Now describe each tab separately, note how the list above references the IDs    -->
+
+    <!--        MAIN     -->
+
+    <div id="mainTab">
+        <p id="gameTime">now</p>
+        <p id="currentStatus">empty</p>
+
+        <!--<button id="newPatient" onclick="clinicManager.newPatientButton()">new patient</button>-->
+        <div id="timeButtons">
+            <button id="newGameButton" onclick="clinicManager.newGame()">start game</button>
+            <button id="newDayButton" onclick="clinicManager.newDay()">end this day</button>
+        </div>
+        <div id="commands">
+            <button id="temp" onclick="clinicManager.doButton(event)">take temp</button>
+            <button id="bp" onclick="clinicManager.doButton(event)">take bp</button>
+            <button id="weight" onclick="clinicManager.doButton(event)">weight</button>
+            <button id="height" onclick="clinicManager.doButton(event)">height</button>
+            <button id="ibu200" onclick="clinicManager.doButton(event)">200 mg ibuprofen</button>
+        </div>
+
+        <hr>
+        <h3>People at the clinic:</h3>
+        <div id="files">
+
+        </div>
+
+    </div>
+
+    <!--        INFO     -->
+
+    <div id="infoTab">
+        <h3>more information</h3>
+        <ul>
+            <li>Mayo Clinic
+                <a href="http://www.mayoclinic.org/diseases-conditions/fever/in-depth/fever/art-20050997" target="_blank">
+                    on treating fever
+                </a>
+            </li>
+        </ul>
+
+    </div>
+    <!--        OPTIONS     -->
+
+    <div id="optionsTab">
+        <h3>options</h3>
+        <label>
+            <input type="checkbox" id="virusA1B1" onclick="clinic.optionsChange()">  A1B1 virus
+        </label>
+
+    </div>
+
+    <!--        DEBUG     -->
+
+    <div id="debugTab">
+        <h3>debug info</h3>
+    </div>
 
 </body>
 </html>

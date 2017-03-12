@@ -27,14 +27,21 @@
 
 
 var clinic = {
+
+    options : {},
+
     constants: {
         kVersion: "001b",
         kName: "clinic",
-        kDimensions: {width: 256, height: 512},
+        kJitter : 0.0002,   //  lat, long jitter in radians
+        kDimensions: {width: 333, height: 600},
+
+        kClinicOpenHour : 8,
+        kClinicCloseHour : 18,
 
         kRecordsDataSetName: "records",
         kRecordsGameCollectionName : "games",
-        kRecordsPatientsCollectionName : "patients",
+        kRecordsPatientsCollectionName : "patientsAtClinic",
         kRecordsCollectionName : "records",
 
         kPopulationDataSetName : "population",
@@ -43,17 +50,42 @@ var clinic = {
     },
 
     state: {},
-    population: [],
+
+    goToTabNumber : function(iTab) {
+        $( "#tabs" ).tabs(  "option", "active", iTab );
+    },
 
     setUp: function () {
+
+        $('#newGameButton').hide();
+        $('#commands').hide();
+
+        $('#currentStatus').text("starting up");
+
         var tPluginConfiguration = {
             name: clinic.constants.kName,
             title: clinic.constants.kName,
             version: clinic.constants.kVersion,
-            dimensions: clinic.constants.kDimensions
+            dimensions: clinic.constants.kDimensions,
+
+            preventDataContextReorg: false
         };
 
         codapInterface.init(tPluginConfiguration, null).then(function () {
+
+            //  restore the state
+
+            clinic.state = codapInterface.getInteractiveState();
+            if (jQuery.isEmptyObject(clinic.state)) {
+                codapInterface.updateInteractiveState( clinic.freshState() );
+            }
+
+            if (!clinic.state.score) {
+                clinic.state.score = 42;
+            }
+
+            //  initialize datasets
+            // todo: do we have to init data sets if we're coming back from save??
 
             var tInitDatasetPromises = [
                 pluginHelper.initDataSet(clinic.codapConnector.recordsDataContextSetupString),
@@ -62,16 +94,10 @@ var clinic = {
 
             Promise.all(tInitDatasetPromises).then(function () {
 
-                clinic.constructPopulationArray();      //  make clinic.population and fill the CODAP dataset
+                $('#currentStatus').text("reading in population");
 
-                clinic.state = codapInterface.getInteractiveState();
-                if (jQuery.isEmptyObject(clinic.state)) {
-                    codapInterface.updateInteractiveState( clinic.freshState() );
-                }
-
-                if (!clinic.state.score) {
-                    clinic.state.score = 42;
-                }
+                clinic.model.constructDwellingArray();      //  make clinic.dwellings
+                clinic.model.constructPopulationArray();      //  make clinic.population and fill the CODAP dataset
 
                 //  register to receive notifications about selection
                 codapInterface.on(
@@ -95,16 +121,13 @@ var clinic = {
     freshState: function () {
         return {
             score: 0,
+            health : {},        //  keys are the patient IDs. Values are objects with health-related data
             now: new Date()
         }
     },
 
-    constructPopulationArray : function() {
-        clinic.initialPeople.forEach( function(p) {
-            tPatient = new Patient(p);
-            clinic.population.push( tPatient );       //   our internal array of Patients
-            clinic.codapConnector.createPopulationItem(tPatient.populationValueObject());   //  CODAP case
-        })
+    optionsChange : function() {
+        clinic.options.virusA1B1 = document.getElementById("virusA1B1").checked;
     }
 
 }

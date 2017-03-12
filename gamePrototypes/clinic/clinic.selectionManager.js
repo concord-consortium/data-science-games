@@ -46,8 +46,8 @@ clinic.selectionManager = {
         tParsedResourceSelector = codapInterface.parseResourceSelector(tResourceString);
         tDataContextName = tParsedResourceSelector.dataContextChangeNotice;
 
-        var tCases = pluginHelper.arrayify(iCommand.values.result.cases);
-        console.log("Selection! " + JSON.stringify(tCases));
+        var tCases = (iCommand.values.result.cases) ? pluginHelper.arrayify(iCommand.values.result.cases) : [];
+        console.log("Selection! " + tCases.length + " cases.");
 
         if (tDataContextName === clinic.constants.kPopulationDataSetName) {
             /*
@@ -59,14 +59,17 @@ clinic.selectionManager = {
 
             tCases.forEach(function (iCase) {
                 var tOnePatientID = iCase.values.id;    //  this is the patient ID, e.g., SFP0056
-                //  create the message to search for this single case in the records data set
+
+                //  search for that patient ID in the records...
+
+                //  create the message to search for this single patientID in the records data set
                 var tSearchMessage = {
                     "action": "get",
                     "resource": "dataContext[" + clinic.constants.kRecordsDataSetName + "].collection["
-                    + clinic.constants.kRecordsCollectionName + "].caseSearch[id==" + tOnePatientID + "]"
+                    + clinic.constants.kRecordsPatientsCollectionName + "].caseSearch[id==" + tOnePatientID + "]"
                 };
 
-                //  search for that patient ID in the records...
+                //  execute the search
 
                 var tRecordsSearch = codapInterface.sendRequest(tSearchMessage).then(
                     function (iResponse) {
@@ -75,30 +78,119 @@ clinic.selectionManager = {
                             }
                         )
                     }
-                )
+                );
 
                 tRecordsSearches.push(tRecordsSearch)      //  add to array of Promises, so we can tell when they're all done.
 
             });
+
+            //  Only when all the records searches are done will we select the cases by caseID.
+
             Promise.all(tRecordsSearches).then( function(iResult) {
                 //  now we have all the CODAP caseIDs associated with all the patient IDs
                 //  so make the selection
-                var tSelectionMessage = {
-                    "action": "create",
-                    "resource": "dataContext[records].selectionList",
-                    "values": tSelectionList
-                };
-                codapInterface.sendRequest( tSelectionMessage );    //  do the (multiple) selection
+                clinic.selectionManager.selectTheseCaseIDs( tSelectionList, clinic.constants.kRecordsDataSetName);
             });
 
         } else {
             /*  the selection is in the records dataset, somewhere. Don't know which collection.
-
+                for now, assume it's in the patients collection because that's where the PatientID is.
              */
+            /*
+             Loop through and select all corresponding cases in the population.
+             */
+            var tPopulationSearches = [];      //  will contain promises
+            var tSelectionList = [];        //  will contain CODAP caseIDs.
 
+            //  we have a list of cases that are selected in records. Loop thorugh them, look at each one...
+
+            tCases.forEach(function (iCase) {
+                var tOnePatientID = iCase.values.id;    //  this is the patient ID, e.g., SFP0056
+
+                //  if the ID exists at this level, search for that patient ID in the population...
+
+                if (true) {
+                    //  create the message to search for this single patientID in the population data set
+                    //  goal: find all of their case IDs.
+                    //  stash them in tSelectionList
+
+                    var tSearchMessage = {
+                        "action": "get",
+                        "resource": "dataContext[" + clinic.constants.kPopulationDataSetName
+                        + "].collection[" + clinic.constants.kPopulationCollectionName
+                        + "].caseSearch[id==" + tOnePatientID + "]"
+                    };
+
+                    //  execute the search
+
+                    var tPopulationSearch = codapInterface.sendRequest(tSearchMessage).then(
+                        function (iResponse) {
+                            iResponse.values.forEach(function (v) {     //  loop over all cases from that ID
+                                    tSelectionList.push(v.id);          //  add their case IDs to the selection list
+                                }
+                            )
+                        }
+                    );
+
+                    tPopulationSearches.push(tPopulationSearch)      //  add to array of Promises, so we can tell when they're all done.
+                }
+
+            });
+
+            //  Only when all the records searches are done will we select the cases by caseID.
+
+            Promise.all(tPopulationSearches).then( function(iResult) {
+                //  now we have all the CODAP caseIDs associated with all the patient IDs
+                //  so make the selection
+                clinic.selectionManager.selectTheseCaseIDs( tSelectionList, clinic.constants.kPopulationDataSetName);
+            });
         }
+    },
 
+    selectTheseCaseIDs : function( iList, iDataContextName ) {
+        iList = pluginHelper.arrayify( iList );
 
+        var tSelectionMessage = {
+            "action": "create",
+            "resource": "dataContext[" + iDataContextName + "].selectionList",
+            "values": iList
+        };
+        codapInterface.sendRequest( tSelectionMessage );    //  do the (multiple) selection
+
+    },
+
+    selectThisPersonInAllDataSets : function(iPerson ) {
+        var tOnePatientID = iPerson.patientID;
+
+        var tRecordsSearchMessage = {
+            "action": "get",
+            "resource": "dataContext[" + clinic.constants.kRecordsDataSetName + "].collection["
+            + clinic.constants.kRecordsPatientsCollectionName + "].caseSearch[id==" + tOnePatientID + "]"
+        };
+
+        var tPopulationSearchMessage = {
+            "action": "get",
+            "resource": "dataContext[" + clinic.constants.kPopulationDataSetName + "].collection["
+            + clinic.constants.kPopulationCollectionName + "].caseSearch[id==" + tOnePatientID + "]"
+        };
+
+        var tCaseID = 0;
+        codapInterface.sendRequest( tRecordsSearchMessage ).then(
+            function (iResponse) {
+                if (iResponse.success && iResponse.values.length > 0) {
+                    tCaseID = iResponse.values[0].id;          //  get the first IDs to the selection list
+                    clinic.selectionManager.selectTheseCaseIDs(tCaseID, clinic.constants.kRecordsDataSetName);
+                }
+            }
+        );
+        codapInterface.sendRequest( tPopulationSearchMessage ).then(
+            function (iResponse) {
+                if (iResponse.success && iResponse.values.length > 0) {
+                    tCaseID = iResponse.values[0].id;          //  get the first IDs to the selection list
+                    clinic.selectionManager.selectTheseCaseIDs(tCaseID, clinic.constants.kPopulationDataSetName);
+                }
+            }
+        );
     }
 
 };
