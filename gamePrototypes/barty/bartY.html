@@ -1,0 +1,211 @@
+<!--
+
+==========================================================================
+dsgBART.html
+
+HTML for BART aggregate data.
+
+    Author:   Tim Erickson
+
+Copyright (c) 2016 by The Concord Consortium, Inc. All rights reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================
+
+Temp URL:   http://localhost:8888/bart/dsgBART.html
+
+    Here is the URL...
+
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/bartY.html
+
+    or locally,
+    http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/BART_SQL/barty.html
+
+
+    http://localhost/~tim/gamePrototypes/bart/dsgBART.html
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='dsgBART.css'/>
+    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+
+    <!-- These two scripts take care of the communication with CODAP and commons -->
+    <script src="../common/iframe-phone.js" language="javascript"></script>
+    <script src="../common/codap_helper.js" language="javascript"></script>
+
+    <script src="../common/TEEUtils.js" language="javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+
+    <!-- Our game source -->
+    <script src="bartYManager.js" language="JavaScript"></script>
+    <script src="bart.ui.js" language="JavaScript"></script>
+    <script src="bartOptions.js" language="JavaScript"></script>
+    <script src="bartYCODAPConnector.js" language="JavaScript"></script>
+    <script src="meetingGame.js" language="JavaScript"></script>
+
+    <title>Data Science Game - BART (by hour)</title>
+
+    <script>
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+    </script>
+
+</head>
+<body>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#dataTab">Data</a></li>
+        <li><a href="#backgroundTab">Background</a></li>
+        <li><a href="#scenarioTab">Scenario</a></li>
+        <li><a href="#mapTab">Map</a></li>
+        <li><a href="#optionsTab">Options</a></li>
+        <li><a href="#debugTab">Debugging</a></li>
+    </ul>
+    <div id="dataTab">
+
+        <button id="newGameButton" onclick="bart.ui.newGameButtonPressed()">new game</button>
+        <br><br>
+
+        <fieldset id="getDataBlock" onchange="bart.ui.dataSelectionChanged()">
+            <legend>Specify data (don't use IE or FFox)</legend>
+            date: <input id="dateControl" type="date">
+            <select id="numberOfDaysControl">
+                <option value="1" >1</option>
+                <option value="7" >7</option>
+                <option value="30" >30</option>
+            </select>d.
+
+            <span id="timeDescription"></span>
+            <br>
+            <span id="useWeekdayItemText"></span>
+            <input type="checkbox" id="useWeekday">
+            <span id="useHoursItemText">use hour:</span>
+            <input type="checkbox" id="useHour">
+            <div id="hourControl"></div>    <!--    the hour range slider -->
+
+            <br>
+            from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
+            <br><button id="showPricesButton" onclick="bart.ui.showPricesButtonPressed()">show prices</button>
+
+        </fieldset>
+        <br>
+        <fieldset id="showPricesBlock">
+            <legend>Prices appear here</legend>
+            <span id="dataIntervalStatement"></span>
+            <br><br>
+
+            <input type="radio"  name="dataChoice" id="betweenAnyItem" value="betweenAny" checked/><span id="betweenAnyItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
+            <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
+
+            <br><button id="getDataButton" onclick="bart.ui.getDataButtonPressed()">get data</button>
+        </fieldset>
+
+        <p>
+            <span id="result"></span> <span id="status">Ready.</span>
+        </p>
+    </div>
+
+    <div id="backgroundTab">
+
+        <p>This setup gives you a window into data on about 120 million BART exits in 2015.
+            Each record represents one hour at a station,
+            recording how many people exited that station during the hour from each of the
+            other stations in the BART system.</p>
+        <p>As of version 002, data extend from 20156-04-01 to 2015-09-30</p>
+        <p>Useful Variables</p>
+        <ul>
+            <li><strong>count</strong>: Number of exits during that hour.
+            <li><strong>doy</strong>: decimal day of year. Use for time.</li>
+            <li><strong>hour</strong>: The integer hour out of 24.</li>
+            <li><strong>day</strong>: weekday.</li>
+            <li><strong>startAt</strong>: station where the passenger entered the system</li>
+            <li><strong>endAt</strong>: station where the passenger left the system</li>
+            <li><strong>startReg, endReg</strong>: regions for start and end.
+                These might make some graphs simpler. "City" is SF but not downtown.</li>
+        </ul>
+        <p>Thanks to Pam Herhold, BART, for access!</p>
+
+    </div>
+    <div id="scenarioTab">
+        <p>You are trying to find a meeting in the Bay Area, and you have only BART data to do it with.
+            You know the meeting is near a BART station. You know it's at the same time very week.</p>
+        <p>Before you press <strong>new game</strong>, check out the <strong>Options</strong> tab.
+        </p>
+        <p>Use that to set up the game.</p>
+        <ul>
+            <li>Begin by using the defaults (Orinda, Tuesday, 2 PM, 160 people). So you know the answer.</li>
+            <li>See if you can make a graph that shows the meeting in the BART data.</li>
+            <ul>
+                <li>Notice that the controls let you define what data to get, for example, what date and for what hours.</li>
+                <li>Notice that you can learn the cost of your data.
+                    <b>Eventually, you will have to confirm your purchase.</b></li>
+            </ul>
+            <li>When you have that nailed, set the time to "surprise me" and play another game.
+                See if you can figure out the time.</li>
+            <li>Gradually move up to other attributes or even to combinations!</li>
+        </ul>
+        <h2>Hints</h2>
+        <p>If you're stuck about making a graph with the default options:</p>
+        <ol>
+            <li>Make sure a Tuesday is selected, such as April 14.</li>
+            <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
+            <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like. </li>
+            <li>Click <strong>Graph</strong>. A mixed-up graph appears.
+                Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
+            <li>Drag <strong>count</strong> to the vertical axis. You should see a bump at 2 PM.</li>
+            <li>Try dragging other attributes to various axes -- or to the middle of the graph. </li>
+
+        </ol>
+        <p>Notice that we "knew" Embarcadero would be a good sourse. In reality, you don't know that.
+            How would you figure it out?</p>
+        <p>That should get you started. Oh: to start over, just reload the page.</p>
+    </div>
+    <div id="mapTab">
+        <img src="https://www.bart.gov/sites/all/themes/bart_desktop/img/system-map.gif">
+
+    </div>
+    <div id="optionsTab">
+        <div  class="options">
+            Day: <select id="meetingDaySelector"></select><br>
+            Location: <select id="meetingLocationSelector"></select><br>
+            Time: <select id="meetingTimeSelector"></select><br>
+            Size: <select id="meetingSizeSelector"></select><br>
+        </div>
+    </div>
+    <div id="debugTab">
+        <span id="query">PHP info.</span><br>
+        <span id="secret"></span>
+
+    </div>
+
+</div>
+
+</body>
+
+<script language="JavaScript">
+    bart.initialize();
+
+
+
+</script>
+</html>
