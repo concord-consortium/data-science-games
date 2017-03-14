@@ -223,6 +223,8 @@ bart.manager = {
             bart.manager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
             bart.ui.fixUI();        //  temporary
 
+            console.log("Data query string: " + tDataString);
+
             if (tCountEstimate <= 1500) {
                 $.ajax({
                     type: "post",
@@ -250,7 +252,7 @@ bart.manager = {
                     }
                 }
             } else {
-                bart.manager.possibleCosts[iQT] = "too expensive";
+                bart.manager.possibleCosts[iQT] = "too much data to download";
                 bart.ui.fixUI();
 
                 //  todo: fix the following loop, not working as of 2016-03-14
@@ -443,5 +445,5 @@ bart.initialize = function() {
     };
 
     this.ui.fixUI();
-}
+};
 

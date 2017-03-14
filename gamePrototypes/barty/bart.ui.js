@@ -220,7 +220,8 @@ bart.ui = {
                 var theStations = JSON.parse( iData );
                 theStations.forEach(
                     function (sta)  {
-                        result += "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
+                        var thisOption = "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
+                        result += thisOption;
                     }
                 )
                 $("#arrivalSelector").empty().append(result);   // put them into the DOM
