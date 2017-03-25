@@ -25,41 +25,12 @@ limitations under the License.
 
 /* global $, TEEUtils, console */
 
-var bart = {};
 
-bart.constants = {
-    version :  "002a",
-    daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    queryTypes : ["byArrival", "byDeparture", "byRoute", "betweenAny"],
-    kBaseURL :  "http://localhost:8888/barty/getBARTYdata.php",   //  "../php/getBARTYdata.php",   //  todo : set to release URL
-    kBaseDateString : "2015-04-15",
-    kBaseH0 : 8,
-    kBaseH1 : 14,
-
-    kGetData : "data",
-    kGetCounts : "counts",
-    kRegionColorMap : {
-        "Peninsula" : "purple",
-        "City" : "red",
-        "Downtown" : "orange",
-        "Oakland" : "green",
-        "East Bay" : "dodgerblue"
-    },
-    kWeekdayColorMap : {
-        "Sun" : "green",
-        "Mon" : "orange",
-        "Tue" : "coral",
-        "Wed" : "gold",
-        "Thu" : "goldenrod",
-        "Fri" : "lightsalmon",
-        "Sat" : "limegreen"
-    }
-}
-
-
-bart.manager = {
+barty.manager = {
 
     playing : false,
+    gameNumber : 0,
+    requestNumber : 0,
 
     queryData : {},
     possibleCosts : {},
@@ -72,14 +43,9 @@ bart.manager = {
      */
     newGame: function ( ) {
         meeting.setMeetingValues();     //   initialize the meeting location
-        bart.connector.newGameCase(
-            function( iResult ) {
-                bart.connector.gameCaseID = iResult.caseID;   //  set gameCaseID on callback
-                console.log("Game case ID set to " + iResult.caseID);
-                bart.manager.playing = true;
-                bart.ui.fixUI();
-            }.bind(this)    //  todo: maybe remove bind
-        );
+        this.gameNumber++;
+        barty.manager.playing = true;
+        barty.ui.fixUI();
     },
 
     /**
@@ -87,7 +53,7 @@ bart.manager = {
      * @param iReason   why the game ended, a string, e.g., "aborted" "won" "lost"
      */
     endGame: function ( iReason ) {
-        bart.connector.closeGame( { result: iReason });
+        barty.connector.closeGame( { result: iReason });
 
         this.playing = false;
     },
@@ -133,11 +99,11 @@ bart.manager = {
         var tStationClauseString = "";
 
         switch (iWhat) {
-            case bart.constants.kGetData:
+            case barty.constants.kGetData:
                 dataString += "&w=data";
                 break;
 
-            case bart.constants.kGetCounts:
+            case barty.constants.kGetCounts:
                 dataString += "&w=counts";
                 break;
         }
@@ -213,22 +179,23 @@ bart.manager = {
     doCaseCounts : function() {
         var theData;
 
-        bart.constants.queryTypes.forEach( function( iQT ) {
-            bart.manager.caseCounts[ iQT ] = null;   //  set dirty
+        barty.constants.queryTypes.forEach( function( iQT ) {
+            barty.manager.caseCounts[ iQT ] = null;   //  set dirty
 
-            var tDataString = bart.manager.assembleQueryDataString( iQT, bart.constants.kGetCounts );
+            var tDataString = barty.manager.assembleQueryDataString( iQT, barty.constants.kGetCounts );
 
-            var tCountEstimate = bart.manager.estimateCount( iQT, bart.manager.queryData );
+            var tCountEstimate = barty.manager.estimateCount( iQT, barty.manager.queryData );
 
-            bart.manager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
-            bart.ui.fixUI();        //  temporary
+            // barty.manager.possibleCosts[ iQT ] = "$ " + tCountEstimate + ".00 est";   //  temporary
+            barty.manager.possibleCosts[ iQT ] = tCountEstimate + " cases est";   //  temporary
+            barty.ui.fixUI();        //  temporary
 
             console.log("Data query string: " + tDataString);
 
             if (tCountEstimate <= 1500) {
                 $.ajax({
                     type: "post",
-                    url: bart.constants.kBaseURL,
+                    url: barty.constants.kBaseURL,
                     data: tDataString,
                     success: weGotPrice
                 });
@@ -238,27 +205,28 @@ bart.manager = {
                     var tKeys = Object.keys(jData);
 
                     var tCount = Number(jData[tKeys[0]]);
-                    bart.manager.caseCounts[iQT] = tCount;
-                    bart.manager.possibleCosts[iQT] = "$ " + tCount + ".00";
+                    barty.manager.caseCounts[iQT] = tCount;
+                    // barty.manager.possibleCosts[iQT] = "$ " + tCount + ".00";
+                    barty.manager.possibleCosts[iQT] = tCount + " cases";
 
-                    bart.ui.fixUI();
+                    barty.ui.fixUI();
 
                     //  todo: fix the following loop, not working as of 2016-03-14
 
-                    if (bart.constants.queryTypes.every(function (iQT) {
-                            bart.manager.caseCounts[iQT] >= 0;
+                    if (barty.constants.queryTypes.every(function (iQT) {
+                            barty.manager.caseCounts[iQT] >= 0;
                         })) {
                         console.log("All case counts retrieved");
                     }
                 }
             } else {
-                bart.manager.possibleCosts[iQT] = "too much data to download";
-                bart.ui.fixUI();
+                barty.manager.possibleCosts[iQT] = "too much data to download";
+                barty.ui.fixUI();
 
                 //  todo: fix the following loop, not working as of 2016-03-14
 
-                if (bart.constants.queryTypes.every(function (iQT) {
-                        bart.manager.caseCounts[iQT] >= 0;
+                if (barty.constants.queryTypes.every(function (iQT) {
+                        barty.manager.caseCounts[iQT] >= 0;
                     })) {
                     console.log("All case counts retrieved");
                 }
@@ -274,35 +242,37 @@ bart.manager = {
      *
      *  This is a cascade of functions, some of which are asynchronous.
      *  (1) Create the "bucket" case, the parent of all the individual observations
-     *  (2) doQuery: if successful, actually POST the information to the .php feed (bart.constants.kBaseURL)
+     *  (2) doQuery: if successful, actually POST the information to the .php feed (barty.constants.kBaseURL)
      *  (3) weGotData( iData ): if successful, process the array, each element using...
      *  (4) processHours : extract the individual data values from the record and create a new "leaf" case
      */
     doBucketOfData : function() {
+        barty.manager.requestNumber++;
+
         var tDataString = this.assembleQueryDataString( this.queryData.c, this.kGetData );
         var theData;
         var tRememberedDateHour = null;
-        bart.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case. bucketCaseCreated is the callback.
+        // barty.connector.newBucketCase( bucketCaseCreated );     //  open the "bucket" case. bucketCaseCreated is the callback.
+        //
+        // function bucketCaseCreated( iResult ) {
+        //     if (iResult.success) {
+        //         barty.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
+        //         console.log("Bucket case ID set to " + iResult.caseID);
+        //         doQuery( );
+        //     } else {
+        //         console.log("Failed to create bucket case.");
+        //     }
+        // }
 
-        function bucketCaseCreated( iResult ) {
-            if (iResult.success) {
-                bart.connector.bucketCaseID = iResult.caseID;   //  set bucketCaseID on callback
-                console.log("Bucket case ID set to " + iResult.caseID);
-                doQuery( );
-            } else {
-                console.log("Failed to create bucket case.");
-            }
-        }
-
-        function doQuery(   ) {
+        //function doQuery(   ) {
             $("#status").text("getting data from eeps...");
             $.ajax({
                 type :  "post",
-                url :   bart.constants.kBaseURL,
+                url :   barty.constants.kBaseURL,
                 data :  tDataString,
                 success: weGotData
             });
-        }
+        //}
 
         function weGotData(iData) {
             $("#status").text("parsing data from eeps...");
@@ -312,10 +282,53 @@ bart.manager = {
             tRememberedDateHour = null;
 
             var     reorganizedData = {};
-            theData.forEach( reorganizeByHour );
+
+            //  output an item for each record
+            var tValuesArray = [];
+
+            theData.forEach(function(d) {
+                var tAdjustedCount = meeting.adjustCount(
+                    d.startAt,
+                    d.endAt,
+                    d.dow - 1,           //      the index of the weekday
+                    d.hour,
+                    d.passengers
+                );
+
+                if (tAdjustedCount != d.passengers) {
+                    console.log("Adjust count from " + d.passengers + " to " + tAdjustedCount);
+                }
+
+                var ymd = d.Bdate.split("-");
+                var tDate = new Date( Number(ymd[0]), Number(ymd[1]) - 1, Number(ymd[2]), Number(d.hour));
+                var tFormattedDate = $.datepicker.formatDate("mm/dd/yy", tDate);
+                var tFormattedDateTime = tFormattedDate + " " + d.hour + ":00:00";
+
+                var tValues = {
+                    gameNumber : barty.manager.gameNumber,
+                    request : barty.manager.requestNumber,
+                    when : tFormattedDateTime,
+                    day : barty.constants.daysOfWeek[ d.dow - 1 ],
+                    hour : d.hour,
+                    date : tDate.toDateString(),
+
+                    count : tAdjustedCount,
+                    startAt : d.startAt,
+                    endAt : d.endAt,
+                    startReg : d.startReg,
+                    endReg : d.endReg,
+                    id : d.id
+                };
+                tValuesArray.push( tValues );
+            });
+
+            barty.connector.outputDataItems( tValuesArray);
+
+            //  theData.forEach( reorganizeByHour );
 
             //  now data are reorganized by hour
 
+/*
             $("#status").text("Data reorganized.");
 
             Object.keys( reorganizedData ).forEach( function( iKey ) {
@@ -331,7 +344,7 @@ bart.manager = {
                 if ( !(tThisDateHour in reorganizedData) ) {    //  make a new key
                     var tDay = iRec.dow - 1;
                     var tDOY = TEEUtils.dateStringToDOY(iRec.Bdate) + iRec.hour/24;
-                    var tHourValuesArray = [ tDOY, bart.constants.daysOfWeek[ tDay ], iRec.hour, iRec.Bdate ];
+                    var tHourValuesArray = [ tDOY, barty.constants.daysOfWeek[ tDay ], iRec.hour, iRec.Bdate ];
 
                     reorganizedData[tThisDateHour] = { hourValues : tHourValuesArray, dataValues : [] }; //  create new elemnt in the object
                 }
@@ -342,7 +355,7 @@ bart.manager = {
 
             function storeOneHour( iHourObject ) {
                 var tHourDataValues = iHourObject.hourValues;      //      get the data array that needs to be stored
-                bart.connector.newHourCase(tHourDataValues, hourCaseCreated );  //  store it
+                barty.connector.newHourCase(tHourDataValues, hourCaseCreated );  //  store it
 
                 function hourCaseCreated( iResult ) {
                     if (iResult.success) {
@@ -357,7 +370,7 @@ bart.manager = {
                     var tDataArray = iHourObject.dataValues;
 
                     tDataArray.forEach( function( iOneDataValuesArray ) {
-                        bart.connector.doDataRecord( iOneDataValuesArray, iHourObject.hourCaseID);
+                        barty.connector.doDataRecord( iOneDataValuesArray, iHourObject.hourCaseID);
                     });
                 };
 
@@ -388,62 +401,10 @@ bart.manager = {
                     iRec.id
                 ]
             }
+*/
 
         }
 
     },
-
-
-    bartDoCommand : function() {
-
-    }
-};
-
-/**
- * Start up the simulation. Called once on reload.
- */
-bart.initialize = function() {
-
-    this.connector = new bartCODAPConnector( "games", "buckets", "hours" );
-    $("#dateControl").val( bart.constants.kBaseDateString );
-    /*
-     $("#dateControl").datepicker({
-     minDate : "2015-04-01",             //  todo: pass in a date, when we figur out how to cope with the time zone!
-     maxDate : "2015-09-30"
-     });
-     */
-
-    //  set up hours control
-
-    this.manager.queryData.h0 = this.constants.kBaseH0;
-    this.manager.queryData.h1 = this.constants.kBaseH1;
-
-    $("#hourControl").slider({
-        range : true,
-        min : 0,
-        max : 24,
-        values : [ this.manager.queryData.h0, this.manager.queryData.h1 ],
-        slide : bart.ui.hourControlSlides.bind(this),
-        step : 1
-    });
-
-
-    //  get menu items for a list of stations
-    this.ui.makeOptionsFromStationsDB();
-
-    //  set up game options -- possible meeting parameters and menus
-    this.ui.makeMeetingLocationOptions($('#meetingLocationSelector'));
-    this.ui.makeWeekdaysOptions($('#meetingDaySelector'));
-    this.ui.makeMeetingTimeOptions($('#meetingTimeSelector'));
-    this.ui.makeMeetingSizeOptions($('#meetingSizeSelector'));
-
-    this.manager.possibleCosts = {
-        "betweenAny" : "$ ?.??",
-        "byRoute" : "$ ?.??",
-        "byDeparture" : "$ ?.??",
-        "byArrival" : "$ ?.??"
-    };
-
-    this.ui.fixUI();
 };
 

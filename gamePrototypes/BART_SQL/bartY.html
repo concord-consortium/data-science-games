@@ -53,8 +53,9 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
 
     <!-- Our game source -->
+    <script src="barty.js" language="JavaScript"></script>
     <script src="bartYManager.js" language="JavaScript"></script>
-    <script src="bart.ui.js" language="JavaScript"></script>
+    <script src="barty.ui.js" language="JavaScript"></script>
     <script src="bartOptions.js" language="JavaScript"></script>
     <script src="bartYCODAPConnector.js" language="JavaScript"></script>
     <script src="meetingGame.js" language="JavaScript"></script>
@@ -81,10 +82,10 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     </ul>
     <div id="dataTab">
 
-        <button id="newGameButton" onclick="bart.ui.newGameButtonPressed()">new game</button>
+        <button id="newGameButton" onclick="barty.ui.newGameButtonPressed()">new game</button>
         <br><br>
 
-        <fieldset id="getDataBlock" onchange="bart.ui.dataSelectionChanged()">
+        <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()">
             <legend>Specify data (don't use IE or FFox)</legend>
             date: <input id="dateControl" type="date">
             <select id="numberOfDaysControl">
@@ -103,7 +104,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 
             <br>
             from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
-            <br><button id="showPricesButton" onclick="bart.ui.showPricesButtonPressed()">show prices</button>
+            <br><button id="showPricesButton" onclick="barty.ui.showPricesButtonPressed()">show prices</button>
 
         </fieldset>
         <br>

@@ -232,35 +232,3 @@ bartCODAPConnector.getInitSimObject = function() {
 
     return oInitSimObject;
 };
-
-bartCODAPConnector.prototype.getSaveObject = function() {
-    var tState = {
-        gameCaseID : this.gameCaseID,
-        gameNumber : this.gameNumber,
-        gameCollectionName : this.gameCollectionName
-    };
-
-    return tState;
-};
-
-/**
- * @param iObject   object containing the property values.
- */
-bartCODAPConnector.prototype.restoreFrom = function( iObject ) {
-    this.gameCaseID = iObject.gameCaseID;
-    this.gameNumber = iObject.gameNumber;
-    this.gameCollectionName = iObject.gameCollectionName;
-};
-
-
-/**
- * Called by CODAP to initialize the simulation.
- * Two parameters: an object containing the organization of the data,
- * and a callback function when a doCommand is issued.
- * (We'll use it for save and restore)
- */
-codapHelper.initSim(
-    bartCODAPConnector.getInitSimObject(),
-    bart.manager.bartDoCommand
-);
-

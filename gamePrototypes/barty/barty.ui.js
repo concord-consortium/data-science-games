@@ -3,7 +3,7 @@
 
 
  ==========================================================================
- bart.ui.js in data-science-games.
+ barty.ui.js in data-science-games.
 
  Author:   Tim Erickson
 
@@ -26,21 +26,58 @@
  */
 
 
-bart.ui = {
+barty.ui = {
+    initialize : function() {
+        $("#dateControl").val( barty.constants.kBaseDateString );
+        /*
+         $("#dateControl").datepicker({
+         minDate : "2015-04-01",             //  todo: pass in a date, when we figur out how to cope with the time zone!
+         maxDate : "2015-09-30"
+         });
+         */
+
+        //  set up hours control
+
+        barty.manager.queryData.h0 = barty.constants.kBaseH0;
+        barty.manager.queryData.h1 = barty.constants.kBaseH1;
+
+        $("#hourControl").slider({
+            range : true,
+            min : 0,
+            max : 24,
+            values : [ barty.manager.queryData.h0, barty.manager.queryData.h1 ],
+            slide : barty.ui.hourControlSlides.bind(this),
+            step : 1
+        });
+
+
+        barty.ui.makeInitialOptions();
+
+        barty.manager.possibleCosts = {
+            "betweenAny" : "$ ?.??",
+            "byRoute" : "$ ?.??",
+            "byDeparture" : "$ ?.??",
+            "byArrival" : "$ ?.??"
+        };
+
+        barty.ui.fixUI();
+
+    },
+
     /**
      * User has pressed the button to get data.
      * @param e     The mouse event
      */
     getDataButtonPressed : function(e) {
 
-        bart.manager.getDataSearchCriteria();   //  make sure we have current values
-        bart.manager.doBucketOfData(  );        //  actually get the data
+        barty.manager.getDataSearchCriteria();   //  make sure we have current values
+        barty.manager.doBucketOfData(  );        //  actually get the data
         this.fixUI();                   //  update what we see
     },
 
     showPricesButtonPressed : function() {
-        bart.manager.getDataSearchCriteria();   //  make sure we have current values
-        bart.manager.doCaseCounts();
+        barty.manager.getDataSearchCriteria();   //  make sure we have current values
+        barty.manager.doCaseCounts();
 
         this.fixUI();
     },
@@ -57,9 +94,9 @@ bart.ui = {
     },
 
     hourControlSlides : function( event, iThis) {
-        this.manager.queryData.h0 = iThis.values[0];
-        this.manager.queryData.h1 = iThis.values[1];
-        this.ui.dataSelectionChanged();
+        barty.manager.queryData.h0 = iThis.values[0];
+        barty.manager.queryData.h1 = iThis.values[1];
+        barty.ui.dataSelectionChanged();
     },
 
     /**
@@ -67,13 +104,13 @@ bart.ui = {
      * So this routine figures out whether to call the newGame() or endGame("abort") methods.
      */
     newGameButtonPressed : function() {
-        if (bart.manager.playing) {
+        if (barty.manager.playing) {
             this.endGame("abort")
         } else {
-            bart.manager.newGame();
+            barty.manager.newGame();
 
         }
-        this.fixDataSelectionText();
+
         this.fixUI();
     },
 
@@ -84,11 +121,24 @@ bart.ui = {
         //  var timeString = TEEUtils.padIntegerToTwo(this.dataHour) + ":" + TEEUtils.padIntegerToTwo(this.dataMinute);
         //  $('#timeControl').val(timeString);
 
-        this.fixDataSelectionText();
+        var tQD = barty.manager.getDataSearchCriteria();
+        this.fixDataSelectionText( tQD );
 
-        $("#newGameButton").text( bart.manager.playing ? "abort game" : "new game");
+        if (tQD.useHour) {
+            $("#hourControl").show();
+        } else {
+            $("#hourControl").hide();
+        }
 
-        if (bart.manager.playing) {
+        if (tQD.nd == 1) {
+            $("#oneDayOnlyControl").hide();
+        } else {
+            $("#oneDayOnlyControl").show();
+        }
+
+        $("#newGameButton").text( barty.manager.playing ? "abort game" : "new game");
+
+        if (barty.manager.playing) {
             $("#getDataButton").prop("disabled", false);
             $(".options").hide();
         } else {
@@ -100,59 +150,97 @@ bart.ui = {
         //  here we could write a longer description of what you will get if you press get data.
     },
 
-    fixDataSelectionText : function() {
-
-        tQD = bart.manager.getDataSearchCriteria(); //  set search crieria from UI, then use.
+    fixDataSelectionText : function( iQD ) {
 
         //  Whole names of selected stations
         var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
         var tDepartureStationName = $("#departureSelector").find('option:selected').text();
 
         //  time description text.
-        var tEndHour = tQD.h1 - 1;
-        var tWeekdayText = bart.constants.daysOfWeek[ tQD.weekday ];
-        var tHoursText = "from " + tQD.h0 + ":00 to " + tEndHour + ":59";
-        if (tQD.h0 == tQD.h1) tHoursText = " zero time interval; no data";
-        var tTimeDescriptionText = " Any day, all day.";
+        var tEndHour = iQD.h1 - 1;
+        var tWeekdayText = barty.constants.daysOfWeekLong[ iQD.weekday ];
+
+        var tHoursText = "from "
+            + this.formatTime(iQD.h0, 0)
+            + " to " + this.formatTime(tEndHour, 59);
+
+        if (iQD.h0 == iQD.h1) tHoursText = " (zero time interval; no data)";
 
         //  fix the weekday text
-        var tWeekdayBoxLabel = tQD.useWeekday
+        var tWeekdayBoxLabel = iQD.useWeekday
             ? tWeekdayText + " only. Deselect for any day:"
-            : "Select to search " + tWeekdayText + " only:";
+            : "Select to search " + tWeekdayText + "s only:";
 
         //  fix the hours text
-        var tHoursBoxLabel = tQD.useHour
-            ? "Using hour range. Deslect for whole day: "
-            : "Searching whole day. Select to use hours: ";
+        var tHoursBoxLabel = iQD.useHour
+            ? "You will get data from " + tHoursText + ". Deslect for whole day: "
+            : "You will get data for the whole day. Click the box to restrict the hours: ";
 
         $("#useHoursItemText").text( tHoursBoxLabel );
         $("#useWeekdayItemText").text( tWeekdayBoxLabel );
         $("#timeDescription").text(
-            (tQD.useWeekday ? tWeekdayText + " only, " : "Any day, ")
-            + (tQD.useHour ? tHoursText + "." : "all day.")
+            (iQD.useWeekday ? tWeekdayText + " only, " : "Any day, ")
+            + (iQD.useHour ? tHoursText + "." : "all day.")
         );
 
         //  assemble "data interval statement"
+        // .d0 and .d1 are ISO date strings
 
-        var tSearchTime = (tQD.d0 == tQD.d1)
-            ? tQD.d0
-            : tQD.d0 + " to " + tQD.d1;
+        var tDay0Text = this.formatDate(iQD.d0);
+        var tDay1Text = this.formatDate(iQD.d1);
+
+        var tSearchTime = (tDay0Text == tDay1Text)
+            ? tDay0Text
+            : tDay0Text + " to " + tDay1Text;
         tSearchTime += ", ";
 
-        if (tQD.useWeekday) tSearchTime += tWeekdayText + " only, "
-        tSearchTime += (tQD.useHour ? tHoursText : " all day");
+        if (iQD.useWeekday) tSearchTime += "only " + tWeekdayText + "s, ";
+        tSearchTime += (iQD.useHour ? tHoursText : " all day");
 
         $("#dataIntervalStatement").text( tSearchTime );
+        $("#downloadOptionTimeAndStationsText").text(tSearchTime);
 
-        $("#betweenAnyItemText").html("between any two stations " + bart.manager.possibleCosts["betweenAny"]);
+        //  set more texts
+
+        $("#betweenAnyItemText").html("between any two: " + barty.manager.possibleCosts["betweenAny"]);
         $("#byRouteItemText").html("from <strong>" + tDepartureStationName
-            + "</strong> to <strong>" + tArrivalStationName + "</strong> " + bart.manager.possibleCosts["byRoute"]);
+            + "</strong> to <strong>" + tArrivalStationName + "</strong>: " + barty.manager.possibleCosts["byRoute"]);
         $("#byDepartureItemText").html("from <strong>"
-            + tDepartureStationName + "</strong> to any station " + bart.manager.possibleCosts["byDeparture"]);
+            + tDepartureStationName + "</strong> to any station: " + barty.manager.possibleCosts["byDeparture"]);
         $("#byArrivalItemText").html("from any station to <strong>"
-            + tArrivalStationName + "</strong> " + bart.manager.possibleCosts["byArrival"]);
+            + tArrivalStationName + "</strong>: " + barty.manager.possibleCosts["byArrival"]);
     },
 
+    formatTime : function( h, m) {
+        var hourNumber = h < 13 ? h : h - 12;
+        if (hourNumber == 0) hourNumber = 12;
+
+        var ampm = h < 12 ? "AM" : "PM";
+
+        var minuteString = m.toString();
+        if (minuteString.length < 2) minuteString = "0" + minuteString;
+
+        return hourNumber.toString() + ":" + minuteString + " " + ampm;
+    },
+
+    formatDate : function(iso) {
+        var dIn = new Date(iso);
+        var userTimezoneOffset = new Date().getTimezoneOffset()*60000;  //  at our current location
+        var dOut = new Date(dIn.getTime() + userTimezoneOffset);
+        return dOut.toLocaleDateString();
+    },
+
+    makeInitialOptions : function() {
+        //  get menu items for a list of stations
+        barty.ui.makeOptionsFromStationsDB();
+
+        //  set up game options -- possible meeting parameters and menus
+        barty.ui.makeMeetingLocationOptions($('#meetingLocationSelector'));
+        barty.ui.makeWeekdaysOptions($('#meetingDaySelector'));
+        barty.ui.makeMeetingTimeOptions($('#meetingTimeSelector'));
+        barty.ui.makeMeetingSizeOptions($('#meetingSizeSelector'));
+
+    },
 
     makeMeetingTimeOptions : function( iSelector ) {
         var result = "";
@@ -195,11 +283,11 @@ bart.ui = {
 
     makeWeekdaysOptions : function( iSelector ) {
         var result = "";
-        bart.constants.daysOfWeek.forEach(
+        barty.constants.daysOfWeek.forEach(
             function( iDay, index ) {
                 result += "<option value='"+ index +"'>" + iDay +"</option>";
             }
-        )
+        );
         iSelector.empty().append( result );
         iSelector.append( "<option value='-1' disabled>————</option>" );
         iSelector.append( "<option value='0'>Surprise me</option>" );
@@ -213,11 +301,14 @@ bart.ui = {
     makeOptionsFromStationsDB : function() {
         $.ajax({
             type :  "post",
-            url :   bart.constants.kBaseURL,
+            url :   barty.constants.kBaseURL,
             data :  "c=getStations",
             success: function( iData ) {
                 var result = "";
                 var theStations = JSON.parse( iData );
+
+                theStations.sort( compareStations );
+
                 theStations.forEach(
                     function (sta)  {
                         var thisOption = "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
@@ -233,6 +324,17 @@ bart.ui = {
             }
         });
 
+        function compareStations(a,b) {
+            if (a.abbr6 < b.abbr6)
+                return -1;
+            if (a.abbr6 > b.abbr6)
+                return 1;
+            return 0;
+        }
+
+
     }
 
-}
+};
+
+

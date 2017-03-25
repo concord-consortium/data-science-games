@@ -22,41 +22,57 @@ distributed under the License is distributed on an "AS IS" BASIS,
 limitations under the License.
 ==========================================================================
 
-Temp URL:   http://localhost:8888/bart/dsgBART.html
+Temp URL:   http://localhost:8888/barty/barty.html
 
     Here is the URL...
 
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/bart/bartY.html
+    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/barty/barty.html
 
     or locally,
-    http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/BART_SQL/barty.html
+    http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/barty/barty.html
 
 
-    http://localhost/~tim/gamePrototypes/bart/dsgBART.html
+    http://localhost/~tim/gamePrototypes/barty/barty.html
 
+-->
+
+<!--
+
+HOW TO DEPLOY THIS THING
+    I develop with a local version of the data set.
+    AFTER UPLOAD, you have to change the base URL to point to eeps for the php.
+
+    That's in barty.js at about line 70
+
+    If you have to change the php, you will need to reupload THAT as well, and edit it to point to the eeps-based
+    data files.
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel='stylesheet' type='text/css' href='dsgBART.css'/>
-    <link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>
+    <link rel='stylesheet' type='text/css' href='barty.css'/>
+    <!--<link rel='stylesheet' type='text/css' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'/>-->
+    <link rel='stylesheet' type='text/css' href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'/>
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
-    <script src="../common/codap_helper.js" language="javascript"></script>
+    <script src="../common/codapInterface.js" language="javascript"></script>
+    <script src="../common/pluginHelper.js" language="javascript"></script>
 
     <script src="../common/TEEUtils.js" language="javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>-->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 
     <!-- Our game source -->
-    <script src="bartYManager.js" language="JavaScript"></script>
-    <script src="bart.ui.js" language="JavaScript"></script>
+    <script src="barty.js" language="JavaScript"></script>
+    <script src="bartyManager.js" language="JavaScript"></script>
+    <script src="barty.ui.js" language="JavaScript"></script>
     <script src="bartOptions.js" language="JavaScript"></script>
-    <script src="bartYCODAPConnector.js" language="JavaScript"></script>
+    <script src="bartyCODAPConnector.js" language="JavaScript"></script>
     <script src="meetingGame.js" language="JavaScript"></script>
 
     <title>Data Science Game - BART (by hour)</title>
@@ -64,6 +80,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
     <script>
         $(function() {
             $( "#tabs" ).tabs();
+            barty.initialize();
         });
     </script>
 
@@ -79,45 +96,63 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
         <li><a href="#optionsTab">Options</a></li>
         <li><a href="#debugTab">Debugging</a></li>
     </ul>
+
     <div id="dataTab">
 
-        <button id="newGameButton" onclick="bart.ui.newGameButtonPressed()">new game</button>
+        <button id="newGameButton" onclick="barty.ui.newGameButtonPressed()">new game</button>
         <br><br>
 
-        <fieldset id="getDataBlock" onchange="bart.ui.dataSelectionChanged()">
+        <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()">
             <legend>Specify data (don't use IE or FFox)</legend>
-            date: <input id="dateControl" type="date">
-            <select id="numberOfDaysControl">
-                <option value="1" >1</option>
-                <option value="7" >7</option>
-                <option value="30" >30</option>
-            </select>d.
-
-            <span id="timeDescription"></span>
-            <br>
-            <span id="useWeekdayItemText"></span>
-            <input type="checkbox" id="useWeekday">
+            <span><strong>stations</strong></span>
+            from: <select id="departureSelector"></select> <br>
+            to: <select id="arrivalSelector"></select>
+            <br><br>
+            <span>
+                <strong>time</strong> ... current setting:<br>
+                <span id="dataIntervalStatement"></span>
+            </span>
+            <br><br>
+            start date: <input id="dateControl" type="date"><br>
+            how much data? <select id="numberOfDaysControl">
+                <option value="1" >1 day</option>
+                <option value="7" >7 days</option>
+                <option value="30" >30 days</option>
+            </select>
+        </fieldset>
+<br>
+        <fieldset id="advancedData" onchange="barty.ui.dataSelectionChanged()">
+            <legend>Advanced data options</legend>
+            <div id="oneDayOnlyControl">
+                <label for="useWeekday"><span id="useWeekdayItemText"></span></label>
+                <input type="checkbox" id="useWeekday">
+            </div>
             <span id="useHoursItemText">use hour:</span>
             <input type="checkbox" id="useHour">
             <div id="hourControl"></div>    <!--    the hour range slider -->
 
             <br>
-            from: <select id="departureSelector"></select> to: <select id="arrivalSelector"></select><br>
-            <br><button id="showPricesButton" onclick="bart.ui.showPricesButtonPressed()">show prices</button>
 
         </fieldset>
-        <br>
-        <fieldset id="showPricesBlock">
-            <legend>Prices appear here</legend>
-            <span id="dataIntervalStatement"></span>
-            <br><br>
 
+        <br>
+
+        <fieldset id="showPricesBlock">
+            <legend>Pick a download option</legend>
+            You have chosen <br><span id="downloadOptionTimeAndStationsText"></span>.
+            <br><br>
+            Now choose what data you want:
+            <br>
             <input type="radio"  name="dataChoice" id="betweenAnyItem" value="betweenAny" checked/><span id="betweenAnyItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
             <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
 
-            <br><button id="getDataButton" onclick="bart.ui.getDataButtonPressed()">get data</button>
+            <br>
+            <button id="showPricesButton" onclick="barty.ui.showPricesButtonPressed()">estimate data load</button>
+            <br><br>
+
+            <button id="getDataButton" onclick="barty.ui.getDataButtonPressed()">get data</button>
         </fieldset>
 
         <p>
@@ -131,11 +166,11 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
             Each record represents one hour at a station,
             recording how many people exited that station during the hour from each of the
             other stations in the BART system.</p>
-        <p>As of version 002, data extend from 20156-04-01 to 2015-09-30</p>
+        <p>As of version 002, data extend from 2015-04-01 to 2015-09-30</p>
         <p>Useful Variables</p>
         <ul>
             <li><strong>count</strong>: Number of exits during that hour.
-            <li><strong>doy</strong>: decimal day of year. Use for time.</li>
+            <li><strong>when</strong>: Date and time.</li>
             <li><strong>hour</strong>: The integer hour out of 24.</li>
             <li><strong>day</strong>: weekday.</li>
             <li><strong>startAt</strong>: station where the passenger entered the system</li>
@@ -176,7 +211,7 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
             <li>Try dragging other attributes to various axes -- or to the middle of the graph. </li>
 
         </ol>
-        <p>Notice that we "knew" Embarcadero would be a good sourse. In reality, you don't know that.
+        <p>Notice that we "knew" Embarcadero would be a good source. In reality, you don't know that.
             How would you figure it out?</p>
         <p>That should get you started. Oh: to start over, just reload the page.</p>
     </div>
@@ -201,10 +236,6 @@ Temp URL:   http://localhost:8888/bart/dsgBART.html
 </div>
 
 </body>
-
-<script language="JavaScript">
-    bart.initialize();
-
 
 
 </script>
