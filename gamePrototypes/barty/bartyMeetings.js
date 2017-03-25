@@ -76,7 +76,7 @@ meeting = {
     toString : function() {
         result = "Meeting info: "
                 + this.number + " people meet every "
-                + bart.constants.daysOfWeek[ this.day ] + " at "
+                + barty.constants.daysOfWeek[ this.day ] + " at "
                 + this.hour + ":00 near the "
                 + this.possibleStations[ this.where ] + " BART station. ";
 
