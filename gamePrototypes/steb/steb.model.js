@@ -65,25 +65,33 @@ steb.model = {
      * Perform reproduction in the Stebber set
      */
     reproduce : function()   {
-        var tParent = null;
-        var tChild = null;
+        var tChildren = [];
         if (steb.options.delayReproduction) {
             if (this.meals % 5 === 0) {
                 for (var i = 0; i < 5; i++) {
-                    tParent  = this.findParent();
-                    tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
-                    steb.manager.addViewForChildStebber( tChild );
+                    tChildren.push(this.makeBabyStebber());
                 }
             }
         } else {
-            tParent = this.findParent();
-            tChild = this.addNewStebberBasedOn( tParent );   //  adds the MODEL
-            steb.manager.addViewForChildStebber( tChild );
-
-            console.log("Parent #" + tParent.id + " spawns child #" + tChild.id);
+            tChildren.push(this.makeBabyStebber());
         }
+        return tChildren;
+    },
+
+    /**
+     * Make a single baby stebber
+     *
+     * @returns {*|Stebber}
+     */
+    makeBabyStebber : function() {
+        var tChild, tParent;
+
+        tParent  = this.findParent();
+        tChild = (this.addNewStebberBasedOn( tParent ));   //  adds the MODEL
+        steb.manager.addViewForChildStebber( tChild );
         return tChild;
     },
+
 
     /**
      * Called from reproduce().

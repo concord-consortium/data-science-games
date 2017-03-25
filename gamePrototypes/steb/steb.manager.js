@@ -240,8 +240,10 @@ steb.manager = {
 
         steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
         steb.worldView.removeStebberView(iStebberView);     //  remove its view
-        var tBaby = steb.model.reproduce();     //      reproduce (from the remaining stebbers)
-        steb.manager.emitBirthData( tBaby );
+        var tBabies = steb.model.reproduce();     //      reproduce (from the remaining stebbers)
+        tBabies.forEach( function(b) {
+            steb.manager.emitBirthData( b );
+        });
 
         //   the living stebber data includes the new one.
 
