@@ -44,7 +44,7 @@ bartManager = {
 
 
     /**
-     * USer has pressed the button to get data.
+     * User has pressed the button to get data.
      * @param e     The mouse event
      */
     getDataButtonPressed : function(e) {
