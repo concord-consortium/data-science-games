@@ -33,6 +33,7 @@
 var barty = {
 
     state : {},
+    routeStrings : {},
 
     constants : {
         version: "002c",
@@ -71,7 +72,8 @@ var barty = {
 
 
     freshState : {
-        score : 42
+        score : 42,
+        statusSelector : null
     },
 
     initialize : function() {
@@ -92,6 +94,8 @@ var barty = {
 
             barty.connector.initializeDataSets();
         });
+
+        this.statusSelector = $("#status");
 
         barty.ui.initialize();
         barty.manager.newGame();

@@ -25,6 +25,9 @@
 
  */
 
+/**
+ * global to describe the secret meeting
+ */
 
 var meeting;
 
@@ -45,8 +48,8 @@ meeting = {
     },
 
     setMeetingValues : function() {
-        this.hour = $("#meetingTimeSelector").val();;
-        this.number = $("#meetingSizeSelector").val();;
+        this.hour = $("#meetingTimeSelector").val();
+        this.number = $("#meetingSizeSelector").val();
         this.where = $("#meetingLocationSelector").val();
         this.day = $("#meetingDaySelector").val();
         if (this.where == 0) {
@@ -74,12 +77,10 @@ meeting = {
     },
 
     toString : function() {
-        result = "Meeting info: "
+        return  "Meeting info: "
                 + this.number + " people meet every "
                 + barty.constants.daysOfWeek[ this.day ] + " at "
                 + this.hour + ":00 near the "
                 + this.possibleStations[ this.where ] + " BART station. ";
-
-        return result;
     }
-}
+};

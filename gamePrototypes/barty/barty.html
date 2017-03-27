@@ -46,6 +46,9 @@ HOW TO DEPLOY THIS THING
 
     If you have to change the php, you will need to reupload THAT as well, and edit it to point to the eeps-based
     data files.
+
+    Do this editing using CyberDuck or Fetch.
+
 -->
 
 <!DOCTYPE html>
@@ -75,11 +78,15 @@ HOW TO DEPLOY THIS THING
     <script src="bartyCODAPConnector.js" language="JavaScript"></script>
     <script src="bartyMeetings.js" language="JavaScript"></script>
 
-    <title>Data Science Game - BART (by hour)</title>
+    <title>Data
+    Science
+    Game - BART(by
+    hour
+    )</title>
 
     <script>
-        $(function() {
-            $( "#tabs" ).tabs();
+        $(function () {
+            $("#tabs").tabs();
             barty.initialize();
         });
     </script>
@@ -103,24 +110,22 @@ HOW TO DEPLOY THIS THING
         <br><br>
 
         <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()">
-            <legend>Specify data (don't use IE or FFox)</legend>
-            <span><strong>stations</strong></span>
-            from: <select id="departureSelector"></select> <br>
-            to: <select id="arrivalSelector"></select>
-            <br><br>
+            <legend>Specify time period (don't use IE or FFox)</legend>
             <span>
-                <strong>time</strong> ... current setting:<br>
+                ... current setting:<br>
                 <span id="dataIntervalStatement"></span>
             </span>
             <br><br>
             start date: <input id="dateControl" type="date"><br>
-            how much data? <select id="numberOfDaysControl">
-                <option value="1" >1 day</option>
-                <option value="7" >7 days</option>
-                <option value="30" >30 days</option>
+            how much data?
+            <select id="numberOfDaysControl">
+                <option value="1">1 day</option>
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
             </select>
+
         </fieldset>
-<br>
+        <br>
         <fieldset id="advancedData" onchange="barty.ui.dataSelectionChanged()">
             <legend>Advanced data options</legend>
             <div id="oneDayOnlyControl">
@@ -137,23 +142,72 @@ HOW TO DEPLOY THIS THING
 
         <br>
 
-        <fieldset id="showPricesBlock">
-            <legend>Pick a download option</legend>
-            You have chosen <br><span id="downloadOptionTimeAndStationsText"></span>.
-            <br><br>
-            Now choose what data you want:
-            <br>
-            <input type="radio"  name="dataChoice" id="betweenAnyItem" value="betweenAny" checked/><span id="betweenAnyItemText"></span><br>
-            <input type="radio"  name="dataChoice" id="byDepartureItem" value="byDeparture"/><span id="byDepartureItemText"></span><br>
-            <input type="radio"  name="dataChoice" id="byArrivalItem" value="byArrival"/><span id="byArrivalItemText"></span><br>
-            <input type="radio"  name="dataChoice" id="byRouteItem" value="byRoute" checked/><span id="byRouteItemText"></span><br>
+        <fieldset id="showPricesBlock"  onchange="barty.ui.dataSelectionChanged()">
+            <legend>Specify Stations</legend>
+
+            <table>
+                <tr>
+                    <td><img src="art/blueDot16.svg"></td>
+                    <td colspan="3"><select id="departureSelector"></select></td>
+                </tr>
+                <tr>
+                    <td><img src="art/yellowDot16.svg"></td>
+                    <td colspan="3"><select id="arrivalSelector"></select></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="dataChoice" id="byRouteItem" value="byRoute" checked/>
+                    </td>
+                    <td>
+                        <img src="art/byRoute40.jpg">
+                    </td>
+                    <td><span id="byRouteItemText"></span></td>
+                    <td><span id="byRouteCostText"></span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="dataChoice" id="byDepartureItem" value="byDeparture"/>
+                    </td>
+                    <td>
+                        <img src="art/byDeparture40.jpg">
+                    </td>
+                    <td><span id="byDepartureItemText"></span></td>
+                    <td><span id="byDepartureCostText"></span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="dataChoice" id="byArrivalItem" value="byArrival"/>
+                    </td>
+                    <td>
+                        <img src="art/byArrival40.jpg">
+                    </td>
+                    <td><span id="byArrivalItemText"></span></td>
+                    <td><span id="byArrivalCostText"></span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="dataChoice" id="betweenAnyItem" value="betweenAny"/>
+                    </td>
+                    <td>
+                        <img src="art/betweenAny40.jpg">
+                    </td>
+                    <td><span id="betweenAnyItemText"></span></td>
+                    <td><span id="betweenAnyCostText"></span></td>
+                </tr>
+            </table>
 
             <br>
+<!--
             <button id="showPricesButton" onclick="barty.ui.showPricesButtonPressed()">estimate data load</button>
-            <br><br>
-
-            <button id="getDataButton" onclick="barty.ui.getDataButtonPressed()">get data</button>
+-->
         </fieldset>
+
+        <p>
+            You have chosen <br><span id="downloadOptionTimeAndStationsText"></span>
+        </p>
+
+        <button id="getDataButton" onclick="barty.ui.getDataButtonPressed()">get data</button>
+
 
         <p>
             <span id="result"></span> <span id="status">Ready.</span>
@@ -176,7 +230,8 @@ HOW TO DEPLOY THIS THING
             <li><strong>startAt</strong>: station where the passenger entered the system</li>
             <li><strong>endAt</strong>: station where the passenger left the system</li>
             <li><strong>startReg, endReg</strong>: regions for start and end.
-                These might make some graphs simpler. "City" is SF but not downtown.</li>
+                These might make some graphs simpler. "City" is SF but not downtown.
+            </li>
         </ul>
         <p>Thanks to Pam Herhold, BART, for access!</p>
 
@@ -191,12 +246,15 @@ HOW TO DEPLOY THIS THING
             <li>Begin by using the defaults (Orinda, Tuesday, 2 PM, 160 people). So you know the answer.</li>
             <li>See if you can make a graph that shows the meeting in the BART data.</li>
             <ul>
-                <li>Notice that the controls let you define what data to get, for example, what date and for what hours.</li>
+                <li>Notice that the controls let you define what data to get, for example, what date and for what
+                    hours.
+                </li>
                 <li>Notice that you can learn the cost of your data.
                     <b>Eventually, you will have to confirm your purchase.</b></li>
             </ul>
             <li>When you have that nailed, set the time to "surprise me" and play another game.
-                See if you can figure out the time.</li>
+                See if you can figure out the time.
+            </li>
             <li>Gradually move up to other attributes or even to combinations!</li>
         </ul>
         <h2>Hints</h2>
@@ -204,11 +262,12 @@ HOW TO DEPLOY THIS THING
         <ol>
             <li>Make sure a Tuesday is selected, such as April 14.</li>
             <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
-            <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like. </li>
+            <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like.</li>
             <li>Click <strong>Graph</strong>. A mixed-up graph appears.
-                Drag the heading <strong>hours</strong> to the horizontal axis of the graph. </li>
+                Drag the heading <strong>hours</strong> to the horizontal axis of the graph.
+            </li>
             <li>Drag <strong>count</strong> to the vertical axis. You should see a bump at 2 PM.</li>
-            <li>Try dragging other attributes to various axes -- or to the middle of the graph. </li>
+            <li>Try dragging other attributes to various axes -- or to the middle of the graph.</li>
 
         </ol>
         <p>Notice that we "knew" Embarcadero would be a good source. In reality, you don't know that.
@@ -220,7 +279,7 @@ HOW TO DEPLOY THIS THING
 
     </div>
     <div id="optionsTab">
-        <div  class="options">
+        <div class="options">
             Day: <select id="meetingDaySelector"></select><br>
             Location: <select id="meetingLocationSelector"></select><br>
             Time: <select id="meetingTimeSelector"></select><br>
@@ -239,4 +298,5 @@ HOW TO DEPLOY THIS THING
 
 
 </script>
-</html>
+</
+html >

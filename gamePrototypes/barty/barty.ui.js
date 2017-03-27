@@ -27,11 +27,11 @@
 
 
 barty.ui = {
-    initialize : function() {
-        $("#dateControl").val( barty.constants.kBaseDateString );
+    initialize: function () {
+        $("#dateControl").val(barty.constants.kBaseDateString);
         /*
          $("#dateControl").datepicker({
-         minDate : "2015-04-01",             //  todo: pass in a date, when we figur out how to cope with the time zone!
+         minDate : "2015-04-01",             //  todo: pass in a date, when we figure out how to cope with the time zone!
          maxDate : "2015-09-30"
          });
          */
@@ -42,22 +42,22 @@ barty.ui = {
         barty.manager.queryData.h1 = barty.constants.kBaseH1;
 
         $("#hourControl").slider({
-            range : true,
-            min : 0,
-            max : 24,
-            values : [ barty.manager.queryData.h0, barty.manager.queryData.h1 ],
-            slide : barty.ui.hourControlSlides.bind(this),
-            step : 1
+            range: true,
+            min: 0,
+            max: 24,
+            values: [barty.manager.queryData.h0, barty.manager.queryData.h1],
+            slide: barty.ui.hourControlSlides.bind(this),
+            step: 1
         });
 
 
         barty.ui.makeInitialOptions();
 
         barty.manager.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
+            "betweenAny": "???",
+            "byRoute": "???",
+            "byDeparture": "???",
+            "byArrival": "???"
         };
 
         barty.ui.fixUI();
@@ -68,32 +68,37 @@ barty.ui = {
      * User has pressed the button to get data.
      * @param e     The mouse event
      */
-    getDataButtonPressed : function(e) {
+    getDataButtonPressed: function (e) {
 
         barty.manager.getDataSearchCriteria();   //  make sure we have current values
-        barty.manager.doBucketOfData(  );        //  actually get the data
+        barty.manager.doBucketOfData();        //  actually get the data
         this.fixUI();                   //  update what we see
     },
 
-    showPricesButtonPressed : function() {
+/*
+    showPricesButtonPressed: function () {
+        barty.manager.getDataSearchCriteria();   //  make sure we have current values
+        barty.manager.doCaseCounts();
+
+        this.fixUI();
+    },
+*/
+
+    dataSelectionChanged: function () {
+        this.possibleCosts = {
+            "betweenAny": "???",
+            "byRoute": "???",
+            "byDeparture": "???",
+            "byArrival": "???"
+        };
+
         barty.manager.getDataSearchCriteria();   //  make sure we have current values
         barty.manager.doCaseCounts();
 
         this.fixUI();
     },
 
-    dataSelectionChanged : function()   {
-        this.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
-        };
-
-        this.fixUI();
-    },
-
-    hourControlSlides : function( event, iThis) {
+    hourControlSlides: function (event, iThis) {
         barty.manager.queryData.h0 = iThis.values[0];
         barty.manager.queryData.h1 = iThis.values[1];
         barty.ui.dataSelectionChanged();
@@ -103,12 +108,11 @@ barty.ui = {
      * User pressed the new game button, but when we're playing, that button is for aborting a game.
      * So this routine figures out whether to call the newGame() or endGame("abort") methods.
      */
-    newGameButtonPressed : function() {
+    newGameButtonPressed: function () {
         if (barty.manager.playing) {
             this.endGame("abort")
         } else {
             barty.manager.newGame();
-
         }
 
         this.fixUI();
@@ -117,12 +121,10 @@ barty.ui = {
     /**
      * Adjust the UI with regard to disabled controls and visibility. Called whenever things could change.
      */
-    fixUI : function() {
-        //  var timeString = TEEUtils.padIntegerToTwo(this.dataHour) + ":" + TEEUtils.padIntegerToTwo(this.dataMinute);
-        //  $('#timeControl').val(timeString);
+    fixUI: function () {
+        var tQD = barty.manager.getDataSearchCriteria();    //  query data. tQD.c is the type of data (byArrival, etc.)
 
-        var tQD = barty.manager.getDataSearchCriteria();
-        this.fixDataSelectionText( tQD );
+        this.fixDataSelectionText(tQD);
 
         if (tQD.useHour) {
             $("#hourControl").show();
@@ -136,7 +138,7 @@ barty.ui = {
             $("#oneDayOnlyControl").show();
         }
 
-        $("#newGameButton").text( barty.manager.playing ? "abort game" : "new game");
+        $("#newGameButton").text(barty.manager.playing ? "abort game" : "new game");
 
         if (barty.manager.playing) {
             $("#getDataButton").prop("disabled", false);
@@ -150,15 +152,38 @@ barty.ui = {
         //  here we could write a longer description of what you will get if you press get data.
     },
 
-    fixDataSelectionText : function( iQD ) {
+    fixRouteStrings : function()    {
+        var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
+        var tDepartureStationName = $("#departureSelector").find('option:selected').text();
+
+        barty.routeStrings["betweenAny"] = "between any<br>two stations";
+        barty.routeStrings["byRoute"] = "from <strong>" + tDepartureStationName
+            + "</strong><br>to <strong>" + tArrivalStationName + "</strong>";
+        barty.routeStrings["byArrival"] = "from any station<br>to <strong>" + tArrivalStationName + "</strong>";
+        barty.routeStrings["byDeparture"] = "from <strong>" + tDepartureStationName + "</strong><br>to any station";
+
+        $("#betweenAnyItemText").html(barty.routeStrings["betweenAny"]);
+        $("#byRouteItemText").html(barty.routeStrings["byRoute"]);
+        $("#byDepartureItemText").html(barty.routeStrings["byDeparture"]);
+        $("#byArrivalItemText").html(barty.routeStrings["byArrival"]);
+    },
+
+    /**
+     *
+     * @param iQD   query data record set in .manager. iQD.c, for example, is the type (e.g.,byArrival)
+     */
+    fixDataSelectionText: function (iQD) {
 
         //  Whole names of selected stations
         var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
         var tDepartureStationName = $("#departureSelector").find('option:selected').text();
 
+        this.fixRouteStrings();
+        var tStationSetupText = barty.routeStrings[iQD.c];
+
         //  time description text.
         var tEndHour = iQD.h1 - 1;
-        var tWeekdayText = barty.constants.daysOfWeekLong[ iQD.weekday ];
+        var tWeekdayText = barty.constants.daysOfWeekLong[iQD.weekday];
 
         var tHoursText = "from "
             + this.formatTime(iQD.h0, 0)
@@ -176,8 +201,8 @@ barty.ui = {
             ? "You will get data from " + tHoursText + ". Deslect for whole day: "
             : "You will get data for the whole day. Click the box to restrict the hours: ";
 
-        $("#useHoursItemText").text( tHoursBoxLabel );
-        $("#useWeekdayItemText").text( tWeekdayBoxLabel );
+        $("#useHoursItemText").text(tHoursBoxLabel);
+        $("#useWeekdayItemText").text(tWeekdayBoxLabel);
         $("#timeDescription").text(
             (iQD.useWeekday ? tWeekdayText + " only, " : "Any day, ")
             + (iQD.useHour ? tHoursText + "." : "all day.")
@@ -197,21 +222,14 @@ barty.ui = {
         if (iQD.useWeekday) tSearchTime += "only " + tWeekdayText + "s, ";
         tSearchTime += (iQD.useHour ? tHoursText : " all day");
 
-        $("#dataIntervalStatement").text( tSearchTime );
-        $("#downloadOptionTimeAndStationsText").text(tSearchTime);
+        $("#dataIntervalStatement").text(tSearchTime);
+        $("#downloadOptionTimeAndStationsText").html(tSearchTime + "<br>" + tStationSetupText);
 
         //  set more texts
 
-        $("#betweenAnyItemText").html("between any two: " + barty.manager.possibleCosts["betweenAny"]);
-        $("#byRouteItemText").html("from <strong>" + tDepartureStationName
-            + "</strong> to <strong>" + tArrivalStationName + "</strong>: " + barty.manager.possibleCosts["byRoute"]);
-        $("#byDepartureItemText").html("from <strong>"
-            + tDepartureStationName + "</strong> to any station: " + barty.manager.possibleCosts["byDeparture"]);
-        $("#byArrivalItemText").html("from any station to <strong>"
-            + tArrivalStationName + "</strong>: " + barty.manager.possibleCosts["byArrival"]);
     },
 
-    formatTime : function( h, m) {
+    formatTime: function (h, m) {
         var hourNumber = h < 13 ? h : h - 12;
         if (hourNumber == 0) hourNumber = 12;
 
@@ -223,14 +241,14 @@ barty.ui = {
         return hourNumber.toString() + ":" + minuteString + " " + ampm;
     },
 
-    formatDate : function(iso) {
+    formatDate: function (iso) {
         var dIn = new Date(iso);
-        var userTimezoneOffset = new Date().getTimezoneOffset()*60000;  //  at our current location
+        var userTimezoneOffset = new Date().getTimezoneOffset() * 60000;  //  at our current location
         var dOut = new Date(dIn.getTime() + userTimezoneOffset);
         return dOut.toLocaleDateString();
     },
 
-    makeInitialOptions : function() {
+    makeInitialOptions: function () {
         //  get menu items for a list of stations
         barty.ui.makeOptionsFromStationsDB();
 
@@ -242,89 +260,93 @@ barty.ui = {
 
     },
 
-    makeMeetingTimeOptions : function( iSelector ) {
+    makeMeetingTimeOptions: function (iSelector) {
         var result = "";
         meeting.possibleTimes.forEach(
-            function( t ) {
-                result += "<option value='"+t+"'>" + t +":00 </option>";
+            function (t) {
+                result += "<option value='" + t + "'>" + t + ":00 </option>";
             }
         );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
+        iSelector.empty().append(result);
+        iSelector.append("<option value='-1' disabled>————</option>");
+        iSelector.append("<option value='0'>Surprise me</option>");
         iSelector.val(14);
     },
 
-    makeMeetingSizeOptions : function( iSelector ) {
+    makeMeetingSizeOptions: function (iSelector) {
         var result = "";
         meeting.possibleSizes.forEach(
-            function( s ) {
-                result += "<option value='"+s+"'>" + s +" people </option>";
+            function (s) {
+                result += "<option value='" + s + "'>" + s + " people </option>";
             }
         );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
+        iSelector.empty().append(result);
+        iSelector.append("<option value='-1' disabled>————</option>");
+        iSelector.append("<option value='0'>Surprise me</option>");
         iSelector.val(160);
     },
 
-    makeMeetingLocationOptions : function( iSelector ) {
+    makeMeetingLocationOptions: function (iSelector) {
 
         var result = "";
         Object.keys(meeting.possibleStations).forEach(
-            function( iAbbr6 ) {
-                result += "<option value='"+iAbbr6+"'>" + meeting.possibleStations[iAbbr6] +"</option>";
+            function (iAbbr6) {
+                result += "<option value='" + iAbbr6 + "'>" + meeting.possibleStations[iAbbr6] + "</option>";
             }
         );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
+        iSelector.empty().append(result);
+        iSelector.append("<option value='-1' disabled>————</option>");
+        iSelector.append("<option value='0'>Surprise me</option>");
     },
 
-    makeWeekdaysOptions : function( iSelector ) {
+    makeWeekdaysOptions: function (iSelector) {
         var result = "";
         barty.constants.daysOfWeek.forEach(
-            function( iDay, index ) {
-                result += "<option value='"+ index +"'>" + iDay +"</option>";
+            function (iDay, index) {
+                result += "<option value='" + index + "'>" + iDay + "</option>";
             }
         );
-        iSelector.empty().append( result );
-        iSelector.append( "<option value='-1' disabled>————</option>" );
-        iSelector.append( "<option value='0'>Surprise me</option>" );
-        iSelector.val( 2 );      //  default to Tuesday
+        iSelector.empty().append(result);
+        iSelector.append("<option value='-1' disabled>————</option>");
+        iSelector.append("<option value='0'>Surprise me</option>");
+        iSelector.val(2);      //  default to Tuesday
     },
 
     /**
      *  Use $.ajax() to get the list of stations from the database,
      *  then use those names to populate the menus that need stations
      */
-    makeOptionsFromStationsDB : function() {
+    makeOptionsFromStationsDB: function () {
         $.ajax({
-            type :  "post",
-            url :   barty.constants.kBaseURL,
-            data :  "c=getStations",
-            success: function( iData ) {
+            type: "post",
+            url: barty.constants.kBaseURL,
+            data: "c=getStations",
+            success: function (iData) {
                 var result = "";
-                var theStations = JSON.parse( iData );
+                var theStations = JSON.parse(iData);
 
-                theStations.sort( compareStations );
+                theStations.sort(compareStations);
 
                 theStations.forEach(
-                    function (sta)  {
-                        var thisOption = "<option value='"+sta.abbr6+"'>"+sta.name+"</option>";
+                    function (sta) {
+                        var thisOption = "<option value='" + sta.abbr6 + "'>" + sta.name + "</option>";
                         result += thisOption;
                     }
                 )
                 $("#arrivalSelector").empty().append(result);   // put them into the DOM
                 $("#arrivalSelector").val("Orinda");   // choose default value
+                $("#arrivalSelector2").empty().append(result);   // put them into the DOM
+                $("#arrivalSelector2").val("Orinda");   // choose default value
 
                 $("#departureSelector").empty().append(result);   // put them into the DOM
                 $("#departureSelector").val("Embarc");   // choose default value
+                $("#departureSelector2").empty().append(result);   // put them into the DOM
+                $("#departureSelector2").val("Embarc");   // choose default value
 
             }
         });
 
-        function compareStations(a,b) {
+        function compareStations(a, b) {
             if (a.abbr6 < b.abbr6)
                 return -1;
             if (a.abbr6 > b.abbr6)

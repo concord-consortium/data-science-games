@@ -47,10 +47,11 @@ bart.ui = {
 
     dataSelectionChanged : function()   {
         this.possibleCosts = {
-            "betweenAny" : "$ ?.??",
-            "byRoute" : "$ ?.??",
-            "byDeparture" : "$ ?.??",
-            "byArrival" : "$ ?.??"
+            "betweenAny" : " ??? ",
+            "byRoute" : " ??? ",
+            "byDeparture" : " ??? ",
+            "byArrival" : " ??? "
+        };
         };
 
         this.fixUI();
