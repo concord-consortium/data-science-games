@@ -362,8 +362,6 @@ bart.manager = {
             }
 
 
-
-
             function getDataArrayFromThisRecord( iRec ) {
 
                 var tAdjustedCount = meeting.adjustCount(
