@@ -27,6 +27,8 @@
 
 /*
     "hub" file for bartY, now called barty.
+
+    DEPLOYMENT NOTE: fix URL at about line 70.
  */
 
 
@@ -36,16 +38,16 @@ var barty = {
     routeStrings : {},
 
     constants : {
-        version: "002c",
+        version: "002d",
         dimensions: {height: 700, width: 360},
         name : "barty",
 
         daysOfWeek : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         daysOfWeekLong : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
         queryTypes : ["byArrival", "byDeparture", "byRoute", "betweenAny"],
-        kBaseDateString : "2015-04-15",
-        kBaseH0 : 8,
-        kBaseH1 : 14,
+        kBaseDateString : "2015-04-15",     //  default search date
+        kBaseH0 : 8,        //      default starting hour
+        kBaseH1 : 14,       //      default ending hour for search
 
         kGetData : "data",
         kGetCounts : "counts",
@@ -71,11 +73,17 @@ var barty = {
     },
 
 
+    /**
+     * Construct a new "state"
+     */
     freshState : {
         score : 42,
         statusSelector : null
     },
 
+    /**
+     * set up barty game/sim
+     */
     initialize : function() {
         var tPluginConfiguration = {
             name: barty.constants.name,
@@ -99,7 +107,5 @@ var barty = {
 
         barty.ui.initialize();
         barty.manager.newGame();
-
     }
-
 };

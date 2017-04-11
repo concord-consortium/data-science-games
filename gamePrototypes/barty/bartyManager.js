@@ -60,7 +60,7 @@ barty.manager = {
 
     /**
      * Read the UI controls and set up properties so that the data search will be correct.
-     *  Also gets the names (abbr6's) of the stations.
+     *  Also gets the names (abbr2's) of the stations.
      */
     getDataSearchCriteria: function () {
 
@@ -88,7 +88,7 @@ barty.manager = {
      * the MySQL query that will get us our data.
      *
      * A finished string might be something like
-     *      ?c=byArrival&stn1=Orinda&startTime=2015-09-30 10:00:00&stopTime=2015-09-30 11:00:00
+     *      ?c=byArrival&stn1=OR&startTime=2015-09-30 10:00:00&stopTime=2015-09-30 11:00:00
      *
      * @param   iCommand    the query type, e.g., "byArrival"
      * @param   iWhat       what thing we're getting, data or just counts
@@ -116,16 +116,16 @@ barty.manager = {
                 break;
 
             case "byRoute":
-                tStationClauseString = "&stn1=" + this.queryData.stn1;   //  the abbr6 of that station
-                tStationClauseString += "&stn0=" + this.queryData.stn0;   //  the abbr6 of that station
+                tStationClauseString = "&stn1=" + this.queryData.stn1;   //  the abbr2 of that station
+                tStationClauseString += "&stn0=" + this.queryData.stn0;   //  the abbr2 of that station
                 break;
 
             case "byArrival":
-                tStationClauseString = "&stn1=" + this.queryData.stn1;   //  the abbr6 of that station
+                tStationClauseString = "&stn1=" + this.queryData.stn1;   //  the abbr2 of that station
                 break;
 
             case "byDeparture":
-                tStationClauseString = "&stn0=" + this.queryData.stn0;   //  the abbr6 of that station
+                tStationClauseString = "&stn0=" + this.queryData.stn0;   //  the abbr2 of that station
                 break;
 
             default:
@@ -146,6 +146,12 @@ barty.manager = {
         return dataString;
     },
 
+    /**
+     * Estimate how many cases will be retrieved using the command and query data attached
+     * @param iCommand  the "command," which is a string sych as "byDeparture"
+     * @param iQueryData an object created in bartyManager.getDataSearchCriteria (above)
+     * @returns {*}
+     */
     estimateCount: function (iCommand, iQueryData) {
         var days = iQueryData.nd;
 
@@ -183,16 +189,19 @@ barty.manager = {
         barty.constants.queryTypes.forEach(function (iQT) {
             barty.manager.caseCounts[iQT] = null;   //  set dirty
 
-            var tDataString = barty.manager.assembleQueryDataString(iQT, barty.constants.kGetCounts);
-
             var tCountEstimate = barty.manager.estimateCount(iQT, barty.manager.queryData);
 
             barty.manager.possibleCosts[iQT] = tCountEstimate + " cases est";   //  temporary
             barty.ui.fixUI();        //  temporary
 
-            console.log("Data query string: " + tDataString);
+
 
             if (tCountEstimate <= 1500) {
+/*
+                var tDataString = barty.manager.assembleQueryDataString(iQT, barty.constants.kGetCounts);
+                console.log("Data query string: " + tDataString);
+
+
                 $.ajax({
                     type: "post",
                     url: barty.constants.kBaseURL,
@@ -208,10 +217,6 @@ barty.manager = {
                     barty.manager.caseCounts[iQT] = tCount;
                     barty.manager.possibleCosts[iQT] = tCount + " cases";
 
-                    $("#byArrivalCostText").html(barty.manager.possibleCosts["byArrival"]);
-                    $("#betweenAnyCostText").html(barty.manager.possibleCosts["betweenAny"]);
-                    $("#byRouteCostText").html(barty.manager.possibleCosts["byRoute"]);
-                    $("#byDepartureCostText").html(barty.manager.possibleCosts["byDeparture"]);
 
                     //  todo: fix the following loop, not working as of 2016-03-14
 
@@ -221,6 +226,13 @@ barty.manager = {
                         console.log("All case counts retrieved");
                     }
                 }
+*/
+                //barty.manager.possibleCosts[iQT] = tCountEstimate + " cases";
+                $("#byArrivalCostText").html(barty.manager.possibleCosts["byArrival"]);
+                $("#betweenAnyCostText").html(barty.manager.possibleCosts["betweenAny"]);
+                $("#byRouteCostText").html(barty.manager.possibleCosts["byRoute"]);
+                $("#byDepartureCostText").html(barty.manager.possibleCosts["byDeparture"]);
+
             } else {
                 barty.manager.possibleCosts[iQT] = "too much data<br>to download";
                 barty.ui.fixUI();
@@ -283,7 +295,9 @@ barty.manager = {
             var reorganizedData = {};
 
             //  output an item for each record
-            var tValuesArray = [];
+            //  we will stow these values in an array for having CODAP make the cases.
+
+            var tValuesArray = [];  //  array of (CODAP-style) case values
 
             theData.forEach(function (d) {
                 var tAdjustedCount = meeting.adjustCount(
@@ -312,16 +326,16 @@ barty.manager = {
                     date: tDate.toDateString(),
 
                     count: tAdjustedCount,
-                    startAt: d.startAt,
-                    endAt: d.endAt,
-                    startReg: d.startReg,
-                    endReg: d.endReg,
+                    startAt: barty.stations[d.origin].abbr6,
+                    endAt: barty.stations[d.destination].abbr6,
+                    startReg: barty.stations[d.origin].region,
+                    endReg: barty.stations[d.destination].region,
                     id: d.id
                 };
                 tValuesArray.push(tValues);
             });
 
-            barty.connector.outputDataItems(tValuesArray);
+            barty.connector.outputDataItems(tValuesArray);      //  will create "Items"
             barty.statusSelector.text("CODAP has the new data.");
         }
 

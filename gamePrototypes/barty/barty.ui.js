@@ -25,8 +25,16 @@
 
  */
 
-
+/**
+ * singleton to adjust various UI issues
+ *
+ * @type {{initialize: barty.ui.initialize, getDataButtonPressed: barty.ui.getDataButtonPressed, dataSelectionChanged: barty.ui.dataSelectionChanged, hourControlSlides: barty.ui.hourControlSlides, newGameButtonPressed: barty.ui.newGameButtonPressed, fixUI: barty.ui.fixUI, fixRouteStrings: barty.ui.fixRouteStrings, fixDataSelectionText: barty.ui.fixDataSelectionText, formatTime: barty.ui.formatTime, formatDate: barty.ui.formatDate, makeInitialOptions: barty.ui.makeInitialOptions, makeMeetingTimeOptions: barty.ui.makeMeetingTimeOptions, makeMeetingSizeOptions: barty.ui.makeMeetingSizeOptions, makeMeetingLocationOptions: barty.ui.makeMeetingLocationOptions, makeWeekdaysOptions: barty.ui.makeWeekdaysOptions, makeOptionsFromStationsDB: barty.ui.makeOptionsFromStationsDB}}
+ */
 barty.ui = {
+
+    /**
+     * Set up initial values
+     */
     initialize: function () {
         $("#dateControl").val(barty.constants.kBaseDateString);
         /*
@@ -38,9 +46,10 @@ barty.ui = {
 
         //  set up hours control
 
-        barty.manager.queryData.h0 = barty.constants.kBaseH0;
-        barty.manager.queryData.h1 = barty.constants.kBaseH1;
+        barty.manager.queryData.h0 = barty.constants.kBaseH0;   //  initial hour, if we're using hours
+        barty.manager.queryData.h1 = barty.constants.kBaseH1;   //  final hour
 
+        //  set up the slider
         $("#hourControl").slider({
             range: true,
             min: 0,
@@ -84,6 +93,9 @@ barty.ui = {
     },
 */
 
+    /**
+     * The user has changes something (anything) in the UI for choosing data
+     */
     dataSelectionChanged: function () {
         this.possibleCosts = {
             "betweenAny": "???",
@@ -93,15 +105,20 @@ barty.ui = {
         };
 
         barty.manager.getDataSearchCriteria();   //  make sure we have current values
-        barty.manager.doCaseCounts();
+        barty.manager.doCaseCounts();   //  count the cases
 
-        this.fixUI();
+        this.fixUI();   //  update the display (e.g., the case counts, the strings describing stations...)
     },
 
+    /**
+     * Use has changed the slider that controls the hours.
+     * @param event
+     * @param iThis     the slider itself
+     */
     hourControlSlides: function (event, iThis) {
         barty.manager.queryData.h0 = iThis.values[0];
         barty.manager.queryData.h1 = iThis.values[1];
-        barty.ui.dataSelectionChanged();
+        barty.ui.dataSelectionChanged();    //  update all possible consequences
     },
 
     /**
@@ -127,22 +144,23 @@ barty.ui = {
         this.fixDataSelectionText(tQD);
 
         if (tQD.useHour) {
-            $("#hourControl").show();
+            $("#hourControl").show();   //  only show the hour slider if th euser is using hours
         } else {
-            $("#hourControl").hide();
+            $("#hourControl").hide();   //  otherwise, user is getting all data from that day; no slider needed
         }
 
         if (tQD.nd == 1) {
-            $("#oneDayOnlyControl").hide();
+            $("#oneDayOnlyControl").hide(); //  The user is getting only one day, so no need to show the control
+                                            //  about getting only that day of the week
         } else {
-            $("#oneDayOnlyControl").show();
+            $("#oneDayOnlyControl").show(); //  more than one day, we need to know if user wants only Thursdays...
         }
 
         $("#newGameButton").text(barty.manager.playing ? "abort game" : "new game");
 
         if (barty.manager.playing) {
             $("#getDataButton").prop("disabled", false);
-            $(".options").hide();
+            $(".options").hide();   //  no options visible while playing
         } else {
             $(".options").show();
             $("#getDataButton").prop("disabled", true);
@@ -152,6 +170,9 @@ barty.ui = {
         //  here we could write a longer description of what you will get if you press get data.
     },
 
+    /**
+     * Set the "route strings" ('from any station to Embarcadero') based on what is selected
+     */
     fixRouteStrings : function()    {
         var tArrivalStationName = $("#arrivalSelector").find('option:selected').text();
         var tDepartureStationName = $("#departureSelector").find('option:selected').text();
@@ -169,7 +190,7 @@ barty.ui = {
     },
 
     /**
-     *
+     *  Construct text that describes what the user will get if they request data
      * @param iQD   query data record set in .manager. iQD.c, for example, is the type (e.g.,byArrival)
      */
     fixDataSelectionText: function (iQD) {
@@ -248,6 +269,9 @@ barty.ui = {
         return dOut.toLocaleDateString();
     },
 
+    /**
+     * Set up the "options" devices, esp. for specifying where/when the meetings are
+     */
     makeInitialOptions: function () {
         //  get menu items for a list of stations
         barty.ui.makeOptionsFromStationsDB();
@@ -260,6 +284,10 @@ barty.ui = {
 
     },
 
+    /**
+     * Make the menu for meeting times
+     * @param iSelector
+     */
     makeMeetingTimeOptions: function (iSelector) {
         var result = "";
         meeting.possibleTimes.forEach(
@@ -273,6 +301,10 @@ barty.ui = {
         iSelector.val(14);
     },
 
+    /**
+     * Make the menu for meeting size
+     * @param iSelector
+     */
     makeMeetingSizeOptions: function (iSelector) {
         var result = "";
         meeting.possibleSizes.forEach(
@@ -286,12 +318,16 @@ barty.ui = {
         iSelector.val(160);
     },
 
+    /**
+     * make the menu for the meeting location
+     * @param iSelector
+     */
     makeMeetingLocationOptions: function (iSelector) {
 
         var result = "";
         Object.keys(meeting.possibleStations).forEach(
-            function (iAbbr6) {
-                result += "<option value='" + iAbbr6 + "'>" + meeting.possibleStations[iAbbr6] + "</option>";
+            function (iAbbr2) {
+                result += "<option value='" + iAbbr2 + "'>" + meeting.possibleStations[iAbbr2] + "</option>";
             }
         );
         iSelector.empty().append(result);
@@ -299,6 +335,10 @@ barty.ui = {
         iSelector.append("<option value='0'>Surprise me</option>");
     },
 
+    /**
+     * Make the menu for which day of the week
+     * @param iSelector
+     */
     makeWeekdaysOptions: function (iSelector) {
         var result = "";
         barty.constants.daysOfWeek.forEach(
