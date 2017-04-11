@@ -313,48 +313,40 @@ barty.ui = {
     },
 
     /**
-     *  Use $.ajax() to get the list of stations from the database,
+     *  get the list of stations from the bart.stations object,
      *  then use those names to populate the menus that need stations
      */
     makeOptionsFromStationsDB: function () {
-        $.ajax({
-            type: "post",
-            url: barty.constants.kBaseURL,
-            data: "c=getStations",
-            success: function (iData) {
-                var result = "";
-                var theStations = JSON.parse(iData);
 
-                theStations.sort(compareStations);
+        var stationArray = [];
+        var theOptionText = "";        //
 
-                theStations.forEach(
-                    function (sta) {
-                        var thisOption = "<option value='" + sta.abbr6 + "'>" + sta.name + "</option>";
-                        result += thisOption;
-                    }
-                )
-                $("#arrivalSelector").empty().append(result);   // put them into the DOM
-                $("#arrivalSelector").val("Orinda");   // choose default value
-                $("#arrivalSelector2").empty().append(result);   // put them into the DOM
-                $("#arrivalSelector2").val("Orinda");   // choose default value
-
-                $("#departureSelector").empty().append(result);   // put them into the DOM
-                $("#departureSelector").val("Embarc");   // choose default value
-                $("#departureSelector2").empty().append(result);   // put them into the DOM
-                $("#departureSelector2").val("Embarc");   // choose default value
-
+        for (var stn in barty.stations) {
+            if (barty.stations.hasOwnProperty(stn)) {
+                var tStation = barty.stations[stn];
+                stationArray.push(tStation);
             }
+        }
+
+        stationArray.sort(compareStations);
+
+        stationArray.forEach( function (sta) {
+            theOptionText += "<option value='" + sta.abbr2 + "'>" + sta.name + "</option>";
         });
 
+        $("#arrivalSelector").empty().append(theOptionText);   // put them into the DOM
+        $("#arrivalSelector").val("OR");   // choose default value
+        $("#departureSelector").empty().append(theOptionText);   // put them into the DOM
+        $("#departureSelector").val("EM");   // choose default value
+
+
         function compareStations(a, b) {
-            if (a.abbr6 < b.abbr6)
+            if (a.name < b.name)
                 return -1;
-            if (a.abbr6 > b.abbr6)
+            if (a.name > b.name)
                 return 1;
             return 0;
         }
-
-
     }
 
 };
