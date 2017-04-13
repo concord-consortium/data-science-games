@@ -66,7 +66,7 @@ Spectrum.prototype.addLine = function( iLine ) {
  */
 Spectrum.prototype.addLinesFrom = function( iSpectrum, iAmp ) {
     iSpectrum.lines.forEach( function(iLine) {
-        var tLine = new Line(iLine.lambda, iLine.width, iLine.strength * iAmp / 100, iLine.what);
+        var tLine = new Line(iLine.restLambda, iLine.width, iLine.strength * iAmp / 100, iLine.what);
         this.lines.push( tLine );
     }.bind(this));
 };

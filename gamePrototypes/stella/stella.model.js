@@ -1,4 +1,3 @@
-
 /**
  * Created by tim on 5/7/16.
 
@@ -32,20 +31,21 @@
  * Overarching model class
  * Most importantly, maintains the array of Stars.
  *
- * @type {{stars: Array, now: null, epoch: null, skySpectrum: null, labSpectrum: null, newGame: stella.model.newGame, starFromTextID: stella.model.starFromTextID, starFromCaseID: stella.model.starFromCaseID, makeAllStars: stella.model.makeAllStars, installBlackbody: stella.model.installBlackbody, installDischargeTube: stella.model.installDischargeTube, evaluateResult: stella.model.evaluateResult, foo: null}}
+ * @type {{stars: Array, now: null, epoch: null, skySpectrum: null, labSpectrum: null, newGame: stella.model.newGame, starFromTextID: stella.model.systemFromTextID, starFromCaseID: stella.model.starFromCaseID, makeAllStars: stella.model.makeAllStars, installBlackbody: stella.model.installBlackbody, installDischargeTube: stella.model.installDischargeTube, evaluateResult: stella.model.evaluateResult, foo: null}}
  */
 stella.model = {
 
-    stars : [],
-    skySpectrum : null,
-    labSpectrum : null,
+    //  stars : [],
+    systems: [],
+    skySpectrum: null,
+    labSpectrum: null,
 
     /**
      * Called by manager.newGame().
      * Asks for all stars to be made.
      */
-    newGame : function() {
-        this.stars = [];
+    newGame: function () {
+        this.systems = [];
 
         this.makeAllStars();
 
@@ -54,27 +54,27 @@ stella.model = {
     },
 
     /**
-     * Determine which star you mean if you give it partial text
+     * Let time pass.
+     * @param iTime     currently in YEARS.
+     */
+    stellaElapse: function (iTime) {
+        stella.state.now += iTime;
+    },
+
+
+    /**
+     * Determine which system you mean if you give it partial text
      * todo: expand to include names, when we get star names.
      * @param iText
      * @returns {*}
      */
-    starFromTextID : function(iText) {
-        for (var i = 0; i < this.stars.length; i++) {
-            var s = this.stars[i];
-            if (s.id.includes(iText)) {
-                return s;
+    systemFromTextID: function (iText) {
+        this.systems.forEach(function (iSys) {
+            if (iSys.sysID.includes(iText)) {
+                return iSys;
             }
-        }
+        });
         return null;
-    },
-
-    /**
-     * Let time pass.
-     * @param iTime     currently in YEARS.
-     */
-    stellaElapse : function( iTime ) {
-      stella.state.now += iTime;
     },
 
     /**
@@ -82,37 +82,46 @@ stella.model = {
      * @param id
      * @returns {*} the Star
      */
-    starFromCaseID : function( id ) {
-        for (var i = 0; i < this.stars.length; i++) {
-            var s = this.stars[i];
-            if (s.caseID === id) {
-                return s;
+    starFromCaseID: function (id) {
+        this.systems.forEach(function (iSys) {
+            if (iSys.sysID === id) {
+                return iSys;
             }
-        }
+        });
         return null;
     },
+
 
     /**
      * Create all Stars from the initial star data (its own file, raw JSON, thanks, Bill!
      */
-    makeAllStars : function() {
+    makeAllStars: function () {
         //  stella.share.retrieveStars();
-        var dText = "<table><tr><th>id</th><th>logMass</th><th>temp</th><th>age</th><th>m</th><th>GI</th><th>dist</th></tr>";
+        var dText = "<table><tr><th>id</th><th>logMass</th><th>temp</th><th>age</th><th>logLum</th><th>bright</th>" +
+            "<th>GI</th><th>dist</th><th>per</th></tr>";
 
         stella.initialStarData.forEach(
-            function( isd ) {
-                var s = new Star( isd );
-                stella.model.stars.push( s );
-                dText += s.htmlTableRow();
+            function (isd) {
+                var sys = new System(isd);
+                stella.model.systems.push(sys);
+                sys.stars.forEach(function(s) {
+                    dText += s.htmlTableRow();
+                })
+/*
+                isd.stars.forEach(function (starJSON) {
+                    var s = new Star(starJSON);
+                    stella.model.stars.push(s);
+                    dText += s.htmlTableRow();
+                })
+*/
             }
         );
         dText += "</table>";
 
         $("#debugText").html(dText);
-        console.log("All " + stella.initialStarData.length + " = " + stella.model.stars.length + " stars read in, " +
+        console.log("All " + stella.initialStarData.length + " = " + stella.model.systems.length + " systems read in, " +
             "in stella.model.makeAllStars( )");
     },
-
 
 
     /**
@@ -169,6 +178,6 @@ stella.model = {
     },
 
 
-    foo : null
+    foo: null
 };
 

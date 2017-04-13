@@ -31,7 +31,7 @@
  * Main sky or telescope view, the one with all the stars.
  * Importantly, maintains an array of StarViews
  *
- * @type {{paper: null, backgroundSkyRect: null, starViews: Array, reticleX: null, reticleY: null, magnification: number, baseStrokeWidth: number, pointAtStar: stella.skyView.pointAtStar, pointAtLocation: stella.skyView.pointAtLocation, magnify: stella.skyView.magnify, down: stella.skyView.down, up: stella.skyView.up, move: stella.skyView.move, starFromViewCoordinates: stella.skyView.starFromViewCoordinates, makeBackground: stella.skyView.makeBackground, makeAndInstallStarViews: stella.skyView.makeAndInstallStarViews, makeAndInstallReticles: stella.skyView.makeAndInstallReticles, initialize: stella.skyView.initialize}}
+ * @type {{paper: null, backgroundSkyRect: null, starViews: Array, reticleX: null, reticleY: null, magnification: number, baseStrokeWidth: number, pointAtStar: stella.skyView.pointAtStar, pointAtLocation: stella.skyView.pointAtLocation, magnify: stella.skyView.magnify, down: stella.skyView.down, up: stella.skyView.up, move: stella.skyView.move, starFromViewCoordinates: stella.skyView.systemFromViewCoordinates, makeBackground: stella.skyView.makeBackground, makeAndInstallStarViews: stella.skyView.makeAndInstallStarViews, makeAndInstallReticles: stella.skyView.makeAndInstallReticles, initialize: stella.skyView.initialize}}
  */
 stella.skyView = {
 
@@ -85,18 +85,13 @@ stella.skyView = {
      *
      * @param iStar
      */
-    pointAtStar : function( iStar ) {
+    pointAtSystem : function( iSys ) {
 
-        if (iStar) {
+        if (iSys) {
             stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
-            var tWhereNow = iStar.positionAtTime( stella.state.now );
+            var tWhereNow = iSys.positionAtTime( stella.state.now );
             //  note that iStar.where is its catalog location.
-            this.pointAtLocation( iStar.where, true);    //  moves the star field if necessary. True = animate
-/*
-            if (this.magnification === 1.0) {
-                var tNewY = stella.constants.universeWidth - iStar.where.y;
-            }
-*/
+            this.pointAtLocation( iSys.where, true);    //  moves the star field if necessary. True = animate
         }
     },
 
@@ -191,8 +186,8 @@ stella.skyView = {
         uupos.y = stella.constants.universeWidth - uupos.y;
         console.log( "click at " + uupos.x.toFixed(3) + ", " + uupos.y.toFixed(3) );
 
-        var tStar = stella.skyView.starFromViewCoordinates( uupos );
-        stella.manager.pointAtStar( tStar );
+        var tSys = stella.skyView.systemFromViewCoordinates( uupos );
+        stella.manager.pointAtSystem( tSys );
     },
 
     /**
@@ -202,10 +197,10 @@ stella.skyView = {
      */
     up: function (e) {
 
-        var tPointedAt = stella.skyView.starFromViewCoordinates(stella.skyView.telescopeWhere);
+        var tPointedAt = stella.skyView.systemFromViewCoordinates(stella.skyView.telescopeWhere);
 
-        if (stella.manager.focusStar !== tPointedAt) {
-            stella.manager.focusOnStar(tPointedAt);
+        if (stella.manager.focusSystem !== tPointedAt) {
+            stella.manager.focusOnSystem(tPointedAt);
         }
         stella.ui.fixStellaUITextAndControls();
     },
@@ -238,22 +233,22 @@ stella.skyView = {
      * @param iPoint
      * @returns {*}
      */
-    starFromViewCoordinates : function( iPoint ) {
+    systemFromViewCoordinates : function(iPoint ) {
         //  iPoint.y = stella.constants.universeWidth - iPoint.y;   //  change y direction
-        var oStar = null;
+        var oSys = null;
         var tDist = Number.MAX_VALUE;     //  large number
 
         stella.skyView.starViews.forEach( function(sv) {
-            var tStar = sv.star;
-            var tCurrDSq = (tStar.where.x - iPoint.x) *  (tStar.where.x - iPoint.x) +
-                (tStar.where.y - iPoint.y) *  (tStar.where.y - iPoint.y);
+            var tSys = sv.system;
+            var tCurrDSq = (tSys.where.x - iPoint.x) *  (tSys.where.x - iPoint.x) +
+                (tSys.where.y - iPoint.y) *  (tSys.where.y - iPoint.y);
             if (tCurrDSq < tDist) {
                 tDist = tCurrDSq;
-                oStar = tStar;
+                oSys = tSys;
             }
         });
 
-        return oStar;
+        return oSys;
     },
 
     /**
@@ -270,8 +265,8 @@ stella.skyView = {
      * For every Star in the model, make a view and install it.
      */
     makeAndInstallStarViews : function( ) {
-        stella.model.stars.forEach( function(iStar) {
-            var tStarView = new StarView( iStar, this.paper );  //  attaches it to the Paper
+        stella.model.systems.forEach( function(iSys) {
+            var tStarView = new StarView( iSys, this.paper );  //  attaches it to the Paper
             this.starViews.push( tStarView );
         }.bind(this));
 

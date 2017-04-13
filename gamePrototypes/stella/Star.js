@@ -72,20 +72,27 @@ var Star = function (iStarData) {
     this.logMass = Number(iStarData.logMass);
     this.logAge = Number(iStarData.logAge);
     this.id = iStarData.id;
+    this.distance = Number(iStarData.sysWhere.r);
 
+/*
     this.where = {
         x: Number(iStarData.where.x),
         y: Number(iStarData.where.y),
         z: Number(iStarData.where.r)
     };
+*/
 
+/*
     this.pm = {
         x: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vx), this.where.z),
         y: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vy), this.where.z),
         r: Number(iStarData.whither.vr)
     };
+*/
 
+/*
     this.parallax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;   //  max in microdegrees
+*/
 
     //  what depends on mass and age...
 
@@ -94,6 +101,10 @@ var Star = function (iStarData) {
     this.logTemperature = iStarData.logTemp;      //  start on main sequence
     this.logLifetime = iStarData.logLifetime;
     this.myGiantIndex = iStarData.giant;
+
+    this.varPeriod = iStarData.varPeriod;
+    this.varAmplitude = iStarData.varAmplitude;
+    this.varPhase = iStarData.varPhase;
 
 
     //  this.evolve();     //  old enough to move off the MS?
@@ -149,9 +160,11 @@ Star.prototype.htmlTableRow = function () {
     o += "<td>" + this.logMass.toFixed(2) + "</td>";
     o += "<td>" + Math.pow(10,this.logTemperature).toFixed(0) + "</td>";
     o += "<td>" + this.logAge.toFixed(2) + "</td>";
-    o += "<td>" + this.mApp.toFixed(2) + "</td>";
+    o += "<td>" + this.logLuminosity.toFixed(2) + "</td>";
+    o += "<td>" + this.bright(null).toFixed(2) + "</td>";
     o += "<td>" + this.myGiantIndex.toFixed(2) + "</td>";
-    o += "<td>" + this.where.z.toFixed(2) + "</td>";
+    o += "<td>" + this.distance.toFixed(2) + "</td>";
+    o += "<td>" + this.varPeriod.toFixed(2) + "</td>";
     o += "</tr>";
 
     return o;
@@ -201,42 +214,6 @@ Star.prototype.evolve = function () {
 };
 */
 
-/**
- * Star's position (as an object) at the current time, based on PM and parallax
- * @param iTime
- * @returns {{x: *, y: *, z: *}}
- */
-Star.prototype.positionAtTime = function (iTime) {
-
-    var oWhere = {
-        x: this.where.x,
-        y: this.where.y,
-        z: this.where.z
-    };
-
-    //  parallax
-
-    //  var tParallaxMax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;
-    var tFracYear = iTime % 1;      //  the fractional part of the year
-
-    var tParallax = this.parallax * Math.cos(tFracYear * 2 * Math.PI);  //  at year.0 and year.5, we're at extremes.
-
-    if (stella.options.parallax) {
-        oWhere.x += tParallax * 0.000001;       //  because tParallax is in microdegrees
-    }
-
-    //  proper motion
-
-    var iDT = iTime - stella.state.epoch;
-
-    if (stella.options.properMotion) {
-        oWhere.x += iDT * this.pm.x;
-        oWhere.y += iDT * this.pm.y;
-        oWhere.z += iDT * this.pm.r * 1.0e05 / stella.constants.parsec
-    }
-
-    return oWhere;
-};
 
 /**
  * Calculate apparent magnitude from absolute and distance
@@ -273,31 +250,6 @@ Star.prototype.setUpSpectrum = function () {
     return tSpectrum;
 };
 
-/**
- * Stellar Evolution. Where it is, and how it depends on age and (ms) lifetime.
- * @param iAge
- * @returns {number}
- */
-/*
-Star.prototype.computeGiantIndex = function (iAge) {
-    var result = 0;
-    var tTimeOnMS = Math.pow(10, this.logLifetime);
-    var tTimeAcross = tTimeOnMS;  //  for now, the same time across as on MS
-    var tTimeAsGiant = tTimeOnMS;  //  for now, the same time as giant as on MS
-
-    if (iAge < tTimeOnMS) {
-        result = 0;
-    } else if (iAge < tTimeOnMS + tTimeAcross) {
-        result = (iAge - tTimeOnMS) / tTimeAcross;
-    } else if (iAge < tTimeOnMS + tTimeAcross + tTimeAsGiant) {
-        result = 1.0;
-    } else {
-        result = 1000;    //  past nova!
-    }
-
-    return result;
-};
-*/
 
 /**
  * UBV photometry using blackbody.
@@ -306,7 +258,7 @@ Star.prototype.computeGiantIndex = function (iAge) {
 Star.prototype.doPhotometry = function () {
 
     this.mAbs = 4.85 - 2.5 * this.logLuminosity;
-    this.mApp = Star.apparentMagnitude(this.mAbs, this.where.z);
+    this.mApp = Star.apparentMagnitude(this.mAbs, this.distance);
 
     var solarU = 5.61;  //  solar mags from http://www.ucolick.org/~cnaw/sun.html
     var solarB = 5.48;
@@ -332,30 +284,21 @@ Star.prototype.doPhotometry = function () {
 
 };
 
+
 /**
- * Make the object we can use to put a row in the Catalog.
- *
- * @returns {{x: string, y: string, m: string, id: *, U: string, B: string, V: string}}
+ * Returns the current apparent LOG brightness
+ * @returns {number}
  */
-Star.prototype.dataValues = function () {
 
+Star.prototype.bright = function( iFilter ) {
+    var dAmp = 0;   //  change in amplitude due to variability
 
-    var out = {
-        x: this.where.x.toFixed(6),
-        y: this.where.y.toFixed(6),
-        bright : this.bright().toFixed(1),
-        m: this.mApp,
-        id: this.id,
-        U: Star.apparentMagnitude(this.uAbs, this.where.z).toFixed(2),
-        B: Star.apparentMagnitude(this.bAbs, this.where.z).toFixed(2),
-        V: Star.apparentMagnitude(this.vAbs, this.where.z).toFixed(2)
-    };
-
-    return out;
-};
-
-Star.prototype.bright = function() {
-    return 4 + this.logLuminosity - 2 * Math.log10(this.where.z);
+    if (this.varPeriod > 0) {
+        var logAmp = Math.log10(this.varAmplitude + 1);
+        dAmp = logAmp * Math.sin(this.varPhase + stella.state.now * Math.PI * 2 / this.varPeriod);
+    }
+    var tCurrentLum = this.logLuminosity + dAmp;
+    return 4 + tCurrentLum - 2 * Math.log10(this.distance);
 };
 
 /**
@@ -365,10 +308,11 @@ Star.prototype.bright = function() {
 Star.prototype.toString = function () {
     var out = Math.pow(10, this.logMass).toFixed(2);
     out += ", " + Math.round(Math.pow(10, this.logMainSequenceTemperature));
-    out += ", " + this.mAbs.toFixed(2);
+    out += ", " + this.logLuminosity.toFixed(2);
     out += ", " + this.mApp.toFixed(2);
     out += ", " + Math.round(Math.pow(10, this.logLifetime - 6));
     out += ", " + this.where.x.toFixed(2) + ", " + this.where.y.toFixed(2) + ", " + this.where.z.toFixed(2);
+    out += ", " + this.myGiantIndex.toFixed(2) + ", " + this.varPeriod.toFixed(2);
 
     return out;
 };
@@ -387,17 +331,17 @@ Star.prototype.infoText = function () {
 
 /**
  * Make a new StarView.
- * @param iStar     which Star
+ * @param iSys     which Star System
  * @param iPaper    the paper of the SKY, to which we attach this view
  * @constructor
  */
-var StarView = function (iStar, iPaper) {
-    this.star = iStar;          //  view knows about the model
+var StarView = function (iSys, iPaper) {
+    this.system = iSys;          //  view knows about the model
     this.myCircle = iPaper.circle(2.5, 2.5, 0.01);
     this.setSizeEtc(  );
 
     //  this.myCircle.dblclick(stella.manager.doubleClickOnAStar);
-    this.myCircle.click(this.clickOnAStar.bind(this));
+    this.myCircle.click(this.clickOnASystem.bind(this));
 };
 
 StarView.prototype.setSizeEtc = function (  ) {
@@ -409,13 +353,15 @@ StarView.prototype.setSizeEtc = function (  ) {
 
     //  The scale and brightness of stars depends on magnification
 
-    tMagnitudeElbow = 6.0 * Math.log10(stella.state.magnification);
-    tMagnitudeLimit = 11.0 + 3 * Math.log10(stella.state.magnification);
+    tLumElbow = 2.0 - Math.log10(stella.state.magnification);       //  at what log lum do we get to 1 px?
+    tLumLimit = 1.0 - 1.25 * Math.log10(stella.state.magnification);  //  at what log lum are we invisible?
 
-    if (this.star.mApp < tMagnitudeElbow) {
-        tRadius *= tMagnitudeElbow - this.star.mApp + 1;
-    } else if (this.star.mApp < tMagnitudeLimit) {
-        tOpacity = (tMagnitudeLimit - this.star.mApp) / (tMagnitudeLimit - tMagnitudeElbow);
+    var tBright = this.system.bright(null);
+
+    if (tBright > tLumElbow) {
+        tRadius *= tBright - tLumElbow + 1;
+    } else if (tBright > tLumLimit) {
+        tOpacity = (tBright - tLumLimit) / (tLumElbow - tLumLimit);
     } else {
         tOpacity = 0.0;
     }
@@ -424,7 +370,7 @@ StarView.prototype.setSizeEtc = function (  ) {
 
     //  convert to current positions!
 
-    var tCurrentWhere = this.star.positionAtTime(stella.state.now);
+    var tCurrentWhere = this.system.positionAtTime(stella.state.now);
 
     //  actually make the circle! Be sure to reverse the y coordinate.
 
@@ -443,9 +389,9 @@ StarView.prototype.setSizeEtc = function (  ) {
 };
 
 
-StarView.prototype.clickOnAStar = function ( iEvent ) {
+StarView.prototype.clickOnASystem = function (iEvent ) {
     if (stella.state.magnification === 1.0) {
-        stella.manager.pointAtStar( this.star );
+        stella.manager.pointAtSystem( this.system );
     }
 };
 

@@ -40,16 +40,24 @@
 stella.connector = {
     starCaseID: 0,
     spectrumCaseID: 0,
-    spectraCollectionName: "spectra",
+
     starResultsCollectionName: "results",
-    channelCollectionName: "channels",
+    starResultsDataSetName: "results",
+    starResultsDataSetTitle: "Your Results",
+
     catalogCollectionName: "starCatalog",
     catalogDataSetName: "starCatalog",
     catalogDataSetTitle: "Star Catalog",
+
     spectraDataSetName: "spectra",
     spectraDataSetTitle: "Stellar Spectra",
-    starResultsDataSetName: "results",
-    starResultsDataSetTitle: "Your Results",
+    spectraCollectionName: "spectra",
+    spectrumChannelCollectionName: "channels",
+
+    photometryDataSetName : "photometry",
+    photometryDataSetTitle: "Photometry",
+    photometryTargetCollectionName : "runs",
+    photometryChannelCollectionName: "channels",
 
 
     /**
@@ -114,6 +122,28 @@ stella.connector = {
             null       //  no callback
         );
 
+    },
+
+    emitPhotometry : function ( iChannels ) {
+        stella.state.photometryNumber += 1;       //      serial
+        var tChannelValues = [];
+        iChannels.forEach(function (ch) {
+            var tOneChannel = {
+                runNo : stella.state.photometryNumber,
+                date : stella.state.now,
+                target : ch.target,
+                exposure : ch.exposure,
+                obs : ch.obs,
+                count : ch.count
+            }
+            tChannelValues.push( tOneChannel );
+        }.bind(this));
+
+        pluginHelper.createItems(
+            tChannelValues,
+            this.photometryDataSetName,
+            null        //  no callback
+        )
     },
 
     /**
@@ -184,6 +214,47 @@ stella.connector = {
         };
     },
 
+    getPhotometryDataSetObject: function () {
+        return {
+            name: this.photometryDataSetName,
+            title: this.photometryDataSetTitle,
+            description: 'photometry measurements',
+
+            collections: [ //  two collections, runs (targets) and channels
+                {
+                    name: this.photometryTargetCollectionName,
+                    labels: {
+                        singleCase: "run",
+                        pluralCase: "runs",
+                        setOfCasesWithArticle: "a bunch of runs"
+                    },
+
+                    attrs: [
+                        {name: "runNo", type: 'categorical'},
+                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
+                        {name: "target", type: 'categorical', description: "the name of the target"},
+                        {name: "exposure", type: 'numeric', precision: 3, description: "exposure time"},
+                        {name: "filter", type: 'categorical', description: "the name of the filter"}
+                    ],
+                    childAttrName: 'channel'
+                },
+                {
+                    name: this.photometryChannelCollectionName,
+                    parent: this.photometryTargetCollectionName,
+                    labels: {
+                        singleCase: "channel",
+                        pluralCase: "channels",
+                        setOfCasesWithArticle: "a spectrum"
+                    },
+                    attrs: [
+                        {name: "obs", type: 'categorical', description: 'target or sky'},
+                        {name: "count", type: 'numeric', precision: 0, description: 'counts in this channel'}
+                    ]
+                }
+            ]
+        }
+    },
+
     /**
      * Initialize the Spectrum
      * @returns {{name: string, title: string, description: string, collections: *[]}}
@@ -207,12 +278,11 @@ stella.connector = {
                         {name: "specNum", type: 'categorical'},
                         {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
                         {name: "name", type: 'categorical', description: "the name of the spectrum"}
-
                     ],
                     childAttrName: "channel"
                 },
                 {
-                    name: this.channelCollectionName,
+                    name: this.spectrumChannelCollectionName,
                     parent: this.spectraCollectionName,
                     labels: {
                         singleCase: "channel",
@@ -254,7 +324,7 @@ stella.connector = {
                         {name: "id", type: 'categorical', description: "Stellar ID string"},
                         {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
                         {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
-                        {name: "bright", type: 'numeric', precision: 1, description: "ancient brightness measure"},
+                        {name: "bright", type: 'numeric', precision: 2, description: "log of apparent brightness"},
                         {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
                         {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
                         {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},
@@ -285,6 +355,7 @@ function startCodapConnection() {
             var tInitDatasetPromises = [
                 pluginHelper.initDataSet(stella.connector.getStarResultsDataSetObject()),
                 pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()),
+                pluginHelper.initDataSet(stella.connector.getPhotometryDataSetObject()),
                 pluginHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject())
             ];
 

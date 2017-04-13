@@ -50,14 +50,14 @@ stella.ui = {
         //  correct title for new/abort game button
         this.newGameButton.html( stella.manager.playing ? "abort game" : "new game");
 
-        //  make focusStar label and make sure it's got the right spectrum
+        //  make focusSystem label and make sure it's got the right spectrum
         var focusStarText = stella.strings.notPointingText;
-        if (stella.manager.focusStar) {
-            focusStarText = "Pointing at " + stella.manager.focusStar.id +
+        if (stella.manager.focusSystem) {
+            focusStarText = "Pointing at " + stella.manager.focusSystem.id +
                     " • " + stella.state.magnification + "X";
-            this.pointAtStarInputField.val( stella.manager.focusStar.id );
+            this.pointAtStarInputField.val( stella.manager.focusSystem.id );
 
-            stella.model.skySpectrum = stella.manager.focusStar.setUpSpectrum();
+            stella.model.skySpectrum = stella.manager.focusSystem.setUpSpectrum();
         }
 
         //  Blue bar at the top of the screen
@@ -96,12 +96,12 @@ stella.ui = {
         var tResultType = stella.ui.starResultType;    //  e.g.,, "pos_x", "temp"
         var tResultName = stella.starResultTypes[ tResultType].name;
 
-        if (stella.manager.focusStar === null) {
+        if (stella.manager.focusSystem === null) {
             tStarResultHeadText = "Point at a star to record results";
         } else {
             tStarResultUnitsText = stella.starResultTypes[ tResultType ].units;
 
-            tStarResultHeadText = stella.manager.focusStar.id + ": ";
+            tStarResultHeadText = stella.manager.focusSystem.id + ": ";
             tStarResultHeadText += tResultName + " = ";
             tStarResultHeadText += stella.ui.starResultValue !== null ? stella.ui.starResultValue : "(enter a value)";
             tStarResultHeadText += " (" + tStarResultUnitsText + ")";
@@ -152,8 +152,8 @@ stella.ui = {
     keypressInStarPointingBox : function(e) {
         if (e.type === "blur" || e.keyCode === 13) {    //  tab or enter, respectively
             var tText = this.pointAtStarInputField.val();
-            var tStar = stella.model.starFromTextID( tText );
-            stella.manager.pointAtStar( tStar );
+            var tSys = stella.model.systemFromTextID( tText );
+            stella.manager.pointAtSystem( tSys );
         }
     },
 

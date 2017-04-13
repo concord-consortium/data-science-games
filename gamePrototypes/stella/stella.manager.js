@@ -30,12 +30,12 @@
 /**
  * Main controller for Stella
  *
- * @type {{playing: boolean, focusStar: null, starResultType: null, starResultValue: null, stellaScore: number, labSpectrumView: null, skySpectrumView: null, newGame: stella.manager.newGame, updateStella: stella.manager.updateStella, pointAtStar: stella.manager.pointAtStar, changeMagnificationTo: stella.manager.changeMagnificationTo, runTests: stella.manager.runTests, emitInitialStarsData: stella.manager.emitInitialStarsData, extractFromWithinBrackets: stella.manager.extractFromWithinBrackets, processSelectionFromCODAP: stella.manager.processSelectionFromCODAP, spectrumParametersChanged: stella.manager.spectrumParametersChanged, displayAllSpectra: stella.manager.displayAllSpectra, saveSpectrumToCODAP: stella.manager.saveSpectrumToCODAP, updateLabSpectrum: stella.manager.updateLabSpectrum, setSpectrogramWavelengthsToTypedValues: stella.manager.setSpectrogramWavelengthsToTypedValues, clickInSpectrum: stella.manager.clickInSpectrum, starResultTypeChanged: stella.manager.starResultTypeChanged, starResultValueChanged: stella.manager.starResultValueChanged, saveStarResult: stella.manager.saveMyOwnStarResult, stellaDoCommand: stella.manager.stellaDoCommand}}
+ * @type {{playing: boolean, focusSystem: null, starResultType: null, starResultValue: null, stellaScore: number, labSpectrumView: null, skySpectrumView: null, newGame: stella.manager.newGame, updateStella: stella.manager.updateStella, pointAtStar: stella.manager.pointAtStar, changeMagnificationTo: stella.manager.changeMagnificationTo, runTests: stella.manager.runTests, emitInitialStarsData: stella.manager.emitInitialStarsData, extractFromWithinBrackets: stella.manager.extractFromWithinBrackets, processSelectionFromCODAP: stella.manager.processSelectionFromCODAP, spectrumParametersChanged: stella.manager.spectrumParametersChanged, displayAllSpectra: stella.manager.displayAllSpectra, saveSpectrumToCODAP: stella.manager.saveSpectrumToCODAP, updateLabSpectrum: stella.manager.updateLabSpectrum, setSpectrogramWavelengthsToTypedValues: stella.manager.setSpectrogramWavelengthsToTypedValues, clickInSpectrum: stella.manager.clickInSpectrum, starResultTypeChanged: stella.manager.starResultTypeChanged, starResultValueChanged: stella.manager.starResultValueChanged, saveStarResult: stella.manager.saveMyOwnStarResult, stellaDoCommand: stella.manager.stellaDoCommand}}
  */
 stella.manager = {
 
     playing: false,
-    focusStar: null,       //  what star are we pointing at?
+    focusSystem: null,       //  what star are we pointing at?
 
     starResultIsAuto: false,   //  did we get this latest result via the Auto button?
 
@@ -73,8 +73,7 @@ stella.manager = {
      * Often called when the user has changed something.
      */
     updateStella: function () {
-        //  stella.skyView.pointAtStar(this.focusStar);
-        stella.model.skySpectrum = (this.focusStar === null) ? null : this.focusStar.setUpSpectrum();  //  make the spectrum
+        stella.model.skySpectrum = (this.focusSystem === null) ? null : this.focusSystem.setUpSpectrum();  //  make the spectrum
         stella.spectrumManager.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
@@ -86,10 +85,10 @@ stella.manager = {
      * We can also focus by panning. See up().
      * @param iStar
      */
-    focusOnStar: function (iStar) {
-        this.focusStar = iStar;
-        stella.state.focusStarNumber = iStar.id;
-        stella.connector.selectStarInCODAP(iStar);
+    focusOnSystem: function (iSys) {
+        this.focusSystem = iSys;
+        stella.state.focusStarNumber = iSys.sysID;
+        stella.connector.selectStarInCODAP(iSys);
         this.updateStella();
     },
 
@@ -97,15 +96,15 @@ stella.manager = {
      * Point at the given star.
      * @param iStar     The star. Pass `null` to be not pointing at anything.
      */
-    pointAtStar: function (iStar) {
-        if (iStar) {
-            stella.skyView.pointAtStar(iStar);     //      added in...
-            this.focusOnStar(iStar);
-            console.log("Point at " + this.focusStar.id +
-                " at " + this.focusStar.where.x.toFixed(3) + ", " +
-                this.focusStar.where.y.toFixed(3));
+    pointAtSystem: function (iSys) {
+        if (iSys) {
+            stella.skyView.pointAtSystem(iSys);     //      added in...
+            this.focusOnSystem(iSys);
+            console.log("Point at " + this.focusSystem.id +
+                " at " + this.focusSystem.where.x.toFixed(3) + ", " +
+                this.focusSystem.where.y.toFixed(3));
         } else {
-            this.focusStar = null;
+            this.focusSystem = null;
             this.updateStella();
         }
     },
@@ -118,8 +117,8 @@ stella.manager = {
 
         stella.skyView.magnify(iNewMag);    //  currently makes a whole new sky
 
-        //   if (this.focusStar) {
-        //       this.pointAtStar( this.focusStar );
+        //   if (this.focusSystem) {
+        //       this.pointAtStar( this.focusSystem );
         //   } else {
         stella.skyView.pointAtLocation(stella.skyView.telescopeWhere, true);
         //    }
@@ -127,21 +126,6 @@ stella.manager = {
 
     },
 
-    /**
-     * For testing
-     */
-    runTests: function () {
-        var tT = "testing\n";
-        var d = $("#debugText");
-
-        tT = "Stars\nmass, temp, M, mapp, ageMY, x, y, z\n";
-
-        stella.model.stars.forEach(function (iStar) {
-            tT += iStar.toString() + "\n";
-        });
-
-        d.text(tT);       //  sends that data to debug
-    },
 
     /**
      * Send out the catalog at the beginning of the game.
@@ -150,17 +134,18 @@ stella.manager = {
 
         console.log("starting  ... manager.emitInitialStarsData()");
 
-        stella.model.stars.forEach(function (iStar) {
-            var tValues = iStar.dataValues();
+        //  todo: make this a single call instead of one per star
+        stella.model.systems.forEach(function (iSys) {
+            var tValues = iSys.dataValues();
             tValues.date = stella.state.epoch;
 
             stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the catalog case
 
             function starRecordCreated(iResult) {
                 if (iResult.success) {
-                    iStar.caseID = iResult.values[0];   //  .id;
+                    iSys.caseID = iResult.values[0];   //  .id;
                 } else {
-                    console.log("Failed to create case for star " + iStar.id);
+                    console.log("Failed to create case for system " + iSys.id);
                 }
             }
         });
@@ -186,11 +171,12 @@ stella.manager = {
      * When CODAP tells us there's one selection in the Catalog, point the telescope there.
      * @param iCasesFromCODAP   An array. Each one's .id is the case ID.
      */
+    //  todo: make this a lookup rather than caseID
     processSelectionFromCODAP: function (iCasesFromCODAP) {
         if (iCasesFromCODAP.length > 0) {
             if (iCasesFromCODAP.length === 1) {
                 var tStar = stella.model.starFromCaseID(iCasesFromCODAP[0].id);
-                stella.manager.pointAtStar(tStar);
+                stella.manager.pointAtSystem(tStar);
                 stella.manager.updateStella();
             }
         } else {
@@ -228,7 +214,7 @@ stella.manager = {
      * @param iStarResult   the values for the result, being passed in
      */
     saveMyOwnStarResult: function (iStarResult) {
-        if (stella.manager.focusStar) {
+        if (stella.manager.focusSystem) {
             var tStarResult = iStarResult;
 
             if (!iStarResult) {
@@ -252,7 +238,7 @@ stella.manager = {
      return;
      }
      console.log("double click on a star!");
-     var tStar = stella.manager.focusStar;
+     var tStar = stella.manager.focusSystem;
      var tNow = stella.state.now;
      var tPos = tStar.positionAtTime(tNow);
 
@@ -289,7 +275,7 @@ stella.manager = {
     getStarDataUsingBadge: function () {
         var tValue = null, tForRecord = null;
 
-        if (stella.manager.focusStar) {
+        if (stella.manager.focusSystem) {
             var tResultType = stella.ui.starResultType;
 
             switch (tResultType) {
@@ -300,7 +286,7 @@ stella.manager = {
                     tForRecord = stella.skyView.telescopeWhere.y.toFixed(6);
                     break;
                 default:
-                    var truth = stella.manager.focusStar.reportTrueValue(tResultType);
+                    var truth = stella.manager.focusSystem.reportTrueValue(tResultType);
                     tValue = Number(truth.trueDisplay);
                     var tBadgeLevel = stella.badges.badgeLevelForResult(tResultType);
                     var tProportionalErrors = [0.18, 0.06, 0.02];               //  todo: change this to absolute and use the L1 value

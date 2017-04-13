@@ -37,11 +37,12 @@
  * @constructor
  */
 var Line = function (iLambda, iWidth, iStrength, iWhat) {
-    this.lambda = iLambda;
+    this.restLambda = iLambda;
     this.width = iWidth;
     this.strength = iStrength;
     this.what = iWhat;          //  purely informational
 };
+
 
 /**
  * We compute spectra in channels; this routine (called by Spectrum.intensityBetween())
@@ -55,7 +56,7 @@ var Line = function (iLambda, iWidth, iStrength, iWhat) {
 Line.prototype.intensityBetween = function (iMin, iMax, iSpeedAway) {
     var oIntensity = 0;
 
-    var tEffectiveLambda = this.lambda * Spectrum.constants.light / ( Spectrum.constants.light - iSpeedAway);
+    var tEffectiveLambda = this.restLambda * Spectrum.constants.light / ( Spectrum.constants.light - iSpeedAway);
 
     if (iMin <= tEffectiveLambda && iMax >= tEffectiveLambda) {
         oIntensity = 1.0;

@@ -67,7 +67,7 @@ stella.spectrumManager = {
                 tSpectrum = stella.model.skySpectrum;
                 tSpectrumView = this.skySpectrumView;
                 tChannels = tSpectrumView.zoomChannels;
-                tTitle = stella.manager.focusStar.id;
+                tTitle = stella.manager.focusSystem.id;
                 break;
 
             case "lab":

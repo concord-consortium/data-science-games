@@ -44,7 +44,7 @@
  * @constructor
  */
 StarResult = function ( iMine, iAuto ) {
-    this.id = stella.manager.focusStar.id;
+    this.id = stella.manager.focusSystem.id;
     this.myOwnResult = iMine;           //  Boolean. You could have a result discovered by someone else.
     this.type = stella.ui.starResultType;
     this.enteredValue = stella.ui.starResultValue;     //  the value in the form as entered. (i.e., not the log)
@@ -97,7 +97,7 @@ StarResult.prototype.eligibleForBadge = function() {
  * @returns {number}
  */
 StarResult.prototype.evaluateResult = function(  ) {
-    var tStar = stella.model.starFromTextID( this.id );
+    var tSys = stella.model.systemFromTextID( this.sysID );
     var tMaxPoints = 100;
     var oPoints = 0;
 
@@ -112,7 +112,7 @@ StarResult.prototype.evaluateResult = function(  ) {
      * How far off you can be depends on what kind of measurement it is
      */
 
-    var truth = tStar.reportTrueValue( this.type );
+    var truth = tSys.reportTrueValue( this.type );
     this.trueResultValue = truth.trueDisplay;  //  the way a user would enter it
 
     tMaxDiff = stella.starResultTypes[this.type].errorL1;

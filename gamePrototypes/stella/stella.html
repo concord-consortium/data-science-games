@@ -69,6 +69,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <script src="Line.js" language="JavaScript"></script>
     <script src="Spectrum.js" language="JavaScript"></script>
     <script src="SpectrumView.js" language="JavaScript"></script>
+    <script src="System.js" language="JavaScript"></script>
     <script src="Star.js" language="JavaScript"></script>
     <script src="Planet.js" language="JavaScript"></script>
     <script src="elementalSpectra.js" language="JavaScript"></script>
@@ -79,6 +80,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <script src="stella.player.js" language="JavaScript"></script>
     <script src="stella.manager.js" language="JavaScript"></script>
     <script src="stella.spectrumManager.js" language="JavaScript"></script>
+    <script src="stella.photometryManager.js" language="JavaScript"></script>
     <script src="stella.share.js" language="JavaScript"></script>
     <script src="stella.model.js" language="JavaScript"></script>
     <script src="stella.connector.js" language="JavaScript"></script>
@@ -109,6 +111,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <ul>
         <li><a href="#skyTab">Sky</a></li>
         <li><a href="#spectraTab">Spectra</a></li>
+        <li><a href="#photometryTab">Photometry</a></li>
         <li><a href="#starResultTab">Results</a></li>
         <li><a href="#instructionsTab">How To</a></li>
         <li><a href="#badgesTab">Badges</a></li>
@@ -216,6 +219,30 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             <button id="saveLabSpectrumButton" onclick="stella.spectrumManager.saveSpectrumToCODAP('lab')">save</button>
         </div>
     </div>
+
+    <!--        "PHOTOMETRY"     -->
+
+    <div id="photometryTab">
+        <svg id="photometryView" width="200" height="200">
+            <rect x="0" y="0" width="200" height="200" fill="black"></rect>
+            <defs>
+                <radialGradient id="exampleGradient">
+                    <stop offset="10%" stop-color="white"/>
+                    <stop offset="95%" stop-color="black"/>
+                </radialGradient>
+            </defs>
+
+            <circle fill="url(#exampleGradient)" cx="100" cy="100" r="60"/>
+
+            <text x="20" y="35" font-family="Verdana" font-size="20" fill="goldenrod">
+                sample image
+            </text>
+
+        </svg>
+        <br>
+        <button id="photoButton" onclick="stella.photometryManager.expose(10)">10 sec</button>
+    </div>
+
 
     <!--        "STAR RESULTS"     -->
 

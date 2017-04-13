@@ -72,13 +72,14 @@ var stella = {           //  top level global
             epoch: 2500.0,
             now: 2525.0,
             spectrumNumber : 0,
+            photometryNumber : 0,
             restored: false
         }
     },
 
     restoreGame : function() {
-        var tFocusStar = stella.model.starFromTextID( stella.state.focusStarNumber );
-        stella.manager.pointAtStar( tFocusStar );
+        var tFocusStar = stella.model.systemFromTextID( stella.state.focusStarNumber );
+        stella.manager.pointAtSystem( tFocusStar );
     }
 };
 
@@ -150,7 +151,7 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001m",
+    version: "001n",
     baseURL: "http://localhost:8888/dsg/stella.php",
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
@@ -185,7 +186,8 @@ stella.constants = {
         //   makeLabSpectrum : 0.03,
         changeResultType: 0.01,
         saveResult: 0.03,
-        savePositionFromDoubleclick: 0.01
+        savePositionFromDoubleclick: 0.01,
+        savePhotometry : 0.025
     },
 
     cReticleColor: "green"
