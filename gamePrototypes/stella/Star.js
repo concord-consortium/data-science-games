@@ -37,7 +37,7 @@
  B-V = 0.58
  distance = 5.95 (pc)
 
- Now the copmpanion, Eta Cassiopeiae B
+ Now the companion, Eta Cassiopeiae B
  Period (P)	480 yr
  Semi-major axis (a)	11.9939"
  Eccentricity (e)	0.497
@@ -67,32 +67,14 @@
  * @param iStarData
  * @constructor
  */
-var Star = function (iStarData) {
+var Star = function (iStarData, iSystem) {
 
     this.logMass = Number(iStarData.logMass);
     this.logAge = Number(iStarData.logAge);
     this.id = iStarData.id;
-    this.distance = Number(iStarData.sysWhere.r);
 
-/*
-    this.where = {
-        x: Number(iStarData.where.x),
-        y: Number(iStarData.where.y),
-        z: Number(iStarData.where.r)
-    };
-*/
-
-/*
-    this.pm = {
-        x: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vx), this.where.z),
-        y: stella.pmFromSpeedAndDistance(Number(iStarData.whither.vy), this.where.z),
-        r: Number(iStarData.whither.vr)
-    };
-*/
-
-/*
-    this.parallax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;   //  max in microdegrees
-*/
+    this.distance = iSystem.where.z;
+    this.radVel = iSystem.pm.r;
 
     //  what depends on mass and age...
 
@@ -106,9 +88,12 @@ var Star = function (iStarData) {
     this.varAmplitude = iStarData.varAmplitude;
     this.varPhase = iStarData.varPhase;
 
+    this.binPeriod = Math.random() * 0.4;
+    this.binAmplitude = 100;    //      km/sec
+    this.binPhase = 0;
 
     //  this.evolve();     //  old enough to move off the MS?
-    this.doPhotometry();    //  calculate UBV (etc) magnitudes
+    //  this.doPhotometry();    //  calculate UBV (etc) magnitudes
 };
 
 Star.prototype.reportTrueValue = function (iValueType) {
@@ -170,50 +155,6 @@ Star.prototype.htmlTableRow = function () {
     return o;
 };
 
-/**
- * Has this Star moved off the MS? If so, how much?
- * Answer is stored in this.myGiantIndex, which is 0 on the MS, (0,1) transitioning, 1 for giant, and 1000 for WD, NS, etc
- */
-/*
-Star.prototype.evolve = function () {
-    var tAge = Math.pow(10, this.logAge);           //  current age
-    this.myGiantIndex = this.computeGiantIndex(tAge);
-
-    if (this.myGiantIndex <= 0) {
-        this.myGiantIndex = 0;                 //      ON MAIN SEQUENCE. No evolution.
-    } else if (this.myGiantIndex <= 1) {        //  GIANT phase
-        /!*
-         Our model is, at this point, that as you age, you will maintain your luminosity,
-         but your temperature will decline, linearly, to about 3300K
-         (stella.constants.giantTemperature)
-         *!/
-
-        var tMSTemp = Math.pow(10, this.logMainSequenceTemperature);
-        var tCurrentTemp = tMSTemp - (this.myGiantIndex * (tMSTemp - stella.constants.giantTemperature));   //  linear
-
-        /!*
-         todo: this routine has two random() references. This is a problem as initial (evolved) stars are therefore not the same.
-         *!/
-
-        tCurrentTemp -= 500.0 * Math.random();      //  some variety in giant temperatures.
-        this.logTemperature = Math.log10(tCurrentTemp); //  here is where we set the star's evolved temperature
-        this.logRadius = this.logMainSequenceRadius + 2.0 * (this.logMainSequenceTemperature - this.logTemperature);
-        //  R goes like T^2 for constant luminosity (L goes as R^2T^4)
-    } else {            //          WHITE DWARF or...
-        var tRan = Math.random();
-        this.logTemperature = 4 + tRan * 0.5;       //  hot! 10000 to 30000
-
-        var tTempInSols = Math.pow(10, this.logTemperature) / stella.constants.solarTemperature;
-
-        //  todo: THIS is where we would have decided how much mass is left, and if we'll make a neutron star or BH.
-
-        this.logRadius = -2.0 - 0.3 * this.logMass;      //  see http://burro.cwru.edu/academics/Astr221/LifeCycle/WDmassrad.html
-        //  now we know temperature and radius, we can compute luminosity:
-        this.logLuminosity = 2 * this.logRadius + 4 * Math.log10(tTempInSols);
-    }
-};
-*/
-
 
 /**
  * Calculate apparent magnitude from absolute and distance
@@ -232,21 +173,7 @@ Star.apparentMagnitude = function (iAbsoluteMagnitude, iDistance) {
  */
 Star.prototype.setUpSpectrum = function () {
     var tSpectrum = new Spectrum();
-    tSpectrum.hasAbsorptionLines = true;
-    tSpectrum.hasEmissionLines = false;
-    tSpectrum.hasBlackbody = true;
-    tSpectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
-
-    //  NB: no Lithium
-    tSpectrum.addLinesFrom(elementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
-
-    tSpectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
-    tSpectrum.source.id = this.id;
-
+    tSpectrum.setStar(this);
     return tSpectrum;
 };
 
@@ -284,6 +211,35 @@ Star.prototype.doPhotometry = function () {
 
 };
 
+Star.prototype.radialVelocity = function() {
+    var dRadVel = 0;    //  change in radial velocity due to binary
+
+    if (this.binPeriod > 0) {
+        dRadVel = this.binAmplitude * Math.sin(this.binPhase + stella.state.now * Math.PI * 2 / this.binPeriod);
+    }
+    var tCurrentRadVel = this.radVel + dRadVel;
+    return tCurrentRadVel;
+};
+
+/**
+ * What is the current log of the absolute luminosity? That is, at the source.
+ * Uses the inherent constant this.logLuminosity as a base.
+ *
+ * @param iFilter   filter being used
+ * @returns {*}
+ */
+Star.prototype.logAbsoluteLuminosity = function( iFilter ) {
+    var dLogLum = 0;   //  change in LOG of amplitude due to variability
+
+    if (this.varPeriod > 0) {
+        var logAmp = Math.log10(this.varAmplitude + 1);     //  so it will be 0 if the amplitude is zero, log(1.3) if .3, etc.
+        dLogLum = logAmp * Math.sin(this.varPhase + stella.state.now * Math.PI * 2 / this.varPeriod);
+    }
+    var tCurrentLogAbsLum = this.logLuminosity + dLogLum;
+    return tCurrentLogAbsLum;
+
+    //  todo: make the filter work!
+};
 
 /**
  * Returns the current apparent LOG brightness
@@ -291,14 +247,7 @@ Star.prototype.doPhotometry = function () {
  */
 
 Star.prototype.bright = function( iFilter ) {
-    var dAmp = 0;   //  change in amplitude due to variability
-
-    if (this.varPeriod > 0) {
-        var logAmp = Math.log10(this.varAmplitude + 1);
-        dAmp = logAmp * Math.sin(this.varPhase + stella.state.now * Math.PI * 2 / this.varPeriod);
-    }
-    var tCurrentLum = this.logLuminosity + dAmp;
-    return 4 + tCurrentLum - 2 * Math.log10(this.distance);
+    return 4 + this.logAbsoluteLuminosity( iFilter ) - 2 * Math.log10(this.distance);
 };
 
 /**

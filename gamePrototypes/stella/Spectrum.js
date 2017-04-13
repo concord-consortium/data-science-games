@@ -35,6 +35,11 @@
  For simplicity, we'll compute it using the blackbody ONLY,
  */
 
+/*
+channelization creates an array of objects with {min:, max:, intensity}
+normalized so that the max intensity is 100.
+We might change that normalization (and perhaps topcode it) if we implement dwell times in spectra.
+ */
 /* global $, console, Line */
 
 /**
@@ -49,6 +54,34 @@ var Spectrum = function() {
     this.blackbodyTemperature = 0;
     this.speedAway = 0;      //  cm/sec. c is Spectrum.constants.light.
     this.source = { brightness : 100 };
+    this.theStar = null;
+};
+
+/**
+ * The consequences of this spectrum being of a star.
+ * Add lines, BB temp, etc.
+ * Refer to the star itself because we'll need the distance and stellar radius for spectral intensity.
+ * @param iStar
+ */
+Spectrum.prototype.setStar = function(iStar) {
+    this.theStar = iStar;
+
+    var tTemp = this.theStar.logTemperature;
+
+    this.hasAbsorptionLines = true;
+    this.hasEmissionLines = false;
+    this.hasBlackbody = true;
+    this.blackbodyTemperature = Math.pow(10, tTemp);
+
+    //  NB: no Lithium
+    this.addLinesFrom(elementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", tTemp));
+    this.addLinesFrom(elementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", tTemp));
+    this.addLinesFrom(elementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", tTemp));
+    this.addLinesFrom(elementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", tTemp));
+    this.addLinesFrom(elementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", tTemp));
+
+    this.speedAway = this.theStar.radialVelocity() * 1.0e05;    //      cm/sec, right??
+    this.source.id = this.theStar.id;
 };
 
 /**
@@ -89,7 +122,13 @@ Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
 
     //  add any blackbody
     if (this.hasBlackbody) {
-        oIntensity += this.normalizedBlackbodyAtWavelength( (iMin + iMax) / 2.0, this.speedAway );
+        //  2017.04.13  changed to relative so we can add absorption spectra from two stars of diff temps.
+        //              This means normalization has to happen LATER. NOT in channelize() -- even earlier,
+        //              SpectrumView.displaySkySpectrum, and .normalize...
+
+        oIntensity += Spectrum.relativeBlackbodyIntensityAt( (iMin + iMax) / 2.0, this.blackbodyTemperature, this.speedAway );
+
+        //  oIntensity += this.normalizedBlackbodyAtWavelength( (iMin + iMax) / 2.0, this.speedAway );
     }
 
     //  todo: change this so that stars can have emission and absorption. Later.
@@ -109,19 +148,22 @@ Spectrum.prototype.intensityBetween = function( iMin, iMax ) {
 /**
  * Divide the wavelength interval to be displayed into bins,
  * and make an array that gives the intensity in each bin.
- * @param iMin      min wavelength to be displayed
+ * @param iMin      min wavelength to be displayed in nm
  * @param iMax      max
  * @param iNBins    how many bins?
- * @returns {Array} Array of channel objects: { intensity (0-100), min (wavelength), max }
+ * @returns {Array} Array of channel objects: { intensity, min (wavelength, nm), max }
  */
 Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
     var oChannels= [];
     var tLambda = iMin;        //  bottom of the interval
     var tResolution = (iMax - iMin) / iNBins;
 
+    var tMaxIntensity = 0;
+
     for ( var i = 0; i < iNBins; i++ ) {
         tLambda = iMin + i * tResolution;
-        var tI = this.intensityBetween( tLambda, tLambda + tResolution) * this.source.brightness / 100;
+        var tI = this.intensityBetween( tLambda, tLambda + tResolution);
+        if (tI > tMaxIntensity) { tMaxIntensity = tI; }
         oChannels.push(
             {
                 intensity : tI,
@@ -131,54 +173,58 @@ Spectrum.prototype.channelize = function( iMin, iMax, iNBins )    {
         );
     }
 
-    var dText = "";
-    dText = oChannels.reduce(function(dText, c) {
-        dText += c.intensity.toFixed(2) + " ";
-        return dText;
-    });
-    //  $("#debugText").text( dText );
+    //  if this is a stellar spectrum, adjust for stellar size and distance
 
-    return oChannels;
+    var tIntensityFactor = this.theStar ? Math.pow(10, 2 * this.theStar.logRadius) / Math.pow( this.theStar.distance, 2) : 1;
+    oChannels.forEach(function(c) {
+        c.intensity *= tIntensityFactor;
+    });
+
+    return oChannels;   //  note: NOT normalized to 100!
 };
 
 /**
  * Calculate the blackbody intensity at a wavelength,
  * set so that the maximum value in the visible interval is 100.
- * @param iLambda
+ * @param iLambda       in nm
  * @param iSpeedAway
  * @returns {number}
  */
-Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAway) {   //  todo: doppler shift BB
-    var tLambda =  (iLambda * 1.0e-7);      //  convert nm to cm
+Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAway) {
+    var tLambda =  iLambda;      //  convert nm to cm
 
     //  compute the wavelength where the function is a maximum
     var tMaxLambda = Spectrum.constants.wien / this.blackbodyTemperature;       //   in cm. Wien's displacement law.
-    if (tMaxLambda < Spectrum.constants.visibleMin * 1.0e-07) {
-        tMaxLambda = Spectrum.constants.visibleMin * 1.0e-07;   //  ah, the peak is in UV, so we pick 350 nm.
-    }
-    if (tMaxLambda > Spectrum.constants.visibleMax * 1.0e-07) {
-        tMaxLambda = Spectrum.constants.visibleMax * 1.0e-07;   //  peak is in IR, so we usee 700 nm.
-    }
-    var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature);  //  this will be our denominator
 
-    var tIntense = Spectrum.relativeBlackbodyIntensityAt(tLambda, this.blackbodyTemperature);
+    if (tMaxLambda < Spectrum.constants.visibleMin) {
+        tMaxLambda = Spectrum.constants.visibleMin;   //  ah, the peak is in UV, so we pick 350 nm.
+    }
+    if (tMaxLambda > Spectrum.constants.visibleMax) {
+        tMaxLambda = Spectrum.constants.visibleMax;   //  peak is in IR, so we usee 700 nm.
+    }
+    var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature, iSpeedAway);  //  this will be our denominator
+
+    var tIntense = Spectrum.relativeBlackbodyIntensityAt(tLambda, this.blackbodyTemperature, iSpeedAway);
     return 100.0 *  tIntense / tMaxIntensity;
 };
 
 /**
- * Raw blackbody intensity calcuation.
- * @param iLambda       wavelength (cm)
+ * Raw blackbody intensity calculation.
+ * NOTE: Class method!
+ * @param iLambda       wavelength (nm)
  * @param iTemp         temperature (K)
  * @returns {number}
  */
-Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp) {
+Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp, iSpeedAway) { //  todo: implement BB doppler
+    var cmLambda = iLambda * 1.0e-07;  //  convert to cm for physics calculations
+
     var kT = Spectrum.constants.boltzmann * iTemp;
-    var hNu = Spectrum.constants.planck * Spectrum.constants.light / iLambda;
+    var hNu = Spectrum.constants.planck * Spectrum.constants.light / cmLambda;
     var csq = Spectrum.constants.light * Spectrum.constants.light;
 
     var tDenom =  (Math.exp( hNu / kT)) - 1.0;
 
-    return (2 * csq * Spectrum.constants.planck / (Math.pow(iLambda, 5))) * (1.0 / tDenom);
+    return (2 * csq * Spectrum.constants.planck / (Math.pow(cmLambda, 5))) * (1.0 / tDenom);
 };
 
 /**

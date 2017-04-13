@@ -68,6 +68,7 @@ stella.skyView = {
         this.makeAndInstallStarViews( );  // now make all the star views
         this.makeAndInstallReticles();       //  make the reticle views and heads-up
 
+        console.log("Need to point at the middle of the field");
         //  now point, and set this paper's "view box"
         //  the middle of the pane
         var tPointAt = { x : stella.constants.universeWidth/2, y : stella.constants.universeWidth/2};
@@ -83,14 +84,15 @@ stella.skyView = {
      * At 1x, put the crosshairs (reticle) on it.
      * at more than 1x, put the crosshairs in the middle and put the catalog position on the crosshairs
      *
-     * @param iStar
+     * @param iSys  the system to point at
      */
     pointAtSystem : function( iSys ) {
 
         if (iSys) {
             stella.model.stellaElapse(stella.constants.timeRequired.changePointing);
             var tWhereNow = iSys.positionAtTime( stella.state.now );
-            //  note that iStar.where is its catalog location.
+
+            //  note that iSys.where is its catalog location.
             this.pointAtLocation( iSys.where, true);    //  moves the star field if necessary. True = animate
         }
     },

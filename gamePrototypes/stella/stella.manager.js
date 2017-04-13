@@ -49,22 +49,8 @@ stella.manager = {
         //  stella.model.newGame();     //  make all the stars etc.
         this.playing = true;
 
-        codapInterface.sendRequest({
-            action: 'get',
-            resource: 'dataContext[' + stella.connector.catalogDataSetName +
-            '].collection[' + stella.connector.catalogCollectionName + '].caseCount'
-        }).then(function (iResult) {
-            if (iResult.success) {
-                tCount = iResult.values;
-                console.log('Restored ' + tCount + ' stars to the catalog');
-                if (tCount === 0) {
-                    stella.manager.emitInitialStarsData();  //  Not called if restoring from file
-                }
-            }
-        });
-
         stella.spectrumManager.spectrumParametersChanged();     //  reads the UI and sets various variables.
-        stella.manager.updateStella();              //  update the screen and text
+        //  stella.manager.updateStella();              //  update the screen and text (not necessary because other fn calls me
     },
 
 
@@ -73,7 +59,6 @@ stella.manager = {
      * Often called when the user has changed something.
      */
     updateStella: function () {
-        stella.model.skySpectrum = (this.focusSystem === null) ? null : this.focusSystem.setUpSpectrum();  //  make the spectrum
         stella.spectrumManager.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
     },
@@ -100,7 +85,7 @@ stella.manager = {
         if (iSys) {
             stella.skyView.pointAtSystem(iSys);     //      added in...
             this.focusOnSystem(iSys);
-            console.log("Point at " + this.focusSystem.id +
+            console.log("Point at " + this.focusSystem.sysID +
                 " at " + this.focusSystem.where.x.toFixed(3) + ", " +
                 this.focusSystem.where.y.toFixed(3));
         } else {
@@ -134,21 +119,16 @@ stella.manager = {
 
         console.log("starting  ... manager.emitInitialStarsData()");
 
+        var tValueArray = [];
+
         //  todo: make this a single call instead of one per star
         stella.model.systems.forEach(function (iSys) {
             var tValues = iSys.dataValues();
             tValues.date = stella.state.epoch;
-
-            stella.connector.emitStarCatalogRecord(tValues, starRecordCreated);   //  emit the catalog case
-
-            function starRecordCreated(iResult) {
-                if (iResult.success) {
-                    iSys.caseID = iResult.values[0];   //  .id;
-                } else {
-                    console.log("Failed to create case for system " + iSys.id);
-                }
-            }
+            tValueArray.push(tValues);
         });
+
+        stella.connector.emitStarCatalogRecord(tValueArray);    //, starRecordCreated);   //  emit the catalog case
 
         console.log("done with ... manager.emitInitialStarsData()");
     },

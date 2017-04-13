@@ -53,7 +53,7 @@ var System = function (iData) {
     this.stars = [];
 
     iData.stars.forEach( function(s) {
-        var tStar = new Star(s);
+        var tStar = new Star(s, this);
         this.stars.push(tStar);
     }.bind(this));
 
@@ -109,40 +109,20 @@ System.prototype.dataValues = function () {
         y: this.where.y.toFixed(6),
         bright : this.bright(null).toFixed(2),
         id: this.sysID,
-        U: Star.apparentMagnitude(this.bright("U")).toFixed(2),
-        B: Star.apparentMagnitude(this.bright("B")).toFixed(2),
-        V: Star.apparentMagnitude(this.bright("V")).toFixed(2)
+        U: this.bright("U").toFixed(2),
+        B: this.bright("B").toFixed(2),
+        V: this.bright("V").toFixed(2)
     };
 
     return out;
 };
 
 /**
- * Make THIS star's spectrum.
- * Only need it when we have to put it up, so we don't store it.
- * @returns {Spectrum}
+ * Report true values of various possible Results
+ *
+ * @param iValueType
+ * @returns {{trueValue: *, trueDisplay: *}}
  */
-System.prototype.setUpSpectrum = function () {
-    var tSpectrum = new Spectrum();
-    tSpectrum.hasAbsorptionLines = true;
-    tSpectrum.hasEmissionLines = false;
-    tSpectrum.hasBlackbody = true;
-    tSpectrum.blackbodyTemperature = Math.pow(10, this.logTemperature);
-
-    //  NB: no Lithium
-    tSpectrum.addLinesFrom(elementalSpectra.H, 50 * Spectrum.linePresenceCoefficient("H", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.HeI, 30 * Spectrum.linePresenceCoefficient("HeI", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.NaI, 40 * Spectrum.linePresenceCoefficient("NaI", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.CaII, 30 * Spectrum.linePresenceCoefficient("CaII", this.logTemperature));
-    tSpectrum.addLinesFrom(elementalSpectra.FeI, 30 * Spectrum.linePresenceCoefficient("FeI", this.logTemperature));
-
-    tSpectrum.speedAway = this.pm.r * 1.0e05;    //      cm/sec, right??
-    tSpectrum.source.id = this.id;
-
-    return tSpectrum;
-};
-
-
 System.prototype.reportTrueValue = function (iValueType) {
     var out;
     var outDisplay;
@@ -180,18 +160,40 @@ System.prototype.reportTrueValue = function (iValueType) {
     return {trueValue: out, trueDisplay: outDisplay};
 };
 
+System.prototype.logAbsoluteLuminosity = function( iFilter ) {
+    var lum = 0;
+    this.stars.forEach( function(s) {
+        var b = s.logAbsoluteLuminosity( iFilter );
+        lum += Math.pow(10, b);
+    });
+    return Math.log10(lum);
+};
+
 /**
  * Returns the current apparent LOG brightness
  * @returns {number}
  */
 
 System.prototype.bright = function( iFilter ) {
-    var lum = 0;
-    this.stars.forEach( function(s) {
-        var b = s.bright( iFilter );
-        lum += Math.pow(10, b);
-    });
+    var lum = this.logAbsoluteLuminosity( iFilter ) - 2 * Math.log10( this.where.z );
+    return lum + 4;
+};
 
-    return Math.log10(lum);
+
+System.prototype.htmlTableRow = function () {
+
+    var o = "<tr>";
+    o += "<td>" + this.sysID + "</td>";
+    o += "<td>" + this.stars.map(function(s){return s.logMass.toFixed(2)}) + "</td>";
+    o += "<td>" + this.stars.map(function(s){return Math.pow(10,s.logTemperature-3.0).toFixed(2)}) + "</td>";
+    o += "<td>" + this.logAge.toFixed(2) + "</td>";
+    o += "<td>" + this.logAbsoluteLuminosity(null).toFixed(2) + "</td>";
+    o += "<td>" + this.bright(null).toFixed(2) + "</td>";
+    o += "<td>" + this.stars.map(function(s){return s.myGiantIndex.toFixed(2)}) + "</td>";
+    o += "<td>" + this.where.z.toFixed(2) + "</td>";
+    o += "<td>" + this.stars.map(function(s){return s.varPeriod.toFixed(2)}) + "</td>";
+    o += "</tr>";
+
+    return o;
 };
 

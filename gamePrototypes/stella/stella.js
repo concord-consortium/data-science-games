@@ -108,10 +108,10 @@ stella.initialize = function () {
     //  stella.manager.starResultType = $("#starResultTypeMenu").val(); //  what kind of result is selected on that tab
     stella.constants.parsec = 206265 * stella.constants.astronomicalUnit; //  must be computed
 
+    elementalSpectra.initialize();  //  read the line data into objects
     stella.model.newGame(); //  reads in the stars, sets up the lab.
     stella.spectrumManager.newGame();   //  sets up the two spectrum views
     stella.skyView.initialize();   //  make the sky
-    elementalSpectra.initialize();  //  read the line data into objects
 
     /*
     Now, if we have read in the state from a file, we "restore" the game.
@@ -127,8 +127,25 @@ stella.initialize = function () {
         console.log("    ****    This is a new game, not restored from a file    **** ")
     }
 
+    var tResource = 'dataContext[' + stella.connector.catalogDataSetName +
+        '].collection[' + stella.connector.catalogCollectionName + '].caseCount';
+
+    codapInterface.sendRequest(
+        {
+            action: 'get',
+            resource: tResource
+        }
+    ).then(function (iResult) {
+        if (iResult.success) {
+            tCount = iResult.values;
+            console.log('Restored ' + tCount + ' stars to the catalog');
+            if (tCount === 0) {
+                stella.manager.emitInitialStarsData();  //  Not called if restoring from file
+            }
+        }
+    });
+
     stella.player.initialize();
-    //  stella.share.initialize(stella.constants.baseURL);
 
     stella.manager.newGame();
 };
@@ -174,9 +191,9 @@ stella.constants = {
     universeWidth: 5,              //  degrees, about 0.1 radians
     universeDistance: 100,          //  parsecs
 
-    lambdaU: 364 * 1.0e-07,      //  for photometry. cm
-    lambdaB: 442 * 1.0e-07,
-    lambdaV: 540 * 1.0e-07,
+    lambdaU: 364,      //  for photometry. nm.
+    lambdaB: 442,
+    lambdaV: 540,
 
     //  Constants for how long things take in game time. Currently in years.
 

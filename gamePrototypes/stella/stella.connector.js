@@ -62,15 +62,14 @@ stella.connector = {
 
     /**
      * Emit a "star" case, into the star catalog.
-     * One case per Star.
+     * One case per System.
      * @param iCaseValues   the values to be passed
      * @param iCallback
      */
-    emitStarCatalogRecord: function (iCaseValues, iCallback) {
+    emitStarCatalogRecord: function (iCaseValues) { //  , iCallback) {
         pluginHelper.createItems(
             iCaseValues,
-            this.catalogDataSetName,
-            iCallback   //  callback is in .manager. To record the case ID (for selection work)
+            this.catalogDataSetName //  ,iCallback   //  callback is in .manager. To record the case ID (for selection work)
         );
     },
 
@@ -150,10 +149,10 @@ stella.connector = {
      * We have case IDs for the stars! Tell CODAP to select this star.
      * @param iStar  the relevant star
      */
-    selectStarInCODAP: function (iStar) {
-        var theStarName = iStar.id;     //  we know to make it an array before we ever start
+    selectStarInCODAP: function (iSys) {
+        var theSysName = iSys.sysID;     //  we know to make it an array before we ever start
 
-        var tSelectionExpression = "[id==" + theStarName + "]";
+        var tSelectionExpression = "[id==" + theSysName + "]";
         var tMessage = {
             action : "get",
             resource : "dataContext[" + this.catalogDataSetName + "].collection[" +
@@ -367,9 +366,10 @@ function startCodapConnection() {
                     stella.initialize();
 
                     //  register to receive notifications about changes in the star catalog (esp selection)
+                    var tResource = 'dataContext[' + stella.connector.catalogDataSetName + ']'; // todo: dataContextChangeNotice??
                     codapInterface.on(
                         'notify',
-                        'dataContext[' + stella.connector.catalogDataSetName + ']', // todo: dataContextChangeNotice??
+                        tResource,
                         stella.manager.stellaDoCommand
                     );
                 }

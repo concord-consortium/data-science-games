@@ -69,26 +69,15 @@ stella.model = {
      * @returns {*}
      */
     systemFromTextID: function (iText) {
-        this.systems.forEach(function (iSys) {
+        var tSys = null;
+        this.systems.some(function (iSys) {
             if (iSys.sysID.includes(iText)) {
-                return iSys;
+                tSys = iSys;
+                return true;
             }
+            return false;
         });
-        return null;
-    },
-
-    /**
-     * Gives you the Star corresponding to a caseID. Need for doing selection.
-     * @param id
-     * @returns {*} the Star
-     */
-    starFromCaseID: function (id) {
-        this.systems.forEach(function (iSys) {
-            if (iSys.sysID === id) {
-                return iSys;
-            }
-        });
-        return null;
+        return tSys;
     },
 
 
@@ -97,16 +86,15 @@ stella.model = {
      */
     makeAllStars: function () {
         //  stella.share.retrieveStars();
-        var dText = "<table><tr><th>id</th><th>logMass</th><th>temp</th><th>age</th><th>logLum</th><th>bright</th>" +
+        var dText = "<table><tr><th>sysID</th><th>logMass</th><th>(°K)000</th><th>age</th><th>logLum</th><th>bright</th>" +
             "<th>GI</th><th>dist</th><th>per</th></tr>";
 
         stella.initialStarData.forEach(
             function (isd) {
                 var sys = new System(isd);
                 stella.model.systems.push(sys);
-                sys.stars.forEach(function(s) {
-                    dText += s.htmlTableRow();
-                })
+                dText += sys.htmlTableRow();
+
 /*
                 isd.stars.forEach(function (starJSON) {
                     var s = new Star(starJSON);

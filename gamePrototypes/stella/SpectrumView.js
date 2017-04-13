@@ -40,12 +40,12 @@
  * @param iSVGName  name of the SVG element to house this
  * @constructor
  */
-var SpectrumView = function ( iSVGName, iManager) {
-    this.paper = new Snap(document.getElementById( iSVGName ));        //      snap.svg paper
+var SpectrumView = function (iSVGName, iManager) {
+    this.paper = new Snap(document.getElementById(iSVGName));        //      snap.svg paper
     this.manager = iManager;
 
     //  this.initialize( this.paper.node.clientWidth, this.paper.node.clientHeight);
-    this.initialize( 300, 60 );     //      todo: fix this kludge! Why can't we get the dimensions from the width and height in html? It works for stella.skyview!
+    this.initialize(300, 60);     //      todo: fix this kludge! Why can't we get the dimensions from the width and height in html? It works for stella.skyview!
 };
 
 /**
@@ -53,7 +53,7 @@ var SpectrumView = function ( iSVGName, iManager) {
  * @param iWidth
  * @param iHeight
  */
-SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
+SpectrumView.prototype.initialize = function (iWidth, iHeight) {
     this.totalSpectrumViewHeight = iHeight;
     this.spectrumViewWidth = iWidth;
 
@@ -72,9 +72,9 @@ SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
     this.gain = 1.0;
     this.showNoData();
 
-    this.paper.click( this.manager.clickInSpectrum );     //  register the click handler
+    this.paper.click(this.manager.clickInSpectrum);     //  register the click handler
 
-    console.log( "Initialize a spectrum view");
+    console.log("Initialize a spectrum view");
 };
 
 /**
@@ -83,7 +83,7 @@ SpectrumView.prototype.initialize = function ( iWidth, iHeight ) {
  * @param iMin
  * @param iMax
  */
-SpectrumView.prototype.adjustLimits = function( iMin, iMax )    {
+SpectrumView.prototype.adjustLimits = function (iMin, iMax) {
     this.lambdaMin = iMin;
     this.lambdaMax = iMax;
 
@@ -107,7 +107,7 @@ SpectrumView.prototype.toString = function () {
  * Call to actually display a spectrum. Installs the given Spectrum in this SpectrumView.
  * @param iSpectrum     Spectrum to display
  */
-SpectrumView.prototype.displaySpectrum = function (iSpectrum) {
+SpectrumView.prototype.displayLabSpectrum = function (iSpectrum) {
     this.spectrum = iSpectrum;
 
     //  make two channel arrays, one full-range, one zoomed.
@@ -116,6 +116,68 @@ SpectrumView.prototype.displaySpectrum = function (iSpectrum) {
         this.zoomChannels = this.spectrum.channelize(this.lambdaMin, this.lambdaMax, this.nBins);   //  array of objects { intensity, min, max}
     }
     this.paintChannels();       //  actually draw
+};
+
+/**
+ * Construct the channels from the spectra of the given objects
+ * Then display them.
+ * @param iObjects  the star or stars whose spectra are superimposed
+ */
+SpectrumView.prototype.displaySkySpectrum = function (iSystem) {
+
+    this.channels = [];
+
+    if (iSystem) {
+        var channelSets = [];
+        var zoomChannelSets = [];
+
+        iSystem.stars.forEach(
+            function (iStar) {
+                var tOneStarSpectrum = iStar.setUpSpectrum();
+                channelSets.push(tOneStarSpectrum.channelize(this.lambdaMinPossible, this.lambdaMaxPossible, this.nBins));   //  array of objects { intensity, min, max}
+                zoomChannelSets.push(tOneStarSpectrum.channelize(this.lambdaMin, this.lambdaMax, this.nBins));
+            }.bind(this)
+        );
+
+        this.channels = channelSets[0];         //  start with the first one
+        this.zoomChannels = zoomChannelSets[0];
+
+        if (iSystem.stars.length > 1) {         //  if there is another, add it.
+            var tCh = channelSets[1];
+            var tZCh = zoomChannelSets[1];
+            for (var i = 0; i < this.channels.length; i++) {
+                this.channels[i].intensity += tCh[i].intensity;
+                this.zoomChannels[i].intensity += tZCh[i].intensity;
+            }
+        }
+    }
+
+    this.channels = SpectrumView.normalizeChannelArrayTo( this.channels, 100.0);
+    this.zoomChannels = SpectrumView.normalizeChannelArrayTo( this.zoomChannels, 100.0);
+    this.paintChannels();
+};
+
+/**
+ * NOTE: Class method
+ *
+ * @param iChannels
+ * @param iIntensityLimit
+ * @returns {*}
+ */
+SpectrumView.normalizeChannelArrayTo = function( iChannels, iIntensityLimit ) {
+    var tMaxIntensity = 0;
+
+    iChannels.forEach( function(c) {
+        if (c.intensity > tMaxIntensity) {
+            tMaxIntensity = c.intensity;
+        }
+    });
+
+    iChannels.forEach( function(c) {
+        c.intensity *= iIntensityLimit / tMaxIntensity;
+    });
+
+    return iChannels;
 };
 
 /**
@@ -136,8 +198,8 @@ SpectrumView.prototype.paintChannels = function () {
             0, this.mainSpectrumHeight + this.interspectrumGap,
             this.pixelMin, this.mainSpectrumHeight + this.interspectrumGap / 3
         ).attr({
-            fill : "lightgray",
-            stroke : "black"
+            fill: "lightgray",
+            stroke: "black"
         });
         var tChannelWidthOnDisplay = this.spectrumViewWidth / (tNChannels);
         var tLeft;
@@ -195,7 +257,7 @@ SpectrumView.prototype.paintChannels = function () {
 /**
  * If there is no data, display something to that effect
  */
-SpectrumView.prototype.showNoData = function() {
+SpectrumView.prototype.showNoData = function () {
     this.spectrum = null;
     this.channels = [];
     this.zoomChannels = [];

@@ -53,11 +53,11 @@ stella.ui = {
         //  make focusSystem label and make sure it's got the right spectrum
         var focusStarText = stella.strings.notPointingText;
         if (stella.manager.focusSystem) {
-            focusStarText = "Pointing at " + stella.manager.focusSystem.id +
+            focusStarText = "Pointing at " + stella.manager.focusSystem.sysID +
                     " • " + stella.state.magnification + "X";
             this.pointAtStarInputField.val( stella.manager.focusSystem.id );
 
-            stella.model.skySpectrum = stella.manager.focusSystem.setUpSpectrum();
+            // stella.model.skySpectrum = stella.manager.focusSystem.setUpSpectrum();
         }
 
         //  Blue bar at the top of the screen
@@ -119,7 +119,6 @@ stella.ui = {
 
             default:
                 tRelValText += "Possibly relevant values go here.";
-
         }
 
         this.relevantValuesText.html( tRelValText );

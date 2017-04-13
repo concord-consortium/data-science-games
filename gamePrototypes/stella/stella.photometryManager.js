@@ -43,7 +43,7 @@ stella.photometryManager = {
 
         if (stella.manager.focusSystem) {
             this.starCount = this.getTargetCount(stella.manager.focusSystem, iTime);
-            tTargetName = stella.manager.focusSystem.id;
+            tTargetName = stella.manager.focusSystem.sysID;
         } else {
             this.starCount = this.getSkyCount( iTime );
         }

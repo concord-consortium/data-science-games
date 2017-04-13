@@ -50,8 +50,8 @@ stella.spectrumManager = {
      * Actually display both spectra
      */
     displayAllSpectra: function () {
-        this.skySpectrumView.displaySpectrum(stella.model.skySpectrum);
-        this.labSpectrumView.displaySpectrum(stella.model.labSpectrum);
+        this.skySpectrumView.displaySkySpectrum(stella.manager.focusSystem);
+        this.labSpectrumView.displayLabSpectrum(stella.model.labSpectrum);
     },
 
     /**
@@ -67,7 +67,7 @@ stella.spectrumManager = {
                 tSpectrum = stella.model.skySpectrum;
                 tSpectrumView = this.skySpectrumView;
                 tChannels = tSpectrumView.zoomChannels;
-                tTitle = stella.manager.focusSystem.id;
+                tTitle = stella.manager.focusSystem.sysID;
                 break;
 
             case "lab":
@@ -86,7 +86,6 @@ stella.spectrumManager = {
         }
 
         stella.manager.updateStella();
-
     },
 
     /**
@@ -171,9 +170,7 @@ stella.spectrumManager = {
 
         stella.spectrumManager.labSpectrumView.adjustLimits(tMin, tMax);  //  sets lambdaMin, lambdaMax
         stella.spectrumManager.skySpectrumView.adjustLimits(tMin, tMax);
-        stella.spectrumManager.displayAllSpectra();
 
-        stella.manager.updateStella();
+        stella.manager.updateStella();  //  calls displayAllSpectra
     }
-
-}
+};
