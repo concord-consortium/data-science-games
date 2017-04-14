@@ -201,7 +201,7 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "date", type: 'numeric', precision: 3, description: "date of result (yr)"},
+                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of result"},
                         {name: "id", type: 'categorical', description: "stellar ID string"},
                         {name: "type", type: 'categorical', description: "result type"},
                         {name: "value", type: 'numeric', precision: 8, description: "result value"},
@@ -230,9 +230,9 @@ stella.connector = {
 
                     attrs: [
                         {name: "runNo", type: 'categorical'},
-                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
+                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of observation (yr)"},
                         {name: "target", type: 'categorical', description: "the name of the target"},
-                        {name: "exposure", type: 'numeric', precision: 3, description: "exposure time"},
+                        {name: "exposure", type: 'numeric', precision: 3, unit : 'sec', description: "exposure time"},
                         {name: "filter", type: 'categorical', description: "the name of the filter"}
                     ],
                     childAttrName: 'channel'
@@ -275,7 +275,7 @@ stella.connector = {
 
                     attrs: [
                         {name: "specNum", type: 'categorical'},
-                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
+                        {name: "date", type: 'numeric', precision: 4, unit : "yr", description: "date of observation"},
                         {name: "name", type: 'categorical', description: "the name of the spectrum"}
                     ],
                     childAttrName: "channel"
@@ -290,7 +290,7 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "wavelength", type: 'numeric', precision: 5, description: "wavelength (nm)"},
+                        {name: "wavelength", type: 'numeric', unit : 'nm', precision: 5, description: "wavelength"},
                         {name: "intensity", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
                     ]
                 }
@@ -319,15 +319,15 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "date", type: 'numeric', precision: 3, description: "date of observation (yr)"},
+                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of observation"},
                         {name: "id", type: 'categorical', description: "Stellar ID string"},
-                        {name: "x", type: 'numeric', precision: 6, description: "angle in x (degrees)"},
-                        {name: "y", type: 'numeric', precision: 6, description: "angle in y (degrees)"},
+                        {name: "x", type: 'numeric', precision: 6, unit : 'deg', description: "angle in x"},
+                        {name: "y", type: 'numeric', precision: 6,unit : 'deg',  description: "angle in y"},
                         {name: "bright", type: 'numeric', precision: 2, description: "log of apparent brightness"},
-                        {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "U", type: 'numeric', precision: 2, description: "apparent magnitude in U"},
-                        {name: "B", type: 'numeric', precision: 2, description: "apparent magnitude in B"},
-                        {name: "V", type: 'numeric', precision: 2, description: "apparent magnitude in V"},
+                        // {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
+                        {name: "U", type: 'numeric', precision: 2, description: "log brightness in U"},
+                        {name: "B", type: 'numeric', precision: 2, description: "log brightness in B"},
+                        {name: "V", type: 'numeric', precision: 2, description: "log brightness in V"},
                         {name: "name", type: 'categorical'}
                     ]
                 }

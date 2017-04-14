@@ -115,6 +115,9 @@ SpectrumView.prototype.displayLabSpectrum = function (iSpectrum) {
         this.channels = this.spectrum.channelize(this.lambdaMinPossible, this.lambdaMaxPossible, this.nBins);   //  array of objects { intensity, min, max}
         this.zoomChannels = this.spectrum.channelize(this.lambdaMin, this.lambdaMax, this.nBins);   //  array of objects { intensity, min, max}
     }
+
+    this.channels = SpectrumView.normalizeChannelArrayTo( this.channels, 100.0);
+    this.zoomChannels = SpectrumView.normalizeChannelArrayTo( this.zoomChannels, 100.0);
     this.paintChannels();       //  actually draw
 };
 

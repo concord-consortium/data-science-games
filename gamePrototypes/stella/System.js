@@ -48,7 +48,7 @@ var System = function (iData) {
         r: (this.whither.vr)
     };
 
-    this.parallax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;   //  max in microdegrees
+    this.parallax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;   //  reported in microdegrees
 
     this.stars = [];
 
@@ -74,7 +74,6 @@ System.prototype.positionAtTime = function (iTime) {
 
     //  parallax
 
-    //  var tParallaxMax = (1 / this.where.z) * stella.constants.microdegreesPerArcSecond;
     var tFracYear = iTime % 1;      //  the fractional part of the year
 
     var tParallax = this.parallax * Math.cos(tFracYear * 2 * Math.PI);  //  at year.0 and year.5, we're at extremes.
@@ -105,10 +104,10 @@ System.prototype.positionAtTime = function (iTime) {
 System.prototype.dataValues = function () {
 
     var out = {
+        id: this.sysID,
         x: this.where.x.toFixed(6),
         y: this.where.y.toFixed(6),
         bright : this.bright(null).toFixed(2),
-        id: this.sysID,
         U: this.bright("U").toFixed(2),
         B: this.bright("B").toFixed(2),
         V: this.bright("V").toFixed(2)
@@ -187,7 +186,7 @@ System.prototype.htmlTableRow = function () {
     o += "<td>" + this.stars.map(function(s){return s.logMass.toFixed(2)}) + "</td>";
     o += "<td>" + this.stars.map(function(s){return Math.pow(10,s.logTemperature-3.0).toFixed(2)}) + "</td>";
     o += "<td>" + this.logAge.toFixed(2) + "</td>";
-    o += "<td>" + this.logAbsoluteLuminosity(null).toFixed(2) + "</td>";
+    o += "<td>" + this.stars.map(function(s){return s.logAbsoluteLuminosity(null).toFixed(2)}) + "</td>";
     o += "<td>" + this.bright(null).toFixed(2) + "</td>";
     o += "<td>" + this.stars.map(function(s){return s.myGiantIndex.toFixed(2)}) + "</td>";
     o += "<td>" + this.where.z.toFixed(2) + "</td>";

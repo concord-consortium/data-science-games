@@ -124,7 +124,9 @@ stella.manager = {
         //  todo: make this a single call instead of one per star
         stella.model.systems.forEach(function (iSys) {
             var tValues = iSys.dataValues();
-            tValues.date = stella.state.epoch;
+            tValues.date = stella.state.epoch;  //  add the epoch to the record
+            tValues.x = Number(tValues.x).toFixed(3);      //  lower-precision in catalog
+            tValues.y = Number(tValues.y).toFixed(3);      //  lower-precision in catalog
             tValueArray.push(tValues);
         });
 

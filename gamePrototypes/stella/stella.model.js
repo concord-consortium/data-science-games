@@ -95,13 +95,6 @@ stella.model = {
                 stella.model.systems.push(sys);
                 dText += sys.htmlTableRow();
 
-/*
-                isd.stars.forEach(function (starJSON) {
-                    var s = new Star(starJSON);
-                    stella.model.stars.push(s);
-                    dText += s.htmlTableRow();
-                })
-*/
             }
         );
         dText += "</table>";

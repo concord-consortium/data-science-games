@@ -88,9 +88,9 @@ var Star = function (iStarData, iSystem) {
     this.varAmplitude = iStarData.varAmplitude;
     this.varPhase = iStarData.varPhase;
 
-    this.binPeriod = Math.random() * 0.4;
-    this.binAmplitude = 100;    //      km/sec
-    this.binPhase = 0;
+    this.binPeriod = iStarData.binPeriod;
+    this.binAmplitude = iStarData.binAmplitude;    //      km/sec
+    this.binPhase = iStarData.binPhase;
 
     //  this.evolve();     //  old enough to move off the MS?
     //  this.doPhotometry();    //  calculate UBV (etc) magnitudes
