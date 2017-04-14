@@ -274,7 +274,7 @@ barty.manager = {
 
             $("#result").text("Looking for data. ");
 
-            barty.statusSelector.text("getting data from eeps...");
+            barty.statusSelector.text("getting data from " + barty.constants.kDataLocation + "...");
             $.ajax({
                 type: "post",
                 url: barty.constants.kBaseURL,
@@ -286,7 +286,7 @@ barty.manager = {
         }
 
         function weGotData(iData) {
-            barty.statusSelector.text("parsing data from eeps...");
+            barty.statusSelector.text("parsing data from " + barty.constants.kDataLocation + "...");
             theData = JSON.parse(iData);
             $("#result").text((theData.length) ? " Got " + theData.length + " records! " : "No data. ");
             barty.statusSelector.text("loading data into CODAP...");

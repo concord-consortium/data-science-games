@@ -67,8 +67,12 @@ var barty = {
             "Fri" : "lightsalmon",
             "Sat" : "limegreen"
         },
+        kBaseURL : "http://codap.concord.org/data-science-games/php/getBARTYdata.php",	//	CODAP URL
         //  kBaseURL :  "../php/getBARTYdata.php"   //  RELEASE URL
-        kBaseURL :  "http://localhost:8888/barty/getBARTYdata.php"   //  TESTING URL
+        //	kBaseURL :  "http://localhost:8888/barty/getBARTYdata.php"   //  TESTING URL
+
+        //  kDataLocation : "eeps"
+        kDataLocation : "the CODAP servers"
 
     },
 
