@@ -42,7 +42,7 @@ var elementalSpectra = {
     NaI : null,
     FeI : null,
     mainSequenceWidth : 0.1,
-    giantWidth : 0.3,
+    giantWidth : 0.03,
 
     /*
     To add a new species:

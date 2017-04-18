@@ -229,25 +229,40 @@ Star.prototype.radialVelocity = function() {
  * @returns {*}
  */
 Star.prototype.logAbsoluteLuminosity = function( iFilter ) {
+    if (!iFilter) {
+        iFilter = { min : Spectrum.constants.visibleMin, max : Spectrum.constants.visibleMax };
+    }
+
+    var lambda0 = iFilter.min;
+    var lambda1 = (iFilter.max + iFilter.min) / 2.0;
+    var lambda2 = iFilter.max;
+
+    var flux0 = Spectrum.relativeBlackbodyIntensityAt(lambda0, Math.pow(10,this.logTemperature), this.radialVelocity());
+    var flux1 = Spectrum.relativeBlackbodyIntensityAt(lambda1, Math.pow(10,this.logTemperature), this.radialVelocity());
+    var flux2 = Spectrum.relativeBlackbodyIntensityAt(lambda2, Math.pow(10,this.logTemperature), this.radialVelocity());
+
+    var simpsonIntegral = (1/6.0) * (flux0 + 4 * flux1 + flux2) * (lambda2 - lambda0) * 1.0e-07;  //
+
+    var tempAbsoluteLogLumInThisFilter = Math.log10(simpsonIntegral) + 2 * this.logRadius;
+
     var dLogLum = 0;   //  change in LOG of amplitude due to variability
 
     if (this.varPeriod > 0) {
-        var logAmp = Math.log10(this.varAmplitude + 1);     //  so it will be 0 if the amplitude is zero, log(1.3) if .3, etc.
-        dLogLum = logAmp * Math.sin(this.varPhase + stella.state.now * Math.PI * 2 / this.varPeriod);
+        var tAmplitudeOfFluctuationInTheLog = Math.log10(this.varAmplitude + 1);     //  so it will be 0 if the amplitude is zero, log(1.3) if .3, etc.
+        dLogLum = tAmplitudeOfFluctuationInTheLog * Math.sin(this.varPhase + stella.state.now * Math.PI * 2 / this.varPeriod);
     }
-    var tCurrentLogAbsLum = this.logLuminosity + dLogLum;
+    var tCurrentLogAbsLum = tempAbsoluteLogLumInThisFilter + dLogLum;
     return tCurrentLogAbsLum;
-
-    //  todo: make the filter work!
 };
 
 /**
- * Returns the current apparent LOG brightness
+ * Returns the current apparent LOG brightness. todo : DOES ANYBODY CALL THIS?? (as opposed to system brightness
  * @returns {number}
  */
 
 Star.prototype.bright = function( iFilter ) {
-    return 4 + this.logAbsoluteLuminosity( iFilter ) - 2 * Math.log10(this.distance);
+    return this.logAbsoluteLuminosity( iFilter ) - 2 * Math.log10(this.distance) - 4;   //  - 4; //  arbitrary const to get lum down
+
 };
 
 /**
@@ -298,12 +313,11 @@ StarView.prototype.setSizeEtc = function (  ) {
     var tRadius = 1;
     var tDegreesPerPixel = stella.constants.universeWidth / stella.state.magnification / stella.skyView.originalViewWidth;
     var tGray = 17;
-    var tMagnitudeElbow, tMagnitudeLimit;
 
     //  The scale and brightness of stars depends on magnification
 
-    tLumElbow = 2.0 - Math.log10(stella.state.magnification);       //  at what log lum do we get to 1 px?
-    tLumLimit = 1.0 - 1.25 * Math.log10(stella.state.magnification);  //  at what log lum are we invisible?
+    var tLumElbow = 3.5 - Math.log10(stella.state.magnification);       //  at what log lum do we get to 1 px?
+    var tLumLimit = 2.5 - 1.25 * Math.log10(stella.state.magnification);  //  at what log lum are we invisible?
 
     var tBright = this.system.bright(null);
 

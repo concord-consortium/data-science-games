@@ -82,6 +82,15 @@ Spectrum.prototype.setStar = function(iStar) {
 
     this.speedAway = this.theStar.radialVelocity() * 1.0e05;    //      cm/sec, right??
     this.source.id = this.theStar.id;
+
+    //  fix line width for giantism
+    if (iStar.myGiantIndex > 0 && iStar.myGiantIndex <= 1.0) {
+        var tWidth = elementalSpectra.mainSequenceWidth
+            + iStar.myGiantIndex * (elementalSpectra.giantWidth - elementalSpectra.mainSequenceWidth);
+        this.lines.forEach( function(l) {
+            l.width = tWidth;
+        })
+    }
 };
 
 /**
@@ -200,7 +209,7 @@ Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAw
         tMaxLambda = Spectrum.constants.visibleMin;   //  ah, the peak is in UV, so we pick 350 nm.
     }
     if (tMaxLambda > Spectrum.constants.visibleMax) {
-        tMaxLambda = Spectrum.constants.visibleMax;   //  peak is in IR, so we usee 700 nm.
+        tMaxLambda = Spectrum.constants.visibleMax;   //  peak is in IR, so we use 700 nm.
     }
     var tMaxIntensity = Spectrum.relativeBlackbodyIntensityAt(tMaxLambda, this.blackbodyTemperature, iSpeedAway);  //  this will be our denominator
 
@@ -213,6 +222,7 @@ Spectrum.prototype.normalizedBlackbodyAtWavelength = function (iLambda, iSpeedAw
  * NOTE: Class method!
  * @param iLambda       wavelength (nm)
  * @param iTemp         temperature (K)
+ * @param iSpeedAway    radial velocity (km/sec)
  * @returns {number}
  */
 Spectrum.relativeBlackbodyIntensityAt = function (iLambda, iTemp, iSpeedAway) { //  todo: implement BB doppler

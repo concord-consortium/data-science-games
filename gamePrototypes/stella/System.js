@@ -108,9 +108,9 @@ System.prototype.dataValues = function () {
         x: this.where.x.toFixed(6),
         y: this.where.y.toFixed(6),
         bright : this.bright(null).toFixed(2),
-        U: this.bright("U").toFixed(2),
-        B: this.bright("B").toFixed(2),
-        V: this.bright("V").toFixed(2)
+        F400: this.bright(stella.constants.filters.F400).toFixed(2),
+        F500: this.bright(stella.constants.filters.F500).toFixed(2),
+        F600: this.bright(stella.constants.filters.F600).toFixed(2)
     };
 
     return out;
@@ -175,7 +175,7 @@ System.prototype.logAbsoluteLuminosity = function( iFilter ) {
 
 System.prototype.bright = function( iFilter ) {
     var lum = this.logAbsoluteLuminosity( iFilter ) - 2 * Math.log10( this.where.z );
-    return lum + 4;
+    return lum - 4; //  - 4;    //  arbitrary constant
 };
 
 

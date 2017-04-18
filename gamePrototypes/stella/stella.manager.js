@@ -39,7 +39,6 @@ stella.manager = {
 
     starResultIsAuto: false,   //  did we get this latest result via the Auto button?
 
-
     /**
      * Called on new game, in this case, on startup
      */
@@ -50,7 +49,6 @@ stella.manager = {
         this.playing = true;
 
         stella.spectrumManager.spectrumParametersChanged();     //  reads the UI and sets various variables.
-        //  stella.manager.updateStella();              //  update the screen and text (not necessary because other fn calls me
     },
 
 
@@ -61,6 +59,11 @@ stella.manager = {
     updateStella: function () {
         stella.spectrumManager.displayAllSpectra();
         stella.ui.fixStellaUITextAndControls();      //  fix the text
+    },
+
+    filterChanged : function() {
+        var tFilterChoice = $("#filterMenu").val();
+        stella.state.currentFilter = stella.constants.filters[ tFilterChoice ];
     },
 
     /**
@@ -121,12 +124,11 @@ stella.manager = {
 
         var tValueArray = [];
 
-        //  todo: make this a single call instead of one per star
         stella.model.systems.forEach(function (iSys) {
             var tValues = iSys.dataValues();
             tValues.date = stella.state.epoch;  //  add the epoch to the record
-            tValues.x = Number(tValues.x).toFixed(3);      //  lower-precision in catalog
-            tValues.y = Number(tValues.y).toFixed(3);      //  lower-precision in catalog
+            tValues.x = Number(tValues.x).toFixed(4);      //  lower-precision in catalog
+            tValues.y = Number(tValues.y).toFixed(4);      //  lower-precision in catalog
             tValueArray.push(tValues);
         });
 
@@ -157,12 +159,13 @@ stella.manager = {
     processSelectionFromCODAP: function (iCasesFromCODAP) {
         if (iCasesFromCODAP.length > 0) {
             if (iCasesFromCODAP.length === 1) {
-                var tStar = stella.model.starFromCaseID(iCasesFromCODAP[0].id);
+                var tSysID = iCasesFromCODAP[0].values.id;
+                var tStar = stella.model.systemFromTextID(tSysID);
                 stella.manager.pointAtSystem(tStar);
                 stella.manager.updateStella();
             }
         } else {
-            console.log('Failed to retrieve selected case IDs.');
+            console.log('Failed to retrieve selected system IDs.');
         }
     },
 

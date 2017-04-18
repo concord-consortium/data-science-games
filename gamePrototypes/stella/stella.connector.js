@@ -54,9 +54,9 @@ stella.connector = {
     spectraCollectionName: "spectra",
     spectrumChannelCollectionName: "channels",
 
-    photometryDataSetName : "photometry",
+    photometryDataSetName: "photometry",
     photometryDataSetTitle: "Photometry",
-    photometryTargetCollectionName : "runs",
+    photometryTargetCollectionName: "runs",
     photometryChannelCollectionName: "channels",
 
 
@@ -123,19 +123,21 @@ stella.connector = {
 
     },
 
-    emitPhotometry : function ( iChannels ) {
+    emitPhotometry: function (iChannels) {
         stella.state.photometryNumber += 1;       //      serial
         var tChannelValues = [];
         iChannels.forEach(function (ch) {
             var tOneChannel = {
-                runNo : stella.state.photometryNumber,
-                date : stella.state.now,
-                target : ch.target,
-                exposure : ch.exposure,
-                obs : ch.obs,
-                count : ch.count
+                runNo: stella.state.photometryNumber,
+                filter: stella.state.currentFilter ? stella.state.currentFilter.name : "none",
+                nm: stella.state.currentFilter ? stella.state.currentFilter.nm : 525,
+                date: stella.state.now,
+                target: ch.target,
+                expose: ch.exposure,
+                obs: ch.obs,
+                count: ch.count
             }
-            tChannelValues.push( tOneChannel );
+            tChannelValues.push(tOneChannel);
         }.bind(this));
 
         pluginHelper.createItems(
@@ -154,13 +156,13 @@ stella.connector = {
 
         var tSelectionExpression = "[id==" + theSysName + "]";
         var tMessage = {
-            action : "get",
-            resource : "dataContext[" + this.catalogDataSetName + "].collection[" +
-                this.catalogCollectionName + "].caseSearch" + tSelectionExpression
+            action: "get",
+            resource: "dataContext[" + this.catalogDataSetName + "].collection[" +
+            this.catalogCollectionName + "].caseSearch" + tSelectionExpression
         };
 
-        var tSearchPromise = codapInterface.sendRequest( tMessage ).then(
-            function( iResult ){
+        var tSearchPromise = codapInterface.sendRequest(tMessage).then(
+            function (iResult) {
                 if (iResult.success) {
                     var tCaseID = iResult.values[0].id;
                     pluginHelper.selectCasesByIDs(tCaseID, this.catalogDataSetName);
@@ -201,7 +203,7 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of result"},
+                        {name: "date", type: 'numeric', precision: 4, unit: 'yr', description: "date of result"},
                         {name: "id", type: 'categorical', description: "stellar ID string"},
                         {name: "type", type: 'categorical', description: "result type"},
                         {name: "value", type: 'numeric', precision: 8, description: "result value"},
@@ -230,10 +232,25 @@ stella.connector = {
 
                     attrs: [
                         {name: "runNo", type: 'categorical'},
-                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of observation (yr)"},
+                        {
+                            name: "date",
+                            type: 'numeric',
+                            precision: 4,
+                            unit: 'yr',
+                            description: "date of observation (yr)"
+                        },
                         {name: "target", type: 'categorical', description: "the name of the target"},
-                        {name: "exposure", type: 'numeric', precision: 3, unit : 'sec', description: "exposure time"},
-                        {name: "filter", type: 'categorical', description: "the name of the filter"}
+                        {name: "expose", type: 'numeric', precision: 0, unit: 'sec', description: "exposure time"},
+                        {
+                            name: "filter", type: 'categorical', description: "the name of the filter",
+                            colormap: {
+                                "violet": "#990099",
+                                "green": "#009900",
+                                "red": "red",
+                                "none": "brown"
+                            }
+                        },
+                        {name: "nm", type: 'numeric', unit: "nm", precision: 0, description: "midpoint of the filter"}
                     ],
                     childAttrName: 'channel'
                 },
@@ -275,7 +292,7 @@ stella.connector = {
 
                     attrs: [
                         {name: "specNum", type: 'categorical'},
-                        {name: "date", type: 'numeric', precision: 4, unit : "yr", description: "date of observation"},
+                        {name: "date", type: 'numeric', precision: 4, unit: "yr", description: "date of observation"},
                         {name: "name", type: 'categorical', description: "the name of the spectrum"}
                     ],
                     childAttrName: "channel"
@@ -290,7 +307,7 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "wavelength", type: 'numeric', unit : 'nm', precision: 5, description: "wavelength"},
+                        {name: "wavelength", type: 'numeric', unit: 'nm', precision: 5, description: "wavelength"},
                         {name: "intensity", type: 'numeric', precision: 1, description: "intensity (out of 100)"}
                     ]
                 }
@@ -319,15 +336,15 @@ stella.connector = {
                     },
 
                     attrs: [
-                        {name: "date", type: 'numeric', precision: 4, unit : 'yr', description: "date of observation"},
+                        {name: "date", type: 'numeric', precision: 4, unit: 'yr', description: "date of observation"},
                         {name: "id", type: 'categorical', description: "Stellar ID string"},
-                        {name: "x", type: 'numeric', precision: 6, unit : 'deg', description: "angle in x"},
-                        {name: "y", type: 'numeric', precision: 6,unit : 'deg',  description: "angle in y"},
+                        {name: "x", type: 'numeric', precision: 6, unit: 'deg', description: "angle in x"},
+                        {name: "y", type: 'numeric', precision: 6, unit: 'deg', description: "angle in y"},
                         {name: "bright", type: 'numeric', precision: 2, description: "log of apparent brightness"},
                         // {name: "m", type: 'numeric', precision: 2, description: "apparent magnitude"},
-                        {name: "U", type: 'numeric', precision: 2, description: "log brightness in U"},
-                        {name: "B", type: 'numeric', precision: 2, description: "log brightness in B"},
-                        {name: "V", type: 'numeric', precision: 2, description: "log brightness in V"},
+                        {name: "F400", type: 'numeric', precision: 2, description: "log brightness using 400nm filter"},
+                        {name: "F500", type: 'numeric', precision: 2, description: "log brightness using 500nm filter"},
+                        {name: "F600", type: 'numeric', precision: 2, description: "log brightness using 600nm filter"},
                         {name: "name", type: 'categorical'}
                     ]
                 }
@@ -366,7 +383,7 @@ function startCodapConnection() {
                     stella.initialize();
 
                     //  register to receive notifications about changes in the star catalog (esp selection)
-                    var tResource = 'dataContext[' + stella.connector.catalogDataSetName + ']'; // todo: dataContextChangeNotice??
+                    var tResource = 'dataContextChangeNotice[' + stella.connector.catalogDataSetName + ']'; // todo: dataContextChangeNotice??
                     codapInterface.on(
                         'notify',
                         tResource,

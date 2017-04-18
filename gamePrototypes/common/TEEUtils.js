@@ -64,7 +64,7 @@ var     TEEUtils = {
 
         if (mean > 100) {
             var sd = Math.sqrt(mean);
-            return Math.round(randomNormal(mean, sd));   //  todo: use randomNormal from common
+            return Math.round(TEEUtils.randomNormal(mean, sd));   //  todo: use randomNormal from common
         }
         var L = Math.exp(-mean);
         var p = 1.0;

@@ -157,10 +157,10 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <div id="spectraTab">
         <label>
             Wavelength range (nm):
-            <input type="number" id="lambdaMin" value="350" maxlength="9" max="700" min="350"
+            <input type="number" id="lambdaMin" value="350" max="700" min="350" style="width : 6em"
                    onblur="stella.spectrumManager.spectrumParametersChanged();">
             -
-            <input type="number" id="lambdaMax" value="700" maxlength="9" max="700" min="350"
+            <input type="number" id="lambdaMax" value="700" max="700" min="350" style="width : 6em"
                    onblur="stella.spectrumManager.spectrumParametersChanged();">
         </label>
 
@@ -240,7 +240,20 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
 
         </svg>
         <br>
+        <button id="photoButton" onclick="stella.photometryManager.expose(1)">1 sec</button>
         <button id="photoButton" onclick="stella.photometryManager.expose(10)">10 sec</button>
+        <button id="photoButton" onclick="stella.photometryManager.expose(60)">60 sec</button>
+        <button id="photoButton" onclick="stella.photometryManager.expose(600)">10 min</button>
+        <br>
+        Filter:
+        <select name="source" id="filterMenu" onchange="stella.manager.filterChanged();">
+            <option value="F400">F400 (350-450nm) violet</option>
+            <option value="F500">F500 (450-550nm) green</option>
+            <option value="F600">F600 (550-650nm) red</option>
+            <option value="---" disabled>---</option>
+            <option value="none" selected>none (350-700nm)</option>
+        </select>
+
     </div>
 
 

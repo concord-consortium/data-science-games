@@ -67,12 +67,13 @@ var stella = {           //  top level global
 
     freshState : function() {
         return {
-            focusStarCatalogName: "S1001",
+            focusStarCatalogName: "S101",
             magnification : 1.0,
             epoch: 2500.0,
             now: 2525.0,
             spectrumNumber : 0,
             photometryNumber : 0,
+            currentFilter : null,
             restored: false
         }
     },
@@ -168,8 +169,10 @@ stella.strings = {
  * @type {{version: string, bigG: number, solarLuminosity: number, solarMass: number, solarTemperature: number, astronomicalUnit: number, msPerDay: number, secPerYear: number, nStars: number, maxStarLogMass: number, minStarLogMass: number, giantTemperature: number, universeWidth: number, universeDistance: number, lambdaU: number, lambdaB: number, lambdaV: number, foo: null}}
  */
 stella.constants = {
-    version: "001n",
+    version: "001o",
     baseURL: "http://localhost:8888/dsg/stella.php",
+    minimumBrightnessForDatabase : -1.0,
+
     //  baseURL : "http://www.eeps.com/dsg/php/stella.php",
 
     bigG: 6.674e-08,           //      big G in cgs
@@ -194,6 +197,12 @@ stella.constants = {
     lambdaU: 364,      //  for photometry. nm.
     lambdaB: 442,
     lambdaV: 540,
+
+    filters : {
+        F400 : {min:350, max:450, name: "violet", nm : 400},
+        F500 : {min:450, max:550, name: "green", nm : 500},
+        F600 : {min:550, max:650, name: "red", nm : 600}
+    },
 
     //  Constants for how long things take in game time. Currently in years.
 

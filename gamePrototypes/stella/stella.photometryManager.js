@@ -31,6 +31,7 @@ stella.photometryManager = {
     photometryView: null,
 
     instrumentNoisePerSecond : 10,
+    maxCount : 99999,
 
     starCount: 0,
     skyCount: 0,
@@ -71,13 +72,18 @@ stella.photometryManager = {
     },
 
     getSkyCount: function ( iDwell ) {
-        return  Math.round(Math.random() * this.instrumentNoisePerSecond * iDwell);
+        var tCount = Math.round(this.instrumentNoisePerSecond * iDwell)
+        var out = TEEUtils.randomPoisson(tCount);
+        out = out > this.maxCount ? this.maxCount : out;
+        return out;
     },
 
     getTargetCount: function (iObject, iDwell) {
-        var tLum = Math.pow(10, iObject.bright());  //  remember star.bright() is log apparent brightness
-
-        return Math.round(tLum * iDwell + this.getSkyCount( iDwell ));
+        var tLum = Math.pow(10, iObject.bright( stella.state.currentFilter ));  //  remember star.bright() is log apparent brightness
+        var tCount = tLum * iDwell + this.getSkyCount( iDwell )
+        var out = TEEUtils.randomPoisson(tCount);
+        out = out > this.maxCount ? this.maxCount : out;
+        return out;
     },
 
     savePhotometryToCODAP: function (iChannels) {

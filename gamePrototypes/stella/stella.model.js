@@ -58,7 +58,10 @@ stella.model = {
      * @param iTime     currently in YEARS.
      */
     stellaElapse: function (iTime) {
-        stella.state.now += iTime;
+        var tNow = stella.state.now + iTime;
+        //  round to four places
+        tNow = Math.round(tNow * 10000)/10000;
+        stella.state.now = tNow;
     },
 
 
@@ -86,17 +89,30 @@ stella.model = {
      */
     makeAllStars: function () {
         //  stella.share.retrieveStars();
+
+        //  for debugging:
         var dText = "<table><tr><th>sysID</th><th>logMass</th><th>(°K)000</th><th>age</th><th>logLum</th><th>bright</th>" +
             "<th>GI</th><th>dist</th><th>per</th></tr>";
 
         stella.initialStarData.forEach(
             function (isd) {
                 var sys = new System(isd);
-                stella.model.systems.push(sys);
-                dText += sys.htmlTableRow();
+
+                //  eliminate stars too faint to use
+                sys.stars = sys.stars.filter( function(s) {
+                   var bright = s.bright(null);
+                   return bright >= stella.constants.minimumBrightnessForDatabase;
+                });
+
+                if (sys.stars.length > 0) {
+                    stella.model.systems.push(sys);
+                    dText += sys.htmlTableRow();
+                }
 
             }
         );
+
+        //  for debugging:
         dText += "</table>";
 
         $("#debugText").html(dText);
