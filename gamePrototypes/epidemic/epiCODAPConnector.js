@@ -25,6 +25,8 @@
  * Created by tim on 10/28/15.
  */
 
+//todo: convert to using createItems instead of in the hierarchy
+
 /**
  * A  manager class responsible for connecting to the CODAP environment
  * @constructor
@@ -76,12 +78,12 @@ EpiCODAPConnector.prototype.finishGameCase = function( iData ) {
 
 /**
  * Emit an "event" case, low level in the hierarchy.
- * @param values
+ * @param iValues
  */
-EpiCODAPConnector.prototype.doEventRecord = function(values ) {
+EpiCODAPConnector.prototype.doEventRecord = function(iValues ) {
     codapHelper.createCase(
         'events',
-        values,
+        iValues,
         this.gameCaseID
     ); // no callback.
 
@@ -102,7 +104,7 @@ EpiCODAPConnector.getInitSimObject = function() {
 
     var oInitSimObject = {
         name: 'Epidemic',
-        version : epiManager.kVersion,
+        version : epidemic.constants.version,
         dimensions: {width: 404, height: 600},
         collections: [  // There are two collections: a parent and a child
             {
@@ -150,8 +152,8 @@ EpiCODAPConnector.getInitSimObject = function() {
                     },
                     {name: "recordType", type: 'categorical', description : "why this record exists"},
                     {name: "location", type: 'categorical', description : "location ID"},
-                    {name: 'row', type: 'categorical', description : "location's row"},
-                    {name: 'col', type: 'categorical', description : "location's column"}
+                    {name: 'col', type: 'categorical', description : "location's column"},
+                    {name: 'row', type: 'categorical', description : "location's row"}
                 ]
             }
         ]

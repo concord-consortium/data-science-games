@@ -82,6 +82,12 @@ epiGeography = {
         return result;
     },
 
+    coordToLocationIndex : function(iX, iY) {
+        tRowCol = this.rowColFromCoordinates( iX, iY );
+        return this.indexFromRowCol( tRowCol );
+    },
+
+
     topLeftFromRowCol : function( iRowCol ) {
         var tTop = iRowCol.row * this.kPixelsTall;
         var tLeft = iRowCol.col * this.kPixelsWide;

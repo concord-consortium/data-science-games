@@ -105,7 +105,6 @@ clinic.codapConnector.recordsDataContextSetupString = {
      collections: [
          {
              name: clinic.constants.kPopulationCollectionName,
-             parent: null,       //  top level
              labels: {
                  singleCase: "person",
                  pluralCase: "people",

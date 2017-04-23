@@ -36,13 +36,13 @@ var epiManager;
  * @type {{gameNumber: number, CODAPConnector: null, nLocations: number, locTypes: string[], previous: number, running: boolean, gameInProgress: boolean, update: medManager.update, updateScreen: medManager.updateScreen, animate: medManager.animate, newGame: medManager.newGame, finishGame: epiManager.finishGame, pause: medManager.pause, restart: medManager.restart, updateUIStuff: medManager.updateUIStuff, doCritterClick: medManager.doCritterClick, emitCritterData: medManager.emitCritterData, newGameButtonPressed: medManager.newGameButtonPressed, initializeComponent: medManager.initializeComponent}}
  */
 epiManager = {
-    kVersion: "v-004",
     kCrittersInBigWorld : 49,
     kCrittersInSmallWorld : 20,
 
     UI : {},
     gameNumber: 0,
     CODAPConnector: null,
+    prognosis : 0,
 
     previous: 0,    //  timestamp for animation
     running: false,
@@ -57,6 +57,7 @@ epiManager = {
         epiModel.update(dt);       //
 
         var tEnd = epiModel.endCheck();
+
 
         if (tEnd) this.finishGame( tEnd );
         this.updateScreen();
@@ -159,9 +160,18 @@ epiManager = {
         this.UI.gameButton.innerHTML = (this.gameInProgress) ? "abort game" : "new game";
 
         tSickReport = epiModel.sicknessReport();
+
+        var tLossProgress = tSickReport.totalElapsed / epiMalady.pSickSecondsToGameEnd;
+        var tWinProgress = epiModel.elapsed / epiMalady.pTotalElapsedSecondsToGameEnd;
+        tProjectedLoss = tLossProgress / tWinProgress + 0.001;
+        this.prognosis = tProjectedLoss > 1 ? 1 : tProjectedLoss;
+
         $( "#healthReport").html("Moves: " + epiModel.nMoves
             + " Sick: " + tSickReport.numberSick
-            + ", Total sick seconds: " + tSickReport.totalElapsed);
+            + ", Total sick seconds: " + tSickReport.totalElapsed
+            + ", Projection: " + this.prognosis.toFixed(2)
+        );
+
     },
 
     handleDropOfCritter: function (iCritter, iX, iY) {
@@ -237,8 +247,8 @@ epiManager = {
             theCritter.eyeColor,
             eventType,
             tLocName,
-            (theCritter.where) ? theCritter.where.row + 1 : "",
-            (theCritter.where) ? theCritter.where.col + 1 : ""
+            (theCritter.where) ? epidemic.constants.letters[theCritter.where.col] : "",
+            (theCritter.where) ? theCritter.where.row + 1 : ""
         ]);
     },
 

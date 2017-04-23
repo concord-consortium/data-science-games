@@ -34,7 +34,7 @@ epiMalady = {
     pDiseaseDurationInSeconds : null,
     pIncubationInSeconds : null,
     pSickSecondsToGameEnd : 200,
-    pTotalElapsedSecondsToGameEnd : 180,        //  todo: change display to count down
+    pTotalElapsedSecondsToGameEnd : 120,        //  todo: change display to count down
 
     kIntroMaladyAsymptomaticCarrier : 0,
     kSimpleMaladyInfectiousWithIncubation : 1,

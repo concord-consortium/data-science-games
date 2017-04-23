@@ -184,7 +184,7 @@ epiModel = {
         var nSick = 0;
 
         this.critters.forEach( function(c) {
-            totElapsed += c.elapsedSick;
+            totElapsed += c.elapsedSick;    //  add the total elapsed sickness of every critter
             if (c.health != 1) nSick++;
         } );
 
