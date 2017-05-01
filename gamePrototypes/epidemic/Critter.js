@@ -184,16 +184,21 @@ Critter.prototype.setNewDest = function( ) {        //  todo: put up in the Mana
  * @param iTime        how long it should take
  */
 Critter.prototype.animateToCenterOfDestination = function(  )  {
-    var tTime = epiGeography.distanceByRowCol( this.where, this.whither) / this.speed;
-    var tCenter = epiGeography.centerFromRowCol( this.whither );     //  for now, head for center of the loc
+    var tCurrentXY = this.xy;
+    var tDestinationXY = epiGeography.centerFromRowCol( this.whither );     //  for now, head for center of the loc;
+    var tDistance = epiGeography.distanceByXY( tCurrentXY, tDestinationXY);
+    var tTime = tDistance / this.speed;
     var tAnimationObject = {
-        x : tCenter.x,
-        y : tCenter.y
+        x : tDestinationXY.x,
+        y : tDestinationXY.y
     };
 
-    console.log( this.name + " moving from "
-        + epiGeography.rowColString(this.where) + " to "
-        + epiGeography.rowColString(this.whither) + " in " + tTime + "s using "
+    var tCurrentLocationString = this.where ? epiGeography.rowColString(this.where)
+        : "(" + tCurrentXY.x + ", " + tCurrentXY.y + ")" ;
+    console.log( this.name + " moving " + tDistance.toFixed(2) + " units, at speed "
+    + this.speed.toFixed(2) + " from "
+        + tCurrentLocationString + " to "
+        + epiGeography.rowColString(this.whither) + " in " + tTime.toFixed(2) + "s using "
         + JSON.stringify(tAnimationObject));
 
     this.view.snapShape.animate(

@@ -49,6 +49,11 @@ fieldset {
     right:  12px;
 }
 
+#photometryResultsText {
+    margin: 12px;
+    font-family: "Andale Mono";
+}
+
 #debugText {
     white-space: pre-line;
 }

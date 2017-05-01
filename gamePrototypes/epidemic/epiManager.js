@@ -140,7 +140,8 @@ epiManager = {
 
         epiModel.critters.forEach( function(c) {       //   start up critter movements
             if (c.moving) {
-                c.headForCenterOfLocation(c.destLoc);
+                c.animateToCenterOfDestination();
+                //  c.headForCenterOfLocation(c.destLoc);
             }
         });
         this.updateScreen();

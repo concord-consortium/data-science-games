@@ -55,7 +55,7 @@ stella.ui = {
         if (stella.manager.focusSystem) {
             focusStarText = "Pointing at " + stella.manager.focusSystem.sysID +
                     " • " + stella.state.magnification + "X";
-            this.pointAtStarInputField.val( stella.manager.focusSystem.id );
+            this.pointAtStarInputField.val( stella.manager.focusSystem.sysID );
 
             // stella.model.skySpectrum = stella.manager.focusSystem.setUpSpectrum();
         }
@@ -149,7 +149,7 @@ stella.ui = {
      * @param e     the keyboard event
      */
     keypressInStarPointingBox : function(e) {
-        if (e.type === "blur" || e.keyCode === 13) {    //  tab or enter, respectively
+        if (e.type === "blur" || e.keyCode === 13) {    //  tab (e.type === "blur") or enter, respectively
             var tText = this.pointAtStarInputField.val();
             var tSys = stella.model.systemFromTextID( tText );
             stella.manager.pointAtSystem( tSys );

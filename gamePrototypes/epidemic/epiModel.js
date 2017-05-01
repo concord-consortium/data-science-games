@@ -123,7 +123,7 @@ epiModel = {
      * A Critter arrives at a new Location.
      * @param o { critter; c, atRowCol: iRC}
      */
-    doArrival: function( o ) {      //  epiModel.doArrival({ critter; c, atRowCol: iRC} );
+    doArrival: function( o ) {      //  epiModel.doArrival({ critter: c, atRowCol: iRC} );
         var tCritter = o.critter;
         var iRC = o.atRowCol;
         tCritter.moving = false;
@@ -140,6 +140,16 @@ epiModel = {
         if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
         //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
         //  (Why are they invalid?)
+    },
+
+
+    /**
+     * A Critter departs from a new Location.
+     * @param o { critter; c, atRowCol: iRC}
+     */
+    doDeparture: function( o ) {      //  epiModel.doDeparture({ critter: c, atRowCol: iRC} );
+        var tCritter = o.critter;
+        tCritter.doDeparture("ennui");
     },
 
 

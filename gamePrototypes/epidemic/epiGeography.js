@@ -176,10 +176,15 @@ epiGeography = {
     distanceByRowCol: function ( iFrom, iTo ) {
         var tToXY = epiGeography.centerFromRowCol( iTo );
         var tFromXY = epiGeography.centerFromRowCol( iFrom );
-        var tdx = tToXY.x - tFromXY.x;
-        var tdy = tToXY.y - tFromXY.y;
+        return this.distanceByXY(tFromXY, tToXY);
+    },
+
+    distanceByXY : function( iFrom, iTo ) {
+        var tdx = iTo.x - iFrom.x;
+        var tdy = iTo.y - iFrom.y;
         return Math.sqrt(tdx * tdx + tdy * tdy);
     },
+
 
     distanceToClosestSuitableLocationType : function( iWhere, iLocType ) {
         var tClosestDistance = Number.MAX_VALUE;

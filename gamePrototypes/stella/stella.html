@@ -110,8 +110,8 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
     <!--    list the tabs for this jquery_ui widget -->
     <ul>
         <li><a href="#skyTab">Sky</a></li>
-        <li><a href="#spectraTab">Spectra</a></li>
         <li><a href="#photometryTab">Photometry</a></li>
+        <li><a href="#spectraTab">Spectra</a></li>
         <li><a href="#starResultTab">Results</a></li>
         <li><a href="#instructionsTab">How To</a></li>
         <li><a href="#badgesTab">Badges</a></li>
@@ -140,15 +140,61 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             &nbsp;| &nbsp;
             <label for="pointAtStar">point at star </label>
             <input id="pointAtStar" class="textIO"
-                   onblur = "stella.ui.keypressInStarPointingBox(event)"
-                   onkeypress = "stella.ui.keypressInStarPointingBox(event)"
+                   onblur="stella.ui.keypressInStarPointingBox(event)"
+                   onkeypress="stella.ui.keypressInStarPointingBox(event)"
             />
+            <!--
+-->
+
         </div>
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(1)">1x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(5)">5x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(20)">20x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(100)">100x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(10000)">10000x</span>&nbsp;
+    </div>
+
+    <!--        "PHOTOMETRY"     -->
+
+    <div id="photometryTab">
+        <div class="hBox">
+            <div class="vBox">
+                <svg id="photometryView" width="200" height="200">
+                    <rect x="0" y="0" width="200" height="200" fill="black"></rect>
+                    <defs>
+                        <radialGradient id="exampleGradient">
+                            <stop offset="10%" stop-color="white"/>
+                            <stop offset="95%" stop-color="black"/>
+                        </radialGradient>
+                    </defs>
+
+                    <circle fill="url(#exampleGradient)" cx="100" cy="100" r="60"/>
+
+                    <text x="20" y="35" font-family="Verdana" font-size="20" fill="goldenrod">
+                        sample image
+                    </text>
+
+                </svg>
+            </div>
+            <div>
+                <div id="photometryResultsText"></div>
+            </div>
+        </div>
+        <br>
+        <button id="photoButton" onclick="stella.photometryManager.expose(1)">1 sec</button>
+        <button id="photoButton" onclick="stella.photometryManager.expose(10)">10 sec</button>
+        <button id="photoButton" onclick="stella.photometryManager.expose(60)">60 sec</button>
+        <button id="photoButton" onclick="stella.photometryManager.expose(600)">10 min</button>
+        <br>
+        Filter:
+        <select name="source" id="filterMenu" onchange="stella.manager.filterChanged();">
+            <option value="F400">F400 (350-450nm) violet</option>
+            <option value="F500">F500 (450-550nm) green</option>
+            <option value="F600">F600 (550-650nm) red</option>
+            <option value="---" disabled>---</option>
+            <option value="none" selected>none (350-700nm)</option>
+        </select>
+
     </div>
 
 
@@ -181,7 +227,8 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
                     <input type="radio" name="sourceType" value="discharge"
                            onchange="stella.spectrumManager.spectrumParametersChanged();" checked>
                     Discharge tube:
-                    <select name="source" id="dischargeTubeMenu" onchange="stella.spectrumManager.spectrumParametersChanged();">
+                    <select name="source" id="dischargeTubeMenu"
+                            onchange="stella.spectrumManager.spectrumParametersChanged();">
                         <option value="H">Hydrogen</option>
                         <option value="HeI">Helium</option>
                         <option value="LiI">Lithium (neutral)</option>
@@ -220,42 +267,6 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         </div>
     </div>
 
-    <!--        "PHOTOMETRY"     -->
-
-    <div id="photometryTab">
-        <svg id="photometryView" width="200" height="200">
-            <rect x="0" y="0" width="200" height="200" fill="black"></rect>
-            <defs>
-                <radialGradient id="exampleGradient">
-                    <stop offset="10%" stop-color="white"/>
-                    <stop offset="95%" stop-color="black"/>
-                </radialGradient>
-            </defs>
-
-            <circle fill="url(#exampleGradient)" cx="100" cy="100" r="60"/>
-
-            <text x="20" y="35" font-family="Verdana" font-size="20" fill="goldenrod">
-                sample image
-            </text>
-
-        </svg>
-        <br>
-        <button id="photoButton" onclick="stella.photometryManager.expose(1)">1 sec</button>
-        <button id="photoButton" onclick="stella.photometryManager.expose(10)">10 sec</button>
-        <button id="photoButton" onclick="stella.photometryManager.expose(60)">60 sec</button>
-        <button id="photoButton" onclick="stella.photometryManager.expose(600)">10 min</button>
-        <br>
-        Filter:
-        <select name="source" id="filterMenu" onchange="stella.manager.filterChanged();">
-            <option value="F400">F400 (350-450nm) violet</option>
-            <option value="F500">F500 (450-550nm) green</option>
-            <option value="F600">F600 (550-650nm) red</option>
-            <option value="---" disabled>---</option>
-            <option value="none" selected>none (350-700nm)</option>
-        </select>
-
-    </div>
-
 
     <!--        "STAR RESULTS"     -->
 
@@ -265,14 +276,14 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
         <p>Choose what type of result you're recording, enter a value, and press <b>save</b></p>
 
         <span id="starResultMenu"></span>
-        <input id="starResultValue" type="number" maxlength="15" onblur="stella.manager.starResultValueChanged( false )"/>
+        <input id="starResultValue" type="number" maxlength="15"
+               onblur="stella.manager.starResultValueChanged( false )"/>
         <span id="starResultUnits"></span>
         <button id="saveStarResult" onclick="stella.manager.saveMyOwnStarResult()">save</button>
         <br>
         <span id="relevantValuesText"></span><br>
         <span id="badgePrivilegeText"></span>
         <button id="findAutoResult" onclick="stella.manager.getStarDataUsingBadge()">auto</button>
-
 
 
     </div>
@@ -292,7 +303,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             Go to the <b>Spectra</b> tab to see and record spectra from the star you're pointing at.
             You can also create
             and record spectra in the lab.</p>
-            <p>Blackbody spectra have characteristic shapes; you can use them to figure out stellar temperatures.</p>
+        <p>Blackbody spectra have characteristic shapes; you can use them to figure out stellar temperatures.</p>
         <p>Use shifts in spectral lines to figure out radial velocity.</p>
         <p><b>Zooming for spectra</b>. For precise wavelengths, you need to zoom in.
             Click in the colored areas to zoom in to spectra.

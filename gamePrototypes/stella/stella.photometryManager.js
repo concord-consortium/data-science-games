@@ -69,6 +69,15 @@ stella.photometryManager = {
         );
         this.savePhotometryToCODAP(tChannels);
 
+        var tTimeWord = "second" + (iTime === 1 ? "" : "s");
+
+        $('#photometryResultsText').html(
+            "<strong>Most recent results</strong><br><br>" +
+                "exposure: " + iTime + " " + tTimeWord + "<br>" +
+                tTargetName + ": " + this.starCount + "<br>" +
+                "sky : " + this.skyCount
+        )
+
     },
 
     getSkyCount: function ( iDwell ) {
