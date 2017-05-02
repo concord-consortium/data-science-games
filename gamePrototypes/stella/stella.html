@@ -104,7 +104,28 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
 </head>
 <body>
 
-<div id="starInfo"></div>
+<div id="stellaBanner" class="vBox">
+    <div id="starInfo">
+
+    </div>
+    <div id="timeAndPointingControlBanner">
+<!--
+        <span id="shortStatus"></span>
+        &nbsp;| &nbsp;
+-->
+        <label for="pointAtStar">point at </label>
+        <input id="pointAtStar" class="textIO" width="40px"
+               onblur="stella.ui.keypressInStarPointingBox(event)"
+               onkeypress="stella.ui.keypressInStarPointingBox(event)"
+        />
+        <span> • wait</span>
+        <span class="buttonText" onclick="stella.model.stellaElapse(0.001); stella.manager.updateStella()">0.001</span>&nbsp;
+        <span class="buttonText" onclick="stella.model.stellaElapse(0.01); stella.manager.updateStella()">0.01</span>&nbsp;
+        <span class="buttonText" onclick="stella.model.stellaElapse(0.1); stella.manager.updateStella()">0.1</span>&nbsp;
+        <span>(years)</span>
+
+    </div>
+</div>
 
 <div id="tabs">
     <!--    list the tabs for this jquery_ui widget -->
@@ -134,19 +155,7 @@ http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/st
             <rect width="300" height="16" fill="#222"></rect>
             <text id="telescopeStatusText" x="8" y="12" fill="#8f8">Sample text</text>
         </svg>
-
-        <div class="hBox">
-            <span id="shortStatus"></span>
-            &nbsp;| &nbsp;
-            <label for="pointAtStar">point at star </label>
-            <input id="pointAtStar" class="textIO"
-                   onblur="stella.ui.keypressInStarPointingBox(event)"
-                   onkeypress="stella.ui.keypressInStarPointingBox(event)"
-            />
-            <!--
--->
-
-        </div>
+        <br>
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(1)">1x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(5)">5x</span>&nbsp;
         <span class="buttonText" onclick="stella.manager.changeMagnificationTo(20)">20x</span>&nbsp;

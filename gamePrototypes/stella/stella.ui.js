@@ -63,7 +63,7 @@ stella.ui = {
         //  Blue bar at the top of the screen
 
         //  last part of the blue bar at the top of the screen
-        var tTimeAndScoreText = "Date " + stella.state.now.toFixed(2) + " • score = " + stella.player.stellaScore;
+        var tTimeAndScoreText = "Date " + stella.state.now.toFixed(3) + " • score = " + stella.player.stellaScore;
         //  assemble the whole blue bar at the top
         this.starInfoTextField.text( focusStarText + " • " + tTimeAndScoreText );
 

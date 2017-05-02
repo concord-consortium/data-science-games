@@ -179,7 +179,7 @@ stella.connector = {
         name: 'Stella',
         title: 'Stella',
         version: stella.constants.version,
-        dimensions: {width: 444, height: 500}
+        dimensions: {width: 444, height: 555}
     },
 
     /**
@@ -370,8 +370,8 @@ function startCodapConnection() {
             //  array of promises to make data sets
             var tInitDatasetPromises = [
                 pluginHelper.initDataSet(stella.connector.getStarResultsDataSetObject()),
-                pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()),
                 pluginHelper.initDataSet(stella.connector.getPhotometryDataSetObject()),
+                pluginHelper.initDataSet(stella.connector.getInitSpectraDataSetObject()),
                 pluginHelper.initDataSet(stella.connector.getInitStarCatalogDataSetObject())
             ];
 

@@ -49,6 +49,7 @@ fieldset {
     right:  12px;
 }
 
+
 #photometryResultsText {
     margin: 12px;
     font-family: "Andale Mono";
@@ -66,6 +67,15 @@ fieldset {
     font-size : 11pt;
     font-family: "Helvetica Neue", Verdana,sans-serif;
 }
+
+#timeAndPointingControlBanner {
+    height: 22px;
+    line-height: 22px;
+    vertical-align: middle;
+    font-size : 7pt;
+    font-family: "Helvetica Neue", Verdana, sans-serif;
+}
+
 /*		BOX CLASSES		*/
 
 .hBox	{

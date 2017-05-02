@@ -98,5 +98,6 @@ stella.photometryManager = {
     savePhotometryToCODAP: function (iChannels) {
         stella.connector.emitPhotometry(iChannels);
         stella.model.stellaElapse(stella.constants.timeRequired.savePhotometry);
+        stella.manager.updateStella();
     }
 };
