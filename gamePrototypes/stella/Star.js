@@ -99,6 +99,9 @@ var Star = function (iStarData, iSystem) {
 Star.prototype.reportTrueValue = function (iValueType) {
     var out;
     var outDisplay;
+    var outOK;
+
+    outOK = true;   //  is there a good value?
 
     switch (iValueType) {
         case "temp":
@@ -130,7 +133,7 @@ Star.prototype.reportTrueValue = function (iValueType) {
     if (iValueType === "temp") {
         outDisplay = Math.pow(10, out);
     }
-    return {trueValue: out, trueDisplay: outDisplay};
+    return {trueValue: out, trueDisplay: outDisplay, OK: outOK};
 };
 
 Star.prototype.csvLine = function () {

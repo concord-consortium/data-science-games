@@ -28,7 +28,7 @@
 /**
  * Connector singleton, to isolate connections with CODAP
  *
- * Three-layer hierarchy
+ * Two  -layer hierarchy
  * GAME
  * STARS one case per Star, //  subordinate to the bucket
  *

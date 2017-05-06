@@ -117,18 +117,47 @@ System.prototype.dataValues = function () {
 };
 
 /**
+ * Look at the constituent stars to figure out what temperature the system appears to be.
+ * If it cannot be determined uniquely, return 0 or a negative number
+ */
+System.prototype.determineCompositeLogTemperature = function() {
+    var iBest = -1;
+    var tResult = 0;
+    var tSysLum500 = this.bright(stella.constants.filters.F500);    //  total log sys lum at 500 nm
+    var tBrightnessFractions = [];
+
+    for (var i = 0; i < this.stars.length; i++) {
+        var s = this.stars[i];
+        var tLum500 = s.bright(stella.constants.filters.F500);  //  logged brightness at 500 nm
+        tBrightnessFractions[i] = Math.pow(10, tLum500 - tSysLum500 );  //  un-logged fraction
+        if (tBrightnessFractions[i] > 0.9) {
+            iBest = i;      //      this star contriutes more than 90% of the light at 500
+        }
+    }
+
+    if (iBest >= 0) {
+        var tStar = this.stars[iBest];
+        var tResult = tStar.logTemperature;     //  correct result is it's not a binary
+    }
+
+    return tResult;
+};
+
+/**
  * Report true values of various possible Results
  *
- * @param iValueType
- * @returns {{trueValue: *, trueDisplay: *}}
+ * @param iValueType    the (text) type of the result
+ * @returns {{trueValue: *, trueDisplay: *, OK: *}}
  */
 System.prototype.reportTrueValue = function (iValueType) {
     var out;
     var outDisplay;
+    var OKFlag = true;
 
     switch (iValueType) {
         case "temp":
-            out = this.stars[0].logTemperature;     //  todo: fix this problem.
+            out = this.determineCompositeLogTemperature();
+            OKFlag = out != 0;      //      out = 0 means something went wrong
             break;
         case "vel_r":
             out = this.pm.r;
@@ -156,9 +185,15 @@ System.prototype.reportTrueValue = function (iValueType) {
     if (iValueType === "temp") {
         outDisplay = Math.pow(10, out);
     }
-    return {trueValue: out, trueDisplay: outDisplay};
+    return {trueValue: out, trueDisplay: outDisplay, OK: OKFlag};
 };
 
+/**
+ * Add the absolute (intrinsic), un-logged luminosities IN THIS FILTER BAND for all stars in the system
+ * Then take the log and return.
+ * @param iFilter
+ * @returns {*}
+ */
 System.prototype.logAbsoluteLuminosity = function( iFilter ) {
     var lum = 0;
     this.stars.forEach( function(s) {

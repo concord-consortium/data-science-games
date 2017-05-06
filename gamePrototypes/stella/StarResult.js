@@ -46,8 +46,11 @@
 StarResult = function ( iMine, iAuto ) {
     this.id = stella.manager.focusSystem.sysID;
     this.myOwnResult = iMine;           //  Boolean. You could have a result discovered by someone else.
+
+    //  read the type and value of the result from the UI
     this.type = stella.ui.starResultType;
     this.enteredValue = stella.ui.starResultValue;     //  the value in the form as entered. (i.e., not the log)
+
     this.date = stella.state.now;
     this.units = stella.starResultTypes[this.type].units;
     this.trueResultValue = -1;      //      the true value of the same result if the measurement had been perfect
@@ -93,6 +96,7 @@ StarResult.prototype.eligibleForBadge = function() {
 
 /**
  * When the user submits a Result, we check to see how close it is.
+ * Called by the constructor.
 
  * @returns {number}
  */
@@ -113,56 +117,65 @@ StarResult.prototype.evaluateResult = function(  ) {
      */
 
     var truth = tSys.reportTrueValue( this.type );
-    this.trueResultValue = truth.trueDisplay;  //  the way a user would enter it
 
-    tMaxDiff = stella.starResultTypes[this.type].errorL1;
-
-    switch( this.type ) {
-        case "temp" :
-            tMaxDiff = 0.1 * this.trueResultValue;    //  10% error
-            break;
-
-        case "vel_r":
-            break;
-
-        case "pm_x":
-            break;
-
-        case "pm_y":
-            break;
-
-        case "pos_x":
-            break;
-
-        case "pos_y":
-            break;
-
-        case "parallax":
-            break;
-
-        default:
-            var tMess = "Sorry, I don't know how to score " + stella.starResultTypes[ this.type].name + " yet.";
-            displayDebugStringInConsole = false;
-            alert(tMess);
-            this.trueResultValue = -1;
-            tMaxPoints = 0;
-            break;
-    }
-
-    tDiffValue = Math.abs(this.trueResultValue - this.enteredValue);
-    oPoints = tMaxPoints * (1 - tDiffValue / tMaxDiff);
-
-    if (oPoints < 0 ) {
+    if (!truth.OK) {
         oPoints = 0;
-    }
+        var tSorryMessage = "Sorry, you can't actually determine " + this.type
+            + " of star system " + tSys.sysID + ".";
+        alert(tSorryMessage);
+    } else {
 
-    debugString = "Evaluate " +
-        stella.starResultTypes[ this.type].name + ": user said " +
-        this.enteredValue + ", true value " + this.trueResultValue +
-        ". Awarding " + Math.round(oPoints) + " points.";
+        this.trueResultValue = truth.trueDisplay;  //  the way a user would enter it
 
-    if (displayDebugStringInConsole) {
-        console.log( debugString );
+        tMaxDiff = stella.starResultTypes[this.type].errorL1;
+
+        switch (this.type) {
+            case "temp" :
+                tMaxDiff = 0.1 * this.trueResultValue;    //  10% error
+                break;
+
+            case "vel_r":
+                break;
+
+            case "pm_x":
+                break;
+
+            case "pm_y":
+                break;
+
+            case "pos_x":
+                break;
+
+            case "pos_y":
+                break;
+
+            case "parallax":
+                break;
+
+            default:
+                var tMess = "Sorry, I don't know how to score " + stella.starResultTypes[this.type].name + " yet.";
+                displayDebugStringInConsole = false;
+                alert(tMess);
+                this.trueResultValue = -1;
+                tMaxPoints = 0;
+                break;
+        }
+
+        tDiffValue = Math.abs(this.trueResultValue - this.enteredValue);
+        oPoints = tMaxPoints * (1 - tDiffValue / tMaxDiff);
+
+        if (oPoints < 0) {
+            oPoints = 0;
+        }
+
+        debugString = "Evaluate " +
+            stella.starResultTypes[this.type].name + ": user said " +
+            this.enteredValue + ", true value " + this.trueResultValue +
+            ". Awarding " + Math.round(oPoints) + " points.";
+
+        if (displayDebugStringInConsole) {
+            console.log(debugString);
+        }
     }
     return Math.round(oPoints);
 };
