@@ -130,7 +130,6 @@ barty.connector = {
             ]
         };
 
-
         var tFlatDataSetupString = {
             name : this.kFlatDataSetName,
             title : this.kFlatDataSetName,

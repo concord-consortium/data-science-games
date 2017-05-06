@@ -3,7 +3,7 @@
  */
 /*
  ==========================================================================
- epiCODAPConnector.js
+ geigerCODAPConnector.js
 
  Critter view class for the med DSG.
 
