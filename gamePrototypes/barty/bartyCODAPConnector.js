@@ -49,24 +49,26 @@ games
 
 barty.connector = {
 
-    kDataSetName : "BARTY_data",
-    kDataSetTitle : "BART data",
+    kHierarchicalDataSetName : "BARTY_data",
+    kHierarchicalDataSetTitle : "BART data (don't pick this one)",
     kGameCollectionName : "games",
     kHoursCollectionName : "hours",
     kDataCollectionName : "data",
 
-    kFlatDataSetName : "flatBART",
+    kFlatDataSetName : "barty",
+    kFlatDataSetTitle : "BART data",
 
     initializeDataSets : function () {
 
         var tDataSetupString = {
-            name : this.kDataSetName,
-            title : this.kDataSetTitle,
+            name : this.kHierarchicalDataSetName,
+            title : this.kHierarchicalDataSetTitle,
             description : "records of BART usage",
             collections : [
 
                 //      GAMES level
 
+/*
                 {
                     name: this.kGameCollectionName,
                     labels: {
@@ -81,13 +83,14 @@ barty.connector = {
                     ],
                     childAttrName: this.kHoursCollectionName
                 },
+*/
 
                 //          HOURS level
                 //          doy, day, hour, date
 
                 {
                     name: this.kHoursCollectionName,
-                    parent : this.kGameCollectionName,
+                    //  parent : this.kGameCollectionName,
                     labels: {
                         singleCase: "hour",
                         pluralCase: "hours",
@@ -115,7 +118,7 @@ barty.connector = {
                     },
                     // The child collection specification:
                     attrs: [
-                        {name: "count", type: 'numeric', precision : 0, description : "number of passengers leaving the system"},
+                        {name: "riders", type: 'numeric', precision : 0, description : "number of riders leaving the system"},
                         {name: "startAt", type: 'categorical', description : "where these passengers entered BART"},
                         {name: "endAt", type: 'categorical', description : "where these passengers exited BART"},
                         {name: "startReg", type: 'categorical', colormap : barty.constants.kRegionColorMap,
@@ -132,18 +135,18 @@ barty.connector = {
 
         var tFlatDataSetupString = {
             name : this.kFlatDataSetName,
-            title : this.kFlatDataSetName,
-            description : "the same, but not pre-organized",
+            title : this.kFlatDataSetTitle,     //  this.kFlatDataSetName,
+            description : "BART hourly data, not pre-organized",
             collections : [
                 {
                     name: this.kFlatDataSetName,
                     labels: {
-                        singleCase: "datum",
-                        pluralCase: "data",
-                        setOfCasesWithArticle: "an hour's worth of data"
+                        singleCase: "record",
+                        pluralCase: "records",
+                        setOfCasesWithArticle: "a group of records"
                     },
                     attrs: [
-                        {name: "gameNumber", type: 'categorical'},
+                        //{name: "gameNumber", type: 'categorical'},
                         {name: "request", type: 'categorical'},
                         {name: "when", type: 'date', description : "what time and day"},
                         {name: "day",
@@ -153,8 +156,8 @@ barty.connector = {
                         },
                         {name: "hour", type: 'numeric', precision : 0, description : "hour (24-hour clock)"},
                         {name: "date", type: 'categorical', description : "the date"},
-                        {name: "count", type: 'numeric', precision : 0,
-                            description : "number of passengers leaving the system"},
+                        {name: "riders", type: 'numeric', precision : 0,
+                            description : "number of riders leaving the system"},
                         {name: "startAt", type: 'categorical',
                             description : "station where these passengers entered BART"},
                         {name: "endAt", type: 'categorical',
@@ -177,7 +180,7 @@ barty.connector = {
     },
 
     outputDataItems : function( iValArray ) {
-        pluginHelper.createItems(iValArray, barty.connector.kDataSetName);
+        pluginHelper.createItems(iValArray, barty.connector.kHierarchicalDataSetName);
         pluginHelper.createItems(iValArray, barty.connector.kFlatDataSetName);
     }
 };

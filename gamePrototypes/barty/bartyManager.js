@@ -318,14 +318,14 @@ barty.manager = {
                 var tFormattedDateTime = tFormattedDate + " " + d.hour + ":00:00";
 
                 var tValues = {
-                    gameNumber: barty.manager.gameNumber,
+                    //gameNumber: barty.manager.gameNumber,
                     request: barty.manager.requestNumber,
                     when: tFormattedDateTime,
                     day: barty.constants.daysOfWeek[d.dow - 1],
                     hour: d.hour,
                     date: tDate.toDateString(),
 
-                    count: tAdjustedCount,
+                    riders: tAdjustedCount,
                     startAt: barty.stations[d.origin].abbr6,
                     endAt: barty.stations[d.destination].abbr6,
                     startReg: barty.stations[d.origin].region,
