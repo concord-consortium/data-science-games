@@ -1,4 +1,11 @@
 <!--
+    Here is the URL...
+
+    http://codap.concord.org/releases/dsg?di=http://www.eeps.com/dsg/epidemic/epidemic.html
+
+    or locally,
+    http://codap.concord.org/releases/dsg?di=http://localhost/~tim/gamePrototypes/epidemic/epidemic.html
+
 
  ==========================================================================
  epidemic.html
@@ -22,15 +29,7 @@
  limitations under the License.
  ==========================================================================
 
-    Here is the URL...
 
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://www.eeps.com/dsg/epidemic/epidemic.html
-
-    or locally,
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/epidemic/epidemic.html
-
-    local with docs;
-    http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://localhost/~tim/gamePrototypes/epidemic/epidemic.html&documentServer=http://document-store.herokuapp.com/&recordid=7002
     -->
 
 <!DOCTYPE html>
@@ -41,7 +40,8 @@
 
     <!-- These two scripts take care of the communication with CODAP and commons -->
     <script src="../common/iframe-phone.js" language="javascript"></script>
-    <script src="../common/codap_helper.js" language="javascript"></script>
+    <script src="../common/codapInterface.js" language="javascript"></script>
+    <script src="../common/pluginHelper.js" language="javascript"></script>
 
     <script src="../common/TEEUtils.js" language="javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
@@ -63,7 +63,7 @@
     <script src="nameGenerator.js" language="JavaScript"></script>
     <script src="epiMalady.js" language="JavaScript"></script>
     <script src="epiOptions.js" language="JavaScript"></script>
-    <script src="epiCODAPConnector.js" language="JavaScript"></script>
+    <script src="epidemicConnector.js" language="JavaScript"></script>
 
 
     <title>Epidemic</title>
@@ -82,6 +82,7 @@
     <rect width="100%" height="100%" fill="url(#epiGrad)" stroke="black" stroke-width="20"></rect>
     <circle r="120" cx="0" cy="0" fill="red"></circle>
     <text x="500" y="500" font-size="60" text-anchor="middle" fill="white">Press "new game"</text>
+
 </svg>
 
 <!--        Control buttons         -->
@@ -103,7 +104,7 @@
 
 <!--        pink "options" section      -->
 
-<label class="hBox">
+<div class="hBox">
     <div class = "vBox options" id = "gameOptions" onclick="epiOptions.optionChange()">
         <label><input type="checkbox" id="dataOnCritterClick" checked> data on Critter click</label>
         <label><input type="checkbox" id="dataOnArrival" > data on arrival </label>
@@ -131,7 +132,7 @@
 
 
 <script>
-    epiManager.initializeComponent();
+    epidemic.initialize();
 </script>
 
 </body>

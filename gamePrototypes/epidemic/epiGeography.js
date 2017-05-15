@@ -106,6 +106,18 @@ epiGeography = {
         return epiModel.locations[ index ];
     },
 
+    /**
+     * Given (game) coordinates, like from a mouse click, find the Location they're in.
+     *
+     * @param iX
+     * @param iY
+     * @returns {*}     theLocation
+     */
+    locationFromCoords: function( iX, iY) {
+        return epiModel.locations[ this.coordToLocationIndex( iX, iY)];
+    },
+
+
     rowColString : function( rowCol ) {
         return "[" + rowCol.row + " | " + rowCol.col + "]";
 

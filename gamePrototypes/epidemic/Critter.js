@@ -33,6 +33,7 @@
  */
 var Critter = function( index ) {
     this.myIndex = index;
+    this.caseIDs = [];
 
     this.where = null;      //  where we are { row , col }
     this.whither = null;    //  where we're going { row , col }
@@ -97,8 +98,9 @@ Critter.prototype.update = function (dt) {
                 if (tCritterNeeds.what === epiGeography.locationFromRowCol(this.where).locType) {
                     this.activity = tCritterNeeds.bestActivity;
                 } else {
-                    this.setNewDest();      //  sets this.whither
-                    this.doDeparture( "migration" );
+                    var tNewRC = this.setNewDest();      //  sets this.whither
+                    console.log( this.name + " whither is " + epiGeography.rowColString(tNewRC));
+                    this.doDeparture( tNewRC, "migration" );
                 }
             }
         }
@@ -157,7 +159,7 @@ Critter.prototype.findTemperature = function() {
  * and the distances to Locations that can meet the needs.
  * We are playing around with picking locations that may not be the absolute closest.
  */
-Critter.prototype.setNewDest = function( ) {        //  todo: put up in the Manager
+Critter.prototype.setNewDest = function( ) {        //  todo: put up in the Manager, or down in Geography
     var tCritterNeeds = this.motivation.mostUrgentNeed().what;
     var tOKRowCols = [];
 
@@ -172,7 +174,7 @@ Critter.prototype.setNewDest = function( ) {        //  todo: put up in the Mana
 
     var tDest = TEEUtils.pickRandomItemFrom( tOKRowCols );
 
-    this.whither = tDest;     //      our destination in rowCol form
+    return tDest;     //      our destination in rowCol form
 };
 
 
@@ -193,41 +195,63 @@ Critter.prototype.animateToCenterOfDestination = function(  )  {
         y : tDestinationXY.y
     };
 
-    var tCurrentLocationString = this.where ? epiGeography.rowColString(this.where)
+    var tCurrentLocationString = this.where
+        ? epiGeography.rowColString(this.where)
         : "(" + tCurrentXY.x + ", " + tCurrentXY.y + ")" ;
-    console.log( this.name + " moving " + tDistance.toFixed(2) + " units, at speed "
-    + this.speed.toFixed(2) + " from "
-        + tCurrentLocationString + " to "
-        + epiGeography.rowColString(this.whither) + " in " + tTime.toFixed(2) + "s using "
-        + JSON.stringify(tAnimationObject));
 
     this.view.snapShape.animate(
         tAnimationObject,
         tTime * 1000, null,
         function() {
-            epiModel.doArrival({ critter: this, atRowCol: this.whither} );
+            this.doArrival(this.whither, "arrival");       //  callback on arrival
         }.bind(this)
     );
 };
 
 /**
  * A critter actually departs
+ * @param iToRC   whither?
  * @param iReason   why?
  */
-Critter.prototype.doDeparture = function( iReason ) {
+Critter.prototype.doDeparture = function( iToRC, iReason ) {
 
     this.activity = "traveling";
     this.moving = true;
-
-    if (epiOptions.dataOnDeparture)
-        epiManager.emitCritterData( this, iReason); //  must do before this.where changes
-
+    this.whither = iToRC;
     this.animateToCenterOfDestination(  );
-    epiGeography.locationFromRowCol(this.where).removeCritter( this.myIndex );
-    this.where = null;
 
-
+    if (this.where) {       //  there is a current location (we're not dragging an already-moving critter
+        if (epiOptions.dataOnDeparture)
+            epiManager.emitCritterData( this, iReason); //  must do before this.where changes
+        epiGeography.locationFromRowCol(this.where).removeCritter( this.myIndex );
+        this.where = null;
+    }
 };
+
+
+/**
+ * A Critter arrives at a new Location.
+ * @param iToRC
+ * @param iReason
+ */
+Critter.prototype.doArrival = function( iToRC, iReason ) {      //  epiModel.doArrival({ critter: c, toRowCol: iRC} );
+    this.moving = false;
+    this.xy = {
+        x: this.view.snapShape.attr("x"),
+        y: this.view.snapShape.attr("y")
+    };
+    this.where = iToRC;
+    this.whither = null;
+
+    var tNewLocation = epiGeography.locationFromRowCol(iToRC);
+    tNewLocation.addCritter( this.myIndex );
+    this.activity = Location.mainActivities[ tNewLocation.locType ];       //      do whatever they do here :)
+    if (epiOptions.dataOnArrival) epiManager.emitCritterData( this, iReason);
+    //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
+    //  (Why are they invalid?)
+};
+
+
 
 /**
  * Starts a "jiggle" move, that is, re-line-up in response to
@@ -242,9 +266,11 @@ Critter.prototype.startJiggleMove = function( iDestXY ) {
         y : iDestXY.y
     };
 
+/*
     console.log( this.name + " jiggles in "
         + epiGeography.rowColString(this.where) + " to "
         + JSON.stringify(tAnimationObject));
+*/
 
 
     this.view.snapShape.animate(

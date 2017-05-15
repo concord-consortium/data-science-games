@@ -57,7 +57,7 @@ epiMalady = {
         Object.keys(this.maladyNameObject).forEach( function (theKey) {
             var theName = this.maladyNameObject[theKey];
             result += "<option value = " + theKey + ">" + theName + "</option>";
-        })
+        }.bind(this));
 
         return result;
     },
@@ -69,7 +69,7 @@ epiMalady = {
 
         var maladyChoiceMenu = document.getElementById("maladyChoice");
         var tDiseaseChoice = Number(maladyChoiceMenu.value);
-        if (maladyChoiceMenu.value == "all") {
+        if (maladyChoiceMenu.value === "all") {
             tDiseaseChoice = Math.floor( this.pMaladyNameList.length * Math.random() );
         }      //  "surprise me"
 
@@ -107,7 +107,7 @@ epiMalady = {
                 this.pAverageSecondsToInfection = 1;
                 this.pIncubationInSeconds = 10;
                 var tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
-                while (tLoc.locType != "water" ||
+                while (tLoc.locType !== "water" ||
                     tLoc.row < epiGeography.pRowsInGrid/5 || tLoc.row >= epiGeography.pRowsInGrid * 4 / 5 ||
                     tLoc.col < epiGeography.pColumnsInGrid/5 || tLoc.col >= epiGeography.pColumnsInGrid * 4 / 5)
                     tLoc = TEEUtils.pickRandomItemFrom(epiModel.locations);
@@ -156,7 +156,7 @@ epiMalady = {
 
         var tInfectionProbability = dt / this.pAverageSecondsToInfection;
         if (Math.random() < tInfectionProbability) {
-            if (iCritter.health == 1 && iCritter.antibodies == 0.0 && !iCritter.infected) {
+            if (iCritter.health === 1 && iCritter.antibodies === 0.0 && !iCritter.infected) {
                 iCritter.infected = true;
                 iCritter.incubationTime = 0.0;
                 var tLocName = epiGeography.locationFromRowCol( iCritter.where).name;
@@ -172,7 +172,7 @@ epiMalady = {
                 case this.kToxicMaladyWater:
                     break;
                 case this.kComplexMaladyInfectiousWhileAsymptomatic:
-                    if (iCritter.health == 1 && iCritter.infected) {
+                    if (iCritter.health === 1 && iCritter.infected) {
                         iCritter.infectious = true;
                     }
                     break;
@@ -193,7 +193,7 @@ epiMalady = {
             pIncubationInSeconds : this.pIncubationInSeconds,
             pSickSecondsToGameEnd : this.pSickSecondsToGameEnd,
             pTotalElapsedSecondsToGameEnd : this.pTotalElapsedSecondsToGameEnd,
-            pMaladyNameList : this.pMaladyNameList,
+            pMaladyNameList : this.pMaladyNameList
 
         };
         return tSaveObject;

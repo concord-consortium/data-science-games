@@ -21,15 +21,59 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==========================================================================
-
-
  */
 
 var epidemic = {
     constants: {
-        version: "001e",
+        version: "001g",
         letters: [
             'A','B','C','D','E','F','G','H','I','J'
-        ]
+        ],
+
+        kWinState : "win",
+        kLossState : "loss"
+    },
+
+    colorMapObject : {},
+    state : {},
+
+    freshState : {
+        gameNumber : 0,
+        moves : 0,
+        sickSeconds : 0,
+        elapsed : 0
+    },
+
+    initialize : function() {
+        epiManager.initializeComponent();
+
+        var tColorMapObject = { };
+
+        /*
+        Set the colors for the eyes
+         */
+        Critter.eyeColors.forEach( function(iColor) {
+            this.colorMapObject[ iColor ] = iColor;
+        }.bind(this));
+
+        var tInitSimObject = {
+            name: 'Epidemic',
+            title : 'Epidemic',
+            version : epidemic.constants.version,
+            dimensions: {width: 424, height: 600},
+            preventDataContextReorg: false
+        };
+
+        codapInterface.init(tInitSimObject, null).then( function() {
+            epidemic.state = codapInterface.getInteractiveState();
+            if (jQuery.isEmptyObject(epidemic.state)) {
+                codapInterface.updateInteractiveState( epidemic.freshState );
+            }
+
+            epidemicConnector.initializeEpidemicDataSets();
+        });
+
     }
-}
+
+};
+

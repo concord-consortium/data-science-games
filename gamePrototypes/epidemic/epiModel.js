@@ -101,8 +101,8 @@ epiModel = {
         if (!epiOptions.endlessGame) {
             var tSickSeconds = this.sicknessReport().totalElapsed;
 
-            if (tSickSeconds > epiMalady.pSickSecondsToGameEnd) tEnd = "lost";
-            if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = "won";
+            if (tSickSeconds > epiMalady.pSickSecondsToGameEnd) tEnd = epidemic.constants.kLossState;
+            if (this.elapsed > epiMalady.pTotalElapsedSecondsToGameEnd) tEnd = epidemic.constants.kWinState;
         }
         return tEnd;
     },
@@ -115,43 +115,38 @@ epiModel = {
      *                      if false, add iCritter to the set of selected Critters
      */
     selectCritter :  function(iCritter, iReplace) {
-        if (iReplace) epiManager.clearSelection();
-        iCritter.selected = true;
-    },
-
-    /**
-     * A Critter arrives at a new Location.
-     * @param o { critter; c, atRowCol: iRC}
-     */
-    doArrival: function( o ) {      //  epiModel.doArrival({ critter: c, atRowCol: iRC} );
-        var tCritter = o.critter;
-        var iRC = o.atRowCol;
-        tCritter.moving = false;
-        tCritter.xy = {
-            x: tCritter.view.snapShape.attr("x"),
-            y: tCritter.view.snapShape.attr("y")
-        };
-        tCritter.where = iRC;
-        tCritter.whither = null;
-
-        var tNewLocation = epiGeography.locationFromRowCol(iRC);
-        tNewLocation.addCritter( tCritter.myIndex );
-        tCritter.activity = Location.mainActivities[ tNewLocation.locType ];       //      do whatever they do here :)
-        if (epiOptions.dataOnArrival) epiManager.emitCritterData( tCritter, "arrival");
-        //  todo: fix it so that on game end, critters don't still arrive, making invalid cases.
-        //  (Why are they invalid?)
+        if (iCritter) {
+            if (iReplace) epiManager.clearSelection();
+            iCritter.selected = true;
+            iCritter.view.update();
+        }
     },
 
 
     /**
-     * A Critter departs from a new Location.
-     * @param o { critter; c, atRowCol: iRC}
+     * Given a name, find the Critter
+     * @param iName     the name
+     * @returns {}  the Critter, null if not found
      */
-    doDeparture: function( o ) {      //  epiModel.doDeparture({ critter: c, atRowCol: iRC} );
-        var tCritter = o.critter;
-        tCritter.doDeparture("ennui");
+    critterByName : function( iName ) {
+        var out = null;
+        this.critters.forEach( function(c) {
+            if (c.name === iName) out = c;
+        }.bind(this));
+        return out;
     },
 
+    /**
+     * Manage a critter being dragged from one location to another,
+     * called from epiManager -- which guarantees that iFrom is not iTo.
+     * @param iCritter  the creature itself
+     * @param iToRC     therowCol to
+     */
+    doCritterDrop : function( iCritter, iToRC) {
+        iCritter.doDeparture(iToRC, "drag");
+        iCritter.doArrival(iToRC, "drag");
+        epiModel.nMoves += 1;
+    },
 
     /**
      * Create any new infections
@@ -199,17 +194,6 @@ epiModel = {
         } );
 
         return {totalElapsed : totElapsed.toFixed(2), numberSick : nSick};
-    },
-
-    /**
-     * Given (game) coordinates, like from a mouse click, find the Location they're in.
-     *
-     * @param iX
-     * @param iY
-     * @returns {*}     theLocation
-     */
-    coordsToLocation: function( iX, iY) {
-        return this.locations[ epiGeography.coordToLocationIndex( iX, iY)];
     },
 
     /**

@@ -92,12 +92,15 @@ var CritterView = function( c ) {
             tStartX = Number(this.snapShape.attr('x'));
             tStartY = Number(this.snapShape.attr('y'));
             epiManager.draggingCritter = true;
+            console.log("CritterView:onDragStart " + iX + " " + iY + " <-- " + tStartX + " " + tStartY);
         },
         onDragMove = function( iDX, iDY, iX, iY, iEvent) {
             //  todo: use CTM. See onDragEnd, below. That way we could highlight droppable Locations
             var tVPDX = iDX * epiWorldView.VBWidth / Number(epiWorldView.actualWidth),
                 tVPDY = iDY * epiWorldView.VBHeight / Number(epiWorldView.actualHeight);
-            this.moveTo( {x : tStartX + tVPDX, y : tStartY + tVPDY});
+            var tX = tStartX + tVPDX;
+            var tY = tStartY + tVPDY;
+            this.moveTo( {x : tX, y : tY} );
 
             // todo: epiManager.handleMoveOfCritter();
         },

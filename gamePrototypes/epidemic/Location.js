@@ -112,7 +112,7 @@ Location.prototype.addCritter = function( iCrIndex ) {
 
     var tDebugCritter = epiModel.critters[ iCrIndex ];
 
-    console.log("Adding " + tDebugCritter.name + " to " + epiGeography.rowColString( this.rowCol ));
+    //  console.log("Adding " + tDebugCritter.name + " to " + epiGeography.rowColString( this.rowCol ));
 
     //  give all my critters a new location within the Location
 
@@ -126,7 +126,7 @@ Location.prototype.addCritter = function( iCrIndex ) {
         function( icr ) {
             var tCritter = epiModel.critters[icr];
             var tDestination = this.globalParkingCoordinates( iSetIndex );
-            console.log("Prepping jiggle for " + tCritter.name + " to " + JSON.stringify(tDestination));
+            //  console.log("Prepping jiggle for " + tCritter.name + " to " + JSON.stringify(tDestination));
             tCritter.startJiggleMove( tDestination );
             iSetIndex++;
         },
