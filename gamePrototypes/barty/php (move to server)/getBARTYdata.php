@@ -1,5 +1,6 @@
 <?php
-
+$options = array( "date_format" => DATE_RFC2822 );
+date_default_timezone_set('America/Los_Angeles');
 /**
     This php script feeds BART data, stored in MySQL, to a DSG Data Interactive.
 
@@ -90,9 +91,9 @@ $pass = "dsg%37X";
 */
 
 //  tim's macbook version
-$dbname = "barty";
-$user = "root";
-$pass = "gr6ose6ro";
+$dbname = "bartydb";
+$user = "barty";
+$pass = "barty";
 
 			//  universal code here
 /*
@@ -102,7 +103,7 @@ $pass = "gr6ose6ro";
 	
 file_put_contents("bartdebug.txt", "\n\n in PHP " . date(DATE_RFC2822) . " post is: " . implode(" | ",$_POST) , FILE_APPEND);
 
-$now =  date(DATE_RFC2822);     //  for debug purposes
+$now =  date("Y-m-d H:i:s (T)");     //  for debug purposes
 
 $command = $_POST["c"];     //  this is the overall command, the only required part of the POST
 
@@ -202,7 +203,7 @@ switch ($command) {
 */
 
 $query = stripcslashes( $query );
-file_put_contents("bartdebug.txt", "\n\n----  " . date(DATE_RFC2822) . " submitting query: \n" . $query , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n\n----  " . date("Y-m-d H:i:s (T)") . " submitting query: \n" . $query , FILE_APPEND);
 
 //  connect to the database
 $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
@@ -210,7 +211,7 @@ $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
 //  submit the query and receive the results
 $rows = CODAP_MySQL_getQueryResult($DBH, $query);
 
-file_put_contents("bartdebug.txt", "\n    " . date(DATE_RFC2822) . " " . $command . "  got " . count($rows) . " row(s)" , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n    " . date("Y-m-d H:i:s (T)") . " " . $command . "  got " . count($rows) . " row(s)" , FILE_APPEND);
 
 //  actually get the data back to the javascript:
 echo json_encode($rows);
