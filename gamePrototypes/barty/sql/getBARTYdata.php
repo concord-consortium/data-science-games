@@ -14,8 +14,8 @@ date_default_timezone_set('America/Los_Angeles');
     POST variables
 
     c           command. getStation | byTime | byArrival | byDeparture
-    stn0        abbr2 of the origin station, e.g., "Orinda" (optional)
-    stn1        abbr2 of the arrival station (optional)
+    stn0        abbr6 of the origin station, e.g., "Orinda" (optional)
+    stn1        abbr6 of the arrival station (optional)
     d           date STRING
     h           hour INTEGER
 
