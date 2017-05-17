@@ -91,6 +91,9 @@ $pass = "dsg%37X";
 */
 
 //  tim's macbook version
+//$dbname = "barty";
+//$user = "root";
+//$pass = "gr6ose6ro";
 $dbname = "bartydb";
 $user = "barty";
 $pass = "barty";
