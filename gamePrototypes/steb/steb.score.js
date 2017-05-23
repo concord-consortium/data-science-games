@@ -38,18 +38,15 @@ steb.score = {
     pointsPerMeal : 1,
     pointsPerMiss : -1,
     pointsPerSecond : -0.016,
-    startingPoints : 10,
 
     predatorPoints : null,
-    startingPredatorPoints : 10,
     energyPerMeal : 5,
     energyPerLoss : -1,
     energyPerVisionChange : -50,
 
-    winningScore : 500,
 
     newGame : function() {
-        this.predatorPoints = this.startingPredatorPoints;
+        this.predatorPoints = steb.constants.initialScore;
     },
 
     /**
@@ -88,12 +85,14 @@ steb.score = {
      * Check to see if the game is over after we updated the score
      */
     checkEnd : function( )  {
-        var tScore = steb.score.predatorPoints;
+        if (steb.manager.checkForWin) {
+            var tScore = steb.score.predatorPoints;
 
-        if (tScore >= steb.score.winningScore) {
-            steb.manager.endGame("win");
-        } else if (tScore <= 0) {
-            steb.manager.endGame("loss");
+            if (tScore >= steb.constants.winningScore) {        //  todo: change to an option
+                steb.manager.endGame("win");
+            } else if (tScore <= 0) {
+                steb.manager.endGame("loss");
+            }
         }
     }
 };

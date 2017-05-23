@@ -63,6 +63,11 @@ body {
     color: white;
 }
 
+#keepPlayingButton {
+    background-color: #0a9a87;
+    color: white;
+}
+
 #newGameButton {
     background-color: darkgray;
     color: white;

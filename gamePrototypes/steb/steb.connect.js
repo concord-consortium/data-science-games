@@ -109,7 +109,7 @@ steb.connector = {
             version: steb.constants.version,
             name: 'Stebbins',
             title: 'Stebbins',
-            dimensions: {width: 444, height: 555},
+            dimensions: {width: 370, height: 520},
             preventDataContextReorg : false         //  let the user reorganize
 
             /*, Temporarily, at least, we let CODAP set the default dimensions

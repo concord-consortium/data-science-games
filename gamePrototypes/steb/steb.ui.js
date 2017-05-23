@@ -47,6 +47,14 @@ steb.ui = {
         //  correct title for new/abort game button
         this.newGameButton.html( steb.manager.playing ? "abort game" : "new game");
 
+        //  set visibility for keep playing button
+        var keepPlayingVisible = !steb.manager.playing; // && !steb.manager.running;
+        if (keepPlayingVisible) {
+            $("#keepPlayingButton").show();
+        } else {
+            $("#keepPlayingButton").hide();
+        }
+
         //  display ongoing score and time
         if (steb.model) {
             this.timeDisplay.text(Math.round(steb.model.elapsed));
@@ -137,6 +145,14 @@ steb.ui = {
         } else {
             steb.manager.newGame();
         }
+        this.fixUI();
+    },
+
+    /**
+     * User presses "keep playing" when they COULD press new game.
+     */
+    keepPlayingButtonPressed : function() {
+        steb.manager.keepPlaying();
         this.fixUI();
     },
 

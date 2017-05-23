@@ -43,11 +43,15 @@ steb.manager = {
     //  various flags
     running: false,    //  as opposed to paused
     playing: false,    //  as opposed to bewteen games
-    changingColors : false, //  background or crud
+    changingColors: false, //  background or crud
     previous: null,    //  the "previous" time for computing dt for animation
     onTimeout: false,  //  are we "on timeout" for clicking Crud?
     gameNumber: 0,     //  the game number
     stebElapsed: 0.0,      //  elapsed time
+    checkForWin: true,     //  do we check for winning?
+
+    shownBoxURI: null,     //  uri for the win/lose/abort box
+    shownBoxImage: null,   //  the Snap.svg "Image" being shown
 
     livingStebberTableShowing: false,
     eatenStebberTableShowing: false,
@@ -126,6 +130,7 @@ steb.manager = {
 
     },
 
+
     /**
      * User has requested a new game.
      */
@@ -140,6 +145,7 @@ steb.manager = {
         steb.colorBoxView.newGame();
 
         this.playing = true;
+        this.checkForWin = true;
 
         //      Make the game case. We pass in an object with name-value pairs...
 
@@ -166,32 +172,40 @@ steb.manager = {
         }
     },
 
+    keepPlaying: function () {
+        this.playing = true;
+        this.checkForWin = false;
+        this.shownBoxImage.remove();
+        this.shownBoxImage = null;
+        this.restart();     //  start time!
+    },
+
+
     /**
      * For some reason, the game has ended
      * @param iReason       the reason (e.g., "won," "aborted")
      */
     endGame: function (iReason) {
 
-        var uri;
-
         switch (iReason) {
             case "abort" :
-                uri = "art/StebAbort.png";
+                this.shownBoxURI = "art/StebAbort.png";
+                //  this.playing = false;
                 break;
 
             case "win" :
-                uri = "art/StebWin.png";
+                this.shownBoxURI = "art/StebWin.png";
                 break;
 
             case "loss":
-                uri = "art/StebLoss.png";
+                this.shownBoxURI = "art/StebLoss.png";
                 break;
 
             default:
 
         }
-        if (uri) {
-            steb.worldView.paper.image(uri, 200, 200, 600, 600);
+        if (this.shownBoxURI) {
+            this.shownBoxImage = steb.worldView.paper.image(this.shownBoxURI, 200, 200, 600, 600);
         }
 
         this.playing = false;
@@ -234,15 +248,15 @@ steb.manager = {
      * Then reproduce, account for the score, emit data, and scare things away from the site
      * @param iStebberView
      */
-     eatStebber: function (iStebberView) {
+    eatStebber: function (iStebberView) {
         steb.score.meal();      //  update score before emitting data
         steb.manager.emitMealData(iStebberView.stebber);
 
         steb.model.removeStebber(iStebberView.stebber);     //  remove the model Stebber
         steb.worldView.removeStebberView(iStebberView);     //  remove its view
         var tBabies = steb.model.reproduce();     //      reproduce (from the remaining stebbers)
-        tBabies.forEach( function(b) {
-            steb.manager.emitBirthData( b );
+        tBabies.forEach(function (b) {
+            steb.manager.emitBirthData(b);
         });
 
         //   the living stebber data includes the new one.
@@ -381,7 +395,7 @@ steb.manager = {
                                             id: iStebber.id,
                                             where: iStebber.where,
                                             trueColor: iStebber.trueColor,
-                                            parentID : iStebber.parentID,
+                                            parentID: iStebber.parentID,
                                             caseIDs: iStebber.caseIDs
                                         };
                                     }),
@@ -417,8 +431,8 @@ steb.manager = {
 
                                     currentPreset: steb.options.currentPreset,
 
-                                    noMutation : steb.options.noMutation,
-                                    constantCrud : steb.options.constantCrud
+                                    noMutation: steb.options.noMutation,
+                                    constantCrud: steb.options.constantCrud
 
                                 },
                                 predator: {

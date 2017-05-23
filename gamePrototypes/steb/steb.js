@@ -104,12 +104,14 @@ steb.rangePin = function( val, lo, hi )    {
  * @type {{version: string, initialNumberOfStebbers: number, stebberViewSize: number, stebberSpeed: number, stebberColorMutationArray: number[], stebberColorReducedMutationArray: number[], worldViewBoxSize: number, numberOfCruds: number, crudSize: number, crudSpeed: number, crudColorMutationArray: number[], colorAnimationDuration: number, baseStebberSpeed: number, baseStebberAcceleration: number}}
  */
 steb.constants = {
-    version : "001v",
+    version : "001w",
 
     dataSetName_Living : "LivingStebbers",
     dataSetName_Eaten : "EatenStebbers",
     dataSetName_Born : "BornStebbers",
 
+    initialScore: 100,
+    winningScore : 300,
     initialNumberOfStebbers : 12,   //  12,
     numberOfCruds : 20,          //  20
 
@@ -162,6 +164,7 @@ steb.constants = {
 
     strings : {
         livingStebberTableName : "stebbers",
-        eatenStebberTableName : "meals"
+        eatenStebberTableName : "meals",
+        bornStebberTableName : "newborns"
     }
 };
