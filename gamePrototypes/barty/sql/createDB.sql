@@ -1,4 +1,4 @@
-CREATE DATABASE 'bartydb';
+CREATE DATABASE bartydb;
 
 CREATE USER 'barty'@'localhost' IDENTIFIED BY 'barty';
 
