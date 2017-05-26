@@ -35,11 +35,15 @@ header('Access-Control-Allow-Origin: *');
         user    the username that will access the database
         pass    the password
         dbname  the name of the database on the host
+
+    Reason for ATTR_EMULATE_PREPARES, see:
+    https://stackoverflow.com/questions/60174/how-can-i-prevent-sql-injection-in-php
 */
 function    CODAP_MySQL_connect( $host, $user, $pass, $dbname ) {
     try {
         $DBH = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);	// the database handle
-
+        $DBH->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
         print "Error connecting to the $dbname database!: " . $e->getMessage() . "<br/>";
         die();
@@ -52,13 +56,14 @@ function    CODAP_MySQL_connect( $host, $user, $pass, $dbname ) {
     actually execute a MySQL query
     Parameters:
         db      the database handle
-        query   the actual MySQL query, e.g., "SELECT * FROM theTable"
+        query   the parameterized MySQL query, e.g., "SELECT * FROM theTable"
+        params  parameters for the query
     returns an array of <associated array>s, each of which is one row.
 */
 
-function	CODAP_MySQL_getQueryResult($db, $query)	{
+function	CODAP_MySQL_getQueryResult($db, $query, $params)	{
     $sth = $db->prepare($query);    //  $sth = statement handle
-    $sth->execute();
+    $sth->execute($params);
     $result = $sth->fetchAll(PDO::FETCH_ASSOC);
 	return $result;
 }
@@ -67,8 +72,8 @@ function	CODAP_MySQL_getQueryResult($db, $query)	{
     Gets one row of data.
 */
 
-function	CODAP_MySQL_getOneRow($db, $query)	{
-    $result = CODAP_MySQL_getQueryResult($db, $query . " LIMIT 1");
+function	CODAP_MySQL_getOneRow($db, $query, $params)	{
+    $result = CODAP_MySQL_getQueryResult($db, $query . " LIMIT 1", $params);
     return $result;
 }
 
@@ -104,37 +109,48 @@ $pass = "barty";
 */
 //	print_r($_GET);
 	
-file_put_contents("bartdebug.txt", "\n\n in PHP " . date(DATE_RFC2822) . " post is: " . implode(" | ",$_POST) , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n\n in PHP " . date(DATE_RFC2822) . " post is: " . implode(" | ",$_REQUEST) , FILE_APPEND);
 
 $now =  date("Y-m-d H:i:s (T)");     //  for debug purposes
 
-$command = $_POST["c"];     //  this is the overall command, the only required part of the POST
+$command = $_REQUEST["c"];     //  this is the overall command, the only required part of the POST
 
-if (isset($_POST["w"])) {
-	$what = $_POST["w"];
+// $params will accumulate params for query
+$params = array();
+
+if (isset($_REQUEST["w"])) {
+	$what = $_REQUEST["w"];
 } else {
 	$what = "";
 }
 
-if (isset($_POST["d0"])) {
-    $d0 = $_POST["d0"];
-    $d1 = $_POST["d1"];
-    $dateRange = " ( Bdate BETWEEN '" . $d0 . "' AND '" . $d1 . "' ) ";   //  note inclusive
+if (isset($_REQUEST["d0"])) {
+    $d0 = $_REQUEST["d0"];
+    $d1 = $_REQUEST["d1"];
+//    $dateRange = " ( Bdate BETWEEN '" . $d0 . "' AND '" . $d1 . "' ) ";   //  note inclusive
+    $dateRange = " ( Bdate BETWEEN :d0 AND :d1 ) ";
+    $params["d0"] = $d0;
+    $params["d1"] = $d1;
 } else {
     $dateRange = "";
 }
 
-if (isset($_POST["h0"])) {
-    $h0 = $_POST["h0"];
-    $h1 = $_POST["h1"];
-    $hourRange = " AND ( hour BETWEEN " . $h0 . " AND " . (intval($h1) - 1) . " ) ";    //  note inclusive
+if (isset($_REQUEST["h0"])) {
+    $h0 = $_REQUEST["h0"];
+    $h1 = $_REQUEST["h1"];
+//    $hourRange = " AND ( hour BETWEEN " . $h0 . " AND " . (intval($h1) - 1) . " ) ";    //  note inclusive
+    $hourRange = " AND ( hour BETWEEN :h0 AND :h1 ) ";    //  note inclusive
+    $params["h0"] = $h0;
+    $params["h1"] = intval($h1) - 1;
 } else {
     $hourRange = "";
 }
 
-if (isset($_POST["dow"])) {
-    $dow = $_POST["dow"];               //      numerical day of week Sun = 1 in MySQL (Sun = 0 is js)
-    $dowClause = " AND DAYOFWEEK( Bdate ) = " . (intval($dow) + 1) . " ";
+if (isset($_REQUEST["dow"])) {
+    $dow = $_REQUEST["dow"];               //      numerical day of week Sun = 1 in MySQL (Sun = 0 is js)
+//    $dowClause = " AND DAYOFWEEK( Bdate ) = " . (intval($dow) + 1) . " ";
+    $dowClause = " AND DAYOFWEEK( Bdate ) = :dow ";
+    $params["dow"] = intval($dow) + 1;
 } else {
     $dowClause = " ";
 }
@@ -153,16 +169,20 @@ $stationClause = "";
 
 //  station of origin
 
-if (isset($_POST["stn0"])) {
-    $stn0 = $_POST["stn0"];
-    $stationClause .= "AND origin = '" . $stn0 . "' ";
+if (isset($_REQUEST["stn0"])) {
+    $stn0 = $_REQUEST["stn0"];
+//    $stationClause .= "AND origin = '" . $stn0 . "' ";
+    $stationClause .= "AND origin = :stn0 ";
+    $params["stn0"] = $stn0;
 }
 
 //  destination station
 
-if (isset($_POST["stn1"])) {
-    $stn1 = $_POST["stn1"];
-    $stationClause .= "AND destination = '" . $stn1 . "' ";
+if (isset($_REQUEST["stn1"])) {
+    $stn1 = $_REQUEST["stn1"];
+//    $stationClause .= "AND destination = '" . $stn1 . "' ";
+    $stationClause .= "AND destination = :stn1 ";
+    $params["stn1"] = $stn1;
 }
 
 $orderClause = "";      //      "\nORDER BY Bdate, hour";
@@ -206,13 +226,13 @@ switch ($command) {
 */
 
 $query = stripcslashes( $query );
-file_put_contents("bartdebug.txt", "\n\n----  " . date("Y-m-d H:i:s (T)") . " submitting query: \n" . $query , FILE_APPEND);
+file_put_contents("bartdebug.txt", "\n\n----  " . date("Y-m-d H:i:s (T)") . " submitting query: \n" . $query, FILE_APPEND);
 
 //  connect to the database
 $DBH = CODAP_MySQL_connect("localhost", $user, $pass, $dbname);
 
 //  submit the query and receive the results
-$rows = CODAP_MySQL_getQueryResult($DBH, $query);
+$rows = CODAP_MySQL_getQueryResult($DBH, $query, $params);
 
 file_put_contents("bartdebug.txt", "\n    " . date("Y-m-d H:i:s (T)") . " " . $command . "  got " . count($rows) . " row(s)" , FILE_APPEND);
 
