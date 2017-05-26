@@ -54,8 +54,9 @@ input {
 
 /*  button etc stuff */
 
-#allDataButton {
-    background-color: #0a9a87;
+#getDataButton {
+    background-color: #88c;
+    font-size: large;
     color: white;
 }
 

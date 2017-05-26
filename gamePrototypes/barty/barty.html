@@ -115,13 +115,32 @@ HOW TO DEPLOY THIS THING
         <br><br>
 -->
 
-        <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()">
+        <table width="100%" style="padding: 6px; margin-bottom:6px; background-color:#ddf;">
+            <tr>
+                <td style="padding: 12px">
+                    <button id="getDataButton" onclick="barty.ui.getDataButtonPressed()">get data</button>
+
+                </td>
+                <td valign="middle" align="right" style="padding-right: 12px">
+                    Click<br><strong>get data</strong><br> to get:
+                </td>
+                <td valign="middle">
+                    <span id="downloadOptionTimeAndStationsText"></span>
+
+                </td>
+            </tr>
+        </table>
+
+
+        <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()" width="100%">
             <legend>Specify time period (don't use IE or FFox)</legend>
+<!--
             <span>
                 ... current setting:<br>
                 <span id="dataIntervalStatement"></span>
             </span>
             <br><br>
+-->
             start date: <input id="dateControl" type="date"><br>
             how much data?
             <select id="numberOfDaysControl">
@@ -130,10 +149,13 @@ HOW TO DEPLOY THIS THING
                 <option value="30">30 days</option>
             </select>
 
+<!--
         </fieldset>
         <br>
         <fieldset id="advancedData" onchange="barty.ui.dataSelectionChanged()">
             <legend>Advanced data options</legend>
+-->
+            <br>
             <div id="oneDayOnlyControl">
                 <label for="useWeekday"><span id="useWeekdayItemText"></span></label>
                 <input type="checkbox" id="useWeekday">
@@ -207,12 +229,6 @@ HOW TO DEPLOY THIS THING
                         <button id="showPricesButton" onclick="barty.ui.showPricesButtonPressed()">estimate data load</button>
             -->
         </fieldset>
-
-        <p>
-            You have chosen <br><span id="downloadOptionTimeAndStationsText"></span>
-        </p>
-
-        <button id="getDataButton" onclick="barty.ui.getDataButtonPressed()">get data</button>
 
 
         <p>

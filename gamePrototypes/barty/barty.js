@@ -38,7 +38,7 @@ var barty = {
     routeStrings : {},
 
     constants : {
-        version: "002e",
+        version: "002f",
         dimensions: {height: 700, width: 360},
         name : "barty",
 
