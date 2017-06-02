@@ -9,4 +9,5 @@ We hope they will eventually turn into classroom-ready materials, but as of Summ
 
 The project has been evolving away from being a "games" project to include more simulations and sandboxes. 
 
-For links to working simulations and other materials, go [to our "start here" page] (https://docs.google.com/document/d/1KoKydxhBVpoYmIOFUBGMZXOIZxhB0IKc7VN65_o9Q94)
+For links to working simulations and other materials, go
+[to our "start here" page](https://docs.google.com/document/d/1KoKydxhBVpoYmIOFUBGMZXOIZxhB0IKc7VN65_o9Q94)
