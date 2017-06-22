@@ -70,7 +70,6 @@ var clinic = {
         clinic.dom.rxRate = $('#rxRate');
         //  todo: deal with rate type when we do that
 
-
         $('#newGameButton').hide();
         $('#commands').hide();
 

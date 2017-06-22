@@ -30,13 +30,15 @@ Patient = function (iPerson) {
     this.sex = iPerson.sex;
     this.age = iPerson.age;
 
-    clinic.state.health[this.patientID] = {};   //  initialize the health object
+    clinic.state.health[this.patientID] = {};           //  initialize the health object
+    this.health = clinic.state.health[this.patientID];  //  make a reference within this object
 
     this.baseTemp = iPerson.baseTemp;
     this.height = iPerson.height;
     this.weight = iPerson.weight;
 
     this.prescriptions = [];
+
 };
 
 /**

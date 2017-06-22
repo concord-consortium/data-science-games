@@ -7,10 +7,11 @@ var Prescription;
 Prescription = function(iWhat, iDose, iCount, iRateType, iRate) {
     this.what = iWhat;      //  what the drug is, e.g., "ibuprofen"
     this.dose = iDose;        //  amount per dose, e.g., 200
-    this.count = iCount;        //  number in the Rx, e.g., 12
+    this.originalCount = iCount;    //  number in the Rx, e.g., 12.
+    this.count = iCount;        //  number of doses remaining.
     this.rateType = iRateType;  //  see the constants
     this.rate = iRate;          //  number associated with the rate type, e.g., 3 (per day)
-    this.nextDose = this.timeOfNextDose();       //  Date (as date object) for next dose
+    this.nextDoseDateTime = this.timeOfNextDose();       //  Date (as date object) for next dose
 };
 
 
@@ -21,7 +22,7 @@ Prescription.constants = {
 };
 
 /**
- *
+ *  Computes when the next dose is
  * @returns {Date}
  */
 Prescription.prototype.timeOfNextDose = function() {
@@ -50,8 +51,8 @@ Prescription.prototype.empty = function() {
 Prescription.prototype.updatePrescription = function() {
     var oTakeOne = false;
     var tNow = clinic.state.now;
-    if (tNow.getTime() > this.nextDose.getTime()) {     //  time to take one
-        this.nextDose = this.timeOfNextDose();
+    if (tNow.getTime() > this.nextDoseDateTime.getTime()) {     //  time to take one
+        this.nextDoseDateTime = this.timeOfNextDose();
         oTakeOne = true;
         this.count--;
     }
