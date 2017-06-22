@@ -98,22 +98,22 @@ HOW TO DEPLOY THIS THING
     <ul>
         <li><a href="#dataTab">Data</a></li>
         <li><a href="#backgroundTab">Background</a></li>
-<!--
-        <li><a href="#scenarioTab">Scenario</a></li>
--->
+        <!--
+                <li><a href="#scenarioTab">Scenario</a></li>
+        -->
         <li><a href="#mapTab">Map</a></li>
         <li><a href="#optionsTab">Options</a></li>
-<!--
-        <li><a href="#debugTab">Debugging</a></li>
--->
+        <!--
+                <li><a href="#debugTab">Debugging</a></li>
+        -->
     </ul>
 
     <div id="dataTab">
 
-<!--
-        <button id="newGameButton" onclick="barty.ui.newGameButtonPressed()">new game</button>
-        <br><br>
--->
+        <!--
+                <button id="newGameButton" onclick="barty.ui.newGameButtonPressed()">new game</button>
+                <br><br>
+        -->
 
         <table width="100%" style="padding: 6px; margin-bottom:6px; background-color:#ddf;">
             <tr>
@@ -134,34 +134,37 @@ HOW TO DEPLOY THIS THING
 
         <fieldset id="getDataBlock" onchange="barty.ui.dataSelectionChanged()" width="100%">
             <legend>Specify time period (don't use IE or FFox)</legend>
-<!--
-            <span>
-                ... current setting:<br>
-                <span id="dataIntervalStatement"></span>
-            </span>
-            <br><br>
--->
-            start date: <input id="dateControl" type="date"><br>
-            how much data?
-            <select id="numberOfDaysControl">
-                <option value="1">1 day</option>
-                <option value="7">7 days</option>
-                <option value="30">30 days</option>
-            </select>
+            <!--
+                        <span>
+                            ... current setting:<br>
+                            <span id="dataIntervalStatement"></span>
+                        </span>
+                        <br><br>
+            -->
+            <label>start date: <input id="dateControl" type="date"></label><br>
+            <label>how much data?
+                <select id="numberOfDaysControl">
+                    <option value="1">1 day</option>
+                    <option value="7">7 days</option>
+                    <option value="30">30 days</option>
+                </select>
+            </label>
 
-<!--
-        </fieldset>
-        <br>
-        <fieldset id="advancedData" onchange="barty.ui.dataSelectionChanged()">
-            <legend>Advanced data options</legend>
--->
+            <!--
+                    </fieldset>
+                    <br>
+                    <fieldset id="advancedData" onchange="barty.ui.dataSelectionChanged()">
+                        <legend>Advanced data options</legend>
+            -->
             <br>
             <div id="oneDayOnlyControl">
                 <label for="useWeekday"><span id="useWeekdayItemText"></span></label>
                 <input type="checkbox" id="useWeekday">
             </div>
-            <span id="useHoursItemText">use hour:</span>
-            <input type="checkbox" id="useHour">
+            <label>
+                <span id="useHoursItemText">use hour:</span>
+                <input type="checkbox" id="useHour">
+            </label>
             <div id="hourControl"></div>    <!--    the hour range slider -->
 
             <br>
@@ -175,11 +178,11 @@ HOW TO DEPLOY THIS THING
 
             <table>
                 <tr>
-                    <td><img src="art/blueDot16.svg"></td>
+                    <td><img src="art/blueDot.svg"></td>
                     <td colspan="3"><select id="departureSelector"></select></td>
                 </tr>
                 <tr>
-                    <td><img src="art/yellowDot16.svg"></td>
+                    <td><img src="art/yellowDot.svg"></td>
                     <td colspan="3"><select id="arrivalSelector"></select></td>
                 </tr>
                 <tr>
@@ -260,55 +263,52 @@ HOW TO DEPLOY THIS THING
     </div>
 
 
-
-<!--
-    <div id="scenarioTab">
-        <p>You are trying to find a meeting in the Bay Area, and you have only BART data to do it with.
-            You know the meeting is near a BART station. You know it's at the same time very week.</p>
-        <p>Before you press <strong>new game</strong>, check out the <strong>Options</strong> tab.
-        </p>
-        <p>Use that to set up the game.</p>
-        <ul>
-            <li>Begin by using the defaults (Orinda, Tuesday, 2 PM, 160 people). So you know the answer.</li>
-            <li>See if you can make a graph that shows the meeting in the BART data.</li>
+    <!--
+        <div id="scenarioTab">
+            <p>You are trying to find a meeting in the Bay Area, and you have only BART data to do it with.
+                You know the meeting is near a BART station. You know it's at the same time very week.</p>
+            <p>Before you press <strong>new game</strong>, check out the <strong>Options</strong> tab.
+            </p>
+            <p>Use that to set up the game.</p>
             <ul>
-                <li>Notice that the controls let you define what data to get, for example, what date and for what
-                    hours.
+                <li>Begin by using the defaults (Orinda, Tuesday, 2 PM, 160 people). So you know the answer.</li>
+                <li>See if you can make a graph that shows the meeting in the BART data.</li>
+                <ul>
+                    <li>Notice that the controls let you define what data to get, for example, what date and for what
+                        hours.
+                    </li>
+                    <li>Notice that you can learn the cost of your data.
+                        <b>Eventually, you will have to confirm your purchase.</b></li>
+                </ul>
+                <li>When you have that nailed, set the time to "surprise me" and play another game.
+                    See if you can figure out the time.
                 </li>
-                <li>Notice that you can learn the cost of your data.
-                    <b>Eventually, you will have to confirm your purchase.</b></li>
+                <li>Gradually move up to other attributes or even to combinations!</li>
             </ul>
-            <li>When you have that nailed, set the time to "surprise me" and play another game.
-                See if you can figure out the time.
-            </li>
-            <li>Gradually move up to other attributes or even to combinations!</li>
-        </ul>
-        <h2>Hints</h2>
-        <p>If you're stuck about making a graph with the default options:</p>
-        <ol>
-            <li>Make sure a Tuesday is selected, such as April 14.</li>
-            <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
-            <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like.</li>
-            <li>Click <strong>Graph</strong>. A mixed-up graph appears.
-                Drag the heading <strong>hours</strong> to the horizontal axis of the graph.
-            </li>
-            <li>Drag <strong>count</strong> to the vertical axis. You should see a bump at 2 PM.</li>
-            <li>Try dragging other attributes to various axes &#45;&#45; or to the middle of the graph.</li>
+            <h2>Hints</h2>
+            <p>If you're stuck about making a graph with the default options:</p>
+            <ol>
+                <li>Make sure a Tuesday is selected, such as April 14.</li>
+                <li>Make sure "From Embarcadero to Orinda" is selected. Click <strong>get data</strong>.</li>
+                <li>Click the <strong>Tables</strong> icon above. A data table appears. See what it looks like.</li>
+                <li>Click <strong>Graph</strong>. A mixed-up graph appears.
+                    Drag the heading <strong>hours</strong> to the horizontal axis of the graph.
+                </li>
+                <li>Drag <strong>count</strong> to the vertical axis. You should see a bump at 2 PM.</li>
+                <li>Try dragging other attributes to various axes &#45;&#45; or to the middle of the graph.</li>
 
-        </ol>
-        <p>Notice that we "knew" Embarcadero would be a good source. In reality, you don't know that.
-            How would you figure it out?</p>
-        <p>That should get you started. Oh: to start over, just reload the page.</p>
-    </div>
--->
-
+            </ol>
+            <p>Notice that we "knew" Embarcadero would be a good source. In reality, you don't know that.
+                How would you figure it out?</p>
+            <p>That should get you started. Oh: to start over, just reload the page.</p>
+        </div>
+    -->
 
 
     <div id="mapTab">
         <img src="https://www.bart.gov/sites/all/themes/bart_desktop/img/system-map.gif">
 
     </div>
-
 
 
     <div id="optionsTab">
@@ -321,18 +321,17 @@ HOW TO DEPLOY THIS THING
     </div>
 
 
+    <!--
+        <div id="debugTab">
+            <span id="query">PHP info.</span><br>
+            <span id="secret"></span>
 
-<!--
-    <div id="debugTab">
-        <span id="query">PHP info.</span><br>
-        <span id="secret"></span>
-
-    </div>
--->
+        </div>
+    -->
 
 </div>
 
 </body>
 
 
-</html >
+</html>

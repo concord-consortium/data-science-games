@@ -149,7 +149,7 @@ barty.ui = {
             $("#hourControl").hide();   //  otherwise, user is getting all data from that day; no slider needed
         }
 
-        if (tQD.nd == 1) {
+        if (tQD.nd === 1) {
             $("#oneDayOnlyControl").hide(); //  The user is getting only one day, so no need to show the control
                                             //  about getting only that day of the week
         } else {
@@ -210,7 +210,7 @@ barty.ui = {
             + this.formatTime(iQD.h0, 0)
             + " to " + this.formatTime(tEndHour, 59);
 
-        if (iQD.h0 == iQD.h1) tHoursText = " (zero time interval; no data)";
+        if (iQD.h0 === iQD.h1) tHoursText = " (zero time interval; no data)";
 
         //  fix the weekday text
         var tWeekdayBoxLabel = iQD.useWeekday
@@ -240,8 +240,8 @@ barty.ui = {
             : tDay0Text + " to " + tDay1Text;
         tSearchTime += ", ";
 
-        if (iQD.useWeekday) tSearchTime += "only " + tWeekdayText + "s, ";
-        tSearchTime += (iQD.useHour ? tHoursText : " all day");
+        if (iQD.useWeekday) tSearchTime += "<br>only " + tWeekdayText + "s, ";
+        tSearchTime += (iQD.useHour ? "<br>" + tHoursText : " all day");
 
         $("#dataIntervalStatement").text(tSearchTime);
         $("#downloadOptionTimeAndStationsText").html(tSearchTime + "<br>" + tStationSetupText);
@@ -252,7 +252,7 @@ barty.ui = {
 
     formatTime: function (h, m) {
         var hourNumber = h < 13 ? h : h - 12;
-        if (hourNumber == 0) hourNumber = 12;
+        if (hourNumber === 0) hourNumber = 12;
 
         var ampm = h < 12 ? "AM" : "PM";
 
