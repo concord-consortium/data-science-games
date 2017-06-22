@@ -33,8 +33,14 @@ clinic.model = {
 
     patientsAtClinic: [],      //  a subset of population. The people in our clinic.
 
+    /**
+     * Create the clinic.model.dwellings _object_ from the initial static array.
+     * It's an object so that we can key into it when we make the people.
+     *
+     * Called from clinic.setUp()
+     */
     constructDwellingArray: function () {
-        clinic.initialDwellings.forEach(function (d) {
+        clinic.initialDwellings.forEach(function (d) {      //  initialDwellings are defined in staticPeopleAndDwellings.js
             var tKey = d.dwellingID;
             clinic.model.dwellings[tKey] = {
                 lat : d.lat,
@@ -46,13 +52,19 @@ clinic.model = {
     },
 
     /**
+     * Create the clinic.model.population _array_.
+     *
      * Note that dwellings have to be made first so that we can create the codap population cases
      * which contain information from the dwelling data.
+     *
+     * Note that the population array is made up of instances of Patient.
+     *
+     * called from clinic.setUp()
      */
     constructPopulationArray: function () {
         var batchedPatientValues = [];
 
-        clinic.initialPeople.forEach(function (p) {
+        clinic.initialPeople.forEach(function (p) {      //  initialPeople are defined in staticPeopleAndDwellings.js
             var tPatient = new Patient(p);
             clinic.model.population.push(tPatient);       //   our internal array of Patients
             batchedPatientValues.push(tPatient.populationValueObject());
@@ -61,7 +73,7 @@ clinic.model = {
     },
 
 
-    initializeGameData : function() {
+    initializeClinicModelData : function() {
         $('#currentStatus').text("prepping the population");
 
         clinic.model.population.forEach( function(p) {
@@ -83,7 +95,7 @@ clinic.model = {
         clinic.state.now = new Date(clinic.state.now.getTime() + minutes * 60000);
 
         this.population.forEach(function (p) {
-            health.update(p, minutes);
+            p.updatePatient( minutes );
         });
         clinicManager.updateDisplay();
     },
@@ -92,24 +104,23 @@ clinic.model = {
         //  push the date forward
 
         var dt = 0;
+        var newDate = new Date();
+        newDate.setHours(clinic.constants.kClinicOpenHour, 0, 0);
 
-        if (clinic.state.now === null) {
-            clinic.state.now = new Date();
-            clinic.state.now.setHours( clinic.constants.kClinicOpenHour, 0, 0);
+        if (clinic.state.now === null) {    //  if there is no date, make a brand new one
+            clinic.state.now = newDate;
         } else {
-            var oldDateInMs = clinic.state.now.getTime();
-            var newDate = new Date(oldDateInMs);
-            var tDate = newDate.getDate() + 1; //  the day number, advanced 1
+            var tDate = clinic.state.now.getDate() + 1; //  the day number, advanced 1
             newDate.setDate( tDate );
-            newDate.setHours( clinic.constants.kClinicOpenHour, 0, 0);
-            var dt = (newDate.getTime() - oldDateInMs) / 60000;    //  in minutes
-        }
+            newDate.setHours( clinic.constants.kClinicOpenHour, 0, 0);  //  set to opening time on that day
 
-        // todo: fix this mess! We need to calculate dt WITHOUT resetting now, so that passTime can actually update it!
+            while (newDate.getTime() > clinic.state.now.getTime()) {
+                this.passTime( 10 );    //  update everybody's maladies, prescriptions, etc.
+            }
+        }
 
         this.patientsAtClinic = [];
 
-        this.passTime( dt );    //  update everybody's maladies
 
         //  see who is sick
         this.population.forEach( function(p) {
@@ -118,7 +129,21 @@ clinic.model = {
             }
         })
         clinicManager.updateDisplay();
+    },
+
+    /**
+     *  UTILITIES!
+     */
+
+    patientsFromNameParts : function(iString) {
+        var out = [];
+
+        this.population.forEach( function(p) {
+            if (p.name.includes(iString)) {
+                out.push(p);
+            }
+        });
+
+        return out;
     }
-
-
 };

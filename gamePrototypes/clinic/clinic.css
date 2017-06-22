@@ -27,6 +27,12 @@ input {
     border-radius: 3px;
 }
 
+/*  classes */
+
+.shortNumberInput {
+    width: 3em;
+}
+
 /*		BOX CLASSES		*/
 
 .hBox	{

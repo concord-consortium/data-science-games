@@ -40,6 +40,7 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <script src="clinic.codapConnector.js"></script>
     <script src="clinic.selectionManager.js"></script>
     <script src="Patient.js"></script>
+    <script src="Prescription.js"></script>
     <script src="staticPeopleAndDwellings.js"></script>
 
 
@@ -59,9 +60,11 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
     <!--    list the tabs for this jquery_ui widget -->
     <ul>
         <li><a href="#mainTab">Clinic</a></li>
-        <li><a href="#infoTab">Info</a></li>
-        <li><a href="#optionsTab">Options</a></li>
-        <li><a href="#debugTab">Debug</a></li>
+        <li><a href="#rxTab">&#x211e</a></li>
+        <li><a href="#phoneTab">&#x260e</a></li>
+        <!--<li><a href="#infoTab">Info</a></li>-->
+        <!--<li><a href="#optionsTab">Options</a></li>-->
+        <!--<li><a href="#debugTab">Debug</a></li>-->
     </ul>
 
     <!--    Now describe each tab separately, note how the list above references the IDs    -->
@@ -73,16 +76,19 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
         <p id="currentStatus">empty</p>
 
         <!--<button id="newPatient" onclick="clinicManager.newPatientButton()">new patient</button>-->
-        <div id="timeButtons">
-            <button id="newGameButton" onclick="clinicManager.newGame()">start game</button>
-            <button id="newDayButton" onclick="clinicManager.newDay()">end this day</button>
-        </div>
         <div id="commands">
+            <button id="howzit" onclick="clinicManager.doButton(event)">How are you feeling?</button>
             <button id="temp" onclick="clinicManager.doButton(event)">take temp</button>
             <button id="bp" onclick="clinicManager.doButton(event)">take bp</button>
             <button id="weight" onclick="clinicManager.doButton(event)">weight</button>
             <button id="height" onclick="clinicManager.doButton(event)">height</button>
             <button id="ibu200" onclick="clinicManager.doButton(event)">200 mg ibuprofen</button>
+            <button id="rx" onclick="clinicManager.doButton(event)">write prescription (&#x211e)</button>
+            <button id="sendhome" onclick="clinicManager.doButton(event)">Send patient home</button>
+        </div>
+        <div id="timeButtons">
+            <button id="newGameButton" onclick="clinicManager.newGame()">start game</button>
+            <button id="newDayButton" onclick="clinicManager.newDay()">end this day</button>
         </div>
 
         <hr>
@@ -93,34 +99,62 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
 
     </div>
 
-    <!--        INFO     -->
+    <!--        Rx     -->
 
-    <div id="infoTab">
-        <h3>more information</h3>
-        <ul>
-            <li>Mayo Clinic
-                <a href="http://www.mayoclinic.org/diseases-conditions/fever/in-depth/fever/art-20050997" target="_blank">
-                    on treating fever
-                </a>
-            </li>
-        </ul>
-
-    </div>
-    <!--        OPTIONS     -->
-
-    <div id="optionsTab">
-        <h3>options</h3>
-        <label>
-            <input type="checkbox" id="virusA1B1" onclick="clinic.optionsChange()">  A1B1 virus
-        </label>
+    <div id="rxTab">
+        <h3>Prescription</h3>
+        <p id="rxGameTime"></p>
+        <p id="rxPatient"></p>
+        <input id="rxCount" class="shortNumberInput" type="number" step="1" value="3"> of
+        <select id="rxWhat">
+            <option value="ibu200">ibuprofen 200 mg</option>
+            <option value="plac50" selected>placebex 50 mg</option>
+        </select>
+        to be taken
+        <input id="rxRate" class="shortNumberInput" type="number" step="1" value="3">
+        times per day
+        <button id="issueRx" onclick="clinicManager.doButton(event)">issue prescription (&#x211e)</button>
 
     </div>
 
-    <!--        DEBUG     -->
+    <!--        PHONE       -->
 
-    <div id="debugTab">
-        <h3>debug info</h3>
+    <div id="phoneTab">
+        <h3>Call somebody on the phone</h3>
+        Look up: <input id="phoneLookupTextBox" type="text" oninput="clinicManager.phoneLookupChanged()">
+        <div id="phoneMatches"></div>
+
     </div>
+
+    <!--&lt;!&ndash;        INFO     &ndash;&gt;-->
+
+        <!--<div id="infoTab">-->
+        <!--<h3>more information</h3>-->
+        <!--<ul>-->
+            <!--<li>Mayo Clinic-->
+                <!--<a href="http://www.mayoclinic.org/diseases-conditions/fever/in-depth/fever/art-20050997" target="_blank">-->
+                    <!--on treating fever-->
+                <!--</a>-->
+            <!--</li>-->
+        <!--</ul>-->
+
+    <!--</div>-->
+
+    <!--&lt;!&ndash;        OPTIONS     &ndash;&gt;-->
+
+    <!--<div id="optionsTab">-->
+        <!--<h3>options</h3>-->
+        <!--<label>-->
+            <!--<input type="checkbox" id="virusA1B1" onclick="clinic.optionsChange()">  A1B1 virus-->
+        <!--</label>-->
+
+    <!--</div>-->
+
+    <!--&lt;!&ndash;        DEBUG     &ndash;&gt;-->
+
+    <!--<div id="debugTab">-->
+        <!--<h3>debug info</h3>-->
+    <!--</div>-->
 
 </body>
 </html>

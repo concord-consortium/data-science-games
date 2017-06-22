@@ -35,6 +35,29 @@ Patient = function (iPerson) {
     this.baseTemp = iPerson.baseTemp;
     this.height = iPerson.height;
     this.weight = iPerson.weight;
+
+    this.prescriptions = [];
+};
+
+/**
+ *
+ * @param dt    interval in minutes
+ */
+Patient.prototype.updatePatient = function(dt) {
+    health.update(this, dt);
+    var irx = this.prescriptions.length;
+    while (irx--) {
+        var rx = this.prescriptions[irx];
+        var tTakeOne = rx.updatePrescription();
+        if (tTakeOne) {
+            this.dose(rx.what, rx.dose);    //  actually take the pill
+            console.log(this.first + " " + this.last + " took " + rx.what + " at " + clinic.state.now);     //  debug
+            if (rx.count <= 0) {
+                //  we have finsihed our bottle of pills!
+                this.prescriptions.splice(irx, 1);
+            }
+        }
+    }
 };
 
 Patient.prototype.toString = function() {
@@ -47,7 +70,7 @@ Patient.prototype.measure = function( what ) {
     var tHealth = clinic.state.health[this.patientID];
     switch( what ) {
         case "temp":
-            oValue = health.findTemperature( this );
+            oValue = health.findTemperature( this ).temp;
             oValue = Math.round(10.0 * oValue) / 10.0;
             break;
         case "weight":

@@ -2,9 +2,21 @@
  * Created by tim on 1/25/16.
  */
 
+//  todo: make Health a class.
 
+/**
+ * This singleton is responsible for changes and updates to a Patient's health.
+ * This health is an object with a large number of potential fields.
+ *
+ * @type {{update: health.update, wantsToGoToClinic: health.wantsToGoToClinic, findTemperature: health.findTemperature, exponentialUpdate: health.exponentialUpdate}}
+ */
 var health = {
 
+    /**
+     * Called from clinic.model.passTime() in a loop over the population
+     * @param iPerson
+     * @param dt        in minutes
+     */
     update : function( iPerson, dt ) {
         var tHealth = clinic.state.health[iPerson.patientID];
 
@@ -31,9 +43,9 @@ var health = {
 
     wantsToGoToClinic : function( iPerson ) {
         var tHealth = clinic.state.health[iPerson.patientID];
-        var temp = this.findTemperature( iPerson );
+        var fever = this.findTemperature( iPerson ).fever;
 
-        return temp > 100.9;
+        return fever > 2.0;
     },
 
     findTemperature : function( iPerson ) {
@@ -49,7 +61,24 @@ var health = {
         tFever = tFever * (100 - tFeverReduction) / 100;
         o += tFever;
 
-        return o;
+        return {temp : o, fever : tFever};
+    },
+
+    howAreYouFeeling : function( iPatient ) {
+        var tFeelings = [];
+        var tHealth = clinic.state.health[iPatient.patientID];
+        var tFever = this.findTemperature( iPatient ).fever;
+
+        if (tFever > 1.5)  {
+            tFeelings.push( TEEUtils.pickRandomItemFrom( this.feverFeelings ));
+        }
+
+        var tOut = "Fine!";
+        if (tFeelings.length > 0) {
+            tOut = tFeelings.join(", ");
+        }
+
+        return tOut;
     },
 
     /**
@@ -63,5 +92,15 @@ var health = {
     exponentialUpdate : function( iFraction, iTotalTime, iTime, iInitialValue) {
         var tFrac = Math.pow(iFraction, iTime / iTotalTime);
         return iInitialValue * tFrac;
-    }
+    },
+
+    feverFeelings : [
+        "dizzy",
+        "hot",
+        "hot and cold",
+        "sweaty",
+        "achy",
+        "low appetite",
+        "shivery"
+    ]
 }

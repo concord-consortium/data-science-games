@@ -3,7 +3,6 @@
  */
 
 var clinicManager = {
-    version: "001b",      //  that's alpha, \u03b1
 
     /**
      * Manages calls to CODAP for init and for making new cases
@@ -11,6 +10,9 @@ var clinicManager = {
     CODAPConnector: null,
 
     currentPatient: null,
+    currentCall : null,
+
+    latestResult : "",
 
     recordMeasurement: function (iClass, iWhat, iVal) {
         var tResultString = this.currentPatient.name + " " + iWhat + ": " + iVal;
@@ -34,6 +36,7 @@ var clinicManager = {
 
         clinic.codapConnector.createRecordItem(tValues, clinic.constants.kRecordCollectionName);
         console.log(tResultString);
+        return tResultString;
     },
 
     doButton: function (e) {
@@ -47,30 +50,66 @@ var clinicManager = {
         console.log("command: " + tID);
 
         switch (tID) {
+            case "howzit":
+                clinicManager.latestResult = health.howAreYouFeeling( this.currentPatient );
+                tDuration = 1;
+                break;
             case "temp":
-                this.recordMeasurement("diag", tID, this.currentPatient.measure("temp"));
+                clinicManager.latestResult = this.recordMeasurement("diag", tID, this.currentPatient.measure("temp"));
                 tDuration = 1;
                 break;
             case "weight":
-                this.recordMeasurement("weight", tID, this.currentPatient.measure("weight"));
+                clinicManager.latestResult = this.recordMeasurement("weight", tID, this.currentPatient.measure("weight"));
                 tDuration = 0.5;
                 break;
             case "height":
-                this.recordMeasurement("height", tID, this.currentPatient.measure("height"));
+                clinicManager.latestResult = this.recordMeasurement("height", tID, this.currentPatient.measure("height"));
                 tDuration = 0.5;
                 break;
             case "ibu200":
                 this.currentPatient.dose("ibuprofen", 200);
-                this.recordMeasurement("Tx", "ibuprofen", 200);
+                clinicManager.latestResult = this.recordMeasurement("Tx", "ibuprofen", 200);
                 tDuration = 1;
                 break;
+            case "rx":
+                clinic.goToTabNumber(1);    //  the second tab, Rx.
+                tDuration = 0;
+                break;
+            case "issueRx":
+                tDuration = 5;
+                var tWhat = clinic.dom.rxWhat.val();
+                var tDrug = "placebex";
+                var tDose = 50;
+                switch (tWhat) {
+                    case "ibu200":
+                        tDrug = "ibuprofen";
+                        tDose = 200;
+                }
+                var tPrescription = new Prescription(
+                    tDrug, tDose, clinic.dom.rxCount.val(), Prescription.constants.kRateTypePerDay, clinic.dom.rxRate.val()
+                );
+                this.currentPatient.prescriptions.push(tPrescription);
+                break;
+            case "sendhome":
+                this.sendCurrentPatientHome();
+                tDuration = 2;
+                break;
             default:
-                this.recordMeasurement("demog", "null", -1);
+                clinicManager.latestResult = this.recordMeasurement("demog", "null", -1);
                 break;
         }
 
         clinic.model.passTime(tDuration);
     },
+
+    sendCurrentPatientHome : function() {
+        var curPatient = this.currentPatient;
+        var ax = clinic.model.patientsAtClinic.indexOf( curPatient );
+        clinic.model.patientsAtClinic.splice(ax,1);
+
+        this.currentPatient = null;
+    },
+
 
     arrivesAtClinic: function (iPerson) {
         if (clinic.model.patientsAtClinic.indexOf(iPerson) === -1) {
@@ -81,12 +120,23 @@ var clinicManager = {
     updateDisplay: function () {
         this.constructPatientList();
         $("#gameTime ").text(this.formatDateTime(clinic.state.now));
-        if (this.currentPatient) $("#currentStatus").html("<strong>" + this.currentPatient + "</strong>.");
-        else $("#currentStatus").html("Waiting");
+        $("#rxGameTime ").text(this.formatDateTime(clinic.state.now));
+
+        var tStatusHTML = "Waiting";
+        if (this.currentPatient) {
+            tStatusHTML = "<strong>" + this.currentPatient + "</strong>.";
+            if (this.latestResult.length > 0) {
+                tStatusHTML += "<br>" + this.latestResult;
+            }
+        }
+
+        $("#currentStatus").html(tStatusHTML);
+        $("#rxPatient").html(tStatusHTML);
     },
 
     focusOnPatient : function( iPatient ) {
         this.currentPatient = iPatient;
+        clinicManager.latestResult = "";    //  new person, blank the latest result.
         clinic.selectionManager.selectThisPersonInAllDataSets( iPatient );
     },
 
@@ -95,14 +145,14 @@ var clinicManager = {
         var monthArray = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         result += this.padIntegerToTwo(iDateTime.getDate())
-            + "-" + monthArray[iDateTime.getMonth()] + "-" + iDateTime.getFullYear()
+            + "-" + monthArray[iDateTime.getMonth()] + "-" + iDateTime.getFullYear();
         result += " " + this.padIntegerToTwo(iDateTime.getHours()) + ":" + this.padIntegerToTwo(iDateTime.getMinutes());
         return result;
     },
 
     focusOnPatientByName: function (iName) {
         var tPatients = this.patientsFromNameString(iName);
-        if (tPatients.length == 1) {
+        if (tPatients.length === 1) {
             this.focusOnPatient( tPatients[0] );
         } else {
             alert("Somehow we matched " + tPatients.length + "patientsAtClinic, and it should be 1.");
@@ -114,9 +164,7 @@ var clinicManager = {
         var tPatients = [];
         clinic.model.patientsAtClinic.forEach(
             function (p) {
-                var tName = p.name;
-                var find = tName.search(inString);
-                if (find != -1) tPatients.push(p);
+                if (p.name.includes(inString)) tPatients.push(p);
             }
         );
         return tPatients;
@@ -128,7 +176,7 @@ var clinicManager = {
             function (p) {
                 tResult += "<span class='patientListElement'>" + p.name + "</span> ";
             }
-        )
+        );
         $('#files').html(tResult);
     },
 
@@ -153,7 +201,7 @@ var clinicManager = {
 
         clinic.state.now = null;      //  now;
 
-        clinic.model.initializeGameData();  //  Gives sickness.
+        clinic.model.initializeClinicModelData();  //  Gives sickness.
 
         this.newDay();
     },
@@ -167,6 +215,39 @@ var clinicManager = {
         $('#commands').show();
 
     },
+
+    phoneLookupChanged: function () {
+        var tTypedSoFar = $('#phoneLookupTextBox').val().toUpperCase();
+        var tPatientList = clinic.model.patientsFromNameParts(tTypedSoFar);
+
+        var tButtons = "";
+
+        if (tPatientList.length === 0) {
+            tButtons = "No matches.";
+        } else if (tPatientList.length <= 10) {
+            tPatientList.forEach(function (p) {
+                tButtons += "<button onclick='clinicManager.makePhoneCall(event)'>call " + p.name + "</button>";
+            })
+        } else {
+            tButtons = tPatientList.length + " matches. Type more to narrow your search!";
+        }
+        $('#phoneMatches').html(tButtons);
+    },
+
+    makePhoneCall : function(event) {
+        var tText = event.target.textContent.slice(5);  //  strips "call " off the front
+        var tPatients = clinic.model.patientsFromNameParts(tText);
+        if (tPatients.length === 1) {
+            this.currentCall = tPatients[0];
+        } else {
+            alert("Somehow we matched " + tPatients.length + " patients for a phone call, and it should be 1.");
+        }
+
+        var tPhoneMessage = "Calling " + this.currentCall.address;
+        console.log(tPhoneMessage);
+
+    },
+
 
     start: function () {
         $('#files').on("click", ".patientListElement",

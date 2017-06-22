@@ -29,9 +29,11 @@
 var clinic = {
 
     options : {},
+    state: {},      //  this is the actual state variable, the thing that gets saved.
 
     constants: {
-        kVersion: "001b",
+
+        kVersion: "001c",
         kName: "clinic",
         kJitter : 0.0002,   //  lat, long jitter in radians
         kDimensions: {width: 333, height: 600},
@@ -46,16 +48,28 @@ var clinic = {
 
         kPopulationDataSetName : "population",
         kPopulationDataSetTitle : "Population",
-        kPopulationCollectionName : "population"
+        kPopulationCollectionName : "population",
+
+        rxChar : "\u211E",       //  Rx symbol. In html, &#x211e;
+        phoneChar : "\u260E",       //  Black Phone symbol. In html, &#x260e;
     },
 
-    state: {},
+    dom: {
+        rxWhat : null,
+        rxCount : null
+    },
 
     goToTabNumber : function(iTab) {
         $( "#tabs" ).tabs(  "option", "active", iTab );
     },
 
     setUp: function () {
+
+        clinic.dom.rxWhat = $('#rxWhat');
+        clinic.dom.rxCount = $('#rxCount');
+        clinic.dom.rxRate = $('#rxRate');
+        //  todo: deal with rate type when we do that
+
 
         $('#newGameButton').hide();
         $('#commands').hide();
@@ -116,8 +130,14 @@ var clinic = {
                 clinicManager.start();
             })
         });
+
+
     },
 
+    /**
+     * Create a "fresh" clinic.state object for saving. This is the .state of a new game.
+     * @returns {{score: number, health: {}, now: Date}}
+     */
     freshState: function () {
         return {
             score: 0,
@@ -126,6 +146,10 @@ var clinic = {
         }
     },
 
+    /**
+     * Called when the user changes options in the UI; this method sets appropriate variables and makes
+     * appropriate changes.
+     */
     optionsChange : function() {
         clinic.options.virusA1B1 = document.getElementById("virusA1B1").checked;
     }
