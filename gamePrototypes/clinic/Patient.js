@@ -31,7 +31,14 @@ Patient = function (iPerson) {
     this.age = iPerson.age;
 
     clinic.state.health[this.patientID] = {};           //  initialize the health object
+    var tHealth = clinic.state.health[this.patientID];
     this.health = clinic.state.health[this.patientID];  //  make a reference within this object
+
+    Object.keys(staticMeds).forEach( function(m) {
+        var med = staticMeds[m];
+        tHealth[med.name+"Concentration"] = 0;
+        tHealth[med.name+"InQueue"] = 0;
+    });
 
     this.baseTemp = iPerson.baseTemp;
     this.height = iPerson.height;
@@ -47,6 +54,9 @@ Patient = function (iPerson) {
  */
 Patient.prototype.updatePatient = function(dt) {
     health.update(this, dt);
+
+    //  section for taking pills
+
     var irx = this.prescriptions.length;
     while (irx--) {
         var rx = this.prescriptions[irx];
@@ -59,6 +69,14 @@ Patient.prototype.updatePatient = function(dt) {
                 this.prescriptions.splice(irx, 1);
             }
         }
+    }
+
+    //  now all pills are taken
+
+    var tSick = health.wantsToGoToClinic(this);
+
+    if (tSick) {
+        clinicManager.arrivesAtClinic( this );      //  this person goes to the clinic!
     }
 };
 

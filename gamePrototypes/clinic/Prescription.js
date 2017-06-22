@@ -4,9 +4,10 @@
 
 var Prescription;
 
-Prescription = function(iWhat, iDose, iCount, iRateType, iRate) {
-    this.what = iWhat;      //  what the drug is, e.g., "ibuprofen"
-    this.dose = iDose;        //  amount per dose, e.g., 200
+Prescription = function(iMedCode, iCount, iRateType, iRate) {
+    //  iMedCode is the internal code, e.g., "ibu200"
+    this.what = staticMeds[iMedCode].name;      //  what the drug is, e.g., "ibuprofen"
+    this.dose = staticMeds[iMedCode].dosage;        //  amount per dose, e.g., 200
     this.originalCount = iCount;    //  number in the Rx, e.g., 12.
     this.count = iCount;        //  number of doses remaining.
     this.rateType = iRateType;  //  see the constants

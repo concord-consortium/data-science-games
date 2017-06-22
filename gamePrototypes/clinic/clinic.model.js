@@ -76,18 +76,7 @@ clinic.model = {
     initializeClinicModelData : function() {
         $('#currentStatus').text("prepping the population");
 
-        clinic.model.population.forEach( function(p) {
-            var tHealth = clinic.state.health[p.patientID];
-
-            //  todo: improve and generalize these temporary measures...
-
-            tHealth.A1B1 = Math.random() < 0.02 ? 4000 : 100 ;  //  4000 minutes is about 3 days
-            tHealth.ibuprofenConcentration = 0;
-            tHealth.acetaminophenConcentration = 0;
-            tHealth.ibuprofenInQueue = 0;
-            tHealth.acetaminophenInQueue = 0;
-
-        })
+        //  initial infection goes here!
     },
 
 
@@ -116,6 +105,7 @@ clinic.model = {
 
             while (newDate.getTime() > clinic.state.now.getTime()) {
                 this.passTime( 10 );    //  update everybody's maladies, prescriptions, etc.
+                // console.log("Time: " + clinic.state.now);
             }
         }
 
@@ -129,6 +119,37 @@ clinic.model = {
             }
         })
         clinicManager.updateDisplay();
+    },
+
+    bloodCountAll : function() {
+        this.population.forEach( function(peep) { this.bloodCount(peep)}.bind(this));
+    },
+
+    bloodCount : function( iPatient ) {
+        var tHealth = clinic.state.health[iPatient.patientID];
+
+        Object.keys(staticMeds).forEach( function(m) {
+            var med = staticMeds[m];
+            var tConcKey = med.name + "Concentration";
+            if (typeof tHealth[tConcKey] !== "undefined") {
+                //  okay, we have some concentration of this in the blood
+                var tVal = tHealth[tConcKey];
+                if (tVal > 0) {
+                    clinicManager.recordMeasurement('debug', tConcKey, tVal, iPatient);
+                }
+            }
+        });
+
+        Object.keys(staticPaths).forEach( function(p) {
+            var path = staticPaths[p];
+            var tConcKey = p + "Concentration";
+            if (typeof tHealth[tConcKey] != "undefined") {
+                var tVal = tHealth[tConcKey];
+                if (tVal > 100) {
+                    clinicManager.recordMeasurement('debug', tConcKey, tVal, iPatient);
+                }
+            }
+        });
     },
 
     /**

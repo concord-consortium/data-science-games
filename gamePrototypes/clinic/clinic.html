@@ -87,9 +87,12 @@ http://codap.concord.org/releases/latest/static/dg/en/cert/index.html?di=http://
             <button id="ibu200" onclick="clinicManager.doButton(event)">200 mg ibuprofen</button>
             <button id="rx" onclick="clinicManager.doButton(event)">write prescription (&#x211e)</button>
             <button id="sendhome" onclick="clinicManager.doButton(event)">Send patient home</button>
+            <button id="bloodCount" onclick="clinicManager.doButton(event)">debug CBC</button>
         </div>
+        <hr>
         <div id="timeButtons">
             <button id="newGameButton" onclick="clinicManager.newGame()">start game</button>
+            <button id="waitButton" onclick="clinicManager.wait()">wait for patients</button>
             <button id="newDayButton" onclick="clinicManager.newDay()">end this day</button>
         </div>
 

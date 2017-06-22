@@ -20,24 +20,18 @@ var health = {
     update: function (iPerson, dt) {
         var tHealth = clinic.state.health[iPerson.patientID];
 
-        if (tHealth.A1B1 > 100) {       //  natural reduction by immune system
-            tHealth.A1B1 -= dt;
-            if (tHealth.A1B1 < 100) {
-                tHealth.A1B1 = 100;
-            }
-        }
 
         var allMeds = Object.keys(staticMeds);
 
         allMeds.forEach(
             function (m) {
                 var theMed = staticMeds[m];     //  the actual med object
-                var inQueueKey = m + "InQueue";
-                var concentrationKey = m + "Concentration";
+                var inQueueKey = theMed.name + "InQueue";
+                var concentrationKey = theMed.name + "Concentration";
 
                 //  move med from queue to bloodstream (=Concentration)
 
-                if (tHealth[inQueueKey]) {
+                if (typeof tHealth[inQueueKey] !== "undefined") {
                     var tMoving = (theMed.dosage / theMed.timeToBloodstream) * dt;  //  10 units per minute (= 200/20)
                     var tReallyMoving = tMoving <= tHealth[inQueueKey] ? tMoving : tHealth[inQueueKey];     //  pin at the queue amount
                     tHealth[concentrationKey] += tReallyMoving;
@@ -48,6 +42,41 @@ var health = {
                 tHealth[concentrationKey] = this.exponentialUpdate(0.5, theMed.halfLife, dt, tHealth[concentrationKey]);
             }.bind(this)
         );
+
+        var allPaths = Object.keys(staticPaths);
+
+        allPaths.forEach(
+            function (p) {
+                var thePath = staticPaths[p];   //  actual path object. p is the key in staticPaths, as in "A1B1"
+                var concentrationKey = p + "Concentration";
+                var currentlyInfected = false;
+
+                if (typeof tHealth[concentrationKey] !== "undefined") {    //  we have a reading for this pathogen
+                    if (tHealth[concentrationKey] > 100) {       //  natural reduction by immune system
+                        currentlyInfected = true;       //  todo: we could make this for concentration > 0 and make this immunity.
+                        tHealth[concentrationKey] -= dt;
+                        if (tHealth[concentrationKey] < 100) {
+                            tHealth[concentrationKey] = 100;
+                        }
+                    }
+
+                }
+
+                //  new infection
+
+                if (typeof thePath.prevalence !== "undefined") {
+                    var tProbability = dt * thePath.prevalence / thePath.initialConcentration;
+                    if (Math.random() < tProbability && !currentlyInfected) {
+                        tHealth[concentrationKey] = thePath.initialConcentration;   //  new infection
+                    }
+                }
+            }
+        )
+
+        //  infect!
+
+        //  tHealth.A1B1Concentration = Math.random() < 0.02 ? 4000 : 100 ;  //  4000 minutes is about 3 days
+
 
     },
 
@@ -62,7 +91,7 @@ var health = {
         var tHealth = clinic.state.health[iPerson.patientID];
         var o = iPerson.baseTemp - 0.2 + Math.random() * 0.4;
 
-        var tFever = tHealth.A1B1 > 100 ? 2.8 + Math.random() * 0.4 : 0;  //  fever from A1B1
+        var tFever = tHealth.A1B1Concentration > 100 ? 2.8 + Math.random() * 0.4 : 0;  //  fever from A1B1
 
         var tIbuEffective = tHealth.ibuprofenConcentration > 100 ? 100 : tHealth.ibuprofenConcentration;
         var tAcetEffective = tHealth.acetaminophenConcentration > 100 ? 100 : tHealth.acetaminophenConcentration;
@@ -80,7 +109,7 @@ var health = {
         var tFever = this.findTemperature(iPatient).fever;
 
         if (tFever > 1.5) {
-            tFeelings.push(TEEUtils.pickRandomItemFrom(this.feverFeelings));
+            tFeelings.push(TEEUtils.pickRandomItemFrom(symptoms.fever.reports));
         }
 
         var tOut = "Fine!";
@@ -104,13 +133,4 @@ var health = {
         return iInitialValue * tFrac;
     },
 
-    feverFeelings: [
-        "dizzy",
-        "hot",
-        "hot and cold",
-        "sweaty",
-        "achy",
-        "low appetite",
-        "shivery"
-    ]
 }

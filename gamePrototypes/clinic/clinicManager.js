@@ -14,16 +14,16 @@ var clinicManager = {
 
     latestResult : "",
 
-    recordMeasurement: function (iClass, iWhat, iVal) {
-        var tResultString = this.currentPatient.name + " " + iWhat + ": " + iVal;
+    recordMeasurement: function (iClass, iWhat, iVal, iPatient) {
+        var tResultString = iPatient.name + " " + iWhat + ": " + iVal;
 
         var tValues = {
             gameNumber: clinic.codapConnector.gameNumber,
             outcome: "",
 
-            name: clinicManager.currentPatient.name,
-            sex: clinicManager.currentPatient.sex,
-            age: clinicManager.currentPatient.age,
+            name: iPatient.name,
+            sex: iPatient.sex,
+            age: iPatient.age,
 
             when: this.formatDateTime(clinic.state.now),
             what: iWhat,  //type
@@ -31,7 +31,7 @@ var clinicManager = {
             class: iClass, //class
             time: clinic.state.now.getTime(),
 
-            id: clinicManager.currentPatient.patientID
+            id: iPatient.patientID
         };
 
         clinic.codapConnector.createRecordItem(tValues, clinic.constants.kRecordCollectionName);
@@ -55,38 +55,35 @@ var clinicManager = {
                 tDuration = 1;
                 break;
             case "temp":
-                clinicManager.latestResult = this.recordMeasurement("diag", tID, this.currentPatient.measure("temp"));
+                clinicManager.latestResult = this.recordMeasurement("diag", tID, this.currentPatient.measure("temp"), this.currentPatient);
                 tDuration = 1;
                 break;
             case "weight":
-                clinicManager.latestResult = this.recordMeasurement("weight", tID, this.currentPatient.measure("weight"));
+                clinicManager.latestResult = this.recordMeasurement("weight", tID, this.currentPatient.measure("weight"), this.currentPatient);
                 tDuration = 0.5;
                 break;
             case "height":
-                clinicManager.latestResult = this.recordMeasurement("height", tID, this.currentPatient.measure("height"));
+                clinicManager.latestResult = this.recordMeasurement("height", tID, this.currentPatient.measure("height"), this.currentPatient);
                 tDuration = 0.5;
                 break;
             case "ibu200":
                 this.currentPatient.dose("ibuprofen", 200);
-                clinicManager.latestResult = this.recordMeasurement("Tx", "ibuprofen", 200);
+                clinicManager.latestResult = this.recordMeasurement("Tx", "ibuprofen", 200, this.currentPatient);
                 tDuration = 1;
                 break;
             case "rx":
                 clinic.goToTabNumber(1);    //  the second tab, Rx.
                 tDuration = 0;
                 break;
+            case "bloodCount":
+                clinic.model.bloodCountAll(  );
+                tDuration = 0;
+                break;
             case "issueRx":
                 tDuration = 5;
-                var tWhat = clinic.dom.rxWhat.val();
-                var tDrug = "placebex";
-                var tDose = 50;
-                switch (tWhat) {
-                    case "ibu200":
-                        tDrug = "ibuprofen";
-                        tDose = 200;
-                }
+                var tChoice = clinic.dom.rxWhat.val();    //  med code, e.g., "ibu200", which is also the key in staticMeds.
                 var tPrescription = new Prescription(
-                    tDrug, tDose, clinic.dom.rxCount.val(), Prescription.constants.kRateTypePerDay, clinic.dom.rxRate.val()
+                    tChoice, clinic.dom.rxCount.val(), Prescription.constants.kRateTypePerDay, clinic.dom.rxRate.val()
                 );
                 this.currentPatient.prescriptions.push(tPrescription);
                 break;
@@ -95,7 +92,7 @@ var clinicManager = {
                 tDuration = 2;
                 break;
             default:
-                clinicManager.latestResult = this.recordMeasurement("demog", "null", -1);
+                clinicManager.latestResult = this.recordMeasurement("demog", "null", -1, this.currentPatient);
                 break;
         }
 
@@ -106,6 +103,7 @@ var clinicManager = {
         var curPatient = this.currentPatient;
         var ax = clinic.model.patientsAtClinic.indexOf( curPatient );
         clinic.model.patientsAtClinic.splice(ax,1);
+        this.recordMeasurement('logistic','departs', null, curPatient);
 
         this.currentPatient = null;
     },
@@ -114,6 +112,7 @@ var clinicManager = {
     arrivesAtClinic: function (iPerson) {
         if (clinic.model.patientsAtClinic.indexOf(iPerson) === -1) {
             clinic.model.patientsAtClinic.push(iPerson);
+            this.recordMeasurement('logistic','arrives', null, iPerson);
         }
     },
 
@@ -204,6 +203,16 @@ var clinicManager = {
         clinic.model.initializeClinicModelData();  //  Gives sickness.
 
         this.newDay();
+    },
+
+    wait : function() {
+        var tMinutesLeft = 60 * 24;
+        var tTimeIncrement = 10;
+
+        while (tMinutesLeft > 0 && clinic.model.patientsAtClinic.length <= 0) {
+            clinic.model.passTime(tTimeIncrement);
+            tMinutesLeft -= tTimeIncrement;
+        }
     },
 
     /**

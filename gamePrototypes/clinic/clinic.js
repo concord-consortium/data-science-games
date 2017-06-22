@@ -70,6 +70,8 @@ var clinic = {
         clinic.dom.rxRate = $('#rxRate');
         //  todo: deal with rate type when we do that
 
+        clinic.dom.rxWhat.empty().append( this.constructMedsMenuGuts());
+
         $('#newGameButton').hide();
         $('#commands').hide();
 
@@ -151,6 +153,18 @@ var clinic = {
      */
     optionsChange : function() {
         clinic.options.virusA1B1 = document.getElementById("virusA1B1").checked;
-    }
+    },
 
+    constructMedsMenuGuts : function() {
+        var text = "";
+
+        Object.keys(staticMeds).forEach(
+            function(m) {
+                var med = staticMeds[m];
+                var tString = med.name + " " + med.dosage + " " + med.doseUnits;
+                text += "<option value='" + m + "'>" + tString + "</option>";
+            }
+        )
+        return text;
+    }
 }
