@@ -87,15 +87,49 @@ var health = {
         return fever > 2.0;
     },
 
+    /**
+     * Get a concentration from the health object, 0 if it does not exist.
+     * @param iName         what you're finding the concentration of, e.g., "ibuprofen" or "A1B1"
+     * @param iPerson
+     */
+    getConcentration : function( iName, iPerson ) {
+        var tHealth = clinic.state.health[iPerson.patientID];
+        var tConcentrationkey = iName + "Concentration";
+        var result = 0;
+
+        if (typeof tHealth[tConcentrationkey] !== "undefined") {
+            result = tHealth[tConcentrationkey];
+        }
+        return result;
+    },
+
     findTemperature: function (iPerson) {
         var tHealth = clinic.state.health[iPerson.patientID];
-        var o = iPerson.baseTemp - 0.2 + Math.random() * 0.4;
+        var o = iPerson.baseTemp - 0.2 + Math.random() * 0.2;
 
-        var tFever = tHealth.A1B1Concentration > 100 ? 2.8 + Math.random() * 0.4 : 0;  //  fever from A1B1
+        var tFever = 0;
 
-        var tIbuEffective = tHealth.ibuprofenConcentration > 100 ? 100 : tHealth.ibuprofenConcentration;
-        var tAcetEffective = tHealth.acetaminophenConcentration > 100 ? 100 : tHealth.acetaminophenConcentration;
-        var tFeverReduction = tIbuEffective > tAcetEffective ? tIbuEffective : tAcetEffective;
+        Object.keys(staticPaths).forEach( function(p) {
+            var path = staticPaths[p];  //  the actual pathogen
+            if (this.getConcentration(p, iPerson) > 100) {      //  so it's effective if > 100.
+                if (typeof path.fever !== "undefined") {
+                    ttFever = path.fever;
+                    tFever = (ttFever > tFever) ? ttFever : tFever;     //  just the max of all fevers
+                }
+            }
+        }.bind(this));
+
+        tFever += Math.random() * 0.2;      //  a little jiggle
+
+        var tFeverReduction = 0;
+
+        Object.keys(staticMeds).forEach( function(m) {      //  use only the "best" med.
+            var med =  staticMeds[m];
+            var tName = med.name;
+            var ttReduction = this.getConcentration(tName, iPerson);
+            ttReduction = ttReduction > 100 ? 100 : ttReduction;
+            tFeverReduction = ttReduction > tFeverReduction ? ttReduction : tFeverReduction;
+        }.bind(this));
 
         tFever = tFever * (100 - tFeverReduction) / 100;
         o += tFever;
@@ -111,6 +145,7 @@ var health = {
         if (tFever > 1.5) {
             tFeelings.push(TEEUtils.pickRandomItemFrom(symptoms.fever.reports));
         }
+
 
         var tOut = "Fine!";
         if (tFeelings.length > 0) {

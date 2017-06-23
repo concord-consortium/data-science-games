@@ -13,14 +13,6 @@ var staticMeds = {
         timeToBloodstream : 2
     },
 
-    epi100 : {
-        halfLife : 200,
-        dosage : 100,
-        doseUnits : "mg",
-        name : "epistomycin",
-        timeToBloodstream : 20
-    },
-
     ibu200 : {
         halfLife : 250,
         dosage : 200,
@@ -35,5 +27,14 @@ var staticMeds = {
         doseUnits : "mg",
         name : "acetaminophen",
         timeToBloodstream : 20
+    },
+
+    epi100 : {
+        halfLife : 200,
+        dosage : 100,
+        doseUnits : "mg",
+        name : "epistomycin",
+        timeToBloodstream : 60
     }
+
 };
